@@ -1,0 +1,2 @@
+# coreseed
+Deploy CoreOS clusters.
