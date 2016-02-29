@@ -13,7 +13,6 @@ import (
 	// Standard library:
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"text/template"
 )
@@ -27,9 +26,21 @@ type Udata struct {
 //-----------------------------------------------------------------------------
 
 var (
-	role     = flag.String("role", "slave", "Choose one of [master|slave|edge]")
-	domain   = flag.String("domain", "cell-1.dc-1.demo.lan", "Domain name as in `hostname -d`")
-	hostname = flag.String("hostname", "core-1", "Short host name as in `hostname -s`")
+
+	// udata
+	fleettags string
+	ns1apikey string
+	role      string
+	domain    string
+	hostname  string
+
+	// start
+	pktApiKey       string
+	pktProjectName  string
+	pktDevicePrefix string
+	pktPlan         string
+	pktFacility     string
+	pktOS           string
 )
 
 //-----------------------------------------------------------------------------
@@ -40,17 +51,28 @@ var (
 
 func init() {
 
-	// Check for mandatory argc:
-	if len(os.Args) < 2 {
+	switch os.Args[1] {
+	case "udata":
+		flag.StringVar(&fleettags, "fleet-tags", "", "Comma separated list of tags.")
+		flag.StringVar(&ns1apikey, "ns1-api-key", "", "NS1. API key.")
+		flag.StringVar(&role, "role", "slave", "Choose one of [ master | slave | edge]")
+		flag.StringVar(&domain, "domain", "cell-1.dc-1.demo.lan", "Domain name as in 'hostname -d'")
+		flag.StringVar(&hostname, "hostname", "core-1", "Short host name as in 'hostname -s'")
+		flag.Usage = usage
+		flag.Parse()
+	case "start":
+		flag.StringVar(&pktApiKey, "packet-api-key", "", "Packet private API key.")
+		flag.StringVar(&pktProjectName, "packet-project-name", "", "Packet project name.")
+		flag.StringVar(&pktDevicePrefix, "packet-device-prefix", "", "Packet device prefix.")
+		flag.StringVar(&pktPlan, "packet-plan", "", "Packet plan.")
+		flag.StringVar(&pktFacility, "packet-facility", "", "Packet facility.")
+		flag.StringVar(&pktOS, "packet-os", "", "Packet OS.")
+		flag.Usage = usage
+		flag.Parse()
+	default:
 		usage()
 	}
-
-	// Change the flags on the default logger:
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	// Parse commandline flags:
-	flag.Usage = usage
-	flag.Parse()
+	usage()
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +80,7 @@ func init() {
 //----------------------------------------------------------------------------
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [ udata | start ] [arg...]\n", os.Args[0])
 	flag.PrintDefaults()
 	os.Exit(2)
 }
@@ -70,10 +92,10 @@ func usage() {
 func main() {
 
 	udata := Udata{
-		Hostname: *hostname,
+		Hostname: hostname,
 	}
 
-	switch *role {
+	switch role {
 	case "master":
 		t := template.New("udata")
 		t, err := t.Parse(templ_master)
