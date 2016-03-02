@@ -13,6 +13,7 @@ import (
 	// Standard library:
 	"fmt"
 	"os"
+	"strings"
 	"text/template"
 
 	// Community:
@@ -26,6 +27,7 @@ import (
 
 type Udata struct {
 	Hostname  string
+	Hostid    string
 	Domain    string
 	Role      string
 	Ns1apikey string
@@ -149,6 +151,7 @@ func cmd_data() {
 	// Template data structure:
 	udata := Udata{
 		Hostname:  *flHostName,
+		Hostid:    string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
 		Domain:    *flDomain,
 		Role:      *flHostRole,
 		Ns1apikey: *flNs1Apikey,
