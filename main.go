@@ -19,6 +19,10 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+//----------------------------------------------------------------------------
+// Typedefs:
+//----------------------------------------------------------------------------
+
 type Udata struct {
 	Hostname string
 }
@@ -30,16 +34,39 @@ type Udata struct {
 var (
 
 	// coreseed: top level command
-	app   = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
-	debug = app.Flag("debug", "Enable debug mode.").Bool()
+	app = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
+
+	flVerbose = app.Flag("verbose", "Enable verbose mode.").
+			OverrideDefaultFromEnvar("CORESEED_VERBOSE").
+			Short('v').Bool()
 
 	// udata: nested command
-	cmdData     = app.Command("data", "Generate CoreOS cloud-config user-data.")
-	flHostName  = cmdData.Flag("hostname", "Short host name as in (hostname -s).").Default("core-1").String()
-	flDomain    = cmdData.Flag("domain", "Domain name as in (hostname -d).").Default("demo.lan").String()
-	flRole      = cmdData.Flag("role", "Choose one of [ master | slave | edge]").Required().String()
-	flNs1Apikey = cmdData.Flag("ns1apikey", "NS1 API key.").Required().String()
-	flFleetTags = cmdData.Flag("fleettags", "Comma separated list of tags.").String()
+	cmdData = app.Command("data", "Generate CoreOS cloud-config user-data.")
+
+	flHostName = cmdData.Flag("hostname", "Short host name as in (hostname -s).").
+			Required().PlaceHolder("CORESEED_HOSTNAME").
+			OverrideDefaultFromEnvar("CORESEED_HOSTNAME").
+			Short('h').String()
+
+	flDomain = cmdData.Flag("domain", "Domain name as in (hostname -d).").
+			Required().PlaceHolder("CORESEED_DOMAIN").
+			OverrideDefaultFromEnvar("CORESEED_DOMAINE").
+			Short('d').String()
+
+	flHostRole = cmdData.Flag("role", "Choose one of [ master | slave | edge].").
+			Required().PlaceHolder("CORESEED_ROLE").
+			OverrideDefaultFromEnvar("CORESEED_ROLE").
+			Short('r').String()
+
+	flNs1Apikey = cmdData.Flag("ns1apikey", "NS1 API key.").
+			Required().PlaceHolder("CORESEED_NS1_KEY").
+			OverrideDefaultFromEnvar("CORESEED_NS1_KEY").
+			Short('k').String()
+
+	flFleetTags = cmdData.Flag("fleettags", "Comma separated list of tags.").
+			PlaceHolder("CORESEED_FLEET_FLAGS").
+			OverrideDefaultFromEnvar("CORESEED_FLEET_FLAGS").
+			Short('f').String()
 
 	// run: nested command
 	cmdRun      = app.Command("run", "Starts a CoreOS instance.")
@@ -47,7 +74,7 @@ var (
 )
 
 //----------------------------------------------------------------------------
-//
+// Entry point:
 //----------------------------------------------------------------------------
 
 func main() {
@@ -63,7 +90,7 @@ func main() {
 		Hostname: *flHostName,
 	}
 
-	switch *flRole {
+	switch *flHostRole {
 	case "master":
 		t := template.New("udata")
 		t, err := t.Parse(templ_master)
@@ -83,7 +110,7 @@ func main() {
 }
 
 //---------------------------------------------------------------------------
-//
+// func: checkError
 //---------------------------------------------------------------------------
 
 func checkError(err error) {
