@@ -55,27 +55,27 @@ var (
 	cmdData = app.Command("data", "Generate CoreOS cloud-config user-data.")
 
 	flHostName = cmdData.Flag("hostname", "Short host name as in (hostname -s).").
-			Required().PlaceHolder("$CS_HOSTNAME").
+			Required().PlaceHolder("CS_HOSTNAME").
 			OverrideDefaultFromEnvar("CS_HOSTNAME").
 			Short('h').String()
 
 	flDomain = cmdData.Flag("domain", "Domain name as in (hostname -d).").
-			Required().PlaceHolder("$CS_DOMAIN").
+			Required().PlaceHolder("CS_DOMAIN").
 			OverrideDefaultFromEnvar("CS_DOMAIN").
 			Short('d').String()
 
 	flHostRole = cmdData.Flag("role", "Choose one of [ master | slave | edge].").
-			Required().PlaceHolder("$CS_ROLE").
+			Required().PlaceHolder("CS_ROLE").
 			OverrideDefaultFromEnvar("CS_ROLE").
 			Short('r').String()
 
-	flNs1Apikey = cmdData.Flag("ns1apikey", "NS1 private API key.").
-			Required().PlaceHolder("$CS_NS1_KEY").
+	flNs1Apikey = cmdData.Flag("ns1-api-key", "NS1 private API key.").
+			Required().PlaceHolder("CS_NS1_KEY").
 			OverrideDefaultFromEnvar("CS_NS1_KEY").
 			Short('k').String()
 
 	flFleetTags = cmdData.Flag("tags", "Comma separated list of fleet tags.").
-			PlaceHolder("$CS_TAGS").
+			PlaceHolder("CS_TAGS").
 			OverrideDefaultFromEnvar("CS_TAGS").
 			Short('t').String()
 
@@ -85,38 +85,38 @@ var (
 
 	cmdRun = app.Command("run", "Starts a CoreOS instance.")
 
-	flPktApiKey = cmdRun.Flag("pktApiKey", "Packet API key.").
-			Required().PlaceHolder("$PKT_APIKEY").
+	flPktApiKey = cmdRun.Flag("api-key", "Packet API key.").
+			Required().PlaceHolder("PKT_APIKEY").
 			OverrideDefaultFromEnvar("PKT_APIKEY").
 			Short('k').String()
 
 	flPktHostName = cmdRun.Flag("hostname", "For the Packet.net dashboard.").
-			Required().PlaceHolder("$PKT_HOSTNAME").
+			Required().PlaceHolder("PKT_HOSTNAME").
 			OverrideDefaultFromEnvar("PKT_HOSTNAME").
 			Short('h').String()
 
-	flPktProjId = cmdRun.Flag("projectid", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
-			Required().PlaceHolder("$PKT_PROJID").
+	flPktProjId = cmdRun.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
+			Required().PlaceHolder("PKT_PROJID").
 			OverrideDefaultFromEnvar("PKT_PROJID").
 			Short('i').String()
 
 	flPktPlan = cmdRun.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
-			Required().PlaceHolder("$PKT_PLAN").
+			Required().PlaceHolder("PKT_PLAN").
 			OverrideDefaultFromEnvar("PKT_PLAN").
 			Short('p').String()
 
 	flPktOsys = cmdRun.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
-			Required().PlaceHolder("$PKT_OS").
+			Required().PlaceHolder("PKT_OS").
 			OverrideDefaultFromEnvar("PKT_OS").
 			Short('o').String()
 
 	flPktFacility = cmdRun.Flag("facility", "One of [ ewr1 | ams1 ]").
-			Required().PlaceHolder("$PKT_FACILITY").
+			Required().PlaceHolder("PKT_FACILITY").
 			OverrideDefaultFromEnvar("PKT_FACILITY").
 			Short('f').String()
 
 	flPktBilling = cmdRun.Flag("billing", "One of [ hourly | monthly ]").
-			Required().PlaceHolder("$PKT_BILLING").
+			Required().PlaceHolder("PKT_BILLING").
 			OverrideDefaultFromEnvar("PKT_BILLING").
 			Short('b').String()
 )

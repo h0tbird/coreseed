@@ -4,20 +4,20 @@ Define and deploy CoreOS clusters.
 
 ```
 coreseed data \
--h core-1 \
--d demo.lan \
--r slave \
--k aabbccddeeaabbccddee \
--t osd
+--hostname core-1 \
+--domain demo.lan \
+--role slave \
+--ns1-api-key aabbccddeeaabbccddee \
+--tags osd
 ```
 
 ```
 coreseed run \
--k aabbccddeeaabbccddeeaabbccddeeaa \
--i aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee \
--h core-1 \
--p baremetal_0 \
--o coreos_alpha \
--f ewr1 \
--b hourly
+--api-key aabbccddeeaabbccddeeaabbccddeeaa \
+--project-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee \
+--hostname core-1 \
+--plan baremetal_0 \
+--os coreos_alpha \
+--facility ewr1 \
+--billing hourly
 ```
