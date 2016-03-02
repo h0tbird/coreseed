@@ -16,6 +16,7 @@ import (
 	"text/template"
 
 	// Community:
+	"github.com/packethost/packngo"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -84,8 +85,40 @@ var (
 
 	cmdRun = app.Command("run", "Starts a CoreOS instance.")
 
-	flPktApiKey = cmdRun.Arg("pktApiKey", "Packet API key.").
-			Required().String()
+	flPktApiKey = cmdRun.Flag("pktApiKey", "Packet API key.").
+			Required().PlaceHolder("$PKT_APIKEY").
+			OverrideDefaultFromEnvar("PKT_APIKEY").
+			Short('k').String()
+
+	flPktHostName = cmdRun.Flag("hostname", "For the Packet.net dashboard.").
+			Required().PlaceHolder("$PKT_HOSTNAME").
+			OverrideDefaultFromEnvar("PKT_HOSTNAME").
+			Short('h').String()
+
+	flPktProjId = cmdRun.Flag("projectid", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
+			Required().PlaceHolder("$PKT_PROJID").
+			OverrideDefaultFromEnvar("PKT_PROJID").
+			Short('i').String()
+
+	flPktPlan = cmdRun.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
+			Required().PlaceHolder("$PKT_PLAN").
+			OverrideDefaultFromEnvar("PKT_PLAN").
+			Short('p').String()
+
+	flPktOsys = cmdRun.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
+			Required().PlaceHolder("$PKT_OS").
+			OverrideDefaultFromEnvar("PKT_OS").
+			Short('o').String()
+
+	flPktFacility = cmdRun.Flag("facility", "One of [ ewr1 | ams1 ]").
+			Required().PlaceHolder("$PKT_FACILITY").
+			OverrideDefaultFromEnvar("PKT_FACILITY").
+			Short('f').String()
+
+	flPktBilling = cmdRun.Flag("billing", "One of [ hourly | monthly ]").
+			Required().PlaceHolder("$PKT_BILLING").
+			OverrideDefaultFromEnvar("PKT_BILLING").
+			Short('b').String()
 )
 
 //----------------------------------------------------------------------------
@@ -96,8 +129,12 @@ func main() {
 
 	// Sub-command selector:
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+
+	// coreseed data ...
 	case cmdData.FullCommand():
 		cmd_data()
+
+	// coreseed run ...
 	case cmdRun.FullCommand():
 		cmd_run()
 	}
@@ -159,7 +196,26 @@ func cmd_data() {
 //--------------------------------------------------------------------------
 
 func cmd_run() {
-	println("CMD: run")
+
+	// Connect and authenticate to the API endpoint:
+	client := packngo.NewClient("", *flPktApiKey, nil)
+
+	// Forge the request:
+	createRequest := &packngo.DeviceCreateRequest{
+		HostName:     *flPktHostName,
+		Plan:         *flPktPlan,
+		Facility:     *flPktFacility,
+		OS:           *flPktOsys,
+		BillingCycle: *flPktBilling,
+		ProjectID:    *flPktProjId,
+	}
+
+	// Send the request:
+	newDevice, _, err := client.Devices.Create(createRequest)
+	checkError(err)
+
+	// Response output:
+	fmt.Println(newDevice)
 }
 
 //---------------------------------------------------------------------------
