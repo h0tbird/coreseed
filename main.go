@@ -29,17 +29,17 @@ type Udata struct {
 
 var (
 
-	// Top level:
-	app   = kingpin.New("coreseed", "CoreSeed is used to deploy CoreOS clusters.")
+	// coreseed: top level command
+	app   = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
 	debug = app.Flag("debug", "Enable debug mode.").Bool()
 
 	// udata: nested command
-	cmdUdata    = app.Command("udata", "Generate CoreOS cloud-config user-data.")
-	flHostName  = cmdUdata.Flag("hostname", "Short host name as in (hostname -s).").Required().String()
-	flDomain    = cmdUdata.Flag("domain", "Domain name as in (hostname -d).").Required().String()
-	flRole      = cmdUdata.Flag("role", "Choose one of [ master | slave | edge]").Required().String()
-	flNs1Apikey = cmdUdata.Flag("ns1apikey", "NS1 API key.").Required().String()
-	flFleetTags = cmdUdata.Flag("fleettags", "Comma separated list of tags.").String()
+	cmdData     = app.Command("data", "Generate CoreOS cloud-config user-data.")
+	flHostName  = cmdData.Flag("hostname", "Short host name as in (hostname -s).").Default("core-1").String()
+	flDomain    = cmdData.Flag("domain", "Domain name as in (hostname -d).").Default("demo.lan").String()
+	flRole      = cmdData.Flag("role", "Choose one of [ master | slave | edge]").Required().String()
+	flNs1Apikey = cmdData.Flag("ns1apikey", "NS1 API key.").Required().String()
+	flFleetTags = cmdData.Flag("fleettags", "Comma separated list of tags.").String()
 
 	// run: nested command
 	cmdRun      = app.Command("run", "Starts a CoreOS instance.")
@@ -53,7 +53,7 @@ var (
 func main() {
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case cmdUdata.FullCommand():
+	case cmdData.FullCommand():
 		println("CMD: udata")
 	case cmdRun.FullCommand():
 		println("CMD: start")
