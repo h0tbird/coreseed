@@ -98,8 +98,8 @@ write_files:
    content: |
     #!/bin/bash
 
-    readonly HOST=$(hostname -s)
-    readonly DOMAIN='{{.Domain}}'
+    readonly HOST="$(hostname -s)"
+    readonly DOMAIN="$(hostname -d)"
     readonly APIURL='https://api.nsone.net/v1'
     readonly APIKEY='{{.Ns1apikey}}'
     declare -A IP=(['ext']='$public_ipv4' ['int']='$private_ipv4')

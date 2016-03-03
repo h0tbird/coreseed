@@ -46,12 +46,8 @@ var (
 
 	app = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
 
-	flVerbose = app.Flag("verbose", "Enable verbose mode.").
-			OverrideDefaultFromEnvar("CS_VERBOSE").
-			Short('v').Bool()
-
 	//-----------------------
-	// udata: nested command
+	// data: nested command
 	//-----------------------
 
 	cmdData = app.Command("data", "Generate CoreOS cloud-config user-data.")
@@ -158,19 +154,6 @@ func cmd_data() {
 		Fleettags: *flFleetTags,
 	}
 
-	// Print the YAML header:
-	fmt.Printf("---\n\n")
-
-	// Verbose output:
-	if *flVerbose {
-		fmt.Printf("# coreseed parameters:\n#\n")
-		fmt.Printf("#   hostname: %s\n", udata.Hostname)
-		fmt.Printf("#   domain: %s\n", udata.Domain)
-		fmt.Printf("#   role: %s\n", udata.Role)
-		fmt.Printf("#   ns1apikey: %s\n", udata.Ns1apikey)
-		fmt.Printf("#   fleettags: %s\n\n", udata.Fleettags)
-	}
-
 	// Render the template for the selected role:
 	switch *flHostRole {
 	case "master":
@@ -189,9 +172,6 @@ func cmd_data() {
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
 	}
-
-	// Print the YAML footer:
-	fmt.Printf("\n...\n")
 }
 
 //--------------------------------------------------------------------------
