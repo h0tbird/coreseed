@@ -48,9 +48,9 @@ var (
 
 	app = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
 
-	//-----------------------
+	//----------------------
 	// data: nested command
-	//-----------------------
+	//----------------------
 
 	cmdData = app.Command("data", "Generate CoreOS cloud-config user-data.")
 
@@ -194,6 +194,10 @@ func cmd_data() {
 
 func cmd_run() {
 
+	// Read user-data from stdin:
+	udata, err := ioutil.ReadAll(os.Stdin)
+	checkError(err)
+
 	// Connect and authenticate to the API endpoint:
 	client := packngo.NewClient("", *flPktApiKey, nil)
 
@@ -205,6 +209,7 @@ func cmd_run() {
 		OS:           *flPktOsys,
 		BillingCycle: *flPktBilling,
 		ProjectID:    *flPktProjId,
+		UserData:     string(udata),
 	}
 
 	// Send the request:

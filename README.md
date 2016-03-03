@@ -6,9 +6,9 @@ Define and deploy CoreOS clusters.
 coreseed data \
 --hostname core-1 \
 --domain demo.lan \
---role slave \
+--role master \
 --ns1-api-key aabbccddeeaabbccddee \
---tags osd
+--ca-cert path/to/ca/cert.pem
 ```
 
 ```

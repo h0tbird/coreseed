@@ -8,7 +8,7 @@ package main
 // CoreOS master user data:
 //---------------------------------------------------------------------------
 
-const templ_master = `# cloud-config
+const templ_master = `#cloud-config
 
 hostname: "{{.Hostname}}.{{.Domain}}"
 
