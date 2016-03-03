@@ -284,6 +284,7 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name marathon \
       --net host \
+      --env LIBPROCESS_IP=$(hostname -i) \
       --env LIBPROCESS_PORT=9090 \
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/marathon:v0.15.3 \
