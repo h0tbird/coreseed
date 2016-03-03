@@ -159,148 +159,148 @@ write_files:
  - path: "/etc/fleet/zookeeper@.service"
    content: |
     [Unit]
-		Description=Zookeeper
-		After=docker.service
-		Requires=docker.service
+    Description=Zookeeper
+    After=docker.service
+    Requires=docker.service
 
-		[Service]
-		Restart=on-failure
-		RestartSec=20
-		TimeoutStartSec=0
-		ExecStartPre=-/usr/bin/docker kill zookeeper-%i
-		ExecStartPre=-/usr/bin/docker rm zookeeper-%i
-		ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-1
-		ExecStart=/usr/bin/sh -c "docker run \
-			--net host \
-			--name zookeeper-%i \
-			--env ZK_SERVER_ID=%i \
-			--env ZK_TICK_TIME=2000 \
-			--env ZK_INIT_LIMIT=5 \
-			--env ZK_SYNC_LIMIT=2 \
-			--env ZK_SERVERS=core-1,core-2,core-3 \
-			--env ZK_DATA_DIR=/var/lib/zookeeper \
-			--env ZK_CLIENT_PORT=2181 \
-			--env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
-			--env JMXDISABLE=true \
-			h0tbird/zookeeper:v3.4.8-1"
-		ExecStop=/usr/bin/docker stop zookeeper-%i
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill zookeeper-%i
+    ExecStartPre=-/usr/bin/docker rm zookeeper-%i
+    ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-1
+    ExecStart=/usr/bin/sh -c "docker run \
+      --net host \
+      --name zookeeper-%i \
+      --env ZK_SERVER_ID=%i \
+      --env ZK_TICK_TIME=2000 \
+      --env ZK_INIT_LIMIT=5 \
+      --env ZK_SYNC_LIMIT=2 \
+      --env ZK_SERVERS=core-1,core-2,core-3 \
+      --env ZK_DATA_DIR=/var/lib/zookeeper \
+      --env ZK_CLIENT_PORT=2181 \
+      --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
+      --env JMXDISABLE=true \
+      h0tbird/zookeeper:v3.4.8-1"
+    ExecStop=/usr/bin/docker stop zookeeper-%i
 
-		[Install]
-		WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 
-		[X-Fleet]
-		MachineMetadata="role=master" "masterid=%i"
-		X-Conflicts=zookeeper@*.service
+    [X-Fleet]
+    MachineMetadata="role=master" "masterid=%i"
+    X-Conflicts=zookeeper@*.service
 
  - path: "/etc/fleet/mesos-master.service"
    content: |
     [Unit]
-		Description=Mesos Master
-		After=docker.service
-		Requires=docker.service
+    Description=Mesos Master
+    After=docker.service
+    Requires=docker.service
 
-		[Service]
-		Restart=on-failure
-		RestartSec=20
-		TimeoutStartSec=0
-		ExecStartPre=-/usr/bin/docker kill mesos-master
-		ExecStartPre=-/usr/bin/docker rm mesos-master
-		ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404
-		ExecStart=/usr/bin/sh -c "docker run \
-			--privileged \
-			--name mesos-master \
-			--net host \
-			--volume /var/lib/mesos:/var/lib/mesos \
-			--volume /etc/resolv.conf:/etc/resolv.conf \
-			mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404 \
-			--ip=$(hostname -i) \
-			--zk=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
-			--work_dir=/var/lib/mesos/master \
-			--log_dir=/var/log/mesos \
-			--quorum=2"
-		ExecStop=/usr/bin/docker stop mesos-master
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill mesos-master
+    ExecStartPre=-/usr/bin/docker rm mesos-master
+    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404
+    ExecStart=/usr/bin/sh -c "docker run \
+      --privileged \
+      --name mesos-master \
+      --net host \
+      --volume /var/lib/mesos:/var/lib/mesos \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404 \
+      --ip=$(hostname -i) \
+      --zk=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --work_dir=/var/lib/mesos/master \
+      --log_dir=/var/log/mesos \
+      --quorum=2"
+    ExecStop=/usr/bin/docker stop mesos-master
 
-		[Install]
-		WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 
-		[X-Fleet]
-		Global=true
-		MachineMetadata=role=master
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
 
  - path: "/etc/fleet/mesos-dns.service"
    content: |
     [Unit]
-		Description=Mesos DNS
-		After=docker.service mesos-master.service
-		Requires=docker.service mesos-master.service
+    Description=Mesos DNS
+    After=docker.service mesos-master.service
+    Requires=docker.service mesos-master.service
 
-		[Service]
-		Restart=on-failure
-		RestartSec=20
-		TimeoutStartSec=0
-		ExecStartPre=-/usr/bin/docker kill mesos-dns
-		ExecStartPre=-/usr/bin/docker rm mesos-dns
-		ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.1-5
-		ExecStart=/usr/bin/sh -c "docker run \
-		  --name mesos-dns \
-		  --net host \
-		  --env MDNS_ZK=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
-		  --env MDNS_REFRESHSECONDS=45 \
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill mesos-dns
+    ExecStartPre=-/usr/bin/docker rm mesos-dns
+    ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.1-5
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name mesos-dns \
+      --net host \
+      --env MDNS_ZK=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --env MDNS_REFRESHSECONDS=45 \
       --env MDNS_LISTENER=$(hostname -i) \
       --env MDNS_HTTPON=false \
-		  --env MDNS_TTL=45 \
-		  --env MDNS_RESOLVERS=8.8.8.8 \
-		  --env MDNS_DOMAIN=$(echo $(hostname -d | cut -d. -f-2).mesos) \
-		  --env MDNS_IPSOURCE=netinfo \
-		  h0tbird/mesos-dns:v0.5.1-5"
-		ExecStartPost=/usr/bin/sh -c ' \
-		  echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
-		  echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
-		ExecStop=/usr/bin/sh -c ' \
-		  echo search $(hostname -d) > /etc/resolv.conf && \
-		  echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-		ExecStop=/usr/bin/docker stop mesos-dns
+      --env MDNS_TTL=45 \
+      --env MDNS_RESOLVERS=8.8.8.8 \
+      --env MDNS_DOMAIN=$(echo $(hostname -d | cut -d. -f-2).mesos) \
+      --env MDNS_IPSOURCE=netinfo \
+      h0tbird/mesos-dns:v0.5.1-5"
+    ExecStartPost=/usr/bin/sh -c ' \
+      echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
+      echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
+    ExecStop=/usr/bin/sh -c ' \
+      echo search $(hostname -d) > /etc/resolv.conf && \
+      echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
+    ExecStop=/usr/bin/docker stop mesos-dns
 
-		[Install]
-		WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 
-		[X-Fleet]
-		Global=true
-		MachineMetadata=role=master
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
 
  - path: "/etc/fleet/marathon.service"
    content: |
     [Unit]
-		Description=Marathon
-		After=docker.service mesos-master.service
-		Requires=docker.service mesos-master.service
+    Description=Marathon
+    After=docker.service mesos-master.service
+    Requires=docker.service mesos-master.service
 
-		[Service]
-		Restart=on-failure
-		RestartSec=20
-		TimeoutStartSec=0
-		ExecStartPre=-/usr/bin/docker kill marathon
-		ExecStartPre=-/usr/bin/docker rm marathon
-		ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v0.15.3
-		ExecStart=/usr/bin/sh -c "docker run \
-			--name marathon \
-			--net host \
-			--env LIBPROCESS_PORT=9090 \
-			--volume /etc/resolv.conf:/etc/resolv.conf \
-			mesosphere/marathon:v0.15.3 \
-			--http_address $(hostname -i) \
-			--master zk://core-1:2181,core-2:2181,core-3:2181/mesos \
-			--zk zk://core-1:2181,core-2:2181,core-3:2181/marathon \
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill marathon
+    ExecStartPre=-/usr/bin/docker rm marathon
+    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v0.15.3
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name marathon \
+      --net host \
+      --env LIBPROCESS_PORT=9090 \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      mesosphere/marathon:v0.15.3 \
+      --http_address $(hostname -i) \
+      --master zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --zk zk://core-1:2181,core-2:2181,core-3:2181/marathon \
       --task_launch_timeout 240000 \
-			--checkpoint"
-		ExecStop=/usr/bin/docker stop marathon
+      --checkpoint"
+    ExecStop=/usr/bin/docker stop marathon
 
-		[Install]
-		WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 
-		[X-Fleet]
-		Global=true
-		MachineMetadata=role=master
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
 
 coreos:
 
