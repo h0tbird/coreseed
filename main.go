@@ -12,6 +12,7 @@ import (
 
 	// Standard library:
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
@@ -32,6 +33,7 @@ type Udata struct {
 	Role      string
 	Ns1apikey string
 	Fleettags string
+	CAcert    string
 }
 
 //-----------------------------------------------------------------------------
@@ -76,6 +78,11 @@ var (
 			PlaceHolder("CS_TAGS").
 			OverrideDefaultFromEnvar("CS_TAGS").
 			Short('t').String()
+
+	flCAcert = cmdData.Flag("ca-cert", "Path to CA certificate.").
+			PlaceHolder("CS_CA_CERT").
+			OverrideDefaultFromEnvar("CS_CA_CERT").
+			Short('c').String()
 
 	//---------------------
 	// run: nested command
@@ -152,6 +159,13 @@ func cmd_data() {
 		Role:      *flHostRole,
 		Ns1apikey: *flNs1Apikey,
 		Fleettags: *flFleetTags,
+	}
+
+	// Read the CA certificate:
+	if *flCAcert != "" {
+		dat, err := ioutil.ReadFile(*flCAcert)
+		checkError(err)
+		udata.CAcert = strings.TrimSpace(strings.Replace(string(dat), "\n", "\n    ", -1))
 	}
 
 	// Render the template for the selected role:

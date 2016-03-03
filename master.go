@@ -25,41 +25,9 @@ write_files:
     search {{.Domain}}
     nameserver 8.8.8.8
 
- - path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
+ {{if .CAcert }}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
    content: |
-    -----BEGIN CERTIFICATE-----
-    MIIFyDCCA7CgAwIBAgIJAKT0QG8NnVNcMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNV
-    BAYTAkVTMQ8wDQYDVQQHDAZNYWRyaWQxDjAMBgNVBAoMBU1lc29zMREwDwYDVQQD
-    DAhTb2Z0b25pYzAeFw0xNjAyMDMxNDE2MTJaFw0xNzAyMDIxNDE2MTJaMEExCzAJ
-    BgNVBAYTAkVTMQ8wDQYDVQQHDAZNYWRyaWQxDjAMBgNVBAoMBU1lc29zMREwDwYD
-    VQQDDAhTb2Z0b25pYzCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoCggIBALlX
-    Cweq0Rsc8CHqTEpMVZKnntSS4NGCepjOakI45Tp0u6zWCjoett8AFZiXM98AUz9p
-    e/msWV7GZ7alpHpYnkdciU4NhIcG0YWhS43GhVW9qvyL7dQSKaeRxxJNj5i5CbS8
-    cppEZZjutimuJdmeiS6k8RDa/23b4Xv3JPmiU5jZiJdkoLcAYXv+RiSGtYhX1/79
-    ckM9zEHgbYrXF1f9v1YamsN4Ct2WgUq1XBLyT9EnLzvnG7NhNvgXvfLmu3Pl5Raq
-    d91JnR9MDUUM+mUo8eB/NgYW1+hYV5aLkMFzztjjLu0uUb+YyD+0BeGgwCr1oWkX
-    vyVzgL7PvyYM+NJhkPJee/fTFowflzsAOgfGC/20IFs0V42o16l/Y1g6wUR7Mowo
-    GlgmHMMV1tAar/GQNUYYyJ2wUyydwSkMEhuVtLWbRvgqFgQnao+G91czsnJ7hdbf
-    InkjwhHSl7bmUeaUU0x7CLiB/ZB4m/8I/66tEw+jq10+Fj7oirkEN2K6febnEPK2
-    d3qwCqVqrmH14d9HyIf1q6/y4eYn5vOvkgZs21pKE3BgMlSqiuSO9WSzJcPABlRg
-    8WRjSoUl1KjVza5/xWBycxNHMDPxI9LcaV59myazcoB1EG/sL7PtkSQUXm9L6ovn
-    8RdtQkqCdcwU8NVVLUegRGPgFsV54e9AroA9Of73AgMBAAGjgcIwgb8wHQYDVR0O
-    BBYEFP23BevDaBDhmwCd7eyhP0X5Qv/4MB8GA1UdIwQYMBaAFP23BevDaBDhmwCd
-    7eyhP0X5Qv/4MAwGA1UdEwQFMAMBAf8wbwYDVR0RBGgwZoIKKi5tYXJhdGhvboIb
-    Ki5tYXJhdGhvbi5jZWxsLTEubWFkLm1lc29zghIqLmNlbGwtMS5tYWQubWVzb3OC
-    FiouY2VsbC0xLm1hZC54bm9vZC5jb22CCWxvY2FsaG9zdIcEfwAAATANBgkqhkiG
-    9w0BAQsFAAOCAgEApZFs7krtZCT45b6PeA0iL+CxVfJ8Su53GrafQ/WV37WzcSnF
-    mBVYrlo8bKiZ+evOajVkaKvu6dB660d5x7Ki0DsRyL8EK8iyWdj0hAI5RnjhTgxB
-    2a6LfnF9O+lgGbsGQ4ViQTfMbHBB/1F+d8psswgt+rT3PehQhk1uzud6Msk68JQl
-    Mus3aCt+CcyApmyj7yiHEniFK+kJTAeJuzwAVU/zNHltgFj7bvcFEpb3cM7aBFxi
-    Ha/1lB10A2Bdj/7Pg8ip/ipwJkWEk9YWyZRXvms1E50HDm/CbtwpiWRrZAhQdLm1
-    b1Xd2MAzviX0mW8pOkEuEQ8GzSMp4VJKUUnvWmudGuMblCA3bCChO6lcF7BC7+xt
-    WWQZQGozsHUIgN5SS9rtwjzOnf+SbWLXR611qZGkVUGDfUWfGj+32Z3C8qNIbWkV
-    iJfH01cj1Td9CFiE9ngTHG8IeXqgnpgbN8jBusS722qm0cJjNaMXTtEfzILHhKpn
-    rzUQOHR7fLtPuRw2n2eaqvtncSTwi4x/Qdtw6aerKuqpkuFVlGTTyJTPiMQOCg00
-    aL2BVPinbeDfLO+gVlqlAl88q8xbF8Jj1gnBRnx8AVIBOB1ZQK4rhYoeE5ufqUq0
-    T2pxO7jB3jvpHYXm0qwUiKvgglHVmD5sbO7eyGZa+9eKvvNb/FkgM4mbeSo=
-    -----END CERTIFICATE-----
+    {{.CAcert}}{{end}}
 
  - path: "/etc/systemd/system/docker.service.d/50-docker-opts.conf"
    content: |
