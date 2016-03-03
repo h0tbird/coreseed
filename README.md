@@ -2,22 +2,22 @@
 
 Define and deploy CoreOS clusters.
 
+#### Deploy 3 masters:
 ```
+for i in 1 2 3; do
 coreseed data \
---hostname core-1 \
---domain demo.lan \
---role master \
 --ns1-api-key aabbccddeeaabbccddee \
---ca-cert path/to/ca/cert.pem
-```
-
-```
+--domain cell-1.ewr.demo.lan \
+--hostname core-${i} \
+--role master \
+--ca-cert path/to/ca/cert.pem |
 coreseed run \
---api-key aabbccddeeaabbccddeeaabbccddeeaa \
---project-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee \
---hostname core-1 \
---plan baremetal_0 \
+--hostname core-${i} \
 --os coreos_alpha \
---facility ewr1 \
---billing hourly
+--api-key aabbccddeeaabbccddeeaabbccddeeaa \
+--billing hourly \
+--project-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee \
+--plan baremetal_0 \
+--facility ewr1
+done
 ```
