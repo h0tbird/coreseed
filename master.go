@@ -182,7 +182,7 @@ write_files:
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
       --env JMXDISABLE=true \
       h0tbird/zookeeper:v3.4.8-1"
-    ExecStop=/usr/bin/docker stop zookeeper-%i
+    ExecStop=/usr/bin/docker stop -t 5 zookeeper-%i
 
     [Install]
     WantedBy=multi-user.target
@@ -217,7 +217,7 @@ write_files:
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
       --quorum=2"
-    ExecStop=/usr/bin/docker stop mesos-master
+    ExecStop=/usr/bin/docker stop -t 5 mesos-master
 
     [Install]
     WantedBy=multi-user.target
@@ -258,7 +258,7 @@ write_files:
     ExecStop=/usr/bin/sh -c ' \
       echo search $(hostname -d) > /etc/resolv.conf && \
       echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-    ExecStop=/usr/bin/docker stop mesos-dns
+    ExecStop=/usr/bin/docker stop -t 5 mesos-dns
 
     [Install]
     WantedBy=multi-user.target
@@ -293,7 +293,7 @@ write_files:
       --zk zk://core-1:2181,core-2:2181,core-3:2181/marathon \
       --task_launch_timeout 240000 \
       --checkpoint"
-    ExecStop=/usr/bin/docker stop marathon
+    ExecStop=/usr/bin/docker stop -t 5 marathon
 
     [Install]
     WantedBy=multi-user.target
@@ -301,6 +301,82 @@ write_files:
     [X-Fleet]
     Global=true
     MachineMetadata=role=master
+
+ - path: "/etc/fleet/ceph-mon.service"
+   content: |
+    [Unit]
+    Description=Ceph monitor
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+
+    ExecStartPre=-/usr/bin/docker kill ceph-mon
+    ExecStartPre=-/usr/bin/docker rm ceph-mon
+    ExecStartPre=-/usr/bin/docker pull h0tbird/ceph:v9.2.0-2
+    ExecStartPre=/opt/bin/ceph2etcd
+
+    ExecStart=/usr/bin/sh -c "docker run \
+      --net host \
+      --name ceph-mon \
+      --volume /var/lib/ceph:/var/lib/ceph \
+      --volume /etc/ceph:/etc/ceph \
+      --env CLUSTER='ceph' \
+      --env MON_IP=$(hostname -i) \
+      --env MON_NAME=$(hostname -s) \
+      --env CEPH_CLUSTER_NETWORK=10.0.0.0/8 \
+      --env KV_TYPE=etcd \
+      --env KV_IP=127.0.0.1 \
+      --env KV_PORT=2379 \
+      h0tbird/ceph:v9.2.0-2 mon"
+
+    ExecStartPost=/usr/bin/sleep 30
+    ExecStartPost=/usr/bin/sh -c "docker exec \
+      ceph-mon ceph mon getmap -o /etc/ceph/monmap"
+    ExecStop=/usr/bin/docker stop -t 5 ceph-mon
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
+
+ - path: "/etc/fleet/cadvisor.service"
+   content: |
+    [Unit]
+    Description=cAdvisor Service
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill cadvisor
+    ExecStartPre=-/usr/bin/docker rm -f cadvisor
+    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.21.0
+    ExecStart=/usr/bin/sh -c "docker run \
+      --net host \
+      --name cadvisor \
+      --volume /:/rootfs:ro \
+      --volume /var/run:/var/run:rw \
+      --volume /sys:/sys:ro \
+      --volume /var/lib/docker/:/var/lib/docker:ro \
+      google/cadvisor:v0.21.0 \
+      --listen_ip $(hostname -i) \
+      --logtostderr \
+      --port=4194"
+    ExecStop=/usr/bin/docker stop -t 5 cadvisor
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
 
 coreos:
 
