@@ -59,7 +59,6 @@ write_files:
     AllowUsers core
     PasswordAuthentication no
     ChallengeResponseAuthentication no
-    PermitUserEnvironment yes
 
  - path: "/opt/bin/ns1dns"
    permissions: "0755"
