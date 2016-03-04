@@ -327,7 +327,7 @@ write_files:
       --env CLUSTER='ceph' \
       --env MON_IP=$(hostname -i) \
       --env MON_NAME=$(hostname -s) \
-      --env CEPH_CLUSTER_NETWORK=10.0.0.0/8 \
+      --env CEPH_PUBLIC_NETWORK=10.0.0.0/8 \
       --env KV_TYPE=etcd \
       --env KV_IP=127.0.0.1 \
       --env KV_PORT=2379 \
@@ -525,14 +525,6 @@ coreos:
 
   - name: "fleet.service"
     command: "start"
-
-  - name: "flanneld.service"
-    command: "start"
-    drop-ins:
-     - name: "50-network-config.conf"
-       content: |
-        [Service]
-        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.128.0.0/21","SubnetLen": 27,"SubnetMin": "10.128.0.192","SubnetMax": "10.128.7.224","Backend": {"Type": "host-gw"} }'
 
   - name: "ns1dns.service"
     command: "start"
