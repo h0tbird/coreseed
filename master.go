@@ -16,6 +16,7 @@ write_files:
 
  - path: "/etc/hosts"
    content: |
+    127.0.0.1 localhost
     $private_ipv4 {{.Hostname}}.{{.Domain}} {{.Hostname}}
     $private_ipv4 {{.Hostname}}.int.{{.Domain}} {{.Hostname}}.int
     $public_ipv4 {{.Hostname}}.ext.{{.Domain}} {{.Hostname}}.ext
@@ -100,6 +101,7 @@ write_files:
     }
 
     # Pull config:
+    PULL='127.0.0.1 localhost'$'\n'
     for i in $(etcdctl ls /hosts/core/master 2>/dev/null | sort) \
     $(etcdctl ls /hosts/core/slave 2>/dev/null | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
