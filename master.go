@@ -392,10 +392,9 @@ write_files:
 
         LOCK=$(etcdctl get /ceph/${CLUSTER_NAME}/bootstrap-lock 2> /dev/null)
 
-        if [[ "$?" -eq 4 ]]; then
-          etcdctl mk /ceph/${CLUSTER_NAME}/bootstrap-lock '0' &> /dev/null || \
-          { sleep 1; continue; }
-        elif [[ "${LOCK}" != 0 ]]; then
+        if [ "$?" -eq 4 ]; then
+          etcdctl mk /ceph/${CLUSTER_NAME}/bootstrap-lock '0' &> /dev/null || { sleep 1; continue; }
+        elif [ "${LOCK}" != 0 ]; then
           etcdctl watch /ceph/${CLUSTER_NAME}/bootstrap-lock &> /dev/null
         fi
 
