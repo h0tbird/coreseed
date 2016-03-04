@@ -93,21 +93,16 @@ write_files:
     #!/bin/bash
 
     # Push config:
-    ROLE=$(fleetctl list-machines | grep $(hostname -i) | egrep -o 'slave|master' | uniq)
-
-    [ "${ROLE}" ] && {
-      PUSH=$(cat /etc/hosts | grep $(hostname -s)) \
-      && etcdctl set /hosts/core/${ROLE}/$(hostname) "${PUSH}"
-    }
+    PUSH=$(cat /etc/hosts | grep $(hostname -s)) \
+    && etcdctl set /hosts/$(hostname) "${PUSH}"
 
     # Pull config:
     PULL='127.0.0.1 localhost'$'\n'
-    for i in $(etcdctl ls /hosts/core/master 2>/dev/null | sort) \
-    $(etcdctl ls /hosts/core/slave 2>/dev/null | sort); do
+    for i in $(etcdctl ls /hosts 2>/dev/null | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
     done
 
-    [ "${PULL}" ] && echo "${PULL}" | grep -q $(hostname -s) && echo "${PULL}" > /etc/hosts
+    echo "${PULL}" | grep -q $(hostname -s) && echo "${PULL}" > /etc/hosts
 
  - path: "/opt/bin/ceph"
    permissions: "0755"
