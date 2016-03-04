@@ -376,6 +376,7 @@ write_files:
     Global=true
 
  - path: "/opt/bin/ceph2etcd"
+   permissions: "0755"
    content: |
     #!/bin/bash
 
