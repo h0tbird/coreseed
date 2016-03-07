@@ -2,6 +2,18 @@
 
 Define and deploy CoreOS clusters.
 
+#### Etcd clustering:
+##### Discovery
+Generate an etcd discovery token:
+```
+curl 'https://discovery.etcd.io/new?size=3'
+```
+##### Static
+If you don't provide an `etcd` discovery token:
+- The cluster will attempt to start statically with `initial-cluster`...
+- `core-1=http://core-1:2380,core-2=http://core-2:2380,core-3=http://core-3:2380`
+- For this to work DNS must resolve `core-1`, `core-2` and `core-3`.
+
 #### Deploy 3 masters:
 ```
 for i in 1 2 3; do
