@@ -34,6 +34,7 @@ type Udata struct {
 	Ns1apikey string
 	Fleettags string
 	CAcert    string
+	EtcdTkn   string
 }
 
 //-----------------------------------------------------------------------------
@@ -64,7 +65,7 @@ var (
 			OverrideDefaultFromEnvar("CS_DOMAIN").
 			Short('d').String()
 
-	flHostRole = cmdData.Flag("role", "Choose one of [ master | slave | edge].").
+	flHostRole = cmdData.Flag("role", "Choose one of [ master | slave | edge ].").
 			Required().PlaceHolder("CS_ROLE").
 			OverrideDefaultFromEnvar("CS_ROLE").
 			Short('r').String()
@@ -83,6 +84,11 @@ var (
 			PlaceHolder("CS_CA_CERT").
 			OverrideDefaultFromEnvar("CS_CA_CERT").
 			Short('c').String()
+
+	flEtcdTkn = cmdData.Flag("etcd-token", "Provide an etcd discovery token.").
+			PlaceHolder("CS_ETCD_TKN").
+			OverrideDefaultFromEnvar("CS_ETCD_TKN").
+			Short('e').String()
 
 	//---------------------
 	// run: nested command
@@ -159,6 +165,7 @@ func cmd_data() {
 		Role:      *flHostRole,
 		Ns1apikey: *flNs1Apikey,
 		Fleettags: *flFleetTags,
+		EtcdTkn:   *flEtcdTkn,
 	}
 
 	// Read the CA certificate:

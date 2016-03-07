@@ -593,11 +593,11 @@ coreos:
   metadata: "role=master,masterid={{.Hostid}}"
 
  etcd2:
-  name: "{{.Hostname}}"
+ {{if .EtcdTkn }} discovery: https://discovery.etcd.io/{{.EtcdTkn}}{{else}} name: "{{.Hostname}}"
   initial-cluster: "core-1=http://core-1:2380,core-2=http://core-2:2380,core-3=http://core-3:2380"
-  listen-peer-urls: "http://{{.Hostname}}:2380"
-  listen-client-urls: "http://127.0.0.1:2379,http://{{.Hostname}}:2379"
-  initial-advertise-peer-urls: "http://{{.Hostname}}:2380"
-  advertise-client-urls: "http://{{.Hostname}}:2379"
-  initial-cluster-state: "new"
+  initial-cluster-state: "new"{{end}}
+  advertise-client-urls: "http://$private_ipv4:2379"
+  initial-advertise-peer-urls: "http://$private_ipv4:2380"
+  listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
+  listen-peer-urls: "http://$private_ipv4:2380"
 `
