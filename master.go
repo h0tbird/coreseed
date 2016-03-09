@@ -390,22 +390,20 @@ write_files:
 
       while true; do
 
-        LOCK=$(etcdctl get /ceph/${CLUSTER_NAME}/bootstrap-lock 2> /dev/null)
+        LOCK=$(etcdctl get /ceph/${CLUSTER_NAME}/lock 2> /dev/null)
 
-        if [ "$?" -eq 4 ]; then
-          etcdctl mk /ceph/${CLUSTER_NAME}/bootstrap-lock '0' &> /dev/null || { sleep 1; continue; }
-        elif [ "${LOCK}" != 0 ]; then
-          etcdctl watch /ceph/${CLUSTER_NAME}/bootstrap-lock &> /dev/null
-        fi
+        [ "$?" -eq 4 ] && {
+          etcdctl mk /ceph/${CLUSTER_NAME}/lock '0' &>/dev/null || { sleep 1; continue; }
+        } || { [ "${LOCK}" != 0 ] && etcdctl watch /ceph/${CLUSTER_NAME}/lock &>/dev/null; }
 
-        etcdctl set --swap-with-value '0' /ceph/${CLUSTER_NAME}/bootstrap-lock '1' &> /dev/null && return 0
+        etcdctl set --swap-with-value '0' /ceph/${CLUSTER_NAME}/lock '1' &>/dev/null && return 0
         sleep 2
 
       done
     }
 
     function mutex_unlock() {
-      etcdctl set /ceph/${CLUSTER_NAME}/bootstrap-lock '0'
+      etcdctl set /ceph/${CLUSTER_NAME}/lock '0'
     }
 
     function push_config_to_etcd() {
