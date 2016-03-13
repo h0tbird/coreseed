@@ -92,11 +92,9 @@ write_files:
    content: |
     #!/bin/bash
 
-    # Push config:
     PUSH=$(cat /etc/hosts | grep $(hostname -s)) \
     && etcdctl set /hosts/$(hostname) "${PUSH}"
 
-    # Pull config:
     PULL='127.0.0.1 localhost'$'\n'
     for i in $(etcdctl ls /hosts 2>/dev/null | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
@@ -108,41 +106,14 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-
-    readonly CEPH_DOCKER_IMAGE=h0tbird/ceph
-    readonly CEPH_DOCKER_TAG=v9.2.0-2
-    readonly CEPH_USER=root
-
-    machinename=$(echo "${CEPH_DOCKER_IMAGE}-${CEPH_DOCKER_TAG}" | sed -r 's/[^a-zA-Z0-9_.-]/_/g')
-    machinepath="/var/lib/toolbox/${machinename}"
-    osrelease="${machinepath}/etc/os-release"
-
-    [ -f ${osrelease} ] || {
-      sudo mkdir -p "${machinepath}"
-      sudo chown ${USER}: "${machinepath}"
-      docker pull "${CEPH_DOCKER_IMAGE}:${CEPH_DOCKER_TAG}"
-      docker run --name=${machinename} "${CEPH_DOCKER_IMAGE}:${CEPH_DOCKER_TAG}" /bin/true
-      docker export ${machinename} | sudo tar -x -C "${machinepath}" -f -
-      docker rm ${machinename}
-      sudo touch ${osrelease}
-    }
-
-    [ "$1" == 'dryrun' ] || {
-      sudo systemd-nspawn \
-      --quiet \
-      --directory="${machinepath}" \
-      --capability=all \
-      --share-system \
-      --bind=/dev:/dev \
-      --bind=/etc/ceph:/etc/ceph \
-      --bind=/var/lib/ceph:/var/lib/ceph \
-      --user="${CEPH_USER}" \
-      --setenv=CMD="$(basename $0)" \
-      --setenv=ARG="$*" \
-      /bin/bash -c '\
-      mount -o remount,rw -t sysfs sysfs /sys; \
-      $CMD $ARG'
-    }
+    sudo rkt run \
+    --interactive \
+    --net=host \
+    --insecure-options=all \
+    --stage1-name=coreos.com/rkt/stage1-fly \
+    --volume volume-etc-ceph,kind=host,source=/etc/ceph \
+    --volume volume-var-lib-ceph,kind=host,source=/var/lib/ceph docker://h0tbird/ceph:v9.2.0-2 \
+    --exec /usr/bin/$(basename $0) -- "$@" 2>/dev/null
 
  - path: "/opt/bin/loopssh"
    permissions: "0755"
@@ -380,7 +351,6 @@ write_files:
    content: |
     #!/bin/bash
 
-    readonly CLUSTER_NAME='ceph'
     readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
     readonly E_BAD_CMD=10
     readonly E_BAD_LOCK=11
@@ -390,77 +360,77 @@ write_files:
 
       while true; do
 
-        LOCK=$(etcdctl get /ceph/${CLUSTER_NAME}/lock 2> /dev/null)
+        LOCK=$(etcdctl get /ceph/lock 2> /dev/null)
 
         [ "$?" -eq 4 ] && {
-          etcdctl mk /ceph/${CLUSTER_NAME}/lock '0' &>/dev/null || { sleep 1; continue; }
-        } || { [ "${LOCK}" != 0 ] && etcdctl watch /ceph/${CLUSTER_NAME}/lock &>/dev/null; }
+          etcdctl mk /ceph/lock '0' &>/dev/null || { sleep 1; continue; }
+        } || { [ "${LOCK}" != 0 ] && etcdctl watch /ceph/lock &>/dev/null; }
 
-        etcdctl set --swap-with-value '0' /ceph/${CLUSTER_NAME}/lock '1' &>/dev/null && return 0
+        etcdctl set --swap-with-value '0' /ceph/lock '1' &>/dev/null && return 0
         sleep 2
 
       done
     }
 
     function mutex_unlock() {
-      etcdctl set /ceph/${CLUSTER_NAME}/lock '0'
+      etcdctl set /ceph/lock '0'
     }
 
     function push_config_to_etcd() {
 
       # auth:
-      etcdctl set /ceph/${CLUSTER_NAME}/auth/cephx 'true' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/auth/cephx_require_signatures 'false' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/auth/cephx_cluster_require_signatures 'true' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/auth/cephx_service_require_signatures 'false' &> /dev/null || return -1
+      etcdctl set /ceph/auth/cephx 'true' &> /dev/null || return -1
+      etcdctl set /ceph/auth/cephx_require_signatures 'false' &> /dev/null || return -1
+      etcdctl set /ceph/auth/cephx_cluster_require_signatures 'true' &> /dev/null || return -1
+      etcdctl set /ceph/auth/cephx_service_require_signatures 'false' &> /dev/null || return -1
 
       # global:
-      etcdctl set /ceph/${CLUSTER_NAME}/global/max_open_files '131072' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/osd_pool_default_pg_num '128' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/osd_pool_default_pgp_num '128' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/osd_pool_default_size '3' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/osd_pool_default_min_size '1' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/mon_osd_full_ratio '0.95' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/global/mon_osd_nearfull_ratio '0.85' &> /dev/null || return -1
+      etcdctl set /ceph/global/max_open_files '131072' &> /dev/null || return -1
+      etcdctl set /ceph/global/osd_pool_default_pg_num '128' &> /dev/null || return -1
+      etcdctl set /ceph/global/osd_pool_default_pgp_num '128' &> /dev/null || return -1
+      etcdctl set /ceph/global/osd_pool_default_size '3' &> /dev/null || return -1
+      etcdctl set /ceph/global/osd_pool_default_min_size '1' &> /dev/null || return -1
+      etcdctl set /ceph/global/mon_osd_full_ratio '0.95' &> /dev/null || return -1
+      etcdctl set /ceph/global/mon_osd_nearfull_ratio '0.85' &> /dev/null || return -1
 
       # mon:
-      etcdctl set /ceph/${CLUSTER_NAME}/mon/mon_osd_down_out_interval '600' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/mon/mon_osd_min_down_reporters '4' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/mon/mon_clock_drift_allowed '0.15' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/mon/mon_clock_drift_warn_backoff '30' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/mon/mon_osd_report_timeout '300' &> /dev/null || return -1
+      etcdctl set /ceph/mon/mon_osd_down_out_interval '600' &> /dev/null || return -1
+      etcdctl set /ceph/mon/mon_osd_min_down_reporters '4' &> /dev/null || return -1
+      etcdctl set /ceph/mon/mon_clock_drift_allowed '0.15' &> /dev/null || return -1
+      etcdctl set /ceph/mon/mon_clock_drift_warn_backoff '30' &> /dev/null || return -1
+      etcdctl set /ceph/mon/mon_osd_report_timeout '300' &> /dev/null || return -1
 
       # osd:
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/journal_size '100' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/cluster_network '10.128.0.0/25' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/public_network '10.128.0.0/25' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_mkfs_type 'xfs' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_mkfs_options_xfs ' -f -i size=2048' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_mon_heartbeat_interval '30' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/pool_default_crush_rule '0' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_crush_update_on_start 'true' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_objectstore 'filestore' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/filestore_merge_threshold '40' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/filestore_split_multiple '8' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_op_threads '8' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/filestore_op_threads '8' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/filestore_max_sync_interval '5' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_max_scrubs '1' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_recovery_max_active '5' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_max_backfills '2' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_recovery_op_priority '2' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_client_op_priority '63' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_recovery_max_chunk '1048576' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/osd_recovery_threads '1' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/ms_bind_port_min '6800' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/osd/ms_bind_port_max '7100' &> /dev/null || return -1
+      etcdctl set /ceph/osd/journal_size '100' &> /dev/null || return -1
+      etcdctl set /ceph/osd/cluster_network '10.128.0.0/25' &> /dev/null || return -1
+      etcdctl set /ceph/osd/public_network '10.128.0.0/25' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_mkfs_type 'xfs' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_mkfs_options_xfs ' -f -i size=2048' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_mon_heartbeat_interval '30' &> /dev/null || return -1
+      etcdctl set /ceph/osd/pool_default_crush_rule '0' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_crush_update_on_start 'true' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_objectstore 'filestore' &> /dev/null || return -1
+      etcdctl set /ceph/osd/filestore_merge_threshold '40' &> /dev/null || return -1
+      etcdctl set /ceph/osd/filestore_split_multiple '8' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_op_threads '8' &> /dev/null || return -1
+      etcdctl set /ceph/osd/filestore_op_threads '8' &> /dev/null || return -1
+      etcdctl set /ceph/osd/filestore_max_sync_interval '5' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_max_scrubs '1' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_recovery_max_active '5' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_max_backfills '2' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_recovery_op_priority '2' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_client_op_priority '63' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_recovery_max_chunk '1048576' &> /dev/null || return -1
+      etcdctl set /ceph/osd/osd_recovery_threads '1' &> /dev/null || return -1
+      etcdctl set /ceph/osd/ms_bind_port_min '6800' &> /dev/null || return -1
+      etcdctl set /ceph/osd/ms_bind_port_max '7100' &> /dev/null || return -1
 
       # client:
-      etcdctl set /ceph/${CLUSTER_NAME}/client/rbd_cache_enabled 'true' &> /dev/null || return -1
-      etcdctl set /ceph/${CLUSTER_NAME}/client/rbd_cache_writethrough_until_flush 'false' &> /dev/null || return -1
+      etcdctl set /ceph/client/rbd_cache_enabled 'true' &> /dev/null || return -1
+      etcdctl set /ceph/client/rbd_cache_writethrough_until_flush 'false' &> /dev/null || return -1
 
       # mds:
-      etcdctl set /ceph/${CLUSTER_NAME}/mds/mds_cache_size '100000' &> /dev/null || return -1
+      etcdctl set /ceph/mds/mds_cache_size '100000' &> /dev/null || return -1
     }
 
     function main() {
@@ -477,8 +447,8 @@ write_files:
       local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
       local MSG4="[Populate etcd] Ok! config hash initialized"
       local MSG5="[Populate etcd] Ops! Cannot initialize the config hash"
-      echo ${MSG1}; CURRENT_HASH=$(etcdctl get /ceph/${CLUSTER_NAME}/config_hash 2> /dev/null) && \
-      echo ${MSG2} || { echo ${MSG3}; etcdctl set /ceph/${CLUSTER_NAME}/config_hash 0 &> /dev/null && \
+      echo ${MSG1}; CURRENT_HASH=$(etcdctl get /ceph/config_hash 2> /dev/null) && \
+      echo ${MSG2} || { echo ${MSG3}; etcdctl set /ceph/config_hash 0 &> /dev/null && \
       echo ${MSG4} || { echo ${MSG5}; exit ${E_BAD_SET}; }; }
 
       # Check whether changes are needed:
@@ -498,7 +468,7 @@ write_files:
       local MSG1="[Populate etcd] Updating the configuration hash in etcd..."
       local MSG2="[Populate etcd] Ok! The new hash is ${DESIRED_HASH}"
       local MSG3="[Populate etcd] Ops! Cannot set the new hash value"
-      echo ${MSG1}; etcdctl set /ceph/${CLUSTER_NAME}/config_hash ${DESIRED_HASH} &> /dev/null && \
+      echo ${MSG1}; etcdctl set /ceph/config_hash ${DESIRED_HASH} &> /dev/null && \
       echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
 
       # Release the bootstrap lock:
@@ -565,8 +535,8 @@ coreos:
      RemainAfterExit=yes
      ExecStart=/bin/bash -c '\
        [ -h /opt/bin/rbd ] || { ln -fs ceph /opt/bin/rbd; }; \
-       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
-       /opt/bin/ceph dryrun'
+       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; };
+       rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci'
 
   - name: "docker-volume-rbd.service"
     command: "start"
