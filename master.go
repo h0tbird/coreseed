@@ -535,7 +535,7 @@ coreos:
      RemainAfterExit=yes
      ExecStart=/bin/bash -c '\
        [ -h /opt/bin/rbd ] || { ln -fs ceph /opt/bin/rbd; }; \
-       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; };
+       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
        rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci'
 
   - name: "docker-volume-rbd.service"
