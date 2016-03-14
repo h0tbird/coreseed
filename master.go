@@ -112,7 +112,8 @@ write_files:
     --insecure-options=all \
     --stage1-name=coreos.com/rkt/stage1-fly \
     --volume volume-etc-ceph,kind=host,source=/etc/ceph \
-    --volume volume-var-lib-ceph,kind=host,source=/var/lib/ceph docker://h0tbird/ceph:v9.2.0-2 \
+    --volume volume-var-lib-ceph,kind=host,source=/var/lib/ceph \
+    docker://h0tbird/ceph:v9.2.0-2 \
     --exec /usr/bin/$(basename $0) -- "$@" 2>/dev/null
 
  - path: "/opt/bin/loopssh"
@@ -538,7 +539,8 @@ coreos:
      ExecStart=/bin/bash -c '\
        [ -h /opt/bin/rbd ] || { ln -fs ceph /opt/bin/rbd; }; \
        [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
-       rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci'
+       rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci; \
+       rkt --insecure-options=image fetch docker://h0tbird/ceph:v9.2.0-2'
 
   - name: "docker-volume-rbd.service"
     command: "start"
