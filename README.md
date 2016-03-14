@@ -34,8 +34,9 @@ coreseed udata \
 --etcd-token UQRfgWywmLJta7RtHf5AYyV2ZH1qgPNa \
 --ca-cert path/to/ca/cert.pem |
 coreseed run-ec2 \
---region us-west-2 \
---image-id ami-e7527ed7 \
+--region eu-central-1 \
+--image-id ami-0645a169 \
+--key-pair foo \
 --instance-type t2.micro \
 done
 ```

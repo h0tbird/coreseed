@@ -150,10 +150,15 @@ var (
 			OverrideDefaultFromEnvar("EC2_IMAGE_ID").
 			Short('i').String()
 
-	flEc2InsType = cmdRunEc2.Flag("instance-type", "EC2 instance type").
+	flEc2InsType = cmdRunEc2.Flag("instance-type", "EC2 instance type.").
 			Required().PlaceHolder("EC2_INSTANCE_TYPE").
 			OverrideDefaultFromEnvar("EC2_INSTANCE_TYPE").
 			Short('t').String()
+
+	flEc2KeyPair = cmdRunEc2.Flag("key-pair", "EC2 key pair.").
+			Required().PlaceHolder("EC2_KEY_PAIR").
+			OverrideDefaultFromEnvar("EC2_KEY_PAIR").
+			Short('k').String()
 )
 
 //----------------------------------------------------------------------------
@@ -274,6 +279,7 @@ func cmd_run_ec2() {
 		InstanceType: aws.String(*flEc2InsType),
 		MinCount:     aws.Int64(1),
 		MaxCount:     aws.Int64(1),
+		KeyName:      aws.String(*flEc2KeyPair),
 		UserData:     aws.String(string(udata)),
 	})
 
