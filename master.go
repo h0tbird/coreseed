@@ -363,20 +363,20 @@ write_files:
 
       while true; do
 
-        LOCK=$(etcdctl get ${ETCD_PATH}/lock 2> /dev/null)
+        LOCK=$(etcdctl get ${ETCD_PATH}/block 2> /dev/null)
 
         [ "$?" -eq 4 ] && {
-          etcdctl mk ${ETCD_PATH}/lock '0' &>/dev/null || { sleep 1; continue; }
-        } || { [ "${LOCK}" != 0 ] && etcdctl watch ${ETCD_PATH}/lock &>/dev/null; }
+          etcdctl mk ${ETCD_PATH}/block '0' &>/dev/null || { sleep 1; continue; }
+        } || { [ "${LOCK}" != 0 ] && etcdctl watch ${ETCD_PATH}/block &>/dev/null; }
 
-        etcdctl set --swap-with-value '0' ${ETCD_PATH}/lock '1' &>/dev/null && return 0
+        etcdctl set --swap-with-value '0' ${ETCD_PATH}/block '1' &>/dev/null && return 0
         sleep 2
 
       done
     }
 
     function mutex_unlock() {
-      etcdctl set ${ETCD_PATH}/lock '0'
+      etcdctl set ${ETCD_PATH}/block '0'
     }
 
     function push_config_to_etcd() {
