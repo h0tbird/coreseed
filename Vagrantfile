@@ -11,7 +11,7 @@ $instance_name_prefix = "core"
 $update_channel = "alpha"
 $image_version = "current"
 $box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$coreseed = "coreseed data -k %s -d %s -h core-%s -r %s -c %s"
+$coreseed = "coreseed udata -k %s -d %s -h core-%s -r %s -c %s"
 $discovery_url = "https://discovery.etcd.io/new?size=#{$num_instances}"
 $vm_gui = false
 $vm_memory = 1024
@@ -70,10 +70,10 @@ Vagrant.configure("2") do |config|
     if ARGV[0].eql?('up')
 
       if $discovery_url
-        cmd = $coreseed + " -e %s > user_data_%s"
+        cmd = $coreseed + " -e %s | gzip --best > user_data_%s"
         system cmd % [$ns1_api_key, $domain, i, $role, $ca_cert, token, i ]
       else
-        cmd = $coreseed + " > user_data_%s"
+        cmd = $coreseed + " | gzip --best > user_data_%s"
         system cmd % [$ns1_api_key, $domain, i, $role, $ca_cert, i ]
       end
 
