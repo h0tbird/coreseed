@@ -49,43 +49,43 @@ var (
 
 	app = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
 
-	//----------------------
-	// data: nested command
-	//----------------------
+	//-----------------------
+	// udata: nested command
+	//-----------------------
 
-	cmdData = app.Command("data", "Generate CoreOS cloud-config user-data.")
+	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
-	flHostName = cmdData.Flag("hostname", "Short host name as in (hostname -s).").
+	flHostName = cmdUdata.Flag("hostname", "Short host name as in (hostname -s).").
 			Required().PlaceHolder("CS_HOSTNAME").
 			OverrideDefaultFromEnvar("CS_HOSTNAME").
 			Short('h').String()
 
-	flDomain = cmdData.Flag("domain", "Domain name as in (hostname -d).").
+	flDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d).").
 			Required().PlaceHolder("CS_DOMAIN").
 			OverrideDefaultFromEnvar("CS_DOMAIN").
 			Short('d').String()
 
-	flHostRole = cmdData.Flag("role", "Choose one of [ master | slave | edge ].").
+	flHostRole = cmdUdata.Flag("role", "Choose one of [ master | slave | edge ].").
 			Required().PlaceHolder("CS_ROLE").
 			OverrideDefaultFromEnvar("CS_ROLE").
 			Short('r').String()
 
-	flNs1Apikey = cmdData.Flag("ns1-api-key", "NS1 private API key.").
+	flNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
 			Required().PlaceHolder("CS_NS1_KEY").
 			OverrideDefaultFromEnvar("CS_NS1_KEY").
 			Short('k').String()
 
-	flFleetTags = cmdData.Flag("tags", "Comma separated list of fleet tags.").
+	flFleetTags = cmdUdata.Flag("tags", "Comma separated list of fleet tags.").
 			PlaceHolder("CS_TAGS").
 			OverrideDefaultFromEnvar("CS_TAGS").
 			Short('t').String()
 
-	flCAcert = cmdData.Flag("ca-cert", "Path to CA certificate.").
+	flCAcert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
 			PlaceHolder("CS_CA_CERT").
 			OverrideDefaultFromEnvar("CS_CA_CERT").
 			Short('c').String()
 
-	flEtcdTkn = cmdData.Flag("etcd-token", "Provide an etcd discovery token.").
+	flEtcdTkn = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
 			PlaceHolder("CS_ETCD_TKN").
 			OverrideDefaultFromEnvar("CS_ETCD_TKN").
 			Short('e').String()
@@ -142,8 +142,8 @@ func main() {
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
 	// coreseed data ...
-	case cmdData.FullCommand():
-		cmd_data()
+	case cmdUdata.FullCommand():
+		cmd_udata()
 
 	// coreseed run-packet ...
 	case cmdRunPacket.FullCommand():
@@ -152,10 +152,10 @@ func main() {
 }
 
 //--------------------------------------------------------------------------
-// func: cmd_data
+// func: cmd_udata
 //--------------------------------------------------------------------------
 
-func cmd_data() {
+func cmd_udata() {
 
 	// Template data structure:
 	udata := Udata{

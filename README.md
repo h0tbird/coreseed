@@ -5,7 +5,7 @@ Define and deploy CoreOS clusters.
 #### Deploy 3 masters on Packet.net:
 ```
 for i in 1 2 3; do
-coreseed data \
+coreseed udata \
 --ns1-api-key aabbccddeeaabbccddee \
 --domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
