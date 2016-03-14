@@ -18,6 +18,9 @@ import (
 	"text/template"
 
 	// Community:
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/packethost/packngo"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -130,6 +133,27 @@ var (
 			Required().PlaceHolder("PKT_BILLING").
 			OverrideDefaultFromEnvar("PKT_BILLING").
 			Short('b').String()
+
+	//-------------------------
+	// run-ec2: nested command
+	//-------------------------
+
+	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2")
+
+	flEc2Region = cmdRunEc2.Flag("region", "EC2 region.").
+			Required().PlaceHolder("EC2_REGION").
+			OverrideDefaultFromEnvar("EC2_REGION").
+			Short('r').String()
+
+	flEc2ImageId = cmdRunEc2.Flag("image-id", "EC2 image id.").
+			Required().PlaceHolder("EC2_IMAGE_ID").
+			OverrideDefaultFromEnvar("EC2_IMAGE_ID").
+			Short('i').String()
+
+	flEc2InsType = cmdRunEc2.Flag("instance-type", "EC2 instance type").
+			Required().PlaceHolder("EC2_INSTANCE_TYPE").
+			OverrideDefaultFromEnvar("EC2_INSTANCE_TYPE").
+			Short('t').String()
 )
 
 //----------------------------------------------------------------------------
@@ -148,6 +172,10 @@ func main() {
 	// coreseed run-packet ...
 	case cmdRunPacket.FullCommand():
 		cmd_run_packet()
+
+	// coreseed run-ec2 ...
+	case cmdRunEc2.FullCommand():
+		cmd_run_ec2()
 	}
 }
 
@@ -225,6 +253,34 @@ func cmd_run_packet() {
 
 	// Response output:
 	fmt.Println(newDevice)
+}
+
+//--------------------------------------------------------------------------
+// func: cmd_run_ec2
+//--------------------------------------------------------------------------
+
+func cmd_run_ec2() {
+
+	// Read user-data from stdin:
+	udata, err := ioutil.ReadAll(os.Stdin)
+	checkError(err)
+
+	// Connect and authenticate to the API endpoint:
+	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
+
+	// Send the request:
+	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+		ImageId:      aws.String(*flEc2ImageId),
+		InstanceType: aws.String(*flEc2InsType),
+		MinCount:     aws.Int64(1),
+		MaxCount:     aws.Int64(1),
+		UserData:     aws.String(string(udata)),
+	})
+
+	checkError(err)
+
+	// Response output:
+	fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
 }
 
 //---------------------------------------------------------------------------
