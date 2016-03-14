@@ -2,7 +2,7 @@
 
 Define and deploy CoreOS clusters.
 
-#### Deploy 3 masters:
+#### Deploy 3 masters on Packet.net:
 ```
 for i in 1 2 3; do
 coreseed data \
@@ -12,7 +12,7 @@ coreseed data \
 --role master \
 --etcd-token UQRfgWywmLJta7RtHf5AYyV2ZH1qgPNa \
 --ca-cert path/to/ca/cert.pem |
-coreseed run \
+coreseed run-packet \
 --hostname core-${i} \
 --os coreos_alpha \
 --api-key aabbccddeeaabbccddeeaabbccddeeaa \

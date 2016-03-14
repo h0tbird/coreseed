@@ -90,43 +90,43 @@ var (
 			OverrideDefaultFromEnvar("CS_ETCD_TKN").
 			Short('e').String()
 
-	//---------------------
-	// run: nested command
-	//---------------------
+	//----------------------------
+	// run-packet: nested command
+	//----------------------------
 
-	cmdRun = app.Command("run", "Starts a CoreOS instance.")
+	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net")
 
-	flPktApiKey = cmdRun.Flag("api-key", "Packet API key.").
+	flPktApiKey = cmdRunPacket.Flag("api-key", "Packet API key.").
 			Required().PlaceHolder("PKT_APIKEY").
 			OverrideDefaultFromEnvar("PKT_APIKEY").
 			Short('k').String()
 
-	flPktHostName = cmdRun.Flag("hostname", "For the Packet.net dashboard.").
+	flPktHostName = cmdRunPacket.Flag("hostname", "For the Packet.net dashboard.").
 			Required().PlaceHolder("PKT_HOSTNAME").
 			OverrideDefaultFromEnvar("PKT_HOSTNAME").
 			Short('h').String()
 
-	flPktProjId = cmdRun.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
+	flPktProjId = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
 			Required().PlaceHolder("PKT_PROJID").
 			OverrideDefaultFromEnvar("PKT_PROJID").
 			Short('i').String()
 
-	flPktPlan = cmdRun.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
+	flPktPlan = cmdRunPacket.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
 			Required().PlaceHolder("PKT_PLAN").
 			OverrideDefaultFromEnvar("PKT_PLAN").
 			Short('p').String()
 
-	flPktOsys = cmdRun.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
+	flPktOsys = cmdRunPacket.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
 			Required().PlaceHolder("PKT_OS").
 			OverrideDefaultFromEnvar("PKT_OS").
 			Short('o').String()
 
-	flPktFacility = cmdRun.Flag("facility", "One of [ ewr1 | ams1 ]").
+	flPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
 			Required().PlaceHolder("PKT_FACILITY").
 			OverrideDefaultFromEnvar("PKT_FACILITY").
 			Short('f').String()
 
-	flPktBilling = cmdRun.Flag("billing", "One of [ hourly | monthly ]").
+	flPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
 			Required().PlaceHolder("PKT_BILLING").
 			OverrideDefaultFromEnvar("PKT_BILLING").
 			Short('b').String()
@@ -145,9 +145,9 @@ func main() {
 	case cmdData.FullCommand():
 		cmd_data()
 
-	// coreseed run ...
-	case cmdRun.FullCommand():
-		cmd_run()
+	// coreseed run-packet ...
+	case cmdRunPacket.FullCommand():
+		cmd_run_packet()
 	}
 }
 
@@ -196,10 +196,10 @@ func cmd_data() {
 }
 
 //--------------------------------------------------------------------------
-// func: cmd_run
+// func: cmd_run_packet
 //--------------------------------------------------------------------------
 
-func cmd_run() {
+func cmd_run_packet() {
 
 	// Read user-data from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
