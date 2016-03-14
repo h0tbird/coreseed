@@ -351,6 +351,8 @@ write_files:
    content: |
     #!/bin/bash
 
+    readonly CLUSTER_NAME='ceph'
+    readonly ETCD_PATH="/ceph-config/${CLUSTER_NAME}"
     readonly DESIRED_HASH=$(cat $0 | md5sum | awk '{ print $1 }')
     readonly E_BAD_CMD=10
     readonly E_BAD_LOCK=11
@@ -360,77 +362,77 @@ write_files:
 
       while true; do
 
-        LOCK=$(etcdctl get /ceph/lock 2> /dev/null)
+        LOCK=$(etcdctl get ${ETCD_PATH}/lock 2> /dev/null)
 
         [ "$?" -eq 4 ] && {
-          etcdctl mk /ceph/lock '0' &>/dev/null || { sleep 1; continue; }
-        } || { [ "${LOCK}" != 0 ] && etcdctl watch /ceph/lock &>/dev/null; }
+          etcdctl mk ${ETCD_PATH}/lock '0' &>/dev/null || { sleep 1; continue; }
+        } || { [ "${LOCK}" != 0 ] && etcdctl watch ${ETCD_PATH}/lock &>/dev/null; }
 
-        etcdctl set --swap-with-value '0' /ceph/lock '1' &>/dev/null && return 0
+        etcdctl set --swap-with-value '0' ${ETCD_PATH}/lock '1' &>/dev/null && return 0
         sleep 2
 
       done
     }
 
     function mutex_unlock() {
-      etcdctl set /ceph/lock '0'
+      etcdctl set ${ETCD_PATH}/lock '0'
     }
 
     function push_config_to_etcd() {
 
       # auth:
-      etcdctl set /ceph/auth/cephx 'true' &> /dev/null || return -1
-      etcdctl set /ceph/auth/cephx_require_signatures 'false' &> /dev/null || return -1
-      etcdctl set /ceph/auth/cephx_cluster_require_signatures 'true' &> /dev/null || return -1
-      etcdctl set /ceph/auth/cephx_service_require_signatures 'false' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/auth/cephx 'true' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/auth/cephx_require_signatures 'false' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/auth/cephx_cluster_require_signatures 'true' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/auth/cephx_service_require_signatures 'false' &> /dev/null || return -1
 
       # global:
-      etcdctl set /ceph/global/max_open_files '131072' &> /dev/null || return -1
-      etcdctl set /ceph/global/osd_pool_default_pg_num '128' &> /dev/null || return -1
-      etcdctl set /ceph/global/osd_pool_default_pgp_num '128' &> /dev/null || return -1
-      etcdctl set /ceph/global/osd_pool_default_size '3' &> /dev/null || return -1
-      etcdctl set /ceph/global/osd_pool_default_min_size '1' &> /dev/null || return -1
-      etcdctl set /ceph/global/mon_osd_full_ratio '0.95' &> /dev/null || return -1
-      etcdctl set /ceph/global/mon_osd_nearfull_ratio '0.85' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/max_open_files '131072' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/osd_pool_default_pg_num '128' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/osd_pool_default_pgp_num '128' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/osd_pool_default_size '3' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/osd_pool_default_min_size '1' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/mon_osd_full_ratio '0.95' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/global/mon_osd_nearfull_ratio '0.85' &> /dev/null || return -1
 
       # mon:
-      etcdctl set /ceph/mon/mon_osd_down_out_interval '600' &> /dev/null || return -1
-      etcdctl set /ceph/mon/mon_osd_min_down_reporters '4' &> /dev/null || return -1
-      etcdctl set /ceph/mon/mon_clock_drift_allowed '0.15' &> /dev/null || return -1
-      etcdctl set /ceph/mon/mon_clock_drift_warn_backoff '30' &> /dev/null || return -1
-      etcdctl set /ceph/mon/mon_osd_report_timeout '300' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mon/mon_osd_down_out_interval '600' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mon/mon_osd_min_down_reporters '4' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mon/mon_clock_drift_allowed '0.15' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mon/mon_clock_drift_warn_backoff '30' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mon/mon_osd_report_timeout '300' &> /dev/null || return -1
 
       # osd:
-      etcdctl set /ceph/osd/journal_size '100' &> /dev/null || return -1
-      etcdctl set /ceph/osd/cluster_network '10.128.0.0/25' &> /dev/null || return -1
-      etcdctl set /ceph/osd/public_network '10.128.0.0/25' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_mkfs_type 'xfs' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_mkfs_options_xfs ' -f -i size=2048' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_mon_heartbeat_interval '30' &> /dev/null || return -1
-      etcdctl set /ceph/osd/pool_default_crush_rule '0' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_crush_update_on_start 'true' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_objectstore 'filestore' &> /dev/null || return -1
-      etcdctl set /ceph/osd/filestore_merge_threshold '40' &> /dev/null || return -1
-      etcdctl set /ceph/osd/filestore_split_multiple '8' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_op_threads '8' &> /dev/null || return -1
-      etcdctl set /ceph/osd/filestore_op_threads '8' &> /dev/null || return -1
-      etcdctl set /ceph/osd/filestore_max_sync_interval '5' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_max_scrubs '1' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_recovery_max_active '5' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_max_backfills '2' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_recovery_op_priority '2' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_client_op_priority '63' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_recovery_max_chunk '1048576' &> /dev/null || return -1
-      etcdctl set /ceph/osd/osd_recovery_threads '1' &> /dev/null || return -1
-      etcdctl set /ceph/osd/ms_bind_port_min '6800' &> /dev/null || return -1
-      etcdctl set /ceph/osd/ms_bind_port_max '7100' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/journal_size '100' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/cluster_network '10.128.0.0/25' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/public_network '10.128.0.0/25' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_mkfs_type 'xfs' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_mkfs_options_xfs ' -f -i size=2048' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_mon_heartbeat_interval '30' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/pool_default_crush_rule '0' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_crush_update_on_start 'true' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_objectstore 'filestore' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/filestore_merge_threshold '40' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/filestore_split_multiple '8' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_op_threads '8' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/filestore_op_threads '8' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/filestore_max_sync_interval '5' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_max_scrubs '1' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_recovery_max_active '5' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_max_backfills '2' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_recovery_op_priority '2' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_client_op_priority '63' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_recovery_max_chunk '1048576' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/osd_recovery_threads '1' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/ms_bind_port_min '6800' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/osd/ms_bind_port_max '7100' &> /dev/null || return -1
 
       # client:
-      etcdctl set /ceph/client/rbd_cache_enabled 'true' &> /dev/null || return -1
-      etcdctl set /ceph/client/rbd_cache_writethrough_until_flush 'false' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/client/rbd_cache_enabled 'true' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/client/rbd_cache_writethrough_until_flush 'false' &> /dev/null || return -1
 
       # mds:
-      etcdctl set /ceph/mds/mds_cache_size '100000' &> /dev/null || return -1
+      etcdctl set ${ETCD_PATH}/mds/mds_cache_size '100000' &> /dev/null || return -1
     }
 
     function main() {
@@ -447,8 +449,8 @@ write_files:
       local MSG3="[Populate etcd] Ops! Cannot retrieve the config hash from etcd"
       local MSG4="[Populate etcd] Ok! config hash initialized"
       local MSG5="[Populate etcd] Ops! Cannot initialize the config hash"
-      echo ${MSG1}; CURRENT_HASH=$(etcdctl get /ceph/config_hash 2> /dev/null) && \
-      echo ${MSG2} || { echo ${MSG3}; etcdctl set /ceph/config_hash 0 &> /dev/null && \
+      echo ${MSG1}; CURRENT_HASH=$(etcdctl get ${ETCD_PATH}/config_hash 2> /dev/null) && \
+      echo ${MSG2} || { echo ${MSG3}; etcdctl set ${ETCD_PATH}/config_hash 0 &> /dev/null && \
       echo ${MSG4} || { echo ${MSG5}; exit ${E_BAD_SET}; }; }
 
       # Check whether changes are needed:
@@ -468,7 +470,7 @@ write_files:
       local MSG1="[Populate etcd] Updating the configuration hash in etcd..."
       local MSG2="[Populate etcd] Ok! The new hash is ${DESIRED_HASH}"
       local MSG3="[Populate etcd] Ops! Cannot set the new hash value"
-      echo ${MSG1}; etcdctl set /ceph/config_hash ${DESIRED_HASH} &> /dev/null && \
+      echo ${MSG1}; etcdctl set ${ETCD_PATH}/config_hash ${DESIRED_HASH} &> /dev/null && \
       echo ${MSG2} || { echo ${MSG3}; exit ${E_BAD_SET}; }
 
       # Release the bootstrap lock:
