@@ -22,3 +22,20 @@ coreseed run-packet \
 --facility ewr1
 done
 ```
+
+#### Deploy 3 masters on Amazon EC2:
+```
+for i in 1 2 3; do
+coreseed udata \
+--ns1-api-key aabbccddeeaabbccddee \
+--domain cell-1.ewr.demo.lan \
+--hostname core-${i} \
+--role master \
+--etcd-token UQRfgWywmLJta7RtHf5AYyV2ZH1qgPNa \
+--ca-cert path/to/ca/cert.pem |
+coreseed run-ec2 \
+--region us-west-2 \
+--image-id ami-e7527ed7 \
+--instance-type t2.micro \
+done
+```
