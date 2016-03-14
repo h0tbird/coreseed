@@ -11,6 +11,7 @@ package main
 import (
 
 	// Standard library:
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -159,6 +160,11 @@ var (
 			Required().PlaceHolder("EC2_KEY_PAIR").
 			OverrideDefaultFromEnvar("EC2_KEY_PAIR").
 			Short('k').String()
+
+	flEc2SubnetId = cmdRunEc2.Flag("subnet-id", "EC2 subnet id.").
+			Required().PlaceHolder("EC2_SUBNET_ID").
+			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
+			Short('s').String()
 )
 
 //----------------------------------------------------------------------------
@@ -280,7 +286,8 @@ func cmd_run_ec2() {
 		MinCount:     aws.Int64(1),
 		MaxCount:     aws.Int64(1),
 		KeyName:      aws.String(*flEc2KeyPair),
-		UserData:     aws.String(string(udata)),
+		SubnetId:     aws.String(*flEc2SubnetId),
+		UserData:     aws.String(base64.StdEncoding.EncodeToString(udata)),
 	})
 
 	checkError(err)
