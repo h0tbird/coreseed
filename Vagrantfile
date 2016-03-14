@@ -9,23 +9,11 @@ $image_version = "current"
 $box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $vm_gui = false
 $vm_memory = 1024
-$vm_cpus = 1
+$vm_cpus = 2
 $ns1_api_key = "aabbccddeeaabbccddee"
 $domain = "cell-1.dc-1.demo.lan"
 $role = "master"
 $ca_cert = "~/certificates/certs/server-crt.pem"
-
-def vm_gui
-  $vb_gui.nil? ? $vm_gui : $vb_gui
-end
-
-def vm_memory
-  $vb_memory.nil? ? $vm_memory : $vb_memory
-end
-
-def vm_cpus
-  $vb_cpus.nil? ? $vm_cpus : $vb_cpus
-end
 
 Vagrant.configure("2") do |config|
 
@@ -52,9 +40,9 @@ Vagrant.configure("2") do |config|
     conf.vm.hostname = vm_name
 
     conf.vm.provider :virtualbox do |vb|
-      vb.gui = vm_gui
-      vb.memory = vm_memory
-      vb.cpus = vm_cpus
+      vb.gui = $vm_gui
+      vb.memory = $vm_memory
+      vb.cpus = $vm_cpus
     end
 
     ip = "172.17.8.#{i+100}"
@@ -62,7 +50,7 @@ Vagrant.configure("2") do |config|
 
     system "coreseed data -k %s -d %s -h core-%s -r %s -c %s > user_data_%s" % [$ns1_api_key, $domain, i, $role, $ca_cert, i ]
 
-    if File.exist?("user_data_%s" % i)
+    if File.exist?("user_data_%s" % i) && ARGV[0].eql?('up')
       conf.vm.provision :file, :source => "user_data_%s" % i, :destination => "/tmp/vagrantfile-user-data"
       conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
     end

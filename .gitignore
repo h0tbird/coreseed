@@ -1,3 +1,4 @@
 *.swp
 coreseed
 user_data_*
+.vagrant
