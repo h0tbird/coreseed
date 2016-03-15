@@ -35,7 +35,7 @@ coreseed udata \
 --ca-cert path/to/ca/cert.pem |
 gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
---image-id ami-2a1fad59 \
+--image-id ami-95bb00e6 \
 --key-pair marc \
 --instance-type t2.micro \
 --subnet-id subnet-xxxxxxxx
