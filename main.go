@@ -186,7 +186,7 @@ func main() {
 	// Sub-command selector:
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
-	// coreseed data ...
+	// coreseed udata ...
 	case cmdUdata.FullCommand():
 		cmd_udata()
 
@@ -206,7 +206,7 @@ func main() {
 
 func cmd_udata() {
 
-	// Template data structure:
+	// Template udata structure:
 	udata := Udata{
 		Hostname:  *flHostName,
 		Hostid:    string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
