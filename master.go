@@ -173,14 +173,14 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill mesos-master
     ExecStartPre=-/usr/bin/docker rm mesos-master
-    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404
+    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged \
       --name mesos-master \
       --net host \
       --volume /var/lib/mesos:/var/lib/mesos \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      mesosphere/mesos-master:0.26.0-0.2.145.ubuntu1404 \
+      mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404 \
       --ip=$(hostname -i) \
       --zk=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
       --work_dir=/var/lib/mesos/master \
@@ -327,7 +327,7 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill cadvisor
     ExecStartPre=-/usr/bin/docker rm -f cadvisor
-    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.21.0
+    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.22.0
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name cadvisor \
