@@ -39,6 +39,7 @@ gzip --best | coreseed run-ec2 \
 --key-pair marc \
 --instance-type t2.micro \
 --vpc-id vpc-xxxxxxxx \
---subnet-id subnet-xxxxxxxx
+--subnet-id subnet-xxxxxxxx \
+--sec-group-ids sg-xxx,sg-yyy \
 done
 ```

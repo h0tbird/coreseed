@@ -171,10 +171,10 @@ var (
 			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
 			Short('s').String()
 
-	flEc2HostRole = cmdRunEc2.Flag("role", "Choose one of [ master | node ].").
-			Required().PlaceHolder("EC2_HOST_ROLE").
-			OverrideDefaultFromEnvar("EC2_HOST_ROLE").
-			Short('l').String()
+	flEc2SecGroupId = cmdRunEc2.Flag("sec-group-ids", "EC2 security group ids.").
+			Required().PlaceHolder("EC2_SEC_GROUP_IDS").
+			OverrideDefaultFromEnvar("EC2_SEC_GROUP_IDS").
+			Short('g').String()
 )
 
 //----------------------------------------------------------------------------
@@ -288,27 +288,6 @@ func cmd_run_ec2() {
 
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
-
-	// Create the security group:
-	m := map[string][]string{
-		"master": []string{"dcos-master", "DCOS master nodes"},
-		"node":   []string{"dcos-node", "DCOS worker nodes"},
-	}
-
-	// Forge the reqest:
-	params := &ec2.CreateSecurityGroupInput{
-		Description: aws.String(m[*flEc2HostRole][1]),
-		GroupName:   aws.String(m[*flEc2HostRole][0]),
-		DryRun:      aws.Bool(false),
-		VpcId:       aws.String(*flEc2VpcId),
-	}
-
-	// Send the request:
-	resp, err := svc.CreateSecurityGroup(params)
-	checkError(err)
-
-	// Pretty-print the response data:
-	fmt.Println(resp)
 
 	// Send the request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
