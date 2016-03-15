@@ -8,5 +8,5 @@ package main
 // CoreOS master user data:
 //---------------------------------------------------------------------------
 
-const templ_slave = `SLAVE: Host name is {{.Hostname}}
+const templ_node = `NODE: Host name is {{.Hostname}}
 `

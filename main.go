@@ -69,7 +69,7 @@ var (
 			OverrideDefaultFromEnvar("CS_DOMAIN").
 			Short('d').String()
 
-	flHostRole = cmdUdata.Flag("role", "Choose one of [ master | slave | edge ].").
+	flHostRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ].").
 			Required().PlaceHolder("CS_ROLE").
 			OverrideDefaultFromEnvar("CS_ROLE").
 			Short('r').String()
@@ -161,10 +161,20 @@ var (
 			OverrideDefaultFromEnvar("EC2_KEY_PAIR").
 			Short('k').String()
 
+	flEc2VpcId = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
+			Required().PlaceHolder("EC2_VPC_ID").
+			OverrideDefaultFromEnvar("EC2_VPC_ID").
+			Short('v').String()
+
 	flEc2SubnetId = cmdRunEc2.Flag("subnet-id", "EC2 subnet id.").
 			Required().PlaceHolder("EC2_SUBNET_ID").
 			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
 			Short('s').String()
+
+	flEc2HostRole = cmdRunEc2.Flag("role", "Choose one of [ master | node ].").
+			Required().PlaceHolder("EC2_HOST_ROLE").
+			OverrideDefaultFromEnvar("EC2_HOST_ROLE").
+			Short('l').String()
 )
 
 //----------------------------------------------------------------------------
@@ -221,9 +231,9 @@ func cmd_udata() {
 		t, err := t.Parse(templ_master)
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
-	case "slave":
-		t := template.New("slave_udata")
-		t, err := t.Parse(templ_slave)
+	case "node":
+		t := template.New("node_udata")
+		t, err := t.Parse(templ_node)
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
 	case "edge":
@@ -262,7 +272,7 @@ func cmd_run_packet() {
 	newDevice, _, err := client.Devices.Create(createRequest)
 	checkError(err)
 
-	// Response output:
+	// Pretty-print the response data:
 	fmt.Println(newDevice)
 }
 
@@ -279,6 +289,27 @@ func cmd_run_ec2() {
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
 
+	// Create the security group:
+	m := map[string][]string{
+		"master": []string{"dcos-master", "DCOS master nodes"},
+		"node":   []string{"dcos-node", "DCOS worker nodes"},
+	}
+
+	// Forge the reqest:
+	params := &ec2.CreateSecurityGroupInput{
+		Description: aws.String(m[*flEc2HostRole][1]),
+		GroupName:   aws.String(m[*flEc2HostRole][0]),
+		DryRun:      aws.Bool(false),
+		VpcId:       aws.String(*flEc2VpcId),
+	}
+
+	// Send the request:
+	resp, err := svc.CreateSecurityGroup(params)
+	checkError(err)
+
+	// Pretty-print the response data:
+	fmt.Println(resp)
+
 	// Send the request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
 		ImageId:      aws.String(*flEc2ImageId),
@@ -292,7 +323,7 @@ func cmd_run_ec2() {
 
 	checkError(err)
 
-	// Response output:
+	// Pretty-print the response data:
 	fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
 }
 
