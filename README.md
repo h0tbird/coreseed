@@ -11,18 +11,18 @@ https://discovery.etcd.io/new?size=3
 ```
 for i in 1 2 3; do
 coreseed udata \
---ns1-api-key aabbccddeeaabbccddee \
+--ns1-api-key xxxxxxxxxxxxxxxxxxx \
 --domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
 --role master \
---etcd-token UQRfgWywmLJta7RtHf5AYyV2ZH1qgPNa \
+--etcd-token xxxxxxxwxxxxxxxxxxxxxxxxxxxxxxxx \
 --ca-cert path/to/ca/cert.pem |
 coreseed run-packet \
 --hostname core-${i} \
 --os coreos_alpha \
---api-key aabbccddeeaabbccddeeaabbccddeeaa \
+--api-key xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
 --billing hourly \
---project-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee \
+--project-id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx \
 --plan baremetal_0 \
 --facility ewr1
 done
