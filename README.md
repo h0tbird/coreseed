@@ -37,7 +37,7 @@ coreseed udata \
 --hostname core-${i} \
 --role master \
 --etcd-token xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
---ca-cert path/to/ca/cert.pem |
+--ca-cert path/to/ca/cert.pem | \
 gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
 --image-id ami-95bb00e6 \
@@ -45,6 +45,6 @@ gzip --best | coreseed run-ec2 \
 --instance-type t2.micro \
 --vpc-id vpc-xxxxxxxx \
 --subnet-id subnet-xxxxxxxx \
---sec-group-ids sg-xxx,sg-yyy \
+--sec-group-ids sg-xxx,sg-yyy
 done
 ```
