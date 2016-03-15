@@ -2,6 +2,11 @@
 
 Define and deploy CoreOS clusters.
 
+#### Request an `etcd` bootstrapping token:
+```
+https://discovery.etcd.io/new?size=3
+```
+
 #### Deploy 3 masters on Packet.net:
 ```
 for i in 1 2 3; do
