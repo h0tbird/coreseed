@@ -287,7 +287,7 @@ func cmd_run_ec2() {
 		MaxCount:     aws.Int64(1),
 		KeyName:      aws.String(*flEc2KeyPair),
 		SubnetId:     aws.String(*flEc2SubnetId),
-		UserData:     aws.String(base64.StdEncoding.EncodeToString(udata)),
+		UserData:     aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})
 
 	checkError(err)

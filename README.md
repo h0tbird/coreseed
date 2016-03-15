@@ -33,10 +33,11 @@ coreseed udata \
 --role master \
 --etcd-token UQRfgWywmLJta7RtHf5AYyV2ZH1qgPNa \
 --ca-cert path/to/ca/cert.pem |
-gzip | coreseed run-ec2 \
+gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
 --image-id ami-2a1fad59 \
 --key-pair marc \
---instance-type t2.micro
+--instance-type t2.micro \
+--subnet-id subnet-xxxxxxxx
 done
 ```
