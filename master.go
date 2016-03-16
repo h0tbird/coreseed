@@ -195,6 +195,50 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
+ - path: "/etc/fleet/mesos-node.service"
+   content: |
+    [Unit]
+    Description=Mesos Node
+    After=docker.service dnsmasq.service
+		Wants=dnsmasq.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill mesos-noe
+    ExecStartPre=-/usr/bin/docker rm mesos-node
+    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404
+    ExecStart=/usr/bin/sh -c "docker run \
+      --privileged \
+      --name mesos-node \
+      --net host \
+			--pid host \
+			--volume /sys:/sys \
+			--volume /etc/resolv.conf:/etc/resolv.conf \
+			--volume /usr/bin/docker:/usr/bin/docker:ro \
+			--volume /var/run/docker.sock:/var/run/docker.sock \
+			--volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
+			--volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
+			--volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
+			--volume /var/lib/mesos:/var/lib/mesos \
+      mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404 \
+      --ip=$(hostname -i) \
+			--containerizers=docker \
+			--executor_registration_timeout=2mins \
+			--master=zk://core-1:2181,core-5:2181,core-9:2181/mesos \
+			--work_dir=/var/lib/mesos/node \
+			--log_dir=/var/log/mesos/node"
+    ExecStop=/usr/bin/docker stop -t 5 mesos-node
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=node
+
  - path: "/etc/fleet/mesos-dns.service"
    content: |
     [Unit]
@@ -313,6 +357,47 @@ write_files:
     [X-Fleet]
     Global=true
     MachineMetadata=role=master
+
+ - path: "/etc/fleet/ceph-osd.service"
+   content: |
+    [Unit]
+    Description=Ceph OSD
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+
+    ExecStartPre=-/usr/bin/docker kill ceph-osd
+    ExecStartPre=-/usr/bin/docker rm ceph-osd
+    ExecStartPre=-/usr/bin/docker pull h0tbird/ceph:v9.2.0-2
+
+    ExecStart=/usr/bin/sh -c "docker run \
+		  --privileged=true \
+      --net host \
+      --name ceph-osd \
+      --volume /var/lib/ceph:/var/lib/ceph \
+      --volume /etc/ceph:/etc/ceph \
+			--volume /dev:/dev \
+      --env CLUSTER='ceph' \
+			--env CEPH_GET_ADMIN_KEY=1 \
+			--env OSD_DEVICE=/dev/sdb \
+			--env OSD_FORCE_ZAP=1 \
+			--env KV_TYPE=etcd \
+			--env KV_IP=127.0.0.1 \
+			--env KV_PORT=2379 \
+      h0tbird/ceph:v9.2.0-2 osd"
+
+    ExecStop=/usr/bin/docker stop -t 5 ceph-osd
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=node
 
  - path: "/etc/fleet/cadvisor.service"
    content: |
@@ -541,24 +626,6 @@ coreos:
        [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
        rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci; \
        rkt --insecure-options=image fetch docker://h0tbird/ceph:v9.2.0-2'
-
-  - name: "docker-volume-rbd.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Docker RBD volume plugin
-     Requires=docker.service
-     After=docker.service
-
-     [Service]
-     Restart=on-failure
-     RestartSec=10
-     TimeoutStartSec=0
-
-     Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin:/opt/bin"
-     ExecStartPre=-/usr/bin/wget https://github.com/h0tbird/docker-volume-rbd/releases/download/v0.1.2/docker-volume-rbd -O /opt/bin/docker-volume-rbd
-     ExecStartPre=-/usr/bin/chmod 755 /opt/bin/docker-volume-rbd
-     ExecStart=/opt/bin/docker-volume-rbd
 
  fleet:
   public-ip: "$private_ipv4"
