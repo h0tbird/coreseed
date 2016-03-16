@@ -432,6 +432,42 @@ write_files:
     [X-Fleet]
     Global=true
 
+ - path: "/etc/fleet/dnsmasq.service"
+   content: |
+    [Unit]
+    Description=Lightweight caching DNS proxy
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill dnsmasq
+    ExecStartPre=-/usr/bin/docker rm -f dnsmasq
+    ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.0
+    ExecStartPre=/usr/bin/sh -c " \
+      dig core-1 core-2 core-3 +short | tr '\n' ',' > /tmp/ns && \
+      awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name dnsmasq \
+      --net host \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      janeczku/go-dnsmasq:release-1.0.0 \
+      --listen $(hostname -i) \
+      --nameservers $(cat /tmp/ns) \
+      --default-resolver \
+      --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
+      --append-search-domains"
+    ExecStop=/usr/bin/docker stop -t 5 dnsmasq
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=node
+
  - path: "/opt/bin/ceph2etcd"
    permissions: "0755"
    content: |
