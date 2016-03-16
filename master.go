@@ -263,7 +263,7 @@ write_files:
       --env MDNS_HTTPON=false \
       --env MDNS_TTL=45 \
       --env MDNS_RESOLVERS=8.8.8.8 \
-      --env MDNS_DOMAIN=$(echo $(hostname -d | cut -d. -f-2).mesos) \
+      --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
       --env MDNS_IPSOURCE=netinfo \
       h0tbird/mesos-dns:v0.5.2-1"
     ExecStartPost=/usr/bin/sh -c ' \
