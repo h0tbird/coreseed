@@ -137,7 +137,7 @@ coreos:
   - name: flanneld.service
     command: "start"
     drop-ins:
-     - name: 50-network-conf
+     - name: 50-network-config.conf
        content: |
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.128.0.0/21","SubnetLen":27 ,"SubnetMin": "10.128.0.192","SubnetMax": "10.128.7.224","Backend": {"Type": "vxlan"} }'
