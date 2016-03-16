@@ -200,7 +200,7 @@ write_files:
     [Unit]
     Description=Mesos Node
     After=docker.service dnsmasq.service
-		Wants=dnsmasq.service
+    Wants=dnsmasq.service
     Requires=docker.service
 
     [Service]
@@ -214,22 +214,22 @@ write_files:
       --privileged \
       --name mesos-node \
       --net host \
-			--pid host \
-			--volume /sys:/sys \
-			--volume /etc/resolv.conf:/etc/resolv.conf \
-			--volume /usr/bin/docker:/usr/bin/docker:ro \
-			--volume /var/run/docker.sock:/var/run/docker.sock \
-			--volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
-			--volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
-			--volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
-			--volume /var/lib/mesos:/var/lib/mesos \
+      --pid host \
+      --volume /sys:/sys \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --volume /usr/bin/docker:/usr/bin/docker:ro \
+      --volume /var/run/docker.sock:/var/run/docker.sock \
+      --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
+      --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
+      --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
+      --volume /var/lib/mesos:/var/lib/mesos \
       mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404 \
       --ip=$(hostname -i) \
-			--containerizers=docker \
-			--executor_registration_timeout=2mins \
-			--master=zk://core-1:2181,core-5:2181,core-9:2181/mesos \
-			--work_dir=/var/lib/mesos/node \
-			--log_dir=/var/log/mesos/node"
+      --containerizers=docker \
+      --executor_registration_timeout=2mins \
+      --master=zk://core-1:2181,core-5:2181,core-9:2181/mesos \
+      --work_dir=/var/lib/mesos/node \
+      --log_dir=/var/log/mesos/node"
     ExecStop=/usr/bin/docker stop -t 5 mesos-node
 
     [Install]
@@ -375,19 +375,19 @@ write_files:
     ExecStartPre=-/usr/bin/docker pull h0tbird/ceph:v9.2.0-2
 
     ExecStart=/usr/bin/sh -c "docker run \
-		  --privileged=true \
+      --privileged=true \
       --net host \
       --name ceph-osd \
       --volume /var/lib/ceph:/var/lib/ceph \
       --volume /etc/ceph:/etc/ceph \
-			--volume /dev:/dev \
+      --volume /dev:/dev \
       --env CLUSTER='ceph' \
-			--env CEPH_GET_ADMIN_KEY=1 \
-			--env OSD_DEVICE=/dev/sdb \
-			--env OSD_FORCE_ZAP=1 \
-			--env KV_TYPE=etcd \
-			--env KV_IP=127.0.0.1 \
-			--env KV_PORT=2379 \
+      --env CEPH_GET_ADMIN_KEY=1 \
+      --env OSD_DEVICE=/dev/sdb \
+      --env OSD_FORCE_ZAP=1 \
+      --env KV_TYPE=etcd \
+      --env KV_IP=127.0.0.1 \
+      --env KV_PORT=2379 \
       h0tbird/ceph:v9.2.0-2 osd"
 
     ExecStop=/usr/bin/docker stop -t 5 ceph-osd
