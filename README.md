@@ -4,7 +4,7 @@ Define and deploy CoreOS clusters.
 
 #### Request an `etcd` bootstrapping token:
 ```
-https://discovery.etcd.io/new?size=3
+ETCD_TOKEN=$(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}')
 ```
 
 #### Deploy 3 masters on Packet.net:
@@ -15,7 +15,7 @@ coreseed udata \
 --domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
 --role master \
---etcd-token xxxxxxxwxxxxxxxxxxxxxxxxxxxxxxxx \
+--etcd-token ${ETCD_TOKEN} \
 --ca-cert path/to/ca/cert.pem |
 coreseed run-packet \
 --hostname core-${i} \
@@ -36,7 +36,7 @@ coreseed udata \
 --domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
 --role master \
---etcd-token xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
+--etcd-token ${ETCD_TOKEN} \
 --ca-cert path/to/ca/cert.pem | \
 gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
