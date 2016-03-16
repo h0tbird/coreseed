@@ -335,7 +335,7 @@ write_files:
       --volume /var/run:/var/run:rw \
       --volume /sys:/sys:ro \
       --volume /var/lib/docker/:/var/lib/docker:ro \
-      google/cadvisor:v0.21.0 \
+      google/cadvisor:v0.22.0 \
       --listen_ip $(hostname -i) \
       --logtostderr \
       --port=4194"
