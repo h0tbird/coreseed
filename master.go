@@ -208,7 +208,7 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill mesos-dns
     ExecStartPre=-/usr/bin/docker rm mesos-dns
-    ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.1-5
+    ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
     ExecStart=/usr/bin/sh -c "docker run \
       --name mesos-dns \
       --net host \
@@ -220,7 +220,7 @@ write_files:
       --env MDNS_RESOLVERS=8.8.8.8 \
       --env MDNS_DOMAIN=$(echo $(hostname -d | cut -d. -f-2).mesos) \
       --env MDNS_IPSOURCE=netinfo \
-      h0tbird/mesos-dns:v0.5.1-5"
+      h0tbird/mesos-dns:v0.5.2-1"
     ExecStartPost=/usr/bin/sh -c ' \
       echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
       echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
