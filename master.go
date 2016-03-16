@@ -208,7 +208,7 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill mesos-noe
+    ExecStartPre=-/usr/bin/docker kill mesos-node
     ExecStartPre=-/usr/bin/docker rm mesos-node
     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404
     ExecStart=/usr/bin/sh -c "docker run \
@@ -228,7 +228,7 @@ write_files:
       --ip=$(hostname -i) \
       --containerizers=docker \
       --executor_registration_timeout=2mins \
-      --master=zk://core-1:2181,core-5:2181,core-9:2181/mesos \
+      --master=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
       --work_dir=/var/lib/mesos/node \
       --log_dir=/var/log/mesos/node"
     ExecStop=/usr/bin/docker stop -t 5 mesos-node
