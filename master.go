@@ -129,6 +129,7 @@ write_files:
     [Unit]
     Description=Zookeeper
     After=docker.service
+    Before=mesos-master.service marathon.service
     Requires=docker.service
 
     [Service]
