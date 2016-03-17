@@ -26,9 +26,9 @@ write_files:
     search {{.Domain}}
     nameserver 8.8.8.8
 
- {{if .CAcert }}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
+ {{if .CaCert }}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
    content: |
-    {{.CAcert}}{{end}}
+    {{.CaCert}}{{end}}
 
  - path: "/etc/systemd/system/docker.service.d/50-docker-opts.conf"
    content: |

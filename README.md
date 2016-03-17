@@ -41,10 +41,6 @@ todo
 
 case $1 in
 
-  #-------------------
-  # Deploy 3 masters:
-  #-------------------
-
   "masters")
 
     for i in 1 2 3; do
@@ -67,10 +63,6 @@ case $1 in
       --sec-group-ids sg-xxx,sg-xxx
 
     done ;;
-
-  #-----------------
-  # Deploy 3 nodes:
-  #-----------------
 
   "nodes")
 
