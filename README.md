@@ -3,7 +3,7 @@
 Define and deploy CoreOS clusters.
 
 #### Deploy on Packet.net
-```
+```bash
 #!/bin/bash
 
 case $1 in
