@@ -49,7 +49,7 @@ case $1 in
       --flannel-subnet-max 10.128.7.224 \
       --flannel-backend vxlan |
 
-      coreseed run-ec2 \
+      coreseed run-packet \
       --api-key xxx \
       --hostname core-${i} \
       --project-id xxx \
