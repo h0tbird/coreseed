@@ -448,7 +448,7 @@ write_files:
     ExecStartPre=-/usr/bin/docker rm -f dnsmasq
     ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.0
     ExecStartPre=/usr/bin/sh -c " \
-      dig core-{1,2,3}.$(hostname-d) +short | tr '\n' ',' > /tmp/ns && \
+      dig core-{1,2,3}.$(hostname -d) +short | tr '\n' ',' > /tmp/ns && \
       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
     ExecStart=/usr/bin/sh -c "docker run \
       --name dnsmasq \
