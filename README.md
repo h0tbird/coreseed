@@ -36,51 +36,70 @@ todo
 ```
 
 #### Deploy on Amazon EC2
+```bash
+#!/bin/bash
 
-##### 3 masters:
-```
-for i in 1 2 3; do
-coreseed udata \
---hostname core-${i} \
---domain cell-1.ewr.demo.lan \
---role master \
---ns1-api-key xxxxxxxxxxxxxxxxxxxx \
---ca-cert path/to/ca/cert.pem \
---etcd-token ${ETCD_TOKEN} | \
-gzip --best | coreseed run-ec2 \
---region eu-west-1 \
---image-id ami-95bb00e6 \
---key-pair foo \
---instance-type t2.medium \
---vpc-id vpc-xxxxxxxx \
---subnet-id subnet-xxxxxxxx \
---sec-group-ids sg-xxx,sg-yyy
-done
-```
+case $1 in
 
-##### 3 nodes:
-```
-for i in 4 5 6; do
-coreseed udata \
---hostname core-${i} \
---domain cell-1.ewr.demo.lan \
---role node \
---ns1-api-key xxxxxxxxxxxxxxxxxxxx \
---ca-cert path/to/ca/cert.pem \
---flannel-network 10.128.0.0/21 \
---flannel-subnet-len 27 \
---flannel-subnet-min 10.128.0.192 \
---flannel-subnet-max 10.128.7.224 \
---flannel-backend vxlan | \
-gzip --best | coreseed run-ec2 \
---region eu-west-1 \
---image-id ami-95bb00e6 \
---key-pair foo \
---instance-type t2.medium \
---vpc-id vpc-xxxxxxxx \
---subnet-id subnet-xxxxxxxx \
---sec-group-ids sg-xxx,sg-yyy
-done
+  #-------------------
+  # Deploy 3 masters:
+  #-------------------
+
+  "masters")
+
+    for i in 1 2 3; do
+
+      coreseed udata \
+      --hostname core-${i} \
+      --domain cell-1.dc-1.demo.com \
+      --role master \
+      --ns1-api-key xxx \
+      --ca-cert path/to/cert.pem \
+      --etcd-token $(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}') |
+
+      gzip --best | coreseed run-ec2 \
+      --region eu-west-1 \
+      --image-id ami-95bb00e6 \
+      --instance-type t2.medium \
+      --key-pair xxx \
+      --vpc-id vpc-xxx \
+      --subnet-id subnet-xxx \
+      --sec-group-ids sg-xxx,sg-xxx
+
+    done ;;
+
+  #-----------------
+  # Deploy 3 nodes:
+  #-----------------
+
+  "nodes")
+
+    for i in 4 5 6; do
+
+      coreseed udata \
+      --hostname core-${i} \
+      --domain cell-1.dc-1.demo.com \
+      --role node \
+      --ns1-api-key xxx \
+      --ca-cert path/to/cert.pem \
+      --flannel-network 10.128.0.0/21 \
+      --flannel-subnet-len 27 \
+      --flannel-subnet-min 10.128.0.192 \
+      --flannel-subnet-max 10.128.7.224 \
+      --flannel-backend vxlan |
+
+      gzip --best | coreseed run-ec2 \
+      --region eu-west-1 \
+      --image-id ami-95bb00e6 \
+      --instance-type t2.medium \
+      --key-pair xxx \
+      --vpc-id vpc-xxx \
+      --subnet-id subnet-xxx \
+      --sec-group-ids sg-xxx,sg-xxx
+
+    done ;;
+
+esac
 ```
 
 #### Deploy the full stack:
