@@ -31,14 +31,19 @@ import (
 //----------------------------------------------------------------------------
 
 type Udata struct {
-	Hostname  string
-	Hostid    string
-	Domain    string
-	Role      string
-	Ns1apikey string
-	Fleettags string
-	CAcert    string
-	EtcdTkn   string
+	Hostname         string
+	Hostid           string
+	Domain           string
+	Role             string
+	Ns1apikey        string
+	Fleettags        string
+	CAcert           string
+	EtcdTkn          string
+	FlannelNetwork   string
+	FlannelSubnetLen string
+	FlannelSubnetMin string
+	FlannelSubnetMax string
+	FlannelBackend   string
 }
 
 //-----------------------------------------------------------------------------
@@ -103,6 +108,21 @@ var (
 			PlaceHolder("CS_FLANNEL_SUBNET_LEN").
 			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_LEN").
 			Short('s').String()
+
+	flFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
+			PlaceHolder("CS_FLANNEL_SUBNET_MIN").
+			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MIN").
+			Short('m').String()
+
+	flFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
+			PlaceHolder("CS_FLANNEL_SUBNET_MAX").
+			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
+			Short('x').String()
+
+	flFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | gce | aws-vpc ]").
+			PlaceHolder("CS_FLANNEL_SUBNET_MAX").
+			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
+			Short('b').String()
 
 	//----------------------------
 	// run-packet: nested command
@@ -218,13 +238,18 @@ func cmd_udata() {
 
 	// Template udata structure:
 	udata := Udata{
-		Hostname:  *flHostName,
-		Hostid:    string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
-		Domain:    *flDomain,
-		Role:      *flRole,
-		Ns1apikey: *flNs1Apikey,
-		Fleettags: *flFleetTags,
-		EtcdTkn:   *flEtcdToken,
+		Hostname:         *flHostName,
+		Hostid:           string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
+		Domain:           *flDomain,
+		Role:             *flRole,
+		Ns1apikey:        *flNs1Apikey,
+		Fleettags:        *flFleetTags,
+		EtcdTkn:          *flEtcdToken,
+		FlannelNetwork:   *flFlannelNetwork,
+		FlannelSubnetLen: *flFlannelSubnetLen,
+		FlannelSubnetMin: *flFlannelSubnetMin,
+		FlannelSubnetMax: *flFlannelSubnetMax,
+		FlannelBackend:   *flFlannelBackend,
 	}
 
 	// Read the CA certificate:

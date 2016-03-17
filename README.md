@@ -18,7 +18,7 @@ coreseed udata \
 --hostname core-${i} \
 --role master \
 --etcd-token ${ETCD_TOKEN} \
---ca-cert path/to/ca/cert.pem |
+--ca-cert path/to/ca/cert.pem | \
 coreseed run-packet \
 --hostname core-${i} \
 --os coreos_alpha \
@@ -41,12 +41,12 @@ todo
 ```
 for i in 1 2 3; do
 coreseed udata \
---ns1-api-key xxxxxxxxxxxxxxxxxxxx \
---domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
+--domain cell-1.ewr.demo.lan \
 --role master \
---etcd-token ${ETCD_TOKEN} \
---ca-cert path/to/ca/cert.pem | \
+--ns1-api-key xxxxxxxxxxxxxxxxxxxx \
+--ca-cert path/to/ca/cert.pem \
+--etcd-token ${ETCD_TOKEN} | \
 gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
 --image-id ami-95bb00e6 \
@@ -62,11 +62,16 @@ done
 ```
 for i in 4 5 6; do
 coreseed udata \
---ns1-api-key xxxxxxxxxxxxxxxxxxxx \
---domain cell-1.ewr.demo.lan \
 --hostname core-${i} \
+--domain cell-1.ewr.demo.lan \
 --role node \
---ca-cert --ca-cert path/to/ca/cert.pem | \
+--ns1-api-key xxxxxxxxxxxxxxxxxxxx \
+--ca-cert path/to/ca/cert.pem \
+--flannel-network 10.128.0.0/21 \
+--flannel-subnet-len 27 \
+--flannel-subnet-min 10.128.0.192 \
+--flannel-subnet-max 10.128.7.224 \
+--flannel-backend vxlan | \
 gzip --best | coreseed run-ec2 \
 --region eu-west-1 \
 --image-id ami-95bb00e6 \

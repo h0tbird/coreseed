@@ -140,7 +140,7 @@ coreos:
      - name: 50-network-config.conf
        content: |
         [Service]
-        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.128.0.0/21","SubnetLen":27 ,"SubnetMin": "10.128.0.192","SubnetMax": "10.128.7.224","Backend": {"Type": "vxlan"} }'
+        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
 
   - name: "ns1dns.service"
     command: "start"
