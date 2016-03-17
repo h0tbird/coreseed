@@ -10,16 +10,16 @@ package main
 
 const templ_master = `#cloud-config
 
-hostname: "{{.Hostname}}.{{.Domain}}"
+hostname: "{{.HostName}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.Hostname}}.{{.Domain}} {{.Hostname}}
-    $private_ipv4 {{.Hostname}}.int.{{.Domain}} {{.Hostname}}.int
-    $public_ipv4 {{.Hostname}}.ext.{{.Domain}} {{.Hostname}}.ext
+    $private_ipv4 {{.HostName}}.{{.Domain}} {{.HostName}}
+    $private_ipv4 {{.HostName}}.int.{{.Domain}} {{.HostName}}.int
+    $public_ipv4 {{.HostName}}.ext.{{.Domain}} {{.HostName}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -69,7 +69,7 @@ write_files:
     readonly HOST="$(hostname -s)"
     readonly DOMAIN="$(hostname -d)"
     readonly APIURL='https://api.nsone.net/v1'
-    readonly APIKEY='{{.Ns1apikey}}'
+    readonly APIKEY='{{.Ns1ApiKey}}'
     declare -A IP=(['ext']='$public_ipv4' ['int']='$private_ipv4')
 
     for i in ext int; do
@@ -666,10 +666,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=master,masterid={{.Hostid}}"
+  metadata: "role=master,masterid={{.HostId}}"
 
  etcd2:
- {{if .EtcdTkn }} discovery: https://discovery.etcd.io/{{.EtcdTkn}}{{else}} name: "{{.Hostname}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "{{.HostName}}"
   initial-cluster: "core-1=http://core-1:2380,core-2=http://core-2:2380,core-3=http://core-3:2380"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"

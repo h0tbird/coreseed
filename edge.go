@@ -8,5 +8,5 @@ package main
 // CoreOS master user data:
 //---------------------------------------------------------------------------
 
-const templ_edge = `EDGE: Host name is {{.Hostname}}
+const templ_edge = `EDGE: Host name is {{.HostName}}
 `

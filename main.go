@@ -31,14 +31,14 @@ import (
 //----------------------------------------------------------------------------
 
 type Udata struct {
-	Hostname         string
-	Hostid           string
+	HostName         string
+	HostId           string
 	Domain           string
 	Role             string
-	Ns1apikey        string
-	Fleettags        string
-	CAcert           string
-	EtcdTkn          string
+	Ns1ApiKey        string
+	FleetTags        string
+	CaCert           string
+	EtcdToken        string
 	FlannelNetwork   string
 	FlannelSubnetLen string
 	FlannelSubnetMin string
@@ -238,13 +238,13 @@ func cmd_udata() {
 
 	// Template udata structure:
 	udata := Udata{
-		Hostname:         *flHostName,
-		Hostid:           string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
+		HostName:         *flHostName,
+		HostId:           string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
 		Domain:           *flDomain,
 		Role:             *flRole,
-		Ns1apikey:        *flNs1Apikey,
-		Fleettags:        *flFleetTags,
-		EtcdTkn:          *flEtcdToken,
+		Ns1ApiKey:        *flNs1Apikey,
+		FleetTags:        *flFleetTags,
+		EtcdToken:        *flEtcdToken,
 		FlannelNetwork:   *flFlannelNetwork,
 		FlannelSubnetLen: *flFlannelSubnetLen,
 		FlannelSubnetMin: *flFlannelSubnetMin,
@@ -256,7 +256,7 @@ func cmd_udata() {
 	if *flCAcert != "" {
 		dat, err := ioutil.ReadFile(*flCAcert)
 		checkError(err)
-		udata.CAcert = strings.TrimSpace(strings.Replace(string(dat), "\n", "\n    ", -1))
+		udata.CaCert = strings.TrimSpace(strings.Replace(string(dat), "\n", "\n    ", -1))
 	}
 
 	// Render the template for the selected role:
