@@ -59,29 +59,29 @@ var (
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
-	flHostName = cmdUdata.Flag("hostname", "Short host name as in (hostname -s).").
+	flHostName = cmdUdata.Flag("hostname", "Short host name as in (hostname -s)").
 			Required().PlaceHolder("CS_HOSTNAME").
 			OverrideDefaultFromEnvar("CS_HOSTNAME").
 			Short('h').String()
 
-	flDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d).").
+	flDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d)").
 			Required().PlaceHolder("CS_DOMAIN").
 			OverrideDefaultFromEnvar("CS_DOMAIN").
 			Short('d').String()
 
-	flHostRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ].").
+	flRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ]").
 			Required().PlaceHolder("CS_ROLE").
 			OverrideDefaultFromEnvar("CS_ROLE").
 			Short('r').String()
 
 	flNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
-			Required().PlaceHolder("CS_NS1_KEY").
-			OverrideDefaultFromEnvar("CS_NS1_KEY").
+			Required().PlaceHolder("CS_NS1_API_KEY").
+			OverrideDefaultFromEnvar("CS_NS1_API_KEY").
 			Short('k').String()
 
-	flFleetTags = cmdUdata.Flag("tags", "Comma separated list of fleet tags.").
-			PlaceHolder("CS_TAGS").
-			OverrideDefaultFromEnvar("CS_TAGS").
+	flFleetTags = cmdUdata.Flag("fleet-tags", "Comma separated list of fleet tags.").
+			PlaceHolder("CS_FLEET_TAGS").
+			OverrideDefaultFromEnvar("CS_FLEET_TAGS").
 			Short('t').String()
 
 	flCAcert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
@@ -89,10 +89,20 @@ var (
 			OverrideDefaultFromEnvar("CS_CA_CERT").
 			Short('c').String()
 
-	flEtcdTkn = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
-			PlaceHolder("CS_ETCD_TKN").
-			OverrideDefaultFromEnvar("CS_ETCD_TKN").
+	flEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
+			PlaceHolder("CS_ETCD_TOKEN").
+			OverrideDefaultFromEnvar("CS_ETCD_TOKEN").
 			Short('e').String()
+
+	flFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
+			PlaceHolder("CS_FLANNEL_NETWORK").
+			OverrideDefaultFromEnvar("CS_FLANNEL_NETWORK").
+			Short('n').String()
+
+	flFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
+			PlaceHolder("CS_FLANNEL_SUBNET_LEN").
+			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_LEN").
+			Short('s').String()
 
 	//----------------------------
 	// run-packet: nested command
@@ -211,10 +221,10 @@ func cmd_udata() {
 		Hostname:  *flHostName,
 		Hostid:    string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
 		Domain:    *flDomain,
-		Role:      *flHostRole,
+		Role:      *flRole,
 		Ns1apikey: *flNs1Apikey,
 		Fleettags: *flFleetTags,
-		EtcdTkn:   *flEtcdTkn,
+		EtcdTkn:   *flEtcdToken,
 	}
 
 	// Read the CA certificate:
@@ -225,7 +235,7 @@ func cmd_udata() {
 	}
 
 	// Render the template for the selected role:
-	switch *flHostRole {
+	switch *flRole {
 	case "master":
 		t := template.New("master_udata")
 		t, err := t.Parse(templ_master)
