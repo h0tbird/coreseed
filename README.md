@@ -26,12 +26,12 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-### Deploy Káto on IaaS providers
+## 1. Deploy Káto's infrastructure on IaaS providers
 
 - [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
 - [x] [Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)
 
-#### Deploy the full stack:
+## 2. Start the full stack
 ```
 cd /etc/fleet
 fleetctl submit zookeeper\@.service
@@ -41,8 +41,8 @@ fleetctl start marathon.service cadvisor.service
 fleetctl start ceph-mon.service dnsmasq.service
 fleetctl start ceph-osd.service mesos-node.service
 ```
-## License
 
+## License
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
