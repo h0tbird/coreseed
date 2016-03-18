@@ -28,8 +28,8 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 ### Deploy Káto on IaaS providers
 
-- [x] [Amazon EC2]()
-- [x] [Packet.net]()
+- [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
+- [x] [Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)
 
 #### Deploy the full stack:
 ```
