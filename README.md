@@ -22,6 +22,13 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - Load balancing
 - High availability
 
+</br>
+
+### Deploy Káto on IaaS providers
+
+- [x] [Amazon EC2]()
+- [x] [Packet.net]()
+
 ### Deploy on Packet.net
 ```bash
 #!/bin/bash
