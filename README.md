@@ -1,6 +1,21 @@
-# coreseed
+# The Káto system
 
-Define and deploy CoreOS clusters.
+**Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated system which governs diverse computing workloads and work-flows.
+Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is used to breakdown monolithic platforms into microservices.
+
+**Distinctive attributes**
+
+- Geolocation
+- Multidatacenter
+- Cloud agnostic
+- Variable costs
+- Hardware abstraction
+- Endo/exo-elasticity
+- Microservices
+- CI/CD pipelines
+- Service discovery
+- Load balancing
+- High availability
 
 #### Deploy on Packet.net
 ```bash
