@@ -26,12 +26,12 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-## 1. Deploy Káto's infrastructure on IaaS providers
+## 1. Deploy Káto's infrastructure
 
 - [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
 - [x] [Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)
 
-## 2. Start the full stack
+## 2. Start the stack
 ```
 cd /etc/fleet
 fleetctl submit zookeeper\@.service
