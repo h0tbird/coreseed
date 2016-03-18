@@ -3,6 +3,9 @@
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated system which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is used to breakdown monolithic platforms into microservices.
 
+<img src="https://www.lucidchart.com/publicSegments/view/36b62f8a-cb78-4807-850f-d0df68e94bd7/image.png"
+ alt="Booddies logo" title="Booddies" align="right" width="69%" height="69%"/>
+
 **Distinctive attributes**
 
 - Geolocation
@@ -19,7 +22,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - Load balancing
 - High availability
 
-#### Deploy on Packet.net
+### Deploy on Packet.net
 ```bash
 #!/bin/bash
 
