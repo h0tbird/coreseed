@@ -12,6 +12,8 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - Hardware abstraction
 - Endo/exo-elasticity
 - Microservices
+- Containerization
+- Task scheduling
 - CI/CD pipelines
 - Service discovery
 - Load balancing
