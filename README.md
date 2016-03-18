@@ -5,7 +5,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-<img src="https://www.lucidchart.com/publicSegments/view/36b62f8a-cb78-4807-850f-d0df68e94bd7/image.png"
+<img src="https://raw.githubusercontent.com/h0tbird/coreseed/master/imgs/kato.png"
  alt="Booddies logo" title="Booddies" align="right" width="69%" height="69%"/>
 
 **Distinctive attributes**
