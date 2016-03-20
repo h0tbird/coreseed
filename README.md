@@ -1,7 +1,7 @@
 # The Káto system
 
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated system which governs diverse computing workloads and work-flows.
-Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is used to breakdown monolithic platforms into microservices.
+Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is used to breakdown complex monolithic platforms into simpler microservices.
 
 </br>
 
@@ -25,6 +25,10 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - High availability
 
 </br>
+
+# Overview
+
+[CoreOS]() is the foundation on which *Káto* is built. It provides the fundamental components used to assemble container-based distributed systems: [etcd]() is used for consensus and discovery, [fleet]() is a distributed init system, [flannel]() is used for virtual networking and [rkt]() and [docker]() are container engines.
 
 ## 1. Deploy Káto's infrastructure
 
