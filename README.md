@@ -23,6 +23,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - Service discovery
 - Load balancing
 - High availability
+- Self-healing
 
 </br>
 
