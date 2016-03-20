@@ -31,7 +31,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 [CoreOS]() is the foundation on which *Káto* is built. It provides the fundamental components used to assemble container-based distributed systems: [etcd]() is used for consensus and discovery, [fleet]() is a distributed init system, [flannel]() is used for virtual networking and [rkt]() and [docker]() are container engines.
 
-All this *CoreOS* goodies are used to bootstrap a [Mesos]() cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in Mesos parlance) which can run on top in order to utilise the exposed compute resources.
+All this *CoreOS* goodies are used to bootstrap a [Mesos]() cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in *Mesos* parlance) which can run on top in order to utilise the exposed compute resources.
 
 ## 1. Deploy Káto's infrastructure
 
