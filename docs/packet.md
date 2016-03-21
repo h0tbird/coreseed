@@ -11,7 +11,7 @@ case $1 in
     for i in 1 2 3; do
 
       katoctl udata \
-      --hostname core-${i} \
+      --hostname master-${i} \
       --domain cell-1.dc-1.demo.com \
       --role master \
       --ns1-api-key xxx \
@@ -20,7 +20,7 @@ case $1 in
 
       katoctl run-packet \
       --api-key xxx \
-      --hostname core-${i} \
+      --hostname master-${i}.cell-1.dc-1 \
       --project-id xxx \
       --plan baremetal_0 \
       --os coreos_alpha \
@@ -31,10 +31,10 @@ case $1 in
 
   "nodes")
 
-    for i in 4 5 6; do
+    for i in 1 2 3; do
 
       katoctl udata \
-      --hostname core-${i} \
+      --hostname node-${i} \
       --domain cell-1.dc-1.demo.com \
       --role node \
       --ns1-api-key xxx \
@@ -47,7 +47,7 @@ case $1 in
 
       katoctl run-packet \
       --api-key xxx \
-      --hostname core-${i} \
+      --hostname node-${i}.cell-1.dc-1 \
       --project-id xxx \
       --plan baremetal_0 \
       --os coreos_alpha \

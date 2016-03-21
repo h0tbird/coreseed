@@ -146,7 +146,7 @@ write_files:
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
       --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=core-1,core-2,core-3 \
+      --env ZK_SERVERS=master-1,master-2,master-3 \
       --env ZK_DATA_DIR=/var/lib/zookeeper \
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
@@ -183,7 +183,7 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404 \
       --ip=$(hostname -i) \
-      --zk=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --zk=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
       --quorum=2"
@@ -228,7 +228,7 @@ write_files:
       --ip=$(hostname -i) \
       --containerizers=docker \
       --executor_registration_timeout=2mins \
-      --master=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --master=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
       --work_dir=/var/lib/mesos/node \
       --log_dir=/var/log/mesos/node"
     ExecStop=/usr/bin/docker stop -t 5 mesos-node
@@ -257,7 +257,7 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name mesos-dns \
       --net host \
-      --env MDNS_ZK=zk://core-1:2181,core-2:2181,core-3:2181/mesos \
+      --env MDNS_ZK=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
       --env MDNS_REFRESHSECONDS=45 \
       --env MDNS_LISTENER=$(hostname -i) \
       --env MDNS_HTTPON=false \
@@ -303,8 +303,8 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/marathon:v0.15.3 \
       --http_address $(hostname -i) \
-      --master zk://core-1:2181,core-2:2181,core-3:2181/mesos \
-      --zk zk://core-1:2181,core-2:2181,core-3:2181/marathon \
+      --master zk://master-1:2181,master-2:2181,master-3:2181/mesos \
+      --zk zk://master-1:2181,master-2:2181,master-3:2181/marathon \
       --task_launch_timeout 240000 \
       --checkpoint"
     ExecStop=/usr/bin/docker stop -t 5 marathon
@@ -448,7 +448,7 @@ write_files:
     ExecStartPre=-/usr/bin/docker rm -f dnsmasq
     ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.0
     ExecStartPre=/usr/bin/sh -c " \
-      dig core-{1,2,3}.$(hostname -d) +short | tr '\n' ',' > /tmp/ns && \
+      dig master-{1,2,3}.$(hostname -d) +short | tr '\n' ',' > /tmp/ns && \
       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
     ExecStart=/usr/bin/sh -c "docker run \
       --name dnsmasq \
@@ -670,7 +670,7 @@ coreos:
 
  etcd2:
  {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "{{.HostName}}"
-  initial-cluster: "core-1=http://core-1:2380,core-2=http://core-2:2380,core-3=http://core-3:2380"
+  initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   initial-advertise-peer-urls: "http://$private_ipv4:2380"
