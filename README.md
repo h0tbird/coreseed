@@ -37,6 +37,12 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 [Ceph](https://github.com/ceph/ceph-docker) is a distributed object store and file system designed to provide excellent performance, reliability and scalability. It provides a multi-host persistent data storage for containers.
 
+## Install
+```
+go get github.com/h0tbird/kato
+go build -o ${GOPATH}/bin/katoctl github.com/h0tbird/kato
+```
+
 ## 1. Deploy Káto's infrastructure
 
 - [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
