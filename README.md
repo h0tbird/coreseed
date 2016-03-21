@@ -33,6 +33,16 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apache/mesos) cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in *Mesos* parlance) which can run on top in order to utilise the exposed compute resources.
 
+[Marathon](https://github.com/mesosphere/marathon) is one of such frameworks. It is a cluster-wide init and control system for long-running applications. Other frameworks like [Jenkins](https://github.com/jenkinsci/mesos-plugin) and [Elasticsearch ](https://github.com/mesos/elasticsearch) share the same cluster resources.
+
+[Ceph](https://github.com/ceph/ceph-docker) is a distributed object store and file system designed to provide excellent performance, reliability and scalability. It provides a multi-host persistent data storage for containers.
+
+## Install
+```
+go get github.com/h0tbird/kato
+go build -o ${GOPATH}/bin/katoctl github.com/h0tbird/kato
+```
+
 ## 1. Deploy Káto's infrastructure
 
 - [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
