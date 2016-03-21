@@ -19,6 +19,7 @@ case $1 in
       --etcd-token ${ETCD_TOKEN} |
 
       gzip --best | katoctl run-ec2 \
+      --hostname core-${i}.cell-1.dc-1 \
       --region eu-west-1 \
       --image-id ami-95bb00e6 \
       --instance-type t2.medium \
@@ -46,6 +47,7 @@ case $1 in
       --flannel-backend vxlan |
 
       gzip --best | katoctl run-ec2 \
+      --hostname core-${i}.cell-1.dc-1 \
       --region eu-west-1 \
       --image-id ami-95bb00e6 \
       --instance-type t2.medium \

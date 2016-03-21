@@ -171,6 +171,11 @@ var (
 
 	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2")
 
+	flEc2HostName = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
+			PlaceHolder("EC2_HOSTNAME").
+			OverrideDefaultFromEnvar("EC2_HOSTNAME").
+			Short('h').String()
+
 	flEc2Region = cmdRunEc2.Flag("region", "EC2 region.").
 			Required().PlaceHolder("EC2_REGION").
 			OverrideDefaultFromEnvar("EC2_REGION").
@@ -346,6 +351,19 @@ func cmd_run_ec2() {
 
 	// Pretty-print the response data:
 	fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
+
+	// Add tags to the created instance:
+	_, err = svc.CreateTags(&ec2.CreateTagsInput{
+		Resources: []*string{runResult.Instances[0].InstanceId},
+		Tags: []*ec2.Tag{
+			{
+				Key:   aws.String("Name"),
+				Value: aws.String(*flEc2HostName),
+			},
+		},
+	})
+
+	checkError(err)
 }
 
 //---------------------------------------------------------------------------
