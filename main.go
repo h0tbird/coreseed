@@ -119,7 +119,7 @@ var (
 			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
 			Short('x').String()
 
-	flFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | gce | aws-vpc ]").
+	flFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
 			PlaceHolder("CS_FLANNEL_SUBNET_MAX").
 			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
 			Short('b').String()
