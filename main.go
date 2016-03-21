@@ -31,7 +31,6 @@ import (
 //----------------------------------------------------------------------------
 
 type Udata struct {
-	HostName         string
 	HostId           string
 	Domain           string
 	Role             string
@@ -64,10 +63,10 @@ var (
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
-	flHostName = cmdUdata.Flag("hostname", "Short host name as in (hostname -s)").
-			Required().PlaceHolder("CS_HOSTNAME").
-			OverrideDefaultFromEnvar("CS_HOSTNAME").
-			Short('h').String()
+	flHostId = cmdUdata.Flag("hostid", "hostname = role-id").
+			Required().PlaceHolder("CS_HOSTID").
+			OverrideDefaultFromEnvar("CS_HOSTID").
+			Short('i').String()
 
 	flDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d)").
 			Required().PlaceHolder("CS_DOMAIN").
@@ -243,8 +242,7 @@ func cmd_udata() {
 
 	// Template udata structure:
 	udata := Udata{
-		HostName:         *flHostName,
-		HostId:           string((*flHostName)[strings.LastIndex(*flHostName, "-")+1:]),
+		HostId:           *flHostId,
 		Domain:           *flDomain,
 		Role:             *flRole,
 		Ns1ApiKey:        *flNs1Apikey,

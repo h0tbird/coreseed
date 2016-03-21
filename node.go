@@ -10,16 +10,16 @@ package main
 
 const templ_node = `#cloud-config
 
-hostname: "{{.HostName}}.{{.Domain}}"
+hostname: "node-{{.HostId}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}.{{.Domain}} {{.HostName}}
-    $private_ipv4 {{.HostName}}.int.{{.Domain}} {{.HostName}}.int
-    $public_ipv4 {{.HostName}}.ext.{{.Domain}} {{.HostName}}.ext
+    $private_ipv4 node-{{.HostId}}.{{.Domain}} node-{{.HostId}}
+    $private_ipv4 node-{{.HostId}}.int.{{.Domain}} node-{{.HostId}}.int
+    $public_ipv4 node-{{.HostId}}.ext.{{.Domain}} node-{{.HostId}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -243,10 +243,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=node"
+  metadata: "role=node,id={{.HostId}}"
 
  etcd2:
-  name: "{{.HostName}}"
+  name: "node-{{.HostId}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   advertise-client-urls: "http://$private_ipv4:2379"
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"

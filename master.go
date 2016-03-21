@@ -10,16 +10,16 @@ package main
 
 const templ_master = `#cloud-config
 
-hostname: "{{.HostName}}.{{.Domain}}"
+hostname: "master-{{.HostId}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}.{{.Domain}} {{.HostName}}
-    $private_ipv4 {{.HostName}}.int.{{.Domain}} {{.HostName}}.int
-    $public_ipv4 {{.HostName}}.ext.{{.Domain}} {{.HostName}}.ext
+    $private_ipv4 master-{{.HostId}}.{{.Domain}} master-{{.HostId}}
+    $private_ipv4 master-{{.HostId}}.int.{{.Domain}} master-{{.HostId}}.int
+    $public_ipv4 master-{{.HostId}}.ext.{{.Domain}} master-{{.HostId}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -158,7 +158,7 @@ write_files:
     WantedBy=multi-user.target
 
     [X-Fleet]
-    MachineMetadata="role=master" "masterid=%i"
+    MachineMetadata="role=master" "id=%i"
     X-Conflicts=zookeeper@*.service
 
  - path: "/etc/fleet/mesos-master.service"
@@ -666,10 +666,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=master,masterid={{.HostId}}"
+  metadata: "role=master,id={{.HostId}}"
 
  etcd2:
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "{{.HostName}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "master-{{.HostId}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"

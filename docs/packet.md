@@ -11,9 +11,9 @@ case $1 in
     for i in 1 2 3; do
 
       katoctl udata \
-      --hostname master-${i} \
-      --domain cell-1.dc-1.demo.com \
       --role master \
+      --hostid ${i} \
+      --domain cell-1.dc-1.demo.com \
       --ns1-api-key xxx \
       --ca-cert path/to/cert.pem \
       --etcd-token ${ETCD_TOKEN} |
@@ -34,9 +34,9 @@ case $1 in
     for i in 1 2 3; do
 
       katoctl udata \
-      --hostname node-${i} \
-      --domain cell-1.dc-1.demo.com \
       --role node \
+      --hostid ${i} \
+      --domain cell-1.dc-1.demo.com \
       --ns1-api-key xxx \
       --ca-cert path/to/cert.pem \
       --flannel-network 10.128.0.0/21 \
