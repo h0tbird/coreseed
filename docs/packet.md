@@ -8,7 +8,7 @@ case $1 in
 
     ETCD_TOKEN=$(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}')
 
-    for i in 1 2 3; do
+    for i in $(seq $2); do
 
       katoctl udata \
       --role master \
@@ -31,7 +31,7 @@ case $1 in
 
   "nodes")
 
-    for i in 1 2 3; do
+    for i in $(seq $2); do
 
       katoctl udata \
       --role node \
