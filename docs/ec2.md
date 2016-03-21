@@ -10,7 +10,7 @@ case $1 in
 
     for i in 1 2 3; do
 
-      coreseed udata \
+      katoctl udata \
       --hostname core-${i} \
       --domain cell-1.dc-1.demo.com \
       --role master \
@@ -18,7 +18,7 @@ case $1 in
       --ca-cert path/to/cert.pem \
       --etcd-token ${ETCD_TOKEN} |
 
-      gzip --best | coreseed run-ec2 \
+      gzip --best | katoctl run-ec2 \
       --region eu-west-1 \
       --image-id ami-95bb00e6 \
       --instance-type t2.medium \
@@ -33,7 +33,7 @@ case $1 in
 
     for i in 4 5 6; do
 
-      coreseed udata \
+      katoctl udata \
       --hostname core-${i} \
       --domain cell-1.dc-1.demo.com \
       --role node \
@@ -45,7 +45,7 @@ case $1 in
       --flannel-subnet-max 10.128.7.224 \
       --flannel-backend vxlan |
 
-      gzip --best | coreseed run-ec2 \
+      gzip --best | katoctl run-ec2 \
       --region eu-west-1 \
       --image-id ami-95bb00e6 \
       --instance-type t2.medium \
