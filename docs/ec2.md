@@ -21,7 +21,7 @@ case $1 in
       gzip --best | katoctl run-ec2 \
       --hostname core-${i}.cell-1.dc-1 \
       --region eu-west-1 \
-      --image-id ami-95bb00e6 \
+      --image-id ami-7b971208 \
       --instance-type t2.medium \
       --key-pair xxx \
       --vpc-id vpc-xxx \
@@ -49,7 +49,7 @@ case $1 in
       gzip --best | katoctl run-ec2 \
       --hostname core-${i}.cell-1.dc-1 \
       --region eu-west-1 \
-      --image-id ami-95bb00e6 \
+      --image-id ami-7b971208 \
       --instance-type t2.medium \
       --key-pair xxx \
       --vpc-id vpc-xxx \
