@@ -1,4 +1,4 @@
 *.swp
-coreseed
+katoctl
 user_data_*
 .vagrant

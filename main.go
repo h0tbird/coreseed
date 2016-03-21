@@ -52,11 +52,11 @@ type Udata struct {
 
 var (
 
-	//-----------------------------
-	// coreseed: top level command
-	//-----------------------------
+	//----------------------------
+	// katoctl: top level command
+	//----------------------------
 
-	app = kingpin.New("coreseed", "Coreseed defines and deploys CoreOS clusters.")
+	app = kingpin.New("katoctl", "Katoctl defines and deploys CoreOS clusters.")
 
 	//-----------------------
 	// udata: nested command
@@ -216,15 +216,15 @@ func main() {
 	// Sub-command selector:
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
-	// coreseed udata ...
+	// katoctl udata ...
 	case cmdUdata.FullCommand():
 		cmd_udata()
 
-	// coreseed run-packet ...
+	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
 		cmd_run_packet()
 
-	// coreseed run-ec2 ...
+	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
 		cmd_run_ec2()
 	}
