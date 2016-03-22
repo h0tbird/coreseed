@@ -6,16 +6,18 @@ Vagrant.require_version ">= 1.6.0"
 # Variables:
 #------------------------------------------------------------------------------
 
-$vm_cpus = 2
-$vm_memory = 1024
-$update_channel = "alpha"
-$image_version = "current"
-$box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$katoctl = "katoctl udata -k %s -d %s -i %s -r %s -c %s"
-$discovery_url = "https://discovery.etcd.io/new?size=3"
-$ns1_api_key = ENV['KATO_NS1_API_KEY']
-$domain = ENV['KATO_NS1_DOMAIN']
-$ca_cert = "~/certificates/certs/server-crt.pem"
+$master_cpus    = ENV['KATO_MASTER_CPUS'] || 2
+$master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
+$node_cpus      = ENV['KATO_NODE_CPUS'] || 2
+$node_memory    = ENV['KATO_NODE_MEMORY'] || 1024
+$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
+$coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
+$ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
+$domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
+$ca_cert        = ENV['KATO_CA_CERT'] || '~/certificates/certs/server-crt.pem'
+$box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
+$katoctl        = "katoctl udata -k %s -d %s -i %s -r %s -c %s"
+$discovery_url  = "https://discovery.etcd.io/new?size=3"
 
 #------------------------------------------------------------------------------
 # Generate a new etcd discovery token:
@@ -33,11 +35,11 @@ end
 Vagrant.configure("2") do |config|
 
   config.ssh.insert_key = false
-  config.vm.box = "coreos-%s" % $update_channel
-  config.vm.box_url = $box_url % [$update_channel, $image_version]
+  config.vm.box = "coreos-%s" % $coreos_channel
+  config.vm.box_url = $box_url % [$coreos_channel, $coreos_version]
 
-  if $image_version != "current"
-    config.vm.box_version = $image_version
+  if $coreos_version != "current"
+    config.vm.box_version = $coreos_version
   end
 
   config.vm.provider :virtualbox do |v|
@@ -61,8 +63,8 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.memory = $vm_memory
-        vb.cpus = $vm_cpus
+        vb.memory = $master_memory
+        vb.cpus = $master_cpus
       end
 
       ip = "172.17.8.#{i+100}"
@@ -99,8 +101,8 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.memory = $vm_memory
-        vb.cpus = $vm_cpus
+        vb.memory = $node_memory
+        vb.cpus = $node_cpus
       end
 
       ip = "172.17.8.#{i+110}"
