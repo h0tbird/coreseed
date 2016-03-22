@@ -1,4 +1,5 @@
 *.swp
 katoctl
-user_data_*
+user_*data_*
+.idea
 .vagrant
