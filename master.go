@@ -469,6 +469,64 @@ write_files:
     Global=true
     MachineMetadata=role=node
 
+ - path: "/etc/fleet/mongodb.service"
+   content: |
+    [Unit]
+    Description=MongoDB
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill mongodb
+    ExecStartPre=-/usr/bin/docker rm mongodb
+    ExecStartPre=-/usr/bin/docker pull mongo:3.2
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name mongodb \
+      --net host \
+      --volume /var/lib/mongo:/data/db \
+      mongo:3.2 \
+      --bind_ip 127.0.0.1"
+    ExecStop=/usr/bin/docker stop -t 5 mongodb
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=edge
+
+ - path: "/etc/fleet/pritunl.service"
+   content: |
+    [Unit]
+    Description=Pritunl
+    After=docker.service mongodb.service
+    Requires=docker.service mongodb.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill pritunl
+    ExecStartPre=-/usr/bin/docker rm pritunl
+    ExecStartPre=-/usr/bin/docker pull pritunl:v1.20.917.37-1
+    ExecStart=/usr/bin/sh -c "docker run \
+      --privileged \
+      --name pritunl \
+      --net host \
+      --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
+      h0tbird/pritunl:v1.20.917.37-1"
+    ExecStop=/usr/bin/docker stop -t 5 pritunl
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=edge
+
  - path: "/opt/bin/ceph2etcd"
    permissions: "0755"
    content: |
