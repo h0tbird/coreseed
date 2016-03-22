@@ -13,8 +13,8 @@ $image_version = "current"
 $box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $katoctl = "katoctl udata -k %s -d %s -i %s -r %s -c %s"
 $discovery_url = "https://discovery.etcd.io/new?size=3"
-$ns1_api_key = "aabbccddeeaabbccddee"
-$domain = "cell-1.dc-1.demo.lan"
+$ns1_api_key = ENV['KATO_NS1_API_KEY']
+$domain = ENV['KATO_NS1_DOMAIN']
 $ca_cert = "~/certificates/certs/server-crt.pem"
 
 #------------------------------------------------------------------------------
