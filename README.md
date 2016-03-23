@@ -37,6 +37,18 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 [Ceph](https://github.com/ceph/ceph-docker) is a distributed object store and file system designed to provide excellent performance, reliability and scalability. It provides a multi-host persistent data storage for containers.
 
+# Components
+
+|Component|Current Version|
+|---|:---:|
+|CoreOS|alpha|
+|Mesos|0.27.2|
+|Mesos DNS|0.5.2|
+|Marathon|0.15.3|
+|go-dnsmasq|1.0.0|
+|cAdvisor|0.22.0|
+|Ceph|9.2.0|
+
 ## Install
 ```
 go get github.com/h0tbird/kato
@@ -45,6 +57,7 @@ go build -o ${GOPATH}/bin/katoctl github.com/h0tbird/kato
 
 ## 1. Deploy Káto's infrastructure
 
+- [x] [Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)
 - [x] [Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)
 - [x] [Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)
 
