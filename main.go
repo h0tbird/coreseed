@@ -200,7 +200,7 @@ var (
 			OverrideDefaultFromEnvar("EC2_VPC_ID").
 			Short('v').String()
 
-	flEc2SubnetId = cmdRunEc2.Flag("subnet-id", "EC2 subnet id.").
+	flEc2SubnetIds = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
 			Required().PlaceHolder("EC2_SUBNET_ID").
 			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
 			Short('s').String()
@@ -332,22 +332,26 @@ func cmd_run_ec2() {
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
 
-	// Forge the SecurityGroupIds:
-	var secGrps []*string
+	// Forge the security group ids:
+	var securityGroupIds []*string
 	for _, gid := range strings.Split(*flEc2SecGrpIds, ",") {
-		secGrps = append(secGrps, aws.String(gid))
+		securityGroupIds = append(securityGroupIds, aws.String(gid))
 	}
+
+	// Forge the 'public' network interface (TODO):
+	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 
 	// Send the request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-		ImageId:          aws.String(*flEc2ImageId),
-		InstanceType:     aws.String(*flEc2InsType),
-		MinCount:         aws.Int64(1),
-		MaxCount:         aws.Int64(1),
-		KeyName:          aws.String(*flEc2KeyPair),
-		SubnetId:         aws.String(*flEc2SubnetId),
-		SecurityGroupIds: secGrps,
-		UserData:         aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+		ImageId:           aws.String(*flEc2ImageId),
+		MinCount:          aws.Int64(1),
+		MaxCount:          aws.Int64(1),
+		KeyName:           aws.String(*flEc2KeyPair),
+		InstanceType:      aws.String(*flEc2InsType),
+		NetworkInterfaces: networkInterfaces,
+		SecurityGroupIds:  securityGroupIds,
+		SubnetId:          aws.String(strings.Split(*flEc2SubnetIds, ",")[0]),
+		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})
 
 	checkError(err)
