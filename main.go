@@ -209,6 +209,11 @@ var (
 			Required().PlaceHolder("EC2_SEC_GROUP_IDS").
 			OverrideDefaultFromEnvar("EC2_SEC_GROUP_IDS").
 			Short('g').String()
+
+	flEc2ElasticIp = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
+			Default("false").PlaceHolder("EC2_ELASTIC_IP").
+			OverrideDefaultFromEnvar("EC2_ELASTIC_IP").
+			Short('e').String()
 )
 
 //----------------------------------------------------------------------------
@@ -362,6 +367,22 @@ func cmd_run_ec2() {
 	})
 
 	checkError(err)
+
+	// Allocate an elastic IP address:
+	if *flEc2ElasticIp == "true" {
+
+		params := &ec2.AllocateAddressInput{
+			Domain: aws.String("vpc"),
+			DryRun: aws.Bool(false),
+		}
+
+		// Send the request:
+		resp, err := svc.AllocateAddress(params)
+		checkError(err)
+
+		// Pretty-print the response data:
+		fmt.Println(resp)
+	}
 }
 
 //---------------------------------------------------------------------------
