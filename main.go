@@ -205,11 +205,6 @@ var (
 			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
 			Short('s').String()
 
-	flEc2SecGrpIds = cmdRunEc2.Flag("sec-group-ids", "EC2 security group ids.").
-			Required().PlaceHolder("EC2_SEC_GROUP_IDS").
-			OverrideDefaultFromEnvar("EC2_SEC_GROUP_IDS").
-			Short('g').String()
-
 	flEc2ElasticIp = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
 			Default("false").PlaceHolder("EC2_ELASTIC_IP").
 			OverrideDefaultFromEnvar("EC2_ELASTIC_IP").
@@ -332,14 +327,27 @@ func cmd_run_ec2() {
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
 
-	// Forge the security group ids:
-	var securityGroupIds []*string
-	for _, gid := range strings.Split(*flEc2SecGrpIds, ",") {
-		securityGroupIds = append(securityGroupIds, aws.String(gid))
-	}
-
-	// Forge the 'public' network interface (TODO):
+	// Forge the network interfaces:
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
+	subnetIds := strings.Split(*flEc2SubnetIds, ",")
+
+	for i := 0; i < len(subnetIds); i++ {
+
+		// Forge the security group ids:
+		var securityGroupIds []*string
+		for _, gid := range strings.Split(subnetIds[i], ":")[1:] {
+			securityGroupIds = append(securityGroupIds, aws.String(gid))
+		}
+
+		iface := ec2.InstanceNetworkInterfaceSpecification{
+			DeleteOnTermination: aws.Bool(true),
+			DeviceIndex:         aws.Int64(int64(i)),
+			Groups:              securityGroupIds,
+			SubnetId:            aws.String(strings.Split(subnetIds[i], ":")[0]),
+		}
+
+		networkInterfaces = append(networkInterfaces, &iface)
+	}
 
 	// Send the request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
@@ -349,8 +357,6 @@ func cmd_run_ec2() {
 		KeyName:           aws.String(*flEc2KeyPair),
 		InstanceType:      aws.String(*flEc2InsType),
 		NetworkInterfaces: networkInterfaces,
-		SecurityGroupIds:  securityGroupIds,
-		SubnetId:          aws.String(strings.Split(*flEc2SubnetIds, ",")[0]),
 		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})
 
