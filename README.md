@@ -45,6 +45,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 |Mesos|0.27.2|
 |Mesos DNS|0.5.2|
 |Marathon|0.15.3|
+|Zookeeper|3.4.8|
 |go-dnsmasq|1.0.0|
 |cAdvisor|0.22.0|
 |Ceph|9.2.0|
