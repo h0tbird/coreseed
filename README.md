@@ -55,8 +55,8 @@ fleetctl submit zookeeper\@.service
 fleetctl start zookeeper@1 zookeeper@2 zookeeper@3
 fleetctl start mesos-master.service mesos-dns.service
 fleetctl start marathon.service cadvisor.service
-fleetctl start ceph-mon.service dnsmasq.service
-fleetctl start ceph-osd.service mesos-node.service
+fleetctl start dnsmasq.service mesos-node.service
+fleetctl start ceph-mon.service ceph-osd.service
 ```
 
 ## License
