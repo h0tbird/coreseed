@@ -58,8 +58,11 @@ go build -o ${GOPATH}/bin/katoctl github.com/h0tbird/kato
 
 ## 1. Deploy Káto's infrastructure
 
-|[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
+*Káto* can be deployed on many *IaaS* providers choose the one you prefere:
+
+|:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|
 |---|---|---|---|---|
+|[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 2. Start the stack
 ```
