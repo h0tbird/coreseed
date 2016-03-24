@@ -34,6 +34,7 @@ end
 
 Vagrant.configure("2") do |config|
 
+  config.ssh.forward_agent = true
   config.ssh.insert_key = false
   config.vm.box = "coreos-%s" % $coreos_channel
   config.vm.box_url = $box_url % [$coreos_channel, $coreos_version]
