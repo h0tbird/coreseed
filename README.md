@@ -39,16 +39,16 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 # Components
 
-|Component|Current Version|
-|---|:---:|
-|[CoreOS](https://coreos.com)|[alpha](https://coreos.com/releases/)|
-|[Mesos](http://mesos.apache.org)|[0.27.2](https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.27.2)|
-|[Mesos-DNS](http://mesosphere.github.io/mesos-dns)|[0.5.2](https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2)|
-|[Marathon](https://mesosphere.github.io/marathon)|[0.15.3](https://github.com/mesosphere/marathon/releases/tag/v0.15.3)|
-|[Zookeeper](https://zookeeper.apache.org)|[3.4.8](https://zookeeper.apache.org/doc/r3.4.8/)|
-|[go-dnsmasq](https://github.com/janeczku/go-dnsmasq)|[1.0.0](https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.0)|
-|[cAdvisor](https://github.com/google/cadvisor)|[0.22.0](https://github.com/google/cadvisor/releases/tag/v0.22.0)|
-|[Ceph](http://ceph.com)|[9.2.0](https://github.com/h0tbird/docker-ceph/releases/tag/v9.2.0-2)|
+|Component|Current Version|Container|
+|---|:---:|:---:|
+|[CoreOS](https://coreos.com)|[alpha](https://coreos.com/releases/)|-|
+|[Mesos](http://mesos.apache.org)|[0.27.2](https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.27.2)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/mesos-master.svg)](https://hub.docker.com/r/mesosphere/mesos-master/)|
+|[Mesos-DNS](http://mesosphere.github.io/mesos-dns)|[0.5.2](https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/mesos-dns.svg)](https://hub.docker.com/r/mesosphere/mesos-dns/)|
+|[Marathon](https://mesosphere.github.io/marathon)|[0.15.3](https://github.com/mesosphere/marathon/releases/tag/v0.15.3)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/marathon.svg)](https://hub.docker.com/r/mesosphere/marathon/)|
+|[Zookeeper](https://zookeeper.apache.org)|[3.4.8](https://zookeeper.apache.org/doc/r3.4.8/)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/zookeeper.svg)](https://hub.docker.com/r/h0tbird/zookeeper/)|
+|[go-dnsmasq](https://github.com/janeczku/go-dnsmasq)|[1.0.0](https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/janeczku/go-dnsmasq.svg)](https://hub.docker.com/r/janeczku/go-dnsmasq/)|
+|[cAdvisor](https://github.com/google/cadvisor)|[0.22.0](https://github.com/google/cadvisor/releases/tag/v0.22.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/google/cadvisor.svg)](https://hub.docker.com/r/google/cadvisor/)|
+|[Ceph](http://ceph.com)|[9.2.0](https://github.com/h0tbird/docker-ceph/releases/tag/v9.2.0-2)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/ceph.svg)](https://hub.docker.com/r/h0tbird/ceph/)|
 
 ## Install
 ```
