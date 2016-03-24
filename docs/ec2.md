@@ -8,7 +8,7 @@ case $1 in
 
     ETCD_TOKEN=$(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}')
 
-    for i in $(seq $2); do
+    for i in 1 2 3; do
 
       katoctl udata \
       --role master \
@@ -25,8 +25,7 @@ case $1 in
       --instance-type t2.medium \
       --key-pair xxx \
       --vpc-id vpc-xxx \
-      --subnet-id subnet-xxx \
-      --sec-group-ids sg-xxx,sg-xxx
+      --subnet-ids subnet-xxx:sg-xxx
 
     done ;;
 
@@ -53,8 +52,30 @@ case $1 in
       --instance-type t2.medium \
       --key-pair xxx \
       --vpc-id vpc-xxx \
-      --subnet-id subnet-xxx \
-      --sec-group-ids sg-xxx,sg-xxx
+      --subnet-ids subnet-xxx:sg-xxx
+
+    done ;;
+
+  "edge")
+
+    for i in 1; do
+
+      katoctl udata \
+      --role edge \
+      --hostid ${i} \
+      --domain cell-1.dc-1.demo.com \
+      --ns1-api-key xxx \
+      --ca-cert path/to/cert.pem |
+
+      gzip --best | katoctl run-ec2 \
+      --hostname edge-${i}.cell-1.dc-1 \
+      --region eu-west-1 \
+      --image-id ami-7b971208 \
+      --instance-type t2.medium \
+      --elastic-ip true \
+      --key-pair xxx \
+      --vpc-id xxx \
+      --subnet-ids subnet-xxx:sg-xxx,subnet-xxx:sg-xxx
 
     done ;;
 
