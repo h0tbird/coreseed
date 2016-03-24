@@ -58,7 +58,7 @@ go build -o ${GOPATH}/bin/katoctl github.com/h0tbird/kato
 
 ## 1. Deploy Káto's infrastructure
 
-*Káto* can be deployed on many *IaaS* providers choose the one you prefere:
+*Káto* can be deployed on a few *IaaS* providers. More providers are planned but feel free to send a pull requests if your prefered provider is not supported yet.
 
 |:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|
 |---|---|---|---|---|
