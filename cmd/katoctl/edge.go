@@ -10,16 +10,16 @@ package main
 
 const templEdge = `#cloud-config
 
-hostname: "edge-{{.HostId}}.{{.Domain}}"
+hostname: "edge-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 edge-{{.HostId}}.{{.Domain}} edge-{{.HostId}}
-    $private_ipv4 edge-{{.HostId}}.int.{{.Domain}} edge-{{.HostId}}.int
-    $public_ipv4 edge-{{.HostId}}.ext.{{.Domain}} edge-{{.HostId}}.ext
+    $private_ipv4 edge-{{.HostID}}.{{.Domain}} edge-{{.HostID}}
+    $private_ipv4 edge-{{.HostID}}.int.{{.Domain}} edge-{{.HostID}}.int
+    $public_ipv4 edge-{{.HostID}}.ext.{{.Domain}} edge-{{.HostID}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -154,10 +154,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=edge,id={{.HostId}}"
+  metadata: "role=edge,id={{.HostID}}"
 
  etcd2:
-  name: "edge-{{.HostId}}"
+  name: "edge-{{.HostID}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   advertise-client-urls: "http://$private_ipv4:2379"
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"

@@ -10,16 +10,16 @@ package main
 
 const templMaster = `#cloud-config
 
-hostname: "master-{{.HostId}}.{{.Domain}}"
+hostname: "master-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 master-{{.HostId}}.{{.Domain}} master-{{.HostId}}
-    $private_ipv4 master-{{.HostId}}.int.{{.Domain}} master-{{.HostId}}.int
-    $public_ipv4 master-{{.HostId}}.ext.{{.Domain}} master-{{.HostId}}.ext
+    $private_ipv4 master-{{.HostID}}.{{.Domain}} master-{{.HostID}}
+    $private_ipv4 master-{{.HostID}}.int.{{.Domain}} master-{{.HostID}}.int
+    $public_ipv4 master-{{.HostID}}.ext.{{.Domain}} master-{{.HostID}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -724,10 +724,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=master,id={{.HostId}}"
+  metadata: "role=master,id={{.HostID}}"
 
  etcd2:
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "master-{{.HostId}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "master-{{.HostID}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"

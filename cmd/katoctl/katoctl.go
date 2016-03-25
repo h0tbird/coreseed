@@ -31,7 +31,7 @@ import (
 //----------------------------------------------------------------------------
 
 type userData struct {
-	HostId           string
+	HostID           string
 	Domain           string
 	Role             string
 	Ns1ApiKey        string
@@ -242,7 +242,7 @@ func udata() {
 
 	// Template udata structure:
 	udata := userData {
-		HostId:           *flHostID,
+		HostID:           *flHostID,
 		Domain:           *flDomain,
 		Role:             *flRole,
 		Ns1ApiKey:        *flNs1Apikey,
