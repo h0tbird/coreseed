@@ -30,7 +30,7 @@ import (
 // Typedefs:
 //----------------------------------------------------------------------------
 
-type Udata struct {
+type userData struct {
 	HostId           string
 	Domain           string
 	Role             string
@@ -241,7 +241,7 @@ func main() {
 func udata() {
 
 	// Template udata structure:
-	udata := Udata{
+	udata := userData {
 		HostId:           *flHostId,
 		Domain:           *flDomain,
 		Role:             *flRole,
