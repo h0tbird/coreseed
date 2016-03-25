@@ -222,23 +222,23 @@ func main() {
 
 	// katoctl udata ...
 	case cmdUdata.FullCommand():
-		cmd_udata()
+		udata()
 
 	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
-		cmd_run_packet()
+		runPacket()
 
 	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
-		cmd_run_ec2()
+		runEc2()
 	}
 }
 
 //--------------------------------------------------------------------------
-// func: cmd_udata
+// func: udata
 //--------------------------------------------------------------------------
 
-func cmd_udata() {
+func udata() {
 
 	// Template udata structure:
 	udata := Udata{
@@ -283,10 +283,10 @@ func cmd_udata() {
 }
 
 //--------------------------------------------------------------------------
-// func: cmd_run_packet
+// func: runPacket
 //--------------------------------------------------------------------------
 
-func cmd_run_packet() {
+func runPacket() {
 
 	// Read user-data from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
@@ -315,10 +315,10 @@ func cmd_run_packet() {
 }
 
 //--------------------------------------------------------------------------
-// func: cmd_run_ec2
+// func: runEc2
 //--------------------------------------------------------------------------
 
-func cmd_run_ec2() {
+func runEc2() {
 
 	// Read user-data from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
