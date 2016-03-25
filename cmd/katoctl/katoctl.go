@@ -63,7 +63,7 @@ var (
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
-	flHostId = cmdUdata.Flag("hostid", "hostname = role-id").
+	flHostID = cmdUdata.Flag("hostid", "hostname = role-id").
 			Required().PlaceHolder("CS_HOSTID").
 			OverrideDefaultFromEnvar("CS_HOSTID").
 			Short('i').String()
@@ -129,7 +129,7 @@ var (
 
 	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net")
 
-	flPktApiKey = cmdRunPacket.Flag("api-key", "Packet API key.").
+	flPktAPIKey = cmdRunPacket.Flag("api-key", "Packet API key.").
 			Required().PlaceHolder("PKT_APIKEY").
 			OverrideDefaultFromEnvar("PKT_APIKEY").
 			Short('k').String()
@@ -139,7 +139,7 @@ var (
 			OverrideDefaultFromEnvar("PKT_HOSTNAME").
 			Short('h').String()
 
-	flPktProjId = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
+	flPktProjID = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
 			Required().PlaceHolder("PKT_PROJID").
 			OverrideDefaultFromEnvar("PKT_PROJID").
 			Short('i').String()
@@ -180,7 +180,7 @@ var (
 			OverrideDefaultFromEnvar("EC2_REGION").
 			Short('r').String()
 
-	flEc2ImageId = cmdRunEc2.Flag("image-id", "EC2 image id.").
+	flEc2ImageID = cmdRunEc2.Flag("image-id", "EC2 image id.").
 			Required().PlaceHolder("EC2_IMAGE_ID").
 			OverrideDefaultFromEnvar("EC2_IMAGE_ID").
 			Short('i').String()
@@ -195,7 +195,7 @@ var (
 			OverrideDefaultFromEnvar("EC2_KEY_PAIR").
 			Short('k').String()
 
-	flEc2VpcId = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
+	flEc2VpcID = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
 			Required().PlaceHolder("EC2_VPC_ID").
 			OverrideDefaultFromEnvar("EC2_VPC_ID").
 			Short('v').String()
@@ -205,7 +205,7 @@ var (
 			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
 			Short('s').String()
 
-	flEc2ElasticIp = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
+	flEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
 			Default("false").PlaceHolder("EC2_ELASTIC_IP").
 			OverrideDefaultFromEnvar("EC2_ELASTIC_IP").
 			Short('e').String()
@@ -242,7 +242,7 @@ func udata() {
 
 	// Template udata structure:
 	udata := userData {
-		HostId:           *flHostId,
+		HostId:           *flHostID,
 		Domain:           *flDomain,
 		Role:             *flRole,
 		Ns1ApiKey:        *flNs1Apikey,
@@ -293,7 +293,7 @@ func runPacket() {
 	checkError(err)
 
 	// Connect and authenticate to the API endpoint:
-	client := packngo.NewClient("", *flPktApiKey, nil)
+	client := packngo.NewClient("", *flPktAPIKey, nil)
 
 	// Forge the request:
 	createRequest := &packngo.DeviceCreateRequest{
@@ -302,7 +302,7 @@ func runPacket() {
 		Facility:     *flPktFacility,
 		OS:           *flPktOsys,
 		BillingCycle: *flPktBilling,
-		ProjectID:    *flPktProjId,
+		ProjectID:    *flPktProjID,
 		UserData:     string(udata),
 	}
 
@@ -351,7 +351,7 @@ func runEc2() {
 
 	// Send the request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-		ImageId:           aws.String(*flEc2ImageId),
+		ImageId:           aws.String(*flEc2ImageID),
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
 		KeyName:           aws.String(*flEc2KeyPair),
@@ -379,7 +379,7 @@ func runEc2() {
 	checkError(err)
 
 	// Allocate an elastic IP address:
-	if *flEc2ElasticIp == "true" {
+	if *flEc2ElasticIP == "true" {
 
 		params := &ec2.AllocateAddressInput{
 			Domain: aws.String("vpc"),
