@@ -266,17 +266,17 @@ func cmd_udata() {
 	switch *flRole {
 	case "master":
 		t := template.New("master_udata")
-		t, err := t.Parse(templ_master)
+		t, err := t.Parse(templMaster)
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
 	case "node":
 		t := template.New("node_udata")
-		t, err := t.Parse(templ_node)
+		t, err := t.Parse(templNode)
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
 	case "edge":
 		t := template.New("edge_udata")
-		t, err := t.Parse(templ_edge)
+		t, err := t.Parse(templEdge)
 		err = t.Execute(os.Stdout, udata)
 		checkError(err)
 	}

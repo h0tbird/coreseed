@@ -8,7 +8,7 @@ package main
 // CoreOS edge user data:
 //---------------------------------------------------------------------------
 
-const templ_edge = `#cloud-config
+const templEdge = `#cloud-config
 
 hostname: "edge-{{.HostId}}.{{.Domain}}"
 

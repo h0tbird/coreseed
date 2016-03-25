@@ -8,7 +8,7 @@ package main
 // CoreOS node user data:
 //---------------------------------------------------------------------------
 
-const templ_node = `#cloud-config
+const templNode = `#cloud-config
 
 hostname: "node-{{.HostId}}.{{.Domain}}"
 
