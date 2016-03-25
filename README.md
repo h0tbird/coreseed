@@ -1,5 +1,10 @@
 # The Káto system
 
+[![GoReportCard Widget]][GoReportCard]
+
+[GoReportCard]: https://goreportcard.com/report/h0tbird/kato
+[GoReportCard Widget]: https://goreportcard.com/badge/h0tbird/kato
+
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated system which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
 
