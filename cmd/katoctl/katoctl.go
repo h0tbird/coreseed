@@ -35,7 +35,6 @@ type userData struct {
 	Domain           string
 	Role             string
 	Ns1ApiKey        string
-	FleetTags        string
 	CaCert           string
 	EtcdToken        string
 	FlannelNetwork   string
@@ -87,11 +86,6 @@ var (
 			Required().PlaceHolder("CS_NS1_API_KEY").
 			OverrideDefaultFromEnvar("CS_NS1_API_KEY").
 			Short('k').String()
-
-	flFleetTags = cmdUdata.Flag("fleet-tags", "Comma separated list of fleet tags.").
-			PlaceHolder("CS_FLEET_TAGS").
-			OverrideDefaultFromEnvar("CS_FLEET_TAGS").
-			Short('t').String()
 
 	flCAcert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
 			PlaceHolder("CS_CA_CERT").
@@ -255,7 +249,6 @@ func udata() {
 		Domain:           *flDomain,
 		Role:             *flRole,
 		Ns1ApiKey:        *flNs1Apikey,
-		FleetTags:        *flFleetTags,
 		EtcdToken:        *flEtcdToken,
 		FlannelNetwork:   *flFlannelNetwork,
 		FlannelSubnetLen: *flFlannelSubnetLen,
