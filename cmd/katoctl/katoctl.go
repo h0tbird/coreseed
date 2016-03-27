@@ -57,6 +57,11 @@ var (
 
 	app = kingpin.New("katoctl", "Katoctl defines and deploys CoreOS clusters.")
 
+	flUdataFile = app.Flag("user-data", "Path to file containing user data.").
+			PlaceHolder("KATO_USER_DATA").
+			OverrideDefaultFromEnvar("KATO_USER_DATA").
+			Short('u').String()
+
 	//-----------------------
 	// udata: nested command
 	//-----------------------
@@ -226,11 +231,15 @@ func main() {
 
 	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
-		runPacket()
+		udata, err := readUdata()
+		checkError(err)
+		runPacket(udata)
 
 	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
-		runEc2()
+		udata, err := readUdata()
+		checkError(err)
+		runEc2(udata)
 	}
 }
 
@@ -283,14 +292,30 @@ func udata() {
 }
 
 //--------------------------------------------------------------------------
+// func: readUdata
+//--------------------------------------------------------------------------
+
+func readUdata() ([]byte, error) {
+
+	if *flUdataFile != "" {
+
+		// Read data from file:
+		udata, err := ioutil.ReadFile(*flUdataFile)
+		return udata, err
+
+	} else {
+
+		// Read data from stdin:
+		udata, err := ioutil.ReadAll(os.Stdin)
+		return udata, err
+  }
+}
+
+//--------------------------------------------------------------------------
 // func: runPacket
 //--------------------------------------------------------------------------
 
-func runPacket() {
-
-	// Read user-data from stdin:
-	udata, err := ioutil.ReadAll(os.Stdin)
-	checkError(err)
+func runPacket(udata []byte) {
 
 	// Connect and authenticate to the API endpoint:
 	client := packngo.NewClient("", *flPktAPIKey, nil)
@@ -318,11 +343,7 @@ func runPacket() {
 // func: runEc2
 //--------------------------------------------------------------------------
 
-func runEc2() {
-
-	// Read user-data from stdin:
-	udata, err := ioutil.ReadAll(os.Stdin)
-	checkError(err)
+func runEc2(udata []byte) {
 
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
