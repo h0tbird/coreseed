@@ -264,24 +264,21 @@ func udata() {
 		udata.CaCert = strings.TrimSpace(strings.Replace(string(dat), "\n", "\n    ", -1))
 	}
 
-	// Render the template for the selected role:
+	// Udata template:
+	var err error
+	t := template.New("udata")
+
+	// Role based parse:
 	switch *flRole {
-	case "master":
-		t := template.New("master_udata")
-		t, err := t.Parse(templMaster)
-		err = t.Execute(os.Stdout, udata)
-		checkError(err)
-	case "node":
-		t := template.New("node_udata")
-		t, err := t.Parse(templNode)
-		err = t.Execute(os.Stdout, udata)
-		checkError(err)
-	case "edge":
-		t := template.New("edge_udata")
-		t, err := t.Parse(templEdge)
-		err = t.Execute(os.Stdout, udata)
-		checkError(err)
+	case "master": t, err = t.Parse(templMaster)
+	case "node":   t, err = t.Parse(templNode)
+	case "edge":   t, err = t.Parse(templEdge)
 	}
+	checkError(err)
+
+	// Execute:
+	err = t.Execute(os.Stdout, udata)
+	checkError(err)
 }
 
 //--------------------------------------------------------------------------
