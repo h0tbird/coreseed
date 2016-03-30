@@ -76,10 +76,10 @@ go install github.com/h0tbird/kato/cmd/katoctl
 ## 2. Start the stack
 ```
 cd /etc/fleet
-fleetctl submit zookeeper\@.service
 fleetctl start zookeeper@1 zookeeper@2 zookeeper@3
 fleetctl start mesos-master.service mesos-dns.service
 fleetctl start marathon.service cadvisor.service
 fleetctl start dnsmasq.service mesos-node.service
+fleetctl start mongodb.service pritunl.service
 fleetctl start ceph-mon.service ceph-osd.service
 ```
