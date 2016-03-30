@@ -21,8 +21,8 @@ import (
 // Typedefs:
 //----------------------------------------------------------------------------
 
-// Ec2Data contains variables used by EC2 API.
-type Ec2Data struct {
+// Data contains variables used by EC2 API.
+type Data struct {
 	Region    string
 	SubnetIds string
 	ImageID   string
@@ -37,7 +37,7 @@ type Ec2Data struct {
 //--------------------------------------------------------------------------
 
 // Run uses EC2 API to launch a new instance.
-func (d *Ec2Data) Run(udata []byte) error {
+func (d *Data) Run(udata []byte) error {
 
 	// Connect and authenticate to the API endpoint:
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))

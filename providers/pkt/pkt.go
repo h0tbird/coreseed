@@ -17,8 +17,8 @@ import (
 // Typedefs:
 //----------------------------------------------------------------------------
 
-// PacketData contains variables used by Packet.net API.
-type PacketData struct {
+// Data contains variables used by Packet.net API.
+type Data struct {
 	APIKey   string
 	HostName string
 	Plan     string
@@ -33,7 +33,7 @@ type PacketData struct {
 //--------------------------------------------------------------------------
 
 // Run uses Packet.net API to launch a new server.
-func (d *PacketData) Run(udata []byte) error {
+func (d *Data) Run(udata []byte) error {
 
 	// Connect and authenticate to the API endpoint:
 	client := packngo.NewClient("", d.APIKey, nil)

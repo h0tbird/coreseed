@@ -220,7 +220,7 @@ func main() {
 		udata, err := readUdata()
 		checkError(err)
 
-		pkt := pkt.PacketData {
+		pkt := pkt.Data {
 			APIKey: *flPktAPIKey,
 			HostName: *flPktHostName,
 			Plan: *flPktPlan,
@@ -239,7 +239,7 @@ func main() {
 		udata, err := readUdata()
 		checkError(err)
 
-		ec2 := ec2.Ec2Data {
+		ec2 := ec2.Data {
 			Region:    *flEc2Region,
 			SubnetIds: *flEc2SubnetIds,
 			ImageID:   *flEc2ImageID,
