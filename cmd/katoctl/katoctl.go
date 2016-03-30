@@ -15,12 +15,12 @@ import (
 
 	// Local:
 	"github.com/h0tbird/kato/udata"
+	"github.com/h0tbird/kato/providers/pkt"
 
 	// Community:
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/packethost/packngo"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -220,9 +220,22 @@ func main() {
 
 	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
+
 		udata, err := readUdata()
 		checkError(err)
-		runPacket(udata)
+
+		pkt := pkt.PacketData {
+			APIKey: *flPktAPIKey,
+			HostName: *flPktHostName,
+			Plan: *flPktPlan,
+			Facility: *flPktFacility,
+			Osys: *flPktOsys,
+			Billing: *flPktBilling,
+			ProjID: *flPktProjID,
+		}
+
+		err = pkt.Run(udata)
+		checkError(err)
 
 	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
@@ -249,34 +262,6 @@ func readUdata() ([]byte, error) {
 	// Read data from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	return udata, err
-}
-
-//--------------------------------------------------------------------------
-// func: runPacket
-//--------------------------------------------------------------------------
-
-func runPacket(udata []byte) {
-
-	// Connect and authenticate to the API endpoint:
-	client := packngo.NewClient("", *flPktAPIKey, nil)
-
-	// Forge the request:
-	createRequest := &packngo.DeviceCreateRequest{
-		HostName:     *flPktHostName,
-		Plan:         *flPktPlan,
-		Facility:     *flPktFacility,
-		OS:           *flPktOsys,
-		BillingCycle: *flPktBilling,
-		ProjectID:    *flPktProjID,
-		UserData:     string(udata),
-	}
-
-	// Send the request:
-	newDevice, _, err := client.Devices.Create(createRequest)
-	checkError(err)
-
-	// Pretty-print the response data:
-	fmt.Println(newDevice)
 }
 
 //--------------------------------------------------------------------------
