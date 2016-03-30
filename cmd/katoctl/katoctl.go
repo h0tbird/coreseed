@@ -248,12 +248,11 @@ func readUdata() ([]byte, error) {
 		udata, err := ioutil.ReadFile(*flUdataFile)
 		return udata, err
 
-	} else {
+	}
 
-		// Read data from stdin:
-		udata, err := ioutil.ReadAll(os.Stdin)
-		return udata, err
-  }
+	// Read data from stdin:
+	udata, err := ioutil.ReadAll(os.Stdin)
+	return udata, err
 }
 
 //--------------------------------------------------------------------------
