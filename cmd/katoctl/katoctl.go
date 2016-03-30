@@ -16,7 +16,9 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"text/template"
+
+	// Local:
+	"github.com/h0tbird/kato/udata"
 
 	// Community:
 	"github.com/aws/aws-sdk-go/aws"
@@ -25,24 +27,6 @@ import (
 	"github.com/packethost/packngo"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
-
-//----------------------------------------------------------------------------
-// Typedefs:
-//----------------------------------------------------------------------------
-
-type userData struct {
-	HostID           string
-	Domain           string
-	Role             string
-	Ns1ApiKey        string
-	CaCert           string
-	EtcdToken        string
-	FlannelNetwork   string
-	FlannelSubnetLen string
-	FlannelSubnetMin string
-	FlannelSubnetMax string
-	FlannelBackend   string
-}
 
 //-----------------------------------------------------------------------------
 // Package variable declarations factored into a block:
@@ -221,7 +205,22 @@ func main() {
 
 	// katoctl udata ...
 	case cmdUdata.FullCommand():
-		udata()
+
+		udata := udata.Data {
+			HostID:           *flHostID,
+			Domain:           *flDomain,
+			Role:             *flRole,
+			Ns1ApiKey:        *flNs1Apikey,
+			EtcdToken:        *flEtcdToken,
+			FlannelNetwork:   *flFlannelNetwork,
+			FlannelSubnetLen: *flFlannelSubnetLen,
+			FlannelSubnetMin: *flFlannelSubnetMin,
+			FlannelSubnetMax: *flFlannelSubnetMax,
+			FlannelBackend:   *flFlannelBackend,
+		}
+
+		err := udata.Render()
+		checkError(err)
 
 	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
@@ -235,50 +234,6 @@ func main() {
 		checkError(err)
 		runEc2(udata)
 	}
-}
-
-//--------------------------------------------------------------------------
-// func: udata
-//--------------------------------------------------------------------------
-
-func udata() {
-
-	// Template udata structure:
-	udata := userData {
-		HostID:           *flHostID,
-		Domain:           *flDomain,
-		Role:             *flRole,
-		Ns1ApiKey:        *flNs1Apikey,
-		EtcdToken:        *flEtcdToken,
-		FlannelNetwork:   *flFlannelNetwork,
-		FlannelSubnetLen: *flFlannelSubnetLen,
-		FlannelSubnetMin: *flFlannelSubnetMin,
-		FlannelSubnetMax: *flFlannelSubnetMax,
-		FlannelBackend:   *flFlannelBackend,
-	}
-
-	// Read the CA certificate:
-	if *flCAcert != "" {
-		dat, err := ioutil.ReadFile(*flCAcert)
-		checkError(err)
-		udata.CaCert = strings.TrimSpace(strings.Replace(string(dat), "\n", "\n    ", -1))
-	}
-
-	// Udata template:
-	var err error
-	t := template.New("udata")
-
-	// Role based parse:
-	switch *flRole {
-	case "master": t, err = t.Parse(templMaster)
-	case "node":   t, err = t.Parse(templNode)
-	case "edge":   t, err = t.Parse(templEdge)
-	}
-	checkError(err)
-
-	// Execute:
-	err = t.Execute(os.Stdout, udata)
-	checkError(err)
 }
 
 //--------------------------------------------------------------------------
@@ -412,7 +367,7 @@ func runEc2(udata []byte) {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Fatal error ", err.Error())
+		fmt.Println("Fatal error: ", err.Error())
 		os.Exit(1)
 	}
 }
