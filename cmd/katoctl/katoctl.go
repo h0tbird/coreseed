@@ -6,21 +6,17 @@ package main
 
 import (
 
-	// Standard library:
-	"encoding/base64"
+	// Stdlib:
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	// Local:
 	"github.com/h0tbird/kato/udata"
 	"github.com/h0tbird/kato/providers/pkt"
+	"github.com/h0tbird/kato/providers/ec2"
 
 	// Community:
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -239,9 +235,23 @@ func main() {
 
 	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
+
 		udata, err := readUdata()
 		checkError(err)
-		runEc2(udata)
+
+		ec2 := ec2.Ec2Data {
+			Region:    *flEc2Region,
+			SubnetIds: *flEc2SubnetIds,
+			ImageID:   *flEc2ImageID,
+			KeyPair:   *flEc2KeyPair,
+			InsType:   *flEc2InsType,
+			HostName:  *flEc2HostName,
+			ElasticIP: *flEc2ElasticIP,
+		}
+
+		err = ec2.Run(udata)
+		checkError(err)
+
 	}
 }
 
@@ -262,83 +272,6 @@ func readUdata() ([]byte, error) {
 	// Read data from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	return udata, err
-}
-
-//--------------------------------------------------------------------------
-// func: runEc2
-//--------------------------------------------------------------------------
-
-func runEc2(udata []byte) {
-
-	// Connect and authenticate to the API endpoint:
-	svc := ec2.New(session.New(&aws.Config{Region: aws.String(*flEc2Region)}))
-
-	// Forge the network interfaces:
-	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
-	subnetIds := strings.Split(*flEc2SubnetIds, ",")
-
-	for i := 0; i < len(subnetIds); i++ {
-
-		// Forge the security group ids:
-		var securityGroupIds []*string
-		for _, gid := range strings.Split(subnetIds[i], ":")[1:] {
-			securityGroupIds = append(securityGroupIds, aws.String(gid))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(i)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(strings.Split(subnetIds[i], ":")[0]),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
-	// Send the request:
-	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-		ImageId:           aws.String(*flEc2ImageID),
-		MinCount:          aws.Int64(1),
-		MaxCount:          aws.Int64(1),
-		KeyName:           aws.String(*flEc2KeyPair),
-		InstanceType:      aws.String(*flEc2InsType),
-		NetworkInterfaces: networkInterfaces,
-		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
-	})
-
-	checkError(err)
-
-	// Pretty-print the response data:
-	fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
-
-	// Add tags to the created instance:
-	_, err = svc.CreateTags(&ec2.CreateTagsInput{
-		Resources: []*string{runResult.Instances[0].InstanceId},
-		Tags: []*ec2.Tag{
-			{
-				Key:   aws.String("Name"),
-				Value: aws.String(*flEc2HostName),
-			},
-		},
-	})
-
-	checkError(err)
-
-	// Allocate an elastic IP address:
-	if *flEc2ElasticIP == "true" {
-
-		params := &ec2.AllocateAddressInput{
-			Domain: aws.String("vpc"),
-			DryRun: aws.Bool(false),
-		}
-
-		// Send the request:
-		resp, err := svc.AllocateAddress(params)
-		checkError(err)
-
-		// Pretty-print the response data:
-		fmt.Println(resp)
-	}
 }
 
 //---------------------------------------------------------------------------
