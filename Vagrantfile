@@ -10,6 +10,8 @@ $master_cpus    = ENV['KATO_MASTER_CPUS'] || 2
 $master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
 $node_memory    = ENV['KATO_NODE_MEMORY'] || 1024
+$edge_cpus      = ENV['KATO_EDGE_CPUS'] || 2
+$edge_memory    = ENV['KATO_EDGE_MEMORY'] || 1024
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
@@ -116,6 +118,39 @@ Vagrant.configure("2") do |config|
 
         if File.exist?("user_ndata_%s" % i)
           conf.vm.provision :file, :source => "user_ndata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
+          conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+        end
+
+      end
+    end
+  end
+
+  #--------------
+  # Start 1 edge
+  #--------------
+
+  (1..1).each do |i|
+
+    config.vm.define vm_name = "edge-%d" % i do |conf|
+
+      conf.vm.hostname = vm_name
+
+      conf.vm.provider :virtualbox do |vb|
+        vb.gui = false
+        vb.memory = $edge_memory
+        vb.cpus = $edge_cpus
+      end
+
+      ip = "172.17.8.#{i+120}"
+      conf.vm.network :private_network, ip: ip
+
+      if ARGV[0].eql?('up')
+
+        cmd = $katoctl + " | gzip --best > user_edata_%s"
+        system cmd % [$ns1_api_key, $domain, i, 'edge', $ca_cert, i ]
+
+        if File.exist?("user_edata_%s" % i)
+          conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
           conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
         end
 
