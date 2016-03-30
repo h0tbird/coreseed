@@ -217,27 +217,21 @@ func main() {
 	// katoctl run-packet ...
 	case cmdRunPacket.FullCommand():
 
-		udata, err := readUdata()
-		checkError(err)
-
 		pkt := pkt.Data {
-			APIKey: *flPktAPIKey,
+			APIKey:   *flPktAPIKey,
 			HostName: *flPktHostName,
-			Plan: *flPktPlan,
+			Plan:     *flPktPlan,
 			Facility: *flPktFacility,
-			Osys: *flPktOsys,
-			Billing: *flPktBilling,
-			ProjID: *flPktProjID,
+			Osys:     *flPktOsys,
+			Billing:  *flPktBilling,
+			ProjID:   *flPktProjID,
 		}
 
-		err = pkt.Run(udata)
+		err := run(&pkt)
 		checkError(err)
 
 	// katoctl run-ec2 ...
 	case cmdRunEc2.FullCommand():
-
-		udata, err := readUdata()
-		checkError(err)
 
 		ec2 := ec2.Data {
 			Region:    *flEc2Region,
@@ -249,9 +243,8 @@ func main() {
 			ElasticIP: *flEc2ElasticIP,
 		}
 
-		err = ec2.Run(udata)
+		err := run(&ec2)
 		checkError(err)
-
 	}
 }
 
