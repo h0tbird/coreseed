@@ -261,12 +261,10 @@ func main() {
 
 func readUdata() ([]byte, error) {
 
+	// Read data from file:
 	if *flUdataFile != "" {
-
-		// Read data from file:
 		udata, err := ioutil.ReadFile(*flUdataFile)
 		return udata, err
-
 	}
 
 	// Read data from stdin:

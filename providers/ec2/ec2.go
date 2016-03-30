@@ -6,7 +6,7 @@ package ec2
 
 import (
 
-	// Standard library:
+	// Stdlib:
 	"encoding/base64"
 	"fmt"
 	"strings"

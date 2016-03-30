@@ -6,7 +6,7 @@ package pkt
 
 import (
 
-	// Standard library:
+	// Stdlib:
 	"fmt"
 
 	// Community:
