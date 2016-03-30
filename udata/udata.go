@@ -16,6 +16,7 @@ import (
 // Typedefs:
 //----------------------------------------------------------------------------
 
+// Variables to be interpolated in templates.
 type Data struct {
 	HostID           string
 	Domain           string
@@ -34,6 +35,7 @@ type Data struct {
 // func: Render
 //--------------------------------------------------------------------------
 
+// Takes a data structure and outputs valid CoreOS cloud-config to stdout.
 func (d *Data) Render() error {
 
 	// Read the CA certificate:
