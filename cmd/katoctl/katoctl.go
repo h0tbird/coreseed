@@ -256,6 +256,7 @@ func main() {
 			Domain:           *flUdataDomain,
 			Role:             *flUdataRole,
 			Ns1ApiKey:        *flUdataNs1Apikey,
+			CaCert:           *flUdataCaCert,
 			EtcdToken:        *flUdataEtcdToken,
 			FlannelNetwork:   *flUdataFlannelNetwork,
 			FlannelSubnetLen: *flUdataFlannelSubnetLen,
