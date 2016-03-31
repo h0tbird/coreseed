@@ -153,9 +153,19 @@ var (
 	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 VPC and all the related components.")
 
 	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
-			Required().PlaceHolder("EC2_REGION").
-			OverrideDefaultFromEnvar("EC2_REGION").
+			Required().PlaceHolder("KATO_SETUP_EC2_REGION").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
 			Short('r').String()
+
+	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "The range of IPs to be used by the VPC.").
+			Required().PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+			Short('c').String()
+
+	flSetupEc2VpcNameTag = cmdSetupEc2.Flag("vpc-name-tag", "Used as Name tag for the VPC.").
+			Required().PlaceHolder("KATO_SETUP_EC2_VPC_NAME_TAG").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
+			Short('n').String()
 
 	//-------------------------
 	// run-ec2: nested command
@@ -285,7 +295,9 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data {
-			Region: *flSetupEc2Region,
+			Region:       *flSetupEc2Region,
+			VpcCidrBlock: *flSetupEc2VpcCidrBlock,
+			VpcNameTag:   *flSetupEc2VpcNameTag,
 		}
 
 		err := setup(&ec2)

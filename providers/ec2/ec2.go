@@ -24,13 +24,16 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
-	Region    string
-	SubnetIds string
-	ImageID   string
-	KeyPair   string
-	InsType   string
-	HostName  string
-	ElasticIP string
+	Region       string
+	SubnetIds    string
+	ImageID      string
+	KeyPair      string
+	InsType      string
+	HostName     string
+	ElasticIP    string
+	VpcCidrBlock string
+	VpcId        string
+	VpcNameTag   string
 }
 
 //--------------------------------------------------------------------------
@@ -49,6 +52,11 @@ func (d *Data) Setup() error {
 		return err
 	}
 
+	// Create the external subnet:
+	if err := d.createSubnet(*svc); err != nil {
+		return err
+	}
+
 	// Return on success:
 	return nil
 }
@@ -60,21 +68,58 @@ func (d *Data) Setup() error {
 func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Forge the VPC request:
-	params := &ec2.CreateVpcInput {
-		CidrBlock: aws.String("10.0.0.0/16"),
-		DryRun:    aws.Bool(false),
+	prmsVpc := &ec2.CreateVpcInput {
+		CidrBlock:       aws.String(d.VpcCidrBlock),
+		DryRun:          aws.Bool(false),
 		InstanceTenancy: aws.String("default"),
 	}
 
 	// Send the VPC request:
 	log.Printf("[setup-ec2] INFO Creating a VPC\n")
-	resp, err := svc.CreateVpc(params)
+	rspVpc, err := svc.CreateVpc(prmsVpc)
+	if err != nil {
+		return err
+	}
+
+	d.VpcId = *rspVpc.Vpc.VpcId
+	log.Printf("[setup-ec2] INFO VpcId: %s\n", d.VpcId)
+
+	// Forge the tag request:
+	prmsTag := &ec2.CreateTagsInput{
+		Resources: []*string{
+			aws.String(*rspVpc.Vpc.VpcId),
+		},
+		Tags: []*ec2.Tag{
+			{
+				Key:   aws.String("Name"),
+				Value: aws.String(d.VpcNameTag),
+			},
+		},
+		DryRun: aws.Bool(false),
+	}
+
+	// Send the tag request:
+	_, err = svc.CreateTags(prmsTag)
 	if err != nil {
 		return err
 	}
 
 	// Return on success:
-	log.Printf("[setup-ec2] INFO VpcId: %s\n", *resp.Vpc.VpcId)
+	log.Printf("[setup-ec2] INFO %s tagged as %s\n", d.VpcId, d.VpcNameTag)
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createSubnet
+//-------------------------------------------------------------------------
+
+func (d *Data) createSubnet(svc ec2.EC2) error {
+
+	// Forge the VPC request:
+
+	// Send the VPC request:
+
+	// Return on success:
 	return nil
 }
 
