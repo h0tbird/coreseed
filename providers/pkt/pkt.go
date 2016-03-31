@@ -19,13 +19,13 @@ import (
 
 // Data contains variables used by Packet.net API.
 type Data struct {
-	APIKey   string
-	HostName string
-	Plan     string
-	Facility string
-	Osys     string
-	Billing  string
-	ProjID   string
+	APIKey    string
+	HostName  string
+	ProjectID string
+	Plan      string
+	OS        string
+	Facility  string
+	Billing   string
 }
 
 //--------------------------------------------------------------------------
@@ -52,9 +52,9 @@ func (d *Data) Run(udata []byte) error {
 		HostName:     d.HostName,
 		Plan:         d.Plan,
 		Facility:     d.Facility,
-		OS:           d.Osys,
+		OS:           d.OS,
 		BillingCycle: d.Billing,
-		ProjectID:    d.ProjID,
+		ProjectID:    d.ProjectID,
 		UserData:     string(udata),
 	}
 

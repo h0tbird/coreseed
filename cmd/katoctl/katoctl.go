@@ -287,13 +287,13 @@ func main() {
 	case cmdRunPacket.FullCommand():
 
 		pkt := pkt.Data {
-			APIKey:   *flRunPktAPIKey,
-			HostName: *flRunPktHostname,
-			ProjID:   *flRunPktProjectID,
-			Plan:     *flRunPktPlan,
-			Osys:     *flRunPktOS,
-			Facility: *flRunPktFacility,
-			Billing:  *flRunPktBilling,
+			APIKey:    *flRunPktAPIKey,
+			HostName:  *flRunPktHostname,
+			ProjectID: *flRunPktProjectID,
+			Plan:      *flRunPktPlan,
+			OS:        *flRunPktOS,
+			Facility:  *flRunPktFacility,
+			Billing:   *flRunPktBilling,
 		}
 
 		err := run(&pkt)
