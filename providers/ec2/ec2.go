@@ -32,7 +32,7 @@ type Data struct {
 	Hostname      string
 	ElasticIP     string
 	VpcCidrBlock  string
-	VpcId         string
+	VpcID         string
 	VpcNameTag    string
 	IntSubnetCidr string
 	ExtSubnetCidr string
@@ -84,13 +84,13 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 		return err
 	}
 
-	d.VpcId = *rspVpc.Vpc.VpcId
-	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcId)
+	d.VpcID = *rspVpc.Vpc.VpcId
+	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcID)
 
 	// Forge the tag request:
 	prmsTag := &ec2.CreateTagsInput{
 		Resources: []*string{
-			aws.String(*rspVpc.Vpc.VpcId),
+			aws.String(d.VpcID),
 		},
 		Tags: []*ec2.Tag{
 			{
@@ -121,7 +121,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	// Forge the internal subnet request:
 	prmsInt := &ec2.CreateSubnetInput{
 		CidrBlock: aws.String(d.IntSubnetCidr),
-		VpcId:     aws.String(d.VpcId),
+		VpcId:     aws.String(d.VpcID),
 		DryRun:    aws.Bool(false),
 	}
 
@@ -137,7 +137,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	// Forge the external subnet request:
 	prmsExt := &ec2.CreateSubnetInput{
 		CidrBlock: aws.String(d.ExtSubnetCidr),
-		VpcId:     aws.String(d.VpcId),
+		VpcId:     aws.String(d.VpcID),
 		DryRun:    aws.Bool(false),
 	}
 
