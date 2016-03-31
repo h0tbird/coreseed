@@ -72,7 +72,7 @@ func (d *Data) Setup() error {
 func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Forge the VPC request:
-	prmsVpc := &ec2.CreateVpcInput {
+	prmsVpc := &ec2.CreateVpcInput{
 		CidrBlock:       aws.String(d.VpcCidrBlock),
 		DryRun:          aws.Bool(false),
 		InstanceTenancy: aws.String("default"),
