@@ -111,39 +111,39 @@ var (
 
 	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net.")
 
-	flPktAPIKey = cmdRunPacket.Flag("api-key", "Packet API key.").
-			Required().PlaceHolder("PKT_APIKEY").
-			OverrideDefaultFromEnvar("PKT_APIKEY").
+	flRunPktAPIKey = cmdRunPacket.Flag("api-key", "Packet API key.").
+			Required().PlaceHolder("KATO_RUN_PKT_APIKEY").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_APIKEY").
 			Short('k').String()
 
-	flPktHostName = cmdRunPacket.Flag("hostname", "For the Packet.net dashboard.").
-			Required().PlaceHolder("PKT_HOSTNAME").
-			OverrideDefaultFromEnvar("PKT_HOSTNAME").
+	flRunPktHostname = cmdRunPacket.Flag("hostname", "Used in the Packet.net dashboard.").
+			Required().PlaceHolder("KATO_RUN_PKT_HOSTNAME").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_HOSTNAME").
 			Short('h').String()
 
-	flPktProjID = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
-			Required().PlaceHolder("PKT_PROJID").
-			OverrideDefaultFromEnvar("PKT_PROJID").
+	flRunPktProjectID = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
+			Required().PlaceHolder("KATO_RUN_PKT_PROJECT_ID").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_PROJECT_ID").
 			Short('i').String()
 
-	flPktPlan = cmdRunPacket.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
-			Required().PlaceHolder("PKT_PLAN").
-			OverrideDefaultFromEnvar("PKT_PLAN").
+	flRunPktPlan = cmdRunPacket.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
+			Required().PlaceHolder("KATO_RUN_PKT_PLAN").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_PLAN").
 			Short('p').String()
 
-	flPktOsys = cmdRunPacket.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
-			Required().PlaceHolder("PKT_OS").
-			OverrideDefaultFromEnvar("PKT_OS").
+	flRunPktOS = cmdRunPacket.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
+			Required().PlaceHolder("KATO_RUN_PKT_OS").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_OS").
 			Short('o').String()
 
-	flPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
-			Required().PlaceHolder("PKT_FACILITY").
-			OverrideDefaultFromEnvar("PKT_FACILITY").
+	flRunPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
+			Required().PlaceHolder("KATO_RUN_PKT_FACILITY").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_FACILITY").
 			Short('f').String()
 
-	flPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
-			Required().PlaceHolder("PKT_BILLING").
-			OverrideDefaultFromEnvar("PKT_BILLING").
+	flRunPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
+			Required().PlaceHolder("KATO_RUN_PKT_BILLING").
+			OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
 			Short('b').String()
 
 	//---------------------------
@@ -287,13 +287,13 @@ func main() {
 	case cmdRunPacket.FullCommand():
 
 		pkt := pkt.Data {
-			APIKey:   *flPktAPIKey,
-			HostName: *flPktHostName,
-			Plan:     *flPktPlan,
-			Facility: *flPktFacility,
-			Osys:     *flPktOsys,
-			Billing:  *flPktBilling,
-			ProjID:   *flPktProjID,
+			APIKey:   *flRunPktAPIKey,
+			HostName: *flRunPktHostname,
+			ProjID:   *flRunPktProjectID,
+			Plan:     *flRunPktPlan,
+			Osys:     *flRunPktOS,
+			Facility: *flRunPktFacility,
+			Billing:  *flRunPktBilling,
 		}
 
 		err := run(&pkt)
