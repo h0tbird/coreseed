@@ -44,59 +44,59 @@ var (
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
-	flHostID = cmdUdata.Flag("hostid", "hostname = role-id").
-			Required().PlaceHolder("CS_HOSTID").
-			OverrideDefaultFromEnvar("CS_HOSTID").
+	flUdataHostID = cmdUdata.Flag("hostid", "Must be a number: hostname = <role>-<hostid>").
+			Required().PlaceHolder("KATO_UDATA_HOSTID").
+			OverrideDefaultFromEnvar("KATO_UDATA_HOSTID").
 			Short('i').String()
 
-	flDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d)").
-			Required().PlaceHolder("CS_DOMAIN").
-			OverrideDefaultFromEnvar("CS_DOMAIN").
+	flUdataDomain = cmdUdata.Flag("domain", "Domain name as in (hostname -d)").
+			Required().PlaceHolder("KATO_UDATA_DOMAIN").
+			OverrideDefaultFromEnvar("KATO_UDATA_DOMAIN").
 			Short('d').String()
 
-	flRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ]").
-			Required().PlaceHolder("CS_ROLE").
-			OverrideDefaultFromEnvar("CS_ROLE").
+	flUdataRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ]").
+			Required().PlaceHolder("KATO_UDATA_ROLE").
+			OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
 			Short('r').String()
 
-	flNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
-			Required().PlaceHolder("CS_NS1_API_KEY").
-			OverrideDefaultFromEnvar("CS_NS1_API_KEY").
+	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
+			Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
+			OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
 			Short('k').String()
 
-	flCAcert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
-			PlaceHolder("CS_CA_CERT").
-			OverrideDefaultFromEnvar("CS_CA_CERT").
+	flUdataCaCert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
+			PlaceHolder("KATO_UDATA_CA_CERT").
+			OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
 			Short('c').String()
 
-	flEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
-			PlaceHolder("CS_ETCD_TOKEN").
-			OverrideDefaultFromEnvar("CS_ETCD_TOKEN").
+	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
+			PlaceHolder("KATO_UDATA_ETCD_TOKEN").
+			OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 			Short('e').String()
 
-	flFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
-			PlaceHolder("CS_FLANNEL_NETWORK").
-			OverrideDefaultFromEnvar("CS_FLANNEL_NETWORK").
+	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
+			PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
+			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
 			Short('n').String()
 
-	flFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-			PlaceHolder("CS_FLANNEL_SUBNET_LEN").
-			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_LEN").
+	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
+			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
+			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
 			Short('s').String()
 
-	flFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-			PlaceHolder("CS_FLANNEL_SUBNET_MIN").
-			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MIN").
+	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
+			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
+			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
 			Short('m').String()
 
-	flFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-			PlaceHolder("CS_FLANNEL_SUBNET_MAX").
-			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
+	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
+			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
+			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
 			Short('x').String()
 
-	flFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-			PlaceHolder("CS_FLANNEL_SUBNET_MAX").
-			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
+	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
+			PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
+			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 			Short('b').String()
 
 	//------------------------------
@@ -252,16 +252,16 @@ func main() {
 	case cmdUdata.FullCommand():
 
 		udata := udata.Data {
-			HostID:           *flHostID,
-			Domain:           *flDomain,
-			Role:             *flRole,
-			Ns1ApiKey:        *flNs1Apikey,
-			EtcdToken:        *flEtcdToken,
-			FlannelNetwork:   *flFlannelNetwork,
-			FlannelSubnetLen: *flFlannelSubnetLen,
-			FlannelSubnetMin: *flFlannelSubnetMin,
-			FlannelSubnetMax: *flFlannelSubnetMax,
-			FlannelBackend:   *flFlannelBackend,
+			HostID:           *flUdataHostID,
+			Domain:           *flUdataDomain,
+			Role:             *flUdataRole,
+			Ns1ApiKey:        *flUdataNs1Apikey,
+			EtcdToken:        *flUdataEtcdToken,
+			FlannelNetwork:   *flUdataFlannelNetwork,
+			FlannelSubnetLen: *flUdataFlannelSubnetLen,
+			FlannelSubnetMin: *flUdataFlannelSubnetMin,
+			FlannelSubnetMax: *flUdataFlannelSubnetMax,
+			FlannelBackend:   *flUdataFlannelBackend,
 		}
 
 		err := udata.Render()
