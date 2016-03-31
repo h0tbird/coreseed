@@ -24,16 +24,20 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
-	Region       string
-	SubnetIds    string
-	ImageID      string
-	KeyPair      string
-	InsType      string
-	HostName     string
-	ElasticIP    string
-	VpcCidrBlock string
-	VpcId        string
-	VpcNameTag   string
+	Region        string
+	SubnetIds     string
+	ImageID       string
+	KeyPair       string
+	InsType       string
+	HostName      string
+	ElasticIP     string
+	VpcCidrBlock  string
+	VpcId         string
+	VpcNameTag    string
+	IntSubnetCidr string
+	ExtSubnetCidr string
+	IntSubnetID   string
+	ExtSubnetID   string
 }
 
 //--------------------------------------------------------------------------
@@ -47,13 +51,13 @@ func (d *Data) Setup() error {
 	log.Printf("[setup-ec2] INFO Connecting to %s\n", d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
-	// Create an VPC:
+	// Create the VPC:
 	if err := d.createVpc(*svc); err != nil {
 		return err
 	}
 
-	// Create the external subnet:
-	if err := d.createSubnet(*svc); err != nil {
+	// Create external and internal subnets:
+	if err := d.createSubnets(*svc); err != nil {
 		return err
 	}
 
@@ -75,7 +79,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	}
 
 	// Send the VPC request:
-	log.Printf("[setup-ec2] INFO Creating a VPC\n")
+	log.Printf("[setup-ec2] INFO Creating the VPC\n")
 	rspVpc, err := svc.CreateVpc(prmsVpc)
 	if err != nil {
 		return err
@@ -110,14 +114,44 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 }
 
 //-------------------------------------------------------------------------
-// func: createSubnet
+// func: createSubnets
 //-------------------------------------------------------------------------
 
-func (d *Data) createSubnet(svc ec2.EC2) error {
+func (d *Data) createSubnets(svc ec2.EC2) error {
 
-	// Forge the VPC request:
+	// Forge the internal subnet request:
+	prmsInt := &ec2.CreateSubnetInput{
+		CidrBlock: aws.String(d.IntSubnetCidr),
+		VpcId:     aws.String(d.VpcId),
+		DryRun:    aws.Bool(false),
+	}
 
-	// Send the VPC request:
+	// Send the subnet request:
+	log.Printf("[setup-ec2] INFO Creating the internal subnet\n")
+	rspInt, err := svc.CreateSubnet(prmsInt)
+	if err != nil {
+		return err
+	}
+
+	d.IntSubnetID = *rspInt.Subnet.SubnetId
+	log.Printf("[setup-ec2] INFO Internal subnet ID: %s\n", d.IntSubnetID)
+
+	// Forge the external subnet request:
+	prmsExt := &ec2.CreateSubnetInput{
+		CidrBlock: aws.String(d.ExtSubnetCidr),
+		VpcId:     aws.String(d.VpcId),
+		DryRun:    aws.Bool(false),
+	}
+
+	// Send the subnet request:
+	log.Printf("[setup-ec2] INFO Creating the external subnet\n")
+	rspExt, err := svc.CreateSubnet(prmsExt)
+	if err != nil {
+		return err
+	}
+
+	d.ExtSubnetID = *rspExt.Subnet.SubnetId
+	log.Printf("[setup-ec2] INFO External subnet ID: %s\n", d.ExtSubnetID)
 
 	// Return on success:
 	return nil

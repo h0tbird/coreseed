@@ -167,6 +167,16 @@ var (
 			OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
 			Short('n').String()
 
+	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
+			Required().PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+			Short('i').String()
+
+	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
+			Required().PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+			Short('e').String()
+
 	//-------------------------
 	// run-ec2: nested command
 	//-------------------------
@@ -295,9 +305,11 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data {
-			Region:       *flSetupEc2Region,
-			VpcCidrBlock: *flSetupEc2VpcCidrBlock,
-			VpcNameTag:   *flSetupEc2VpcNameTag,
+			Region:        *flSetupEc2Region,
+			VpcCidrBlock:  *flSetupEc2VpcCidrBlock,
+			VpcNameTag:    *flSetupEc2VpcNameTag,
+			IntSubnetCidr: *flSetupEc2IntSubnetCidr,
+			ExtSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}
 
 		err := setup(&ec2)
