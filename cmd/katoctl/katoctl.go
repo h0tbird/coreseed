@@ -151,6 +151,11 @@ var (
 
 	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 elastic IP, VPC and firewall rules to be used by katoctl.")
 
+	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
+			Required().PlaceHolder("EC2_REGION").
+			OverrideDefaultFromEnvar("EC2_REGION").
+			Short('r').String()
+
 	//-------------------------
 	// run-ec2: nested command
 	//-------------------------
@@ -267,6 +272,7 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data {
+			Region: *flSetupEc2Region,
 		}
 
 		err := setup(&ec2)

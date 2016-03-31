@@ -14,6 +14,12 @@ type cloudProvider interface {
 //-------------------------------------------------------------------------
 
 func setup(cp cloudProvider) error {
+
+	err := cp.Setup()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

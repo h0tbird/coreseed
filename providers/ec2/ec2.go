@@ -38,6 +38,26 @@ type Data struct {
 
 // Setup an EC2 elastic IPs, VPC and firewall rules to be used by katoctl.
 func (d *Data) Setup() error {
+
+	// Connect and authenticate to the API endpoint:
+	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+
+	// Create VPC:
+	params := &ec2.CreateVpcInput {
+		CidrBlock: aws.String("10.0.0.0/16"),
+		DryRun:    aws.Bool(false),
+		InstanceTenancy: aws.String("default"),
+	}
+
+	resp, err := svc.CreateVpc(params)
+	if err != nil {
+		return err
+	}
+
+	// Pretty-print the response data:
+	fmt.Println(resp)
+
+	// Return on success:
 	return nil
 }
 
@@ -125,5 +145,6 @@ func (d *Data) Run(udata []byte) error {
 		fmt.Println(resp)
 	}
 
+	// Return on success:
 	return nil
 }
