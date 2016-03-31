@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"encoding/base64"
 	"fmt"
+	"log"
 	"strings"
 
 	// Community:
@@ -40,24 +41,25 @@ type Data struct {
 func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoint:
+	log.Printf("[setup-ec2] INFO Connecting to %s\n", d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
-	// Create VPC:
+	// Forge the VPC request:
 	params := &ec2.CreateVpcInput {
 		CidrBlock: aws.String("10.0.0.0/16"),
 		DryRun:    aws.Bool(false),
 		InstanceTenancy: aws.String("default"),
 	}
 
+	// Send the VPC request:
+	log.Printf("[setup-ec2] INFO Creating a VPC\n")
 	resp, err := svc.CreateVpc(params)
 	if err != nil {
 		return err
 	}
 
-	// Pretty-print the response data:
-	fmt.Println(resp)
-
 	// Return on success:
+	log.Printf("[setup-ec2] INFO VpcId: %s\n", *resp.Vpc.VpcId)
 	return nil
 }
 

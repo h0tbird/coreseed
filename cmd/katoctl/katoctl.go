@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 
 	// Local:
@@ -202,6 +203,18 @@ var (
 			OverrideDefaultFromEnvar("EC2_ELASTIC_IP").
 			Short('e').String()
 )
+
+//----------------------------------------------------------------------------
+// func init() is called after all the variable declarations in the package
+// have evaluated their initializers, and those are evaluated only after all
+// the imported packages have been initialized:
+//----------------------------------------------------------------------------
+
+func init() {
+
+	// Change the flags on the default logger:
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
 
 //----------------------------------------------------------------------------
 // Entry point:
