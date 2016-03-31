@@ -29,7 +29,7 @@ type Data struct {
 	ImageID       string
 	KeyPair       string
 	InsType       string
-	HostName      string
+	Hostname      string
 	ElasticIP     string
 	VpcCidrBlock  string
 	VpcId         string
@@ -210,7 +210,7 @@ func (d *Data) Run(udata []byte) error {
 		Tags: []*ec2.Tag{
 			{
 				Key:   aws.String("Name"),
-				Value: aws.String(d.HostName),
+				Value: aws.String(d.Hostname),
 			},
 		},
 	})

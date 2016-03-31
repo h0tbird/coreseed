@@ -183,44 +183,44 @@ var (
 
 	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2.")
 
-	flEc2HostName = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
-			PlaceHolder("EC2_HOSTNAME").
-			OverrideDefaultFromEnvar("EC2_HOSTNAME").
+	flRunEc2Hostname = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
+			PlaceHolder("KATO_RUN_EC2_HOSTNAME").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_HOSTNAME").
 			Short('h').String()
 
-	flEc2Region = cmdRunEc2.Flag("region", "EC2 region.").
-			Required().PlaceHolder("EC2_REGION").
-			OverrideDefaultFromEnvar("EC2_REGION").
+	flRunEc2Region = cmdRunEc2.Flag("region", "EC2 region.").
+			Required().PlaceHolder("KATO_RUN_EC2_REGION").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_REGION").
 			Short('r').String()
 
-	flEc2ImageID = cmdRunEc2.Flag("image-id", "EC2 image id.").
-			Required().PlaceHolder("EC2_IMAGE_ID").
-			OverrideDefaultFromEnvar("EC2_IMAGE_ID").
+	flRunEc2ImageID = cmdRunEc2.Flag("image-id", "EC2 image id.").
+			Required().PlaceHolder("KATO_RUN_EC2_IMAGE_ID").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_IMAGE_ID").
 			Short('i').String()
 
-	flEc2InsType = cmdRunEc2.Flag("instance-type", "EC2 instance type.").
-			Required().PlaceHolder("EC2_INSTANCE_TYPE").
-			OverrideDefaultFromEnvar("EC2_INSTANCE_TYPE").
+	flRunEc2InsType = cmdRunEc2.Flag("instance-type", "EC2 instance type.").
+			Required().PlaceHolder("KATO_RUN_EC2_INSTANCE_TYPE").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_INSTANCE_TYPE").
 			Short('t').String()
 
-	flEc2KeyPair = cmdRunEc2.Flag("key-pair", "EC2 key pair.").
-			Required().PlaceHolder("EC2_KEY_PAIR").
-			OverrideDefaultFromEnvar("EC2_KEY_PAIR").
+	flRunEc2KeyPair = cmdRunEc2.Flag("key-pair", "EC2 key pair.").
+			Required().PlaceHolder("KATO_RUN_EC2_KEY_PAIR").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_KEY_PAIR").
 			Short('k').String()
 
-	flEc2VpcID = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
-			Required().PlaceHolder("EC2_VPC_ID").
-			OverrideDefaultFromEnvar("EC2_VPC_ID").
+	flRunEc2VpcID = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
+			Required().PlaceHolder("KATO_RUN_EC2_VPC_ID").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_VPC_ID").
 			Short('v').String()
 
-	flEc2SubnetIds = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
-			Required().PlaceHolder("EC2_SUBNET_ID").
-			OverrideDefaultFromEnvar("EC2_SUBNET_ID").
+	flRunEc2SubnetIds = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
+			Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
 			Short('s').String()
 
-	flEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
-			Default("false").PlaceHolder("EC2_ELASTIC_IP").
-			OverrideDefaultFromEnvar("EC2_ELASTIC_IP").
+	flRunEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
+			Default("false").PlaceHolder("KATO_RUN_EC2_ELASTIC_IP").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_ELASTIC_IP").
 			Short('e').String()
 )
 
@@ -323,13 +323,13 @@ func main() {
 	case cmdRunEc2.FullCommand():
 
 		ec2 := ec2.Data {
-			Region:    *flEc2Region,
-			SubnetIds: *flEc2SubnetIds,
-			ImageID:   *flEc2ImageID,
-			KeyPair:   *flEc2KeyPair,
-			InsType:   *flEc2InsType,
-			HostName:  *flEc2HostName,
-			ElasticIP: *flEc2ElasticIP,
+			Region:    *flRunEc2Region,
+			SubnetIds: *flRunEc2SubnetIds,
+			ImageID:   *flRunEc2ImageID,
+			KeyPair:   *flRunEc2KeyPair,
+			InsType:   *flRunEc2InsType,
+			Hostname:  *flRunEc2Hostname,
+			ElasticIP: *flRunEc2ElasticIP,
 		}
 
 		err := run(&ec2)
