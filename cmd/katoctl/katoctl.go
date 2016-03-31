@@ -150,7 +150,7 @@ var (
 	// setup-ec2: nested command
 	//---------------------------
 
-	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 elastic IP, VPC and firewall rules to be used by katoctl.")
+	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 VPC and all the related components.")
 
 	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
 			Required().PlaceHolder("EC2_REGION").

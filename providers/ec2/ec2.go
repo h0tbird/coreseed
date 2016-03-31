@@ -37,12 +37,27 @@ type Data struct {
 // func: Setup
 //--------------------------------------------------------------------------
 
-// Setup an EC2 elastic IPs, VPC and firewall rules to be used by katoctl.
+// Setup an EC2 VPC and all the related components.
 func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoint:
 	log.Printf("[setup-ec2] INFO Connecting to %s\n", d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+
+	// Create an VPC:
+	if err := d.createVpc(*svc); err != nil {
+		return err
+	}
+
+	// Return on success:
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createVpc
+//-------------------------------------------------------------------------
+
+func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Forge the VPC request:
 	params := &ec2.CreateVpcInput {
