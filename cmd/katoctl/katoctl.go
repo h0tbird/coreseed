@@ -13,9 +13,9 @@ import (
 	"os"
 
 	// Local:
-	"github.com/h0tbird/kato/udata"
-	"github.com/h0tbird/kato/providers/pkt"
 	"github.com/h0tbird/kato/providers/ec2"
+	"github.com/h0tbird/kato/providers/pkt"
+	"github.com/h0tbird/kato/udata"
 
 	// Community:
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -60,9 +60,9 @@ var (
 			Short('r').String()
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
-			Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
-			OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
-			Short('k').String()
+				Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
+				OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
+				Short('k').String()
 
 	flUdataCaCert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
 			PlaceHolder("KATO_UDATA_CA_CERT").
@@ -70,34 +70,34 @@ var (
 			Short('c').String()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
-			PlaceHolder("KATO_UDATA_ETCD_TOKEN").
-			OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
-			Short('e').String()
+				PlaceHolder("KATO_UDATA_ETCD_TOKEN").
+				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
+				Short('e').String()
 
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
-			PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
-			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
-			Short('n').String()
+				PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
+				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
+				Short('n').String()
 
 	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
-			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
-			Short('s').String()
+				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
+				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
+				Short('s').String()
 
 	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
-			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
-			Short('m').String()
+				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
+				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
+				Short('m').String()
 
 	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-			PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
-			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
-			Short('x').String()
+				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
+				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
+				Short('x').String()
 
 	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-			PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
-			OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
-			Short('b').String()
+				PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
+				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
+				Short('b').String()
 
 	//------------------------------
 	// setup-packet: nested command
@@ -117,14 +117,14 @@ var (
 			Short('k').String()
 
 	flRunPktHostname = cmdRunPacket.Flag("hostname", "Used in the Packet.net dashboard.").
-			Required().PlaceHolder("KATO_RUN_PKT_HOSTNAME").
-			OverrideDefaultFromEnvar("KATO_RUN_PKT_HOSTNAME").
-			Short('h').String()
+				Required().PlaceHolder("KATO_RUN_PKT_HOSTNAME").
+				OverrideDefaultFromEnvar("KATO_RUN_PKT_HOSTNAME").
+				Short('h').String()
 
 	flRunPktProjectID = cmdRunPacket.Flag("project-id", "Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
-			Required().PlaceHolder("KATO_RUN_PKT_PROJECT_ID").
-			OverrideDefaultFromEnvar("KATO_RUN_PKT_PROJECT_ID").
-			Short('i').String()
+				Required().PlaceHolder("KATO_RUN_PKT_PROJECT_ID").
+				OverrideDefaultFromEnvar("KATO_RUN_PKT_PROJECT_ID").
+				Short('i').String()
 
 	flRunPktPlan = cmdRunPacket.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
 			Required().PlaceHolder("KATO_RUN_PKT_PLAN").
@@ -137,9 +137,9 @@ var (
 			Short('o').String()
 
 	flRunPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
-			Required().PlaceHolder("KATO_RUN_PKT_FACILITY").
-			OverrideDefaultFromEnvar("KATO_RUN_PKT_FACILITY").
-			Short('f').String()
+				Required().PlaceHolder("KATO_RUN_PKT_FACILITY").
+				OverrideDefaultFromEnvar("KATO_RUN_PKT_FACILITY").
+				Short('f').String()
 
 	flRunPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
 			Required().PlaceHolder("KATO_RUN_PKT_BILLING").
@@ -153,29 +153,29 @@ var (
 	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 VPC and all the related components.")
 
 	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
-			Required().PlaceHolder("KATO_SETUP_EC2_REGION").
-			OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
-			Short('r').String()
+				Required().PlaceHolder("KATO_SETUP_EC2_REGION").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
+				Short('r').String()
 
 	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "The range of IPs to be used by the VPC.").
-			Required().PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
-			OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
-			Short('c').String()
+				Required().PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+				Short('c').String()
 
 	flSetupEc2VpcNameTag = cmdSetupEc2.Flag("vpc-name-tag", "Used as Name tag for the VPC.").
-			Required().PlaceHolder("KATO_SETUP_EC2_VPC_NAME_TAG").
-			OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
-			Short('n').String()
+				Required().PlaceHolder("KATO_SETUP_EC2_VPC_NAME_TAG").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
+				Short('n').String()
 
 	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
-			Required().PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
-			OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
-			Short('i').String()
+				Required().PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+				Short('i').String()
 
 	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
-			Required().PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
-			OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
-			Short('e').String()
+				Required().PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+				Short('e').String()
 
 	//-------------------------
 	// run-ec2: nested command
@@ -184,9 +184,9 @@ var (
 	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2.")
 
 	flRunEc2Hostname = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
-			PlaceHolder("KATO_RUN_EC2_HOSTNAME").
-			OverrideDefaultFromEnvar("KATO_RUN_EC2_HOSTNAME").
-			Short('h').String()
+				PlaceHolder("KATO_RUN_EC2_HOSTNAME").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_HOSTNAME").
+				Short('h').String()
 
 	flRunEc2Region = cmdRunEc2.Flag("region", "EC2 region.").
 			Required().PlaceHolder("KATO_RUN_EC2_REGION").
@@ -214,14 +214,14 @@ var (
 			Short('v').String()
 
 	flRunEc2SubnetIds = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
-			Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
-			OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
-			Short('s').String()
+				Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
+				Short('s').String()
 
 	flRunEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
-			Default("false").PlaceHolder("KATO_RUN_EC2_ELASTIC_IP").
-			OverrideDefaultFromEnvar("KATO_RUN_EC2_ELASTIC_IP").
-			Short('e').String()
+				Default("false").PlaceHolder("KATO_RUN_EC2_ELASTIC_IP").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_ELASTIC_IP").
+				Short('e').String()
 )
 
 //----------------------------------------------------------------------------
@@ -251,7 +251,7 @@ func main() {
 
 	case cmdUdata.FullCommand():
 
-		udata := udata.Data {
+		udata := udata.Data{
 			HostID:           *flUdataHostID,
 			Domain:           *flUdataDomain,
 			Role:             *flUdataRole,
@@ -274,8 +274,7 @@ func main() {
 
 	case cmdSetupPacket.FullCommand():
 
-		pkt := pkt.Data {
-		}
+		pkt := pkt.Data{}
 
 		err := setup(&pkt)
 		checkError(err)
@@ -286,7 +285,7 @@ func main() {
 
 	case cmdRunPacket.FullCommand():
 
-		pkt := pkt.Data {
+		pkt := pkt.Data{
 			APIKey:    *flRunPktAPIKey,
 			HostName:  *flRunPktHostname,
 			ProjectID: *flRunPktProjectID,
@@ -305,7 +304,7 @@ func main() {
 
 	case cmdSetupEc2.FullCommand():
 
-		ec2 := ec2.Data {
+		ec2 := ec2.Data{
 			Region:        *flSetupEc2Region,
 			VpcCidrBlock:  *flSetupEc2VpcCidrBlock,
 			VpcNameTag:    *flSetupEc2VpcNameTag,
@@ -322,7 +321,7 @@ func main() {
 
 	case cmdRunEc2.FullCommand():
 
-		ec2 := ec2.Data {
+		ec2 := ec2.Data{
 			Region:    *flRunEc2Region,
 			SubnetIds: *flRunEc2SubnetIds,
 			ImageID:   *flRunEc2ImageID,
