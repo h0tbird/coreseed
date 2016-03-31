@@ -98,11 +98,17 @@ var (
 			OverrideDefaultFromEnvar("CS_FLANNEL_SUBNET_MAX").
 			Short('b').String()
 
+	//------------------------------
+	// setup-packet: nested command
+	//------------------------------
+
+	cmdSetupPacket = app.Command("setup-packet", "Setup a Packet.net project to be used by katoctl.")
+
 	//----------------------------
 	// run-packet: nested command
 	//----------------------------
 
-	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net")
+	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net.")
 
 	flPktAPIKey = cmdRunPacket.Flag("api-key", "Packet API key.").
 			Required().PlaceHolder("PKT_APIKEY").
@@ -139,11 +145,17 @@ var (
 			OverrideDefaultFromEnvar("PKT_BILLING").
 			Short('b').String()
 
+	//---------------------------
+	// setup-ec2: nested command
+	//---------------------------
+
+	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 elastic IP, VPC and firewall rules to be used by katoctl.")
+
 	//-------------------------
 	// run-ec2: nested command
 	//-------------------------
 
-	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2")
+	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2.")
 
 	flEc2HostName = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
 			PlaceHolder("EC2_HOSTNAME").
@@ -195,7 +207,10 @@ func main() {
 	// Sub-command selector:
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
-	// katoctl udata ...
+	//---------------
+	// katoctl udata
+	//---------------
+
 	case cmdUdata.FullCommand():
 
 		udata := udata.Data {
@@ -214,7 +229,22 @@ func main() {
 		err := udata.Render()
 		checkError(err)
 
-	// katoctl run-packet ...
+	//----------------------
+	// katoctl setup-packet
+	//----------------------
+
+	case cmdSetupPacket.FullCommand():
+
+		pkt := pkt.Data {
+		}
+
+		err := setup(&pkt)
+		checkError(err)
+
+	//--------------------
+	// katoctl run-packet
+	//--------------------
+
 	case cmdRunPacket.FullCommand():
 
 		pkt := pkt.Data {
@@ -230,7 +260,22 @@ func main() {
 		err := run(&pkt)
 		checkError(err)
 
-	// katoctl run-ec2 ...
+	//-------------------
+	// katoctl setup-ec2
+	//-------------------
+
+	case cmdSetupEc2.FullCommand():
+
+		ec2 := ec2.Data {
+		}
+
+		err := setup(&ec2)
+		checkError(err)
+
+	//-----------------
+	// katoctl run-ec2
+	//-----------------
+
 	case cmdRunEc2.FullCommand():
 
 		ec2 := ec2.Data {
