@@ -79,14 +79,13 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	}
 
 	// Send the VPC request:
-	log.Printf("[setup-ec2] INFO Creating the VPC\n")
 	rspVpc, err := svc.CreateVpc(prmsVpc)
 	if err != nil {
 		return err
 	}
 
 	d.VpcId = *rspVpc.Vpc.VpcId
-	log.Printf("[setup-ec2] INFO VpcId: %s\n", d.VpcId)
+	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcId)
 
 	// Forge the tag request:
 	prmsTag := &ec2.CreateTagsInput{
@@ -109,7 +108,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	}
 
 	// Return on success:
-	log.Printf("[setup-ec2] INFO %s tagged as %s\n", d.VpcId, d.VpcNameTag)
+	log.Printf("[setup-ec2] INFO VPC tagged as %s\n", d.VpcNameTag)
 	return nil
 }
 
@@ -127,14 +126,13 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	}
 
 	// Send the subnet request:
-	log.Printf("[setup-ec2] INFO Creating the internal subnet\n")
 	rspInt, err := svc.CreateSubnet(prmsInt)
 	if err != nil {
 		return err
 	}
 
 	d.IntSubnetID = *rspInt.Subnet.SubnetId
-	log.Printf("[setup-ec2] INFO Internal subnet ID: %s\n", d.IntSubnetID)
+	log.Printf("[setup-ec2] INFO New internal subnet %s\n", d.IntSubnetID)
 
 	// Forge the external subnet request:
 	prmsExt := &ec2.CreateSubnetInput{
@@ -144,14 +142,13 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	}
 
 	// Send the subnet request:
-	log.Printf("[setup-ec2] INFO Creating the external subnet\n")
 	rspExt, err := svc.CreateSubnet(prmsExt)
 	if err != nil {
 		return err
 	}
 
 	d.ExtSubnetID = *rspExt.Subnet.SubnetId
-	log.Printf("[setup-ec2] INFO External subnet ID: %s\n", d.ExtSubnetID)
+	log.Printf("[setup-ec2] INFO New external subnet %s\n", d.ExtSubnetID)
 
 	// Return on success:
 	return nil
