@@ -157,8 +157,8 @@ var (
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
 				Short('r').String()
 
-	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "The range of IPs to be used by the VPC.").
-				Required().PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC (default: 10.0.0.0/16).").
+				Default("10.0.0.0/16").PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
 				Short('c').String()
 
@@ -167,13 +167,13 @@ var (
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
 				Short('n').String()
 
-	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
-				Required().PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet (default: 10.0.1.0/24).").
+				Default("10.0.1.0/24").PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
 				Short('i').String()
 
-	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
-				Required().PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet (default: 10.0.0.0/24).").
+				Default("10.0.0.0/24").PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
 				Short('e').String()
 
