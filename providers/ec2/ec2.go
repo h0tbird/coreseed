@@ -144,7 +144,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	log.Printf("[setup-ec2] INFO New external subnet %s\n", d.ExtSubnetID)
 
 	// Tag the subnet:
-	if err = tag(d.IntSubnetID, "Name", d.VpcNameTag, svc); err != nil {
+	if err = tag(d.ExtSubnetID, "Name", d.VpcNameTag, svc); err != nil {
 		return err
 	}
 
