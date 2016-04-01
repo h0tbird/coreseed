@@ -84,26 +84,12 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 		return err
 	}
 
+	// Store the VPC ID:
 	d.VpcID = *rspVpc.Vpc.VpcId
 	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcID)
 
-	// Forge the tag request:
-	prmsTag := &ec2.CreateTagsInput{
-		Resources: []*string{
-			aws.String(d.VpcID),
-		},
-		Tags: []*ec2.Tag{
-			{
-				Key:   aws.String("Name"),
-				Value: aws.String(d.VpcNameTag),
-			},
-		},
-		DryRun: aws.Bool(false),
-	}
-
-	// Send the tag request:
-	_, err = svc.CreateTags(prmsTag)
-	if err != nil {
+	// Tag the VPC:
+	if err = tag(d.VpcID, "Name", d.VpcNameTag, svc); err != nil {
 		return err
 	}
 
@@ -131,8 +117,14 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		return err
 	}
 
+	// Store the subnet ID:
 	d.IntSubnetID = *rspInt.Subnet.SubnetId
 	log.Printf("[setup-ec2] INFO New internal subnet %s\n", d.IntSubnetID)
+
+	// Tag the subnet:
+	if err = tag(d.IntSubnetID, "Name", d.VpcNameTag, svc); err != nil {
+		return err
+	}
 
 	// Forge the external subnet request:
 	prmsExt := &ec2.CreateSubnetInput{
@@ -147,10 +139,45 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		return err
 	}
 
+	// Store the subnet ID:
 	d.ExtSubnetID = *rspExt.Subnet.SubnetId
 	log.Printf("[setup-ec2] INFO New external subnet %s\n", d.ExtSubnetID)
 
+	// Tag the subnet:
+	if err = tag(d.IntSubnetID, "Name", d.VpcNameTag, svc); err != nil {
+		return err
+	}
+
 	// Return on success:
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: tag
+//-------------------------------------------------------------------------
+
+func tag(resource, key, value string, svc ec2.EC2) error {
+
+	// Forge the tag request:
+	params := &ec2.CreateTagsInput{
+		Resources: []*string{
+			aws.String(resource),
+		},
+		Tags: []*ec2.Tag{
+			{
+				Key:   aws.String(key),
+				Value: aws.String(value),
+			},
+		},
+		DryRun: aws.Bool(false),
+	}
+
+	// Send the tag request:
+	_, err := svc.CreateTags(params)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
