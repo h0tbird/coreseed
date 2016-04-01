@@ -104,51 +104,42 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 
 func (d *Data) createSubnets(svc ec2.EC2) error {
 
-	// Forge the internal subnet request:
-	prmsInt := &ec2.CreateSubnetInput{
-		CidrBlock: aws.String(d.IntSubnetCidr),
-		VpcId:     aws.String(d.VpcID),
-		DryRun:    aws.Bool(false),
+	// Map to iterate:
+	nets := map[string]map[string]string{
+		"internal": map[string]string{"SubnetCidr": d.IntSubnetCidr, "SubnetID": ""},
+		"external": map[string]string{"SubnetCidr": d.ExtSubnetCidr, "SubnetID": ""},
 	}
 
-	// Send the subnet request:
-	rspInt, err := svc.CreateSubnet(prmsInt)
-	if err != nil {
-		return err
+	// For each subnet:
+	for k, v := range nets {
+
+		// Forge the subnet request:
+		params := &ec2.CreateSubnetInput{
+			CidrBlock: aws.String(v["SubnetCidr"]),
+			VpcId:     aws.String(d.VpcID),
+			DryRun:    aws.Bool(false),
+		}
+
+		// Send the subnet request:
+		resp, err := svc.CreateSubnet(params)
+		if err != nil {
+			return err
+		}
+
+		// Locally store the subnet ID:
+		v["SubnetID"] = *resp.Subnet.SubnetId
+		log.Printf("[setup-ec2] INFO New %s subnet %s\n", k, v["SubnetID"])
+
+		// Tag the subnet:
+		if err = tag(v["SubnetID"], "Name", d.VpcNameTag, svc); err != nil {
+			return err
+		}
 	}
 
-	// Store the subnet ID:
-	d.IntSubnetID = *rspInt.Subnet.SubnetId
-	log.Printf("[setup-ec2] INFO New internal subnet %s\n", d.IntSubnetID)
+	// Store subnet IDs:
+	d.IntSubnetID = nets["internal"]["SubnetID"]
+	d.ExtSubnetID = nets["external"]["SubnetID"]
 
-	// Tag the subnet:
-	if err = tag(d.IntSubnetID, "Name", d.VpcNameTag, svc); err != nil {
-		return err
-	}
-
-	// Forge the external subnet request:
-	prmsExt := &ec2.CreateSubnetInput{
-		CidrBlock: aws.String(d.ExtSubnetCidr),
-		VpcId:     aws.String(d.VpcID),
-		DryRun:    aws.Bool(false),
-	}
-
-	// Send the subnet request:
-	rspExt, err := svc.CreateSubnet(prmsExt)
-	if err != nil {
-		return err
-	}
-
-	// Store the subnet ID:
-	d.ExtSubnetID = *rspExt.Subnet.SubnetId
-	log.Printf("[setup-ec2] INFO New external subnet %s\n", d.ExtSubnetID)
-
-	// Tag the subnet:
-	if err = tag(d.ExtSubnetID, "Name", d.VpcNameTag, svc); err != nil {
-		return err
-	}
-
-	// Return on success:
 	return nil
 }
 
