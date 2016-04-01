@@ -15,7 +15,6 @@ write_files:
     127.0.0.1 localhost
     $private_ipv4 master-{{.HostID}}.{{.Domain}} master-{{.HostID}}
     $private_ipv4 master-{{.HostID}}.int.{{.Domain}} master-{{.HostID}}.int
-    $public_ipv4 master-{{.HostID}}.ext.{{.Domain}} master-{{.HostID}}.ext
 
  - path: "/etc/resolv.conf"
    content: |
@@ -66,7 +65,9 @@ write_files:
     readonly DOMAIN="$(hostname -d)"
     readonly APIURL='https://api.nsone.net/v1'
     readonly APIKEY='{{.Ns1ApiKey}}'
-    declare -A IP=(['ext']='$public_ipv4' ['int']='$private_ipv4')
+    readonly IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    readonly IP_PRI="$(hostname -i)"
+    declare -A IP=(['ext']="${IP_PUB}" ['int']="${IP_PRI}")
 
     for i in ext int; do
 
