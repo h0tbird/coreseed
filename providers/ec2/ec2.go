@@ -39,6 +39,7 @@ type Data struct {
 	InternalSubnetID   string
 	ExternalSubnetID   string
 	InternetGatewayID  string
+	AllocationID       string
 }
 
 //--------------------------------------------------------------------------
@@ -64,6 +65,11 @@ func (d *Data) Setup() error {
 
 	// Create the internet gateway:
 	if err := d.createInternetGateway(*svc); err != nil {
+		return err
+	}
+
+	// Allocate a new EIP:
+	if err := d.allocateAddress(*svc); err != nil {
 		return err
 	}
 
@@ -99,8 +105,6 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 		return err
 	}
 
-	// Return on success:
-	log.Printf("[setup-ec2] INFO VPC tagged as %s\n", d.VpcNameTag)
 	return nil
 }
 
@@ -169,6 +173,31 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Store the internet gateway ID:
 	d.InternetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.Printf("[setup-ec2] INFO New internet gateway %s\n", d.InternetGatewayID)
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: allocateAddress
+//-------------------------------------------------------------------------
+
+func (d *Data) allocateAddress(svc ec2.EC2) error {
+
+	// Forge the allocation request:
+	params := &ec2.AllocateAddressInput{
+		Domain: aws.String("vpc"),
+		DryRun: aws.Bool(false),
+	}
+
+	// Send the allocation request:
+	resp, err := svc.AllocateAddress(params)
+	if err != nil {
+		return err
+	}
+
+	// Store the EIP ID:
+	d.AllocationID = *resp.AllocationId
+	log.Printf("[setup-ec2] INFO New elastic IP %s\n", d.AllocationID)
 
 	return nil
 }
@@ -277,7 +306,6 @@ func (d *Data) Run(udata []byte) error {
 
 		// Send the request:
 		resp, err := svc.AllocateAddress(params)
-
 		if err != nil {
 			return err
 		}
