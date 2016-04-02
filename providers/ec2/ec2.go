@@ -40,6 +40,7 @@ type Data struct {
 	ExternalSubnetID   string
 	InternetGatewayID  string
 	AllocationID       string
+	NatGatewayID       string
 }
 
 //--------------------------------------------------------------------------
@@ -70,6 +71,11 @@ func (d *Data) Setup() error {
 
 	// Allocate a new EIP:
 	if err := d.allocateAddress(*svc); err != nil {
+		return err
+	}
+
+	// Create a NAT gateway:
+	if err := d.createNatGateway(*svc); err != nil {
 		return err
 	}
 
@@ -198,6 +204,32 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 	// Store the EIP ID:
 	d.AllocationID = *resp.AllocationId
 	log.Printf("[setup-ec2] INFO New elastic IP %s\n", d.AllocationID)
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createNatGateway
+//-------------------------------------------------------------------------
+
+func (d *Data) createNatGateway(svc ec2.EC2) error {
+
+	// Forge the NAT gateway request:
+	params := &ec2.CreateNatGatewayInput{
+		AllocationId: aws.String(d.AllocationID),
+		SubnetId:     aws.String(d.ExternalSubnetID),
+		ClientToken:  aws.String("kato"),
+	}
+
+	// Send the NAT gateway request:
+	resp, err := svc.CreateNatGateway(params)
+	if err != nil {
+		return err
+	}
+
+	// Store the NAT gateway ID:
+	d.NatGatewayID = *resp.NatGateway.NatGatewayId
+	log.Printf("[setup-ec2] INFO New NAT gateway %s\n", d.NatGatewayID)
 
 	return nil
 }
