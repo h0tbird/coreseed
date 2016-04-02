@@ -25,10 +25,10 @@ import (
 // Data contains variables used by EC2 API.
 type Data struct {
 	Region             string
-	SubnetIds          string
+	SubnetIDs          string
 	ImageID            string
 	KeyPair            string
-	InsType            string
+	InstanceType       string
 	Hostname           string
 	ElasticIP          string
 	VpcCidrBlock       string
@@ -213,13 +213,13 @@ func (d *Data) Run(udata []byte) error {
 
 	// Forge the network interfaces:
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
-	subnetIds := strings.Split(d.SubnetIds, ",")
+	subnetIDs := strings.Split(d.SubnetIDs, ",")
 
-	for i := 0; i < len(subnetIds); i++ {
+	for i := 0; i < len(subnetIDs); i++ {
 
 		// Forge the security group ids:
 		var securityGroupIds []*string
-		for _, gid := range strings.Split(subnetIds[i], ":")[1:] {
+		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
 			securityGroupIds = append(securityGroupIds, aws.String(gid))
 		}
 
@@ -227,7 +227,7 @@ func (d *Data) Run(udata []byte) error {
 			DeleteOnTermination: aws.Bool(true),
 			DeviceIndex:         aws.Int64(int64(i)),
 			Groups:              securityGroupIds,
-			SubnetId:            aws.String(strings.Split(subnetIds[i], ":")[0]),
+			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
 		}
 
 		networkInterfaces = append(networkInterfaces, &iface)
@@ -239,7 +239,7 @@ func (d *Data) Run(udata []byte) error {
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
 		KeyName:           aws.String(d.KeyPair),
-		InstanceType:      aws.String(d.InsType),
+		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: networkInterfaces,
 		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})

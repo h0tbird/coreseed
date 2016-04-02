@@ -213,7 +213,7 @@ var (
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_VPC_ID").
 			Short('v').String()
 
-	flRunEc2SubnetIds = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
+	flRunEc2SubnetIDs = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
 				Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
 				OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
 				Short('s').String()
@@ -322,13 +322,13 @@ func main() {
 	case cmdRunEc2.FullCommand():
 
 		ec2 := ec2.Data{
-			Region:    *flRunEc2Region,
-			SubnetIds: *flRunEc2SubnetIds,
-			ImageID:   *flRunEc2ImageID,
-			KeyPair:   *flRunEc2KeyPair,
-			InsType:   *flRunEc2InsType,
-			Hostname:  *flRunEc2Hostname,
-			ElasticIP: *flRunEc2ElasticIP,
+			Region:       *flRunEc2Region,
+			SubnetIDs:    *flRunEc2SubnetIDs,
+			ImageID:      *flRunEc2ImageID,
+			KeyPair:      *flRunEc2KeyPair,
+			InstanceType: *flRunEc2InsType,
+			Hostname:     *flRunEc2Hostname,
+			ElasticIP:    *flRunEc2ElasticIP,
 		}
 
 		err := run(&ec2)
