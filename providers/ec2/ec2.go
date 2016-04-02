@@ -24,20 +24,21 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
-	Region        string
-	SubnetIds     string
-	ImageID       string
-	KeyPair       string
-	InsType       string
-	Hostname      string
-	ElasticIP     string
-	VpcCidrBlock  string
-	VpcID         string
-	VpcNameTag    string
-	IntSubnetCidr string
-	ExtSubnetCidr string
-	IntSubnetID   string
-	ExtSubnetID   string
+	Region             string
+	SubnetIds          string
+	ImageID            string
+	KeyPair            string
+	InsType            string
+	Hostname           string
+	ElasticIP          string
+	VpcCidrBlock       string
+	VpcID              string
+	VpcNameTag         string
+	InternalSubnetCidr string
+	ExternalSubnetCidr string
+	InternalSubnetID   string
+	ExternalSubnetID   string
+	InternetGatewayID  string
 }
 
 //--------------------------------------------------------------------------
@@ -58,6 +59,11 @@ func (d *Data) Setup() error {
 
 	// Create external and internal subnets:
 	if err := d.createSubnets(*svc); err != nil {
+		return err
+	}
+
+	// Create the internet gateway:
+	if err := d.createInternetGateway(*svc); err != nil {
 		return err
 	}
 
@@ -106,8 +112,8 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 
 	// Map to iterate:
 	nets := map[string]map[string]string{
-		"internal": map[string]string{"SubnetCidr": d.IntSubnetCidr, "SubnetID": ""},
-		"external": map[string]string{"SubnetCidr": d.ExtSubnetCidr, "SubnetID": ""},
+		"internal": map[string]string{"SubnetCidr": d.InternalSubnetCidr, "SubnetID": ""},
+		"external": map[string]string{"SubnetCidr": d.ExternalSubnetCidr, "SubnetID": ""},
 	}
 
 	// For each subnet:
@@ -137,8 +143,31 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	}
 
 	// Store subnet IDs:
-	d.IntSubnetID = nets["internal"]["SubnetID"]
-	d.ExtSubnetID = nets["external"]["SubnetID"]
+	d.InternalSubnetID = nets["internal"]["SubnetID"]
+	d.ExternalSubnetID = nets["external"]["SubnetID"]
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createInternetGateway
+//-------------------------------------------------------------------------
+
+func (d *Data) createInternetGateway(svc ec2.EC2) error {
+
+	// Forge the internet gateway request:
+	params := &ec2.CreateInternetGatewayInput{
+		DryRun: aws.Bool(false),
+	}
+
+	// Send the internet gateway request:
+	resp, err := svc.CreateInternetGateway(params)
+	if err != nil {
+		return err
+	}
+
+	// Pretty-print the response data:
+	fmt.Println(resp)
 
 	return nil
 }

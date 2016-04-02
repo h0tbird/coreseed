@@ -305,11 +305,11 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data{
-			Region:        *flSetupEc2Region,
-			VpcCidrBlock:  *flSetupEc2VpcCidrBlock,
-			VpcNameTag:    *flSetupEc2VpcNameTag,
-			IntSubnetCidr: *flSetupEc2IntSubnetCidr,
-			ExtSubnetCidr: *flSetupEc2ExtSubnetCidr,
+			Region:             *flSetupEc2Region,
+			VpcCidrBlock:       *flSetupEc2VpcCidrBlock,
+			VpcNameTag:         *flSetupEc2VpcNameTag,
+			InternalSubnetCidr: *flSetupEc2IntSubnetCidr,
+			ExternalSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}
 
 		err := setup(&ec2)
