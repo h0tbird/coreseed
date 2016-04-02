@@ -166,8 +166,9 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 		return err
 	}
 
-	// Pretty-print the response data:
-	fmt.Println(resp)
+	// Store the internet gateway ID:
+	d.InternetGatewayID = *resp.InternetGateway.InternetGatewayId
+	log.Printf("[setup-ec2] INFO New internet gateway %s\n", d.InternetGatewayID)
 
 	return nil
 }
