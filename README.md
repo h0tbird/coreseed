@@ -1,7 +1,9 @@
 # The Káto system
 
-[![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Status Widget]][Coverage Status]
+[![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Status Widget]][Coverage Status]
 
+[License]: http://www.apache.org/licenses/LICENSE-2.0.txt
+[License Widget]: https://img.shields.io/badge/license-APACHE2-1eb0fc.svg
 [GoReportCard]: https://goreportcard.com/report/h0tbird/kato
 [GoReportCard Widget]: https://goreportcard.com/badge/h0tbird/kato
 [Travis]: https://travis-ci.org/h0tbird/kato
