@@ -11,7 +11,7 @@
 [Coverage Status]: https://coveralls.io/github/h0tbird/kato?branch=master
 [Coverage Status Widget]: https://coveralls.io/repos/github/h0tbird/kato/badge.svg?branch=master
 
-**Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated system which governs diverse computing workloads and work-flows.
+**Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
 
 </br>
