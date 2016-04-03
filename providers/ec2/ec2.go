@@ -80,7 +80,12 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Allocate a new EIP:
+	// Attach internet gateway to VPC:
+	if err := d.attachInternetGateway(*svc); err != nil {
+		return err
+	}
+
+	// Allocate a new eIP:
 	if err := d.allocateAddress(*svc); err != nil {
 		return err
 	}
@@ -214,7 +219,9 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 		return err
 	}
 
-	fmt.Println(resp)
+	log.Printf("[setup-ec2] INFO New route table association %s\n",
+		*resp.AssociationId)
+
 	return nil
 }
 
@@ -238,6 +245,30 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Store the internet gateway ID:
 	d.InternetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.Printf("[setup-ec2] INFO New internet gateway %s\n", d.InternetGatewayID)
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: attachInternetGateway
+//-------------------------------------------------------------------------
+
+func (d *Data) attachInternetGateway(svc ec2.EC2) error {
+
+	// Forge the attachement request:
+	params := &ec2.AttachInternetGatewayInput{
+		InternetGatewayId: aws.String(d.InternetGatewayID),
+		VpcId:             aws.String(d.VpcID),
+		DryRun:            aws.Bool(false),
+	}
+
+	// Send the attachement request:
+	_, err := svc.AttachInternetGateway(params)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[setup-ec2] INFO Internet gateway attached to VPC")
 
 	return nil
 }
