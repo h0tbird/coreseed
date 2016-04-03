@@ -65,12 +65,12 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Create a route table:
+	// Create a route table (ext):
 	if err := d.createRouteTable(*svc); err != nil {
 		return err
 	}
 
-	// Associate the route table to the internal subnet:
+	// Associate the route table to the external subnet:
 	if err := d.associateRouteTable(*svc); err != nil {
 		return err
 	}
@@ -84,6 +84,8 @@ func (d *Data) Setup() error {
 	if err := d.attachInternetGateway(*svc); err != nil {
 		return err
 	}
+
+	// Edit route table (ext):
 
 	// Allocate a new eIP:
 	if err := d.allocateAddress(*svc); err != nil {
@@ -209,7 +211,7 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	// Forge the association request:
 	params := &ec2.AssociateRouteTableInput{
 		RouteTableId: aws.String(d.RouteTableID),
-		SubnetId:     aws.String(d.InternalSubnetID),
+		SubnetId:     aws.String(d.ExternalSubnetID),
 		DryRun:       aws.Bool(false),
 	}
 
