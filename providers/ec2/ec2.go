@@ -85,7 +85,10 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Edit route table (ext):
+	// Create a default route via internet GW (ext):
+	if err := d.createInternetGatewayRoute(*svc); err != nil {
+		return err
+	}
 
 	// Allocate a new eIP:
 	if err := d.allocateAddress(*svc); err != nil {
@@ -271,6 +274,31 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 	}
 
 	log.Printf("[setup-ec2] INFO Internet gateway attached to VPC")
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createInternetGatewayRoute
+//-------------------------------------------------------------------------
+
+func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
+
+	// Forge the route request:
+	params := &ec2.CreateRouteInput{
+		DestinationCidrBlock: aws.String("0.0.0.0/0"),
+		RouteTableId:         aws.String(d.RouteTableID),
+		DryRun:               aws.Bool(false),
+		GatewayId:            aws.String(d.InternetGatewayID),
+	}
+
+	// Send the route request:
+	_, err := svc.CreateRoute(params)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[setup-ec2] INFO New internet gateway route added")
 
 	return nil
 }
