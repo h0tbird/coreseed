@@ -41,6 +41,7 @@ type Data struct {
 	InternetGatewayID  string
 	AllocationID       string
 	NatGatewayID       string
+	RouteTableID       string
 }
 
 //--------------------------------------------------------------------------
@@ -59,8 +60,18 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Create external and internal subnets:
+	// Create the external and internal subnets:
 	if err := d.createSubnets(*svc); err != nil {
+		return err
+	}
+
+	// Create a route table:
+	if err := d.createRouteTable(*svc); err != nil {
+		return err
+	}
+
+	// Associate the route table to the internal subnet:
+	if err := d.associateRouteTable(*svc); err != nil {
 		return err
 	}
 
@@ -156,6 +167,54 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	d.InternalSubnetID = nets["internal"]["SubnetID"]
 	d.ExternalSubnetID = nets["external"]["SubnetID"]
 
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createRouteTable
+//-------------------------------------------------------------------------
+
+func (d *Data) createRouteTable(svc ec2.EC2) error {
+
+	// Forge the route table request:
+	params := &ec2.CreateRouteTableInput{
+		VpcId:  aws.String(d.VpcID),
+		DryRun: aws.Bool(false),
+	}
+
+	// Send the route table request:
+	resp, err := svc.CreateRouteTable(params)
+	if err != nil {
+		return err
+	}
+
+	// Store the route table ID:
+	d.RouteTableID = *resp.RouteTable.RouteTableId
+	log.Printf("[setup-ec2] INFO New route table %s\n", d.RouteTableID)
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: associateRouteTable
+//-------------------------------------------------------------------------
+
+func (d *Data) associateRouteTable(svc ec2.EC2) error {
+
+	// Forge the association request:
+	params := &ec2.AssociateRouteTableInput{
+		RouteTableId: aws.String(d.RouteTableID),
+		SubnetId:     aws.String(d.InternalSubnetID),
+		DryRun:       aws.Bool(false),
+	}
+
+	// Send the association request:
+	resp, err := svc.AssociateRouteTable(params)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(resp)
 	return nil
 }
 
