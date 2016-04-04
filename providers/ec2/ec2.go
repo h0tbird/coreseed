@@ -466,7 +466,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 		// Forge the group request:
 		params := &ec2.CreateSecurityGroupInput{
-			Description: aws.String(d.VpcNameTag + v["Description"]),
+			Description: aws.String(d.VpcNameTag + " " + v["Description"]),
 			GroupName:   aws.String(k),
 			DryRun:      aws.Bool(false),
 			VpcId:       aws.String(d.VpcID),
