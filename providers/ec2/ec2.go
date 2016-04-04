@@ -483,7 +483,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 		log.Printf("[setup-ec2] INFO New %s security group %s\n", k, v["SecGrpID"])
 
 		// Tag the group:
-		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag + k, svc); err != nil {
+		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag + " " + k, svc); err != nil {
 			return err
 		}
 	}
