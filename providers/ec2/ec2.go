@@ -33,6 +33,7 @@ type Data struct {
 	ElasticIP          string
 	VpcCidrBlock       string
 	VpcID              string
+	MainRouteTableID   string
 	VpcNameTag         string
 	InternalSubnetCidr string
 	ExternalSubnetCidr string
@@ -57,6 +58,11 @@ func (d *Data) Setup() error {
 
 	// Create the VPC:
 	if err := d.createVpc(*svc); err != nil {
+		return err
+	}
+
+	// Retrieve the main route table ID:
+	if err := d.retrieveMainRouteTableID(*svc); err != nil {
 		return err
 	}
 
@@ -100,6 +106,11 @@ func (d *Data) Setup() error {
 		return err
 	}
 
+	// Create a default route via NAT GW (int):
+	if err := d.createNatGatewayRoute(*svc); err != nil {
+		return err
+	}
+
 	// Return on success:
 	return nil
 }
@@ -131,6 +142,44 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	if err = tag(d.VpcID, "Name", d.VpcNameTag, svc); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: retrieveMainRouteTableID
+//-------------------------------------------------------------------------
+
+func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
+
+	// Forge the description request:
+	params := &ec2.DescribeRouteTablesInput{
+		DryRun: aws.Bool(false),
+		Filters: []*ec2.Filter{
+			{
+				Name: aws.String("association.main"),
+				Values: []*string{
+					aws.String("true"),
+				},
+			},
+			{
+				Name: aws.String("vpc-id"),
+				Values: []*string{
+					aws.String(d.VpcID),
+				},
+			},
+		},
+	}
+
+	// Send the description request:
+	resp, err := svc.DescribeRouteTables(params)
+	if err != nil {
+		return err
+	}
+
+	// Store the main route table ID:
+	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
+	log.Printf("[setup-ec2] INFO New main route table %s\n", d.MainRouteTableID)
 
 	return nil
 }
@@ -358,6 +407,31 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	}); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createNatGatewayRoute
+//-------------------------------------------------------------------------
+
+func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
+
+	// Forge the route request:
+	params := &ec2.CreateRouteInput{
+		DestinationCidrBlock: aws.String("0.0.0.0/0"),
+		RouteTableId:         aws.String(d.MainRouteTableID),
+		DryRun:               aws.Bool(false),
+		NatGatewayId:         aws.String(d.NatGatewayID),
+	}
+
+	// Send the route request:
+	_, err := svc.CreateRoute(params)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[setup-ec2] INFO New NAT gateway route added")
 
 	return nil
 }
