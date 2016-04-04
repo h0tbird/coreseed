@@ -351,6 +351,14 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	d.NatGatewayID = *resp.NatGateway.NatGatewayId
 	log.Printf("[setup-ec2] INFO New NAT gateway %s\n", d.NatGatewayID)
 
+	// Wait until the NAT gateway is available:
+	log.Printf("[setup-ec2] INFO Wait until the NAT gateway is available\n")
+	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
+		NatGatewayIds: []*string{aws.String(d.NatGatewayID)},
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
