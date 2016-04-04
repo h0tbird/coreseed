@@ -165,7 +165,7 @@ var (
 	flSetupEc2VpcNameTag = cmdSetupEc2.Flag("vpc-name-tag", "Used as Name tag for the VPC.").
 				Required().PlaceHolder("KATO_SETUP_EC2_VPC_NAME_TAG").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
-				Short('n').String()
+				Short('t').String()
 
 	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet (default: 10.0.1.0/24).").
 				Default("10.0.1.0/24").PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
