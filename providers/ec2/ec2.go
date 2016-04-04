@@ -111,20 +111,20 @@ func (d *Data) Setup() error {
 func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Forge the VPC request:
-	prmsVpc := &ec2.CreateVpcInput{
+	params := &ec2.CreateVpcInput{
 		CidrBlock:       aws.String(d.VpcCidrBlock),
 		DryRun:          aws.Bool(false),
 		InstanceTenancy: aws.String("default"),
 	}
 
 	// Send the VPC request:
-	rspVpc, err := svc.CreateVpc(prmsVpc)
+	resp, err := svc.CreateVpc(params)
 	if err != nil {
 		return err
 	}
 
 	// Store the VPC ID:
-	d.VpcID = *rspVpc.Vpc.VpcId
+	d.VpcID = *resp.Vpc.VpcId
 	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcID)
 
 	// Tag the VPC:
