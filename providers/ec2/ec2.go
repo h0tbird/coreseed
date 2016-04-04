@@ -43,6 +43,11 @@ type Data struct {
 	AllocationID       string
 	NatGatewayID       string
 	RouteTableID       string
+	MasterIntSecGrp    string
+	NodeIntSecGrp      string
+	NodeExtSecGrp      string
+	EdgeIntSecGrp      string
+	EdgeExtSecGrp      string
 }
 
 //--------------------------------------------------------------------------
@@ -108,6 +113,11 @@ func (d *Data) Setup() error {
 
 	// Create a default route via NAT GW (int):
 	if err := d.createNatGatewayRoute(*svc); err != nil {
+		return err
+	}
+
+	// Create security groups:
+	if err := d.createSecurityGroups(*svc); err != nil {
 		return err
 	}
 
@@ -432,6 +442,58 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 	}
 
 	log.Printf("[setup-ec2] INFO New NAT gateway route added")
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: createSecurityGroups
+//-------------------------------------------------------------------------
+
+func (d *Data) createSecurityGroups(svc ec2.EC2) error {
+
+	// Map to iterate:
+	grps := map[string]map[string]string{
+		"master-int": map[string]string{"Description": "master internal", "SecGrpID": ""},
+		"node-int":   map[string]string{"Description": "node internal", "SecGrpID": ""},
+		"node-ext":   map[string]string{"Description": "node external", "SecGrpID": ""},
+		"edge-int":   map[string]string{"Description": "edge internal", "SecGrpID": ""},
+		"edge-ext":   map[string]string{"Description": "edge external", "SecGrpID": ""},
+	}
+
+	// For each security group:
+	for k, v := range grps {
+
+		// Forge the group request:
+		params := &ec2.CreateSecurityGroupInput{
+			Description: aws.String(d.VpcNameTag + v["Description"]),
+			GroupName:   aws.String(k),
+			DryRun:      aws.Bool(false),
+			VpcId:       aws.String(d.VpcID),
+		}
+
+		// Send the group request:
+		resp, err := svc.CreateSecurityGroup(params)
+		if err != nil {
+			return err
+		}
+
+		// Locally store the group ID:
+		v["SecGrpID"] = *resp.GroupId
+		log.Printf("[setup-ec2] INFO New %s security group %s\n", k, v["SecGrpID"])
+
+		// Tag the group:
+		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag + k, svc); err != nil {
+			return err
+		}
+	}
+
+	// Store security groups IDs:
+	d.MasterIntSecGrp = grps["master-int"]["SecGrpID"]
+	d.NodeIntSecGrp = grps["node-int"]["SecGrpID"]
+	d.NodeExtSecGrp = grps["node-ext"]["SecGrpID"]
+	d.EdgeIntSecGrp = grps["edge-int"]["SecGrpID"]
+	d.EdgeExtSecGrp = grps["edge-ext"]["SecGrpID"]
 
 	return nil
 }
