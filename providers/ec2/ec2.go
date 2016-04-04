@@ -146,7 +146,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Store the VPC ID:
 	d.VpcID = *resp.Vpc.VpcId
-	log.Printf("[setup-ec2] INFO New VPC %s\n", d.VpcID)
+	log.Printf("[setup-ec2] INFO New VPC: %s\n", d.VpcID)
 
 	// Tag the VPC:
 	if err = tag(d.VpcID, "Name", d.VpcNameTag, svc); err != nil {
@@ -189,7 +189,7 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 
 	// Store the main route table ID:
 	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.Printf("[setup-ec2] INFO New main route table %s\n", d.MainRouteTableID)
+	log.Printf("[setup-ec2] INFO New main route table: %s\n", d.MainRouteTableID)
 
 	return nil
 }
@@ -224,7 +224,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
-		log.Printf("[setup-ec2] INFO New %s subnet %s\n", k, v["SubnetID"])
+		log.Printf("[setup-ec2] INFO New %s subnet: %s\n", k, v["SubnetID"])
 
 		// Tag the subnet:
 		if err = tag(v["SubnetID"], "Name", k, svc); err != nil {
@@ -259,7 +259,7 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 
 	// Store the route table ID:
 	d.RouteTableID = *resp.RouteTable.RouteTableId
-	log.Printf("[setup-ec2] INFO New route table %s\n", d.RouteTableID)
+	log.Printf("[setup-ec2] INFO New route table: %s\n", d.RouteTableID)
 
 	return nil
 }
@@ -283,7 +283,7 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New route table association %s\n",
+	log.Printf("[setup-ec2] INFO New route table association: %s\n",
 		*resp.AssociationId)
 
 	return nil
@@ -308,7 +308,7 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 
 	// Store the internet gateway ID:
 	d.InternetGatewayID = *resp.InternetGateway.InternetGatewayId
-	log.Printf("[setup-ec2] INFO New internet gateway %s\n", d.InternetGatewayID)
+	log.Printf("[setup-ec2] INFO New internet gateway: %s\n", d.InternetGatewayID)
 
 	return nil
 }
@@ -357,7 +357,7 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New internet gateway route added")
+	log.Printf("[setup-ec2] INFO New default route added via internet gateway")
 
 	return nil
 }
@@ -382,7 +382,7 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 
 	// Store the EIP ID:
 	d.AllocationID = *resp.AllocationId
-	log.Printf("[setup-ec2] INFO New elastic IP %s\n", d.AllocationID)
+	log.Printf("[setup-ec2] INFO New elastic IP: %s\n", d.AllocationID)
 
 	return nil
 }
@@ -408,10 +408,10 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 
 	// Store the NAT gateway ID:
 	d.NatGatewayID = *resp.NatGateway.NatGatewayId
-	log.Printf("[setup-ec2] INFO New NAT gateway %s\n", d.NatGatewayID)
+	log.Printf("[setup-ec2] INFO New NAT gateway: %s\n", d.NatGatewayID)
 
 	// Wait until the NAT gateway is available:
-	log.Printf("[setup-ec2] INFO Wait until the NAT gateway is available\n")
+	log.Printf("[setup-ec2] INFO Wait until the NAT gateway is available...\n")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.NatGatewayID)},
 	}); err != nil {
@@ -441,7 +441,7 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New NAT gateway route added")
+	log.Printf("[setup-ec2] INFO New default route added via NAT gateway")
 
 	return nil
 }
@@ -480,7 +480,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 		// Locally store the group ID:
 		v["SecGrpID"] = *resp.GroupId
-		log.Printf("[setup-ec2] INFO New %s security group %s\n", k, v["SecGrpID"])
+		log.Printf("[setup-ec2] INFO New %s security group: %s\n", k, v["SecGrpID"])
 
 		// Tag the group:
 		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag + " " + k, svc); err != nil {
