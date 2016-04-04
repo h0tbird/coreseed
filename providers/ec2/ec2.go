@@ -9,10 +9,10 @@ import (
 	// Stdlib:
 	"encoding/base64"
 	"fmt"
-	"log"
 	"strings"
 
 	// Community:
+	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -58,11 +58,12 @@ type Data struct {
 func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoint:
-	log.Printf("[setup-ec2] INFO Connecting to %s\n", d.Region)
+	log.WithField("cmd", "setup-ec2").Info("Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
 	if err := d.createVpc(*svc); err != nil {
+		log.WithField("cmd", "setup-ec2").Error("Unable to create an VPC.")
 		return err
 	}
 
@@ -146,7 +147,8 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 
 	// Store the VPC ID:
 	d.VpcID = *resp.Vpc.VpcId
-	log.Printf("[setup-ec2] INFO New VPC: %s\n", d.VpcID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.VpcID}).
+		Info("A new VPC has been created")
 
 	// Tag the VPC:
 	if err = tag(d.VpcID, "Name", d.VpcNameTag, svc); err != nil {
@@ -189,7 +191,8 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 
 	// Store the main route table ID:
 	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.Printf("[setup-ec2] INFO New main route table: %s\n", d.MainRouteTableID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.MainRouteTableID}).
+		Info("New main route table added")
 
 	return nil
 }
@@ -224,7 +227,8 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
-		log.Printf("[setup-ec2] INFO New %s subnet: %s\n", k, v["SubnetID"])
+		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SubnetID"]}).
+			Info("New " + k + " subnet")
 
 		// Tag the subnet:
 		if err = tag(v["SubnetID"], "Name", k, svc); err != nil {
@@ -259,7 +263,8 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 
 	// Store the route table ID:
 	d.RouteTableID = *resp.RouteTable.RouteTableId
-	log.Printf("[setup-ec2] INFO New route table: %s\n", d.RouteTableID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.RouteTableID}).
+		Info("New route table added")
 
 	return nil
 }
@@ -283,8 +288,8 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New route table association: %s\n",
-		*resp.AssociationId)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": *resp.AssociationId}).
+		Info("New route table association")
 
 	return nil
 }
@@ -308,7 +313,8 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 
 	// Store the internet gateway ID:
 	d.InternetGatewayID = *resp.InternetGateway.InternetGatewayId
-	log.Printf("[setup-ec2] INFO New internet gateway: %s\n", d.InternetGatewayID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.InternetGatewayID}).
+		Info("New internet gateway")
 
 	return nil
 }
@@ -332,7 +338,7 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO Internet gateway attached to VPC")
+	log.WithField("cmd", "setup-ec2").Info("Internet gateway attached to VPC")
 
 	return nil
 }
@@ -357,7 +363,8 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New default route added via internet gateway")
+	log.WithField("cmd", "setup-ec2").
+		Info("New default route added via internet GW")
 
 	return nil
 }
@@ -382,7 +389,8 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 
 	// Store the EIP ID:
 	d.AllocationID = *resp.AllocationId
-	log.Printf("[setup-ec2] INFO New elastic IP: %s\n", d.AllocationID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.AllocationID}).
+		Info("New elastic IP allocated")
 
 	return nil
 }
@@ -408,10 +416,12 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 
 	// Store the NAT gateway ID:
 	d.NatGatewayID = *resp.NatGateway.NatGatewayId
-	log.Printf("[setup-ec2] INFO New NAT gateway: %s\n", d.NatGatewayID)
+	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.NatGatewayID}).
+		Info("New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
-	log.Printf("[setup-ec2] INFO Wait until the NAT gateway is available...\n")
+	log.WithField("cmd", "setup-ec2").
+		Info("Wait until the NAT gateway is available...")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.NatGatewayID)},
 	}); err != nil {
@@ -441,7 +451,8 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 		return err
 	}
 
-	log.Printf("[setup-ec2] INFO New default route added via NAT gateway")
+	log.WithField("cmd", "setup-ec2").
+		Info("New default route added via NAT gateway")
 
 	return nil
 }
@@ -480,10 +491,11 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 		// Locally store the group ID:
 		v["SecGrpID"] = *resp.GroupId
-		log.Printf("[setup-ec2] INFO New %s security group: %s\n", k, v["SecGrpID"])
+		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SecGrpID"]}).
+			Info("New " + k + " security group")
 
 		// Tag the group:
-		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag + " " + k, svc); err != nil {
+		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag+" "+k, svc); err != nil {
 			return err
 		}
 	}
