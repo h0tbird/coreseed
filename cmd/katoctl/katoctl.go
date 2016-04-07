@@ -31,7 +31,7 @@ var (
 	// katoctl: top level command
 	//----------------------------
 
-	app = kingpin.New("katoctl", "Katoctl defines and deploys CoreOS clusters.")
+	app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastructure.")
 
 	flUdataFile = app.Flag("user-data", "Path to file containing user data.").
 			PlaceHolder("KATO_USER_DATA").
@@ -99,6 +99,12 @@ var (
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				Short('b').String()
 
+	//-------------------------------
+	// deploy-packet: nested command
+	//-------------------------------
+
+	cmdDeployPacket = app.Command("deploy-packet", "Deploy Kato's infrastructure on Packet.net")
+
 	//------------------------------
 	// setup-packet: nested command
 	//------------------------------
@@ -145,6 +151,32 @@ var (
 			Required().PlaceHolder("KATO_RUN_PKT_BILLING").
 			OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
 			Short('b').String()
+
+	//----------------------------
+	// deploy-ec2: nested command
+	//----------------------------
+
+	cmdDeployEc2 = app.Command("deploy-ec2", "Deploy Kato's infrastructure on Amazon EC2.")
+
+	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 ]").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
+				Short('m').String()
+
+	flDeployEc2NodeCount = cmdDeployEc2.Flag("node-count", "Number of worker nodes to deploy.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_NODE_COUNT").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_COUNT").
+				Short('n').String()
+
+	flDeployEc2EdgeCount = cmdDeployEc2.Flag("edge-count", "Number of edge nodes to deploy.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_EDGE_COUNT").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_COUNT").
+				Short('e').String()
+
+	flDeployEc2VpcNameTag = cmdDeployEc2.Flag("vpc-name-tag", "Name tag used to identify the VPC.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_VPC_NAME_TAG").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_VPC_NAME_TAG").
+				Short('t').String()
 
 	//---------------------------
 	// setup-ec2: nested command
@@ -268,6 +300,17 @@ func main() {
 		err := udata.Render()
 		checkError(err)
 
+	//-----------------------
+	// katoctl deploy-packet
+	//-----------------------
+
+	case cmdDeployPacket.FullCommand():
+
+		pkt := pkt.Data{}
+
+		err := deploy(&pkt)
+		checkError(err)
+
 	//----------------------
 	// katoctl setup-packet
 	//----------------------
@@ -296,6 +339,22 @@ func main() {
 		}
 
 		err := run(&pkt)
+		checkError(err)
+
+	//--------------------
+	// katoctl deploy-ec2
+	//--------------------
+
+	case cmdDeployEc2.FullCommand():
+
+		ec2 := ec2.Data{
+			MasterCount: *flDeployEc2MasterCount,
+			NodeCount:   *flDeployEc2NodeCount,
+			EdgeCount:   *flDeployEc2EdgeCount,
+			VpcNameTag:  *flDeployEc2VpcNameTag,
+		}
+
+		err := deploy(&ec2)
 		checkError(err)
 
 	//-------------------

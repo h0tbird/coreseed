@@ -24,6 +24,9 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
+	MasterCount        string
+	NodeCount          string
+	EdgeCount          string
 	Region             string
 	SubnetIDs          string
 	ImageID            string
@@ -48,6 +51,15 @@ type Data struct {
 	NodeExtSecGrp      string
 	EdgeIntSecGrp      string
 	EdgeExtSecGrp      string
+}
+
+//--------------------------------------------------------------------------
+// func: Deploy
+//--------------------------------------------------------------------------
+
+// Deploy Kato's infrastructure on Amazon EC2.
+func (d *Data) Deploy() error {
+	return nil
 }
 
 //--------------------------------------------------------------------------
