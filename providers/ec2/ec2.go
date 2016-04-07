@@ -9,7 +9,7 @@ import (
 	// Stdlib:
 	"encoding/base64"
 	"fmt"
-	"io"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -62,56 +62,41 @@ type Data struct {
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
 
-	// Setup EC2 environment:
-	log.WithField("cmd", "deploy-ec2").Info("Setup EC2 environment")
+	//------------------------
+	// Setup the environment:
+	//------------------------
 
-	cmd := exec.Command(
-		"katoctl", "setup-ec2",
+	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
+	cmd := exec.Command("katoctl", "setup-ec2",
 		"--vpc-name-tag", d.VpcNameTag,
 		"--region", d.Region)
-
-	out, err := cmd.StderrPipe()
-	if err != nil {
-		log.WithField("cmd", "deploy-ec2").Error("cmd.StdoutPipe: ", err)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		log.WithField("cmd", "deploy-ec2").Error(err)
 		return err
 	}
 
-	if err = cmd.Start(); err != nil {
-		log.WithField("cmd", "deploy-ec2").Error("cmd.Start: ", err)
-		return err
-	}
-
-	b := make([]byte, 1024, 1024)
-
-	for {
-		n, err := out.Read(b)
-		if err != nil {
-			if err != io.EOF {
-				log.Fatal(err)
-			}
-			break
-		}
-		if n != 0 {
-			fmt.Printf(string(b))
-		}
-	}
-
-	if err = cmd.Wait(); err != nil {
-		log.WithField("cmd", "deploy-ec2").Error("cmd.Wait: ", err)
-		log.Fatal(err)
-	}
-
+	//----------------------
 	// Deploy master nodes:
+	//----------------------
+
 	for i := 1; i <= d.MasterCount; i++ {
 		log.WithField("cmd", "deploy-ec2").Info("Deploy master ", i)
 	}
 
+	//----------------------
 	// Deploy worker nodes:
+	//----------------------
+
 	for i := 1; i <= d.NodeCount; i++ {
 		log.WithField("cmd", "deploy-ec2").Info("Deploy node ", i)
 	}
 
+	//--------------------
 	// Deploy edge nodes:
+	//--------------------
+
 	for i := 1; i <= d.EdgeCount; i++ {
 		log.WithField("cmd", "deploy-ec2").Info("Deploy edge ", i)
 	}
