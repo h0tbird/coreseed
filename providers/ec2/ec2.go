@@ -62,8 +62,7 @@ func (d *Data) Setup() error {
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
-	if err := d.createVpc(*svc); err != nil {
-		log.WithField("cmd", "setup-ec2").Error("Unable to create an VPC.")
+	if err := d.createVpc(*svc); err == nil {
 		return err
 	}
 
@@ -142,6 +141,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	// Send the VPC request:
 	resp, err := svc.CreateVpc(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -186,6 +186,7 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 	// Send the description request:
 	resp, err := svc.DescribeRouteTables(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -222,6 +223,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		// Send the subnet request:
 		resp, err := svc.CreateSubnet(params)
 		if err != nil {
+			log.WithField("cmd", "setup-ec2").Error(err)
 			return err
 		}
 
@@ -258,6 +260,7 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 	// Send the route table request:
 	resp, err := svc.CreateRouteTable(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -285,6 +288,7 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	// Send the association request:
 	resp, err := svc.AssociateRouteTable(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -308,6 +312,7 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Send the internet gateway request:
 	resp, err := svc.CreateInternetGateway(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -333,8 +338,8 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 	}
 
 	// Send the attachement request:
-	_, err := svc.AttachInternetGateway(params)
-	if err != nil {
+	if _, err := svc.AttachInternetGateway(params); err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -358,8 +363,8 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 	}
 
 	// Send the route request:
-	_, err := svc.CreateRoute(params)
-	if err != nil {
+	if _, err := svc.CreateRoute(params); err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -384,6 +389,7 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 	// Send the allocation request:
 	resp, err := svc.AllocateAddress(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -411,6 +417,7 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	// Send the NAT gateway request:
 	resp, err := svc.CreateNatGateway(params)
 	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -425,6 +432,7 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.NatGatewayID)},
 	}); err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -446,8 +454,8 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 	}
 
 	// Send the route request:
-	_, err := svc.CreateRoute(params)
-	if err != nil {
+	if _, err := svc.CreateRoute(params); err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -486,6 +494,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 		// Send the group request:
 		resp, err := svc.CreateSecurityGroup(params)
 		if err != nil {
+			log.WithField("cmd", "setup-ec2").Error(err)
 			return err
 		}
 
@@ -531,8 +540,8 @@ func tag(resource, key, value string, svc ec2.EC2) error {
 	}
 
 	// Send the tag request:
-	_, err := svc.CreateTags(params)
-	if err != nil {
+	if _, err := svc.CreateTags(params); err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
@@ -583,6 +592,7 @@ func (d *Data) Run(udata []byte) error {
 	})
 
 	if err != nil {
+		log.WithField("cmd", "run-ec2").Error(err)
 		return err
 	}
 
@@ -601,6 +611,7 @@ func (d *Data) Run(udata []byte) error {
 	})
 
 	if err != nil {
+		log.WithField("cmd", "run-ec2").Error(err)
 		return err
 	}
 
@@ -615,6 +626,7 @@ func (d *Data) Run(udata []byte) error {
 		// Send the request:
 		resp, err := svc.AllocateAddress(params)
 		if err != nil {
+			log.WithField("cmd", "run-ec2").Error(err)
 			return err
 		}
 
