@@ -161,17 +161,22 @@ var (
 	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
-				Short('m').String()
+				Short('m').Int()
 
 	flDeployEc2NodeCount = cmdDeployEc2.Flag("node-count", "Number of worker nodes to deploy.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_NODE_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_COUNT").
-				Short('n').String()
+				Short('n').Int()
 
 	flDeployEc2EdgeCount = cmdDeployEc2.Flag("edge-count", "Number of edge nodes to deploy.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_EDGE_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_COUNT").
-				Short('e').String()
+				Short('e').Int()
+
+	flDeployEc2Region = cmdDeployEc2.Flag("region", "Amazon EC2 region.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_REGION").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_REGION").
+				Short('r').String()
 
 	flDeployEc2VpcNameTag = cmdDeployEc2.Flag("vpc-name-tag", "Name tag used to identify the VPC.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_VPC_NAME_TAG").
@@ -351,6 +356,7 @@ func main() {
 			MasterCount: *flDeployEc2MasterCount,
 			NodeCount:   *flDeployEc2NodeCount,
 			EdgeCount:   *flDeployEc2EdgeCount,
+			Region:      *flDeployEc2Region,
 			VpcNameTag:  *flDeployEc2VpcNameTag,
 		}
 

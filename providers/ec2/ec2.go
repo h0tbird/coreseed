@@ -24,9 +24,9 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
-	MasterCount        string
-	NodeCount          string
-	EdgeCount          string
+	MasterCount        int
+	NodeCount          int
+	EdgeCount          int
 	Region             string
 	SubnetIDs          string
 	ImageID            string
@@ -59,6 +59,25 @@ type Data struct {
 
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
+
+	// Setup EC2 environment:
+	log.WithField("cmd", "deploy-ec2").Info("Setup EC2 environment")
+
+	// Deploy master nodes:
+	for i := 1; i <= d.MasterCount; i++ {
+		log.WithField("cmd", "deploy-ec2").Info("Deploy master ", i)
+	}
+
+	// Deploy worker nodes:
+	for i := 1; i <= d.NodeCount; i++ {
+		log.WithField("cmd", "deploy-ec2").Info("Deploy node ", i)
+	}
+
+	// Deploy edge nodes:
+	for i := 1; i <= d.EdgeCount; i++ {
+		log.WithField("cmd", "deploy-ec2").Info("Deploy edge ", i)
+	}
+
 	return nil
 }
 
