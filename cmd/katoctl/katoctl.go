@@ -178,9 +178,9 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_REGION").
 				Short('r').String()
 
-	flDeployEc2VpcNameTag = cmdDeployEc2.Flag("vpc-name-tag", "Name tag used to identify the VPC.").
-				Required().PlaceHolder("KATO_DEPLOY_EC2_VPC_NAME_TAG").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_VPC_NAME_TAG").
+	flDeployEc2Domain = cmdDeployEc2.Flag("domain", "Used to identify the VPC.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_DOMAIN").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_DOMAIN").
 				Short('t').String()
 
 	//---------------------------
@@ -199,9 +199,9 @@ var (
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
 				Short('c').String()
 
-	flSetupEc2VpcNameTag = cmdSetupEc2.Flag("vpc-name-tag", "Used as Name tag for the VPC.").
-				Required().PlaceHolder("KATO_SETUP_EC2_VPC_NAME_TAG").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_NAME_TAG").
+	flSetupEc2Domain = cmdSetupEc2.Flag("domain", "Used to identify the VPC..").
+				Required().PlaceHolder("KATO_SETUP_EC2_DOMAIN").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_DOMAIN").
 				Short('t').String()
 
 	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet (default: 10.0.1.0/24).").
@@ -357,7 +357,7 @@ func main() {
 			NodeCount:   *flDeployEc2NodeCount,
 			EdgeCount:   *flDeployEc2EdgeCount,
 			Region:      *flDeployEc2Region,
-			VpcNameTag:  *flDeployEc2VpcNameTag,
+			Domain:      *flDeployEc2Domain,
 		}
 
 		err := deploy(&ec2)
@@ -372,7 +372,7 @@ func main() {
 		ec2 := ec2.Data{
 			Region:             *flSetupEc2Region,
 			VpcCidrBlock:       *flSetupEc2VpcCidrBlock,
-			VpcNameTag:         *flSetupEc2VpcNameTag,
+			Domain:             *flSetupEc2Domain,
 			InternalSubnetCidr: *flSetupEc2IntSubnetCidr,
 			ExternalSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}

@@ -39,7 +39,7 @@ type Data struct {
 	VpcCidrBlock       string
 	VpcID              string
 	MainRouteTableID   string
-	VpcNameTag         string
+	Domain             string
 	InternalSubnetCidr string
 	ExternalSubnetCidr string
 	InternalSubnetID   string
@@ -68,7 +68,7 @@ func (d *Data) Deploy() error {
 
 	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
 	cmd := exec.Command("katoctl", "setup-ec2",
-		"--vpc-name-tag", d.VpcNameTag,
+		"--vpc-name-tag", d.Domain,
 		"--region", d.Region)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -205,7 +205,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 		Info("A new VPC has been created")
 
 	// Tag the VPC:
-	if err = tag(d.VpcID, "Name", d.VpcNameTag, svc); err != nil {
+	if err = tag(d.VpcID, "Name", d.Domain, svc); err != nil {
 		return err
 	}
 
@@ -539,7 +539,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 		// Forge the group request:
 		params := &ec2.CreateSecurityGroupInput{
-			Description: aws.String(d.VpcNameTag + " " + v["Description"]),
+			Description: aws.String(d.Domain + " " + v["Description"]),
 			GroupName:   aws.String(k),
 			DryRun:      aws.Bool(false),
 			VpcId:       aws.String(d.VpcID),
@@ -558,7 +558,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 			Info("New " + k + " security group")
 
 		// Tag the group:
-		if err = tag(v["SecGrpID"], "Name", d.VpcNameTag+" "+k, svc); err != nil {
+		if err = tag(v["SecGrpID"], "Name", d.Domain+" "+k, svc); err != nil {
 			return err
 		}
 	}
