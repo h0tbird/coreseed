@@ -71,7 +71,7 @@ func (d *Data) Deploy() error {
 
 	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
 	cmd := exec.Command("katoctl", "setup-ec2",
-		"--vpc-name-tag", d.Domain,
+		"--domain", d.Domain,
 		"--region", d.Region)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
