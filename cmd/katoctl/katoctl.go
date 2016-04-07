@@ -173,6 +173,21 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_COUNT").
 				Short('e').Int()
 
+	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
+				Short('t').String()
+
+	flDeployEc2Ns1ApiKey = cmdDeployEc2.Flag("ns1-api-key", "NS1 private API key.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_NS1_API_KEY").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NS1_API_KEY").
+				Short('k').String()
+
+	flDeployEc2CaCert = cmdDeployEc2.Flag("ca-cert", "Path to CA certificate.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_CA_CET").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CA_CET").
+				Short('c').String()
+
 	flDeployEc2Region = cmdDeployEc2.Flag("region", "Amazon EC2 region.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_REGION").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_REGION").
@@ -181,7 +196,7 @@ var (
 	flDeployEc2Domain = cmdDeployEc2.Flag("domain", "Used to identify the VPC.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_DOMAIN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_DOMAIN").
-				Short('t').String()
+				Short('d').String()
 
 	//---------------------------
 	// setup-ec2: nested command
@@ -356,6 +371,9 @@ func main() {
 			MasterCount: *flDeployEc2MasterCount,
 			NodeCount:   *flDeployEc2NodeCount,
 			EdgeCount:   *flDeployEc2EdgeCount,
+			EtcdToken:   *flDeployEc2EtcdToken,
+			Ns1ApiKey:   *flDeployEc2Ns1ApiKey,
+			CaCert:      *flDeployEc2CaCert,
 			Region:      *flDeployEc2Region,
 			Domain:      *flDeployEc2Domain,
 		}

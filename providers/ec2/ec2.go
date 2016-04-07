@@ -29,6 +29,9 @@ type Data struct {
 	MasterCount        int
 	NodeCount          int
 	EdgeCount          int
+	EtcdToken          string
+	Ns1ApiKey          string
+	CaCert             string
 	Region             string
 	SubnetIDs          string
 	ImageID            string
