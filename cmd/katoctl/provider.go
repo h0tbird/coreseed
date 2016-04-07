@@ -16,8 +16,7 @@ type cloudProvider interface {
 
 func deploy(cp cloudProvider) error {
 
-	err := cp.Deploy()
-	if err != nil {
+	if err := cp.Deploy(); err != nil {
 		return err
 	}
 
@@ -30,8 +29,7 @@ func deploy(cp cloudProvider) error {
 
 func setup(cp cloudProvider) error {
 
-	err := cp.Setup()
-	if err != nil {
+	if err := cp.Setup(); err != nil {
 		return err
 	}
 
@@ -51,8 +49,7 @@ func run(cp cloudProvider) error {
 	}
 
 	// Create the machine:
-	err = cp.Run(udata)
-	if err != nil {
+	if err = cp.Run(udata); err != nil {
 		return err
 	}
 
