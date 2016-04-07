@@ -9,6 +9,8 @@ import (
 	// Stdlib:
 	"encoding/base64"
 	"fmt"
+	"io"
+	"os/exec"
 	"strings"
 
 	// Community:
@@ -62,6 +64,42 @@ func (d *Data) Deploy() error {
 
 	// Setup EC2 environment:
 	log.WithField("cmd", "deploy-ec2").Info("Setup EC2 environment")
+
+	cmd := exec.Command(
+		"katoctl", "setup-ec2",
+		"--vpc-name-tag", d.VpcNameTag,
+		"--region", d.Region)
+
+	out, err := cmd.StderrPipe()
+	if err != nil {
+		log.WithField("cmd", "deploy-ec2").Error("cmd.StdoutPipe: ", err)
+		return err
+	}
+
+	if err = cmd.Start(); err != nil {
+		log.WithField("cmd", "deploy-ec2").Error("cmd.Start: ", err)
+		return err
+	}
+
+	b := make([]byte, 1024, 1024)
+
+	for {
+		n, err := out.Read(b)
+		if err != nil {
+			if err != io.EOF {
+				log.Fatal(err)
+			}
+			break
+		}
+		if n != 0 {
+			fmt.Printf(string(b))
+		}
+	}
+
+	if err = cmd.Wait(); err != nil {
+		log.WithField("cmd", "deploy-ec2").Error("cmd.Wait: ", err)
+		log.Fatal(err)
+	}
 
 	// Deploy master nodes:
 	for i := 1; i <= d.MasterCount; i++ {
