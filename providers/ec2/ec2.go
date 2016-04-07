@@ -62,7 +62,7 @@ func (d *Data) Setup() error {
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
-	if err := d.createVpc(*svc); err == nil {
+	if err := d.createVpc(*svc); err != nil {
 		return err
 	}
 
