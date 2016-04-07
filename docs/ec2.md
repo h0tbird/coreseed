@@ -1,4 +1,9 @@
 #### Deploy on Amazon EC2
+Make sure your system's clock is synchronized:
+```
+timedatectl set-ntp true
+```
+
 ```bash
 #!/bin/bash
 
