@@ -597,7 +597,6 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 func (d *Data) exposeIdentifiers() error {
 
 	type identifiers struct {
-		Region             string
 		VpcCidrBlock       string
 		VpcID              string
 		MainRouteTableID   string
@@ -617,7 +616,6 @@ func (d *Data) exposeIdentifiers() error {
 	}
 
 	ids := identifiers{
-		Region:             d.Region,
 		VpcCidrBlock:       d.VpcCidrBlock,
 		VpcID:              d.vpcID,
 		MainRouteTableID:   d.mainRouteTableID,
