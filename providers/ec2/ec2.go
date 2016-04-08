@@ -70,24 +70,44 @@ func (d *Data) Deploy() error {
 	// Setup the environment:
 	//------------------------
 
+	// Forge the command:
 	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
 	cmd := exec.Command("katoctl", "setup-ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
 	cmd.Stderr = os.Stderr
+
+	// Execute setup-ec2:
 	out, err := cmd.Output()
 	if err != nil {
 		log.WithField("cmd", "deploy-ec2").Error(err)
 		return err
 	}
 
+	// Decode JSON data from setup-ec2:
 	var dat map[string]interface{}
 	if err := json.Unmarshal(out, &dat); err != nil {
 		log.WithField("cmd", "deploy-ec2").Error(err)
 		return err
 	}
 
-	fmt.Println(dat)
+	// Store the values:
+	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
+	d.vpcID = dat["VpcID"].(string)
+	d.mainRouteTableID = dat["MainRouteTableID"].(string)
+	d.InternalSubnetCidr = dat["InternalSubnetCidr"].(string)
+	d.ExternalSubnetCidr = dat["ExternalSubnetCidr"].(string)
+	d.internalSubnetID = dat["InternalSubnetID"].(string)
+	d.externalSubnetID = dat["ExternalSubnetID"].(string)
+	d.internetGatewayID = dat["InternetGatewayID"].(string)
+	d.allocationID = dat["AllocationID"].(string)
+	d.natGatewayID = dat["NatGatewayID"].(string)
+	d.routeTableID = dat["RouteTableID"].(string)
+	d.masterIntSecGrp = dat["MasterIntSecGrp"].(string)
+	d.nodeIntSecGrp = dat["NodeIntSecGrp"].(string)
+	d.nodeExtSecGrp = dat["NodeExtSecGrp"].(string)
+	d.edgeIntSecGrp = dat["EdgeIntSecGrp"].(string)
+	d.edgeExtSecGrp = dat["EdgeExtSecGrp"].(string)
 
 	//----------------------
 	// Deploy master nodes:
