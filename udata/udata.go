@@ -5,11 +5,15 @@ package udata
 //----------------------------------------------------------------------------
 
 import (
-	"errors"
+
+	// Stdlib:
 	"io/ioutil"
 	"os"
 	"strings"
 	"text/template"
+
+	// Community:
+	log "github.com/Sirupsen/logrus"
 )
 
 //----------------------------------------------------------------------------
@@ -42,10 +46,11 @@ func (d *Data) Render() error {
 	// Read the CA certificate:
 	if d.CaCert != "" {
 
+		log.WithField("cmd", "udata").Info("Reading CA certificate.")
 		data, err := ioutil.ReadFile(d.CaCert)
-
 		if err != nil {
-			return errors.New("Unable to read the certificate file")
+			log.WithField("cmd", "udata").Error(err)
+			return err
 		}
 
 		d.CaCert = strings.TrimSpace(strings.
@@ -67,13 +72,15 @@ func (d *Data) Render() error {
 	}
 
 	if err != nil {
-		return errors.New("Unable to parse the template")
+		log.WithField("cmd", "udata").Error(err)
+		return err
 	}
 
 	// Apply parsed template to data object:
-	err = t.Execute(os.Stdout, d)
-	if err != nil {
-		return errors.New("Unable to execute the template")
+	log.WithField("cmd", "udata").Info("Rendering cloud-config template.")
+	if err = t.Execute(os.Stdout, d); err != nil {
+		log.WithField("cmd", "udata").Error(err)
+		return err
 	}
 
 	// Return on success:

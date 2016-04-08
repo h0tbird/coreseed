@@ -114,7 +114,25 @@ func (d *Data) Deploy() error {
 	//----------------------
 
 	for i := 1; i <= d.MasterCount; i++ {
+
+		// Forge the command:
 		log.WithField("cmd", "deploy-ec2").Info("Deploy master ", i)
+		cmd := exec.Command("katoctl", "udata",
+			"--role", "master",
+			"--hostid", string(i),
+			"--domain", d.Domain,
+			"--ns1-api-key", d.Ns1ApiKey,
+			"--ca-cert", d.CaCert,
+			"--etcd-token", d.EtcdToken)
+
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		// Execute setup-ec2:
+		if err := cmd.Run(); err != nil {
+			log.WithField("cmd", "deploy-ec2").Error(err)
+			return err
+		}
 	}
 
 	//----------------------
@@ -122,7 +140,29 @@ func (d *Data) Deploy() error {
 	//----------------------
 
 	for i := 1; i <= d.NodeCount; i++ {
+
+		// Forge the command:
 		log.WithField("cmd", "deploy-ec2").Info("Deploy node ", i)
+		cmd := exec.Command("katoctl", "udata",
+			"--role", "node",
+			"--hostid", string(i),
+			"--domain", d.Domain,
+			"--ns1-api-key", d.Ns1ApiKey,
+			"--ca-cert", d.CaCert,
+			"--flannel-network", "10.128.0.0/21",
+			"--flannel-subnet-len", "27",
+			"--flannel-subnet-min", "10.128.0.192",
+			"--flannel-subnet-max", "10.128.7.224",
+			"--flannel-backend", "vxlan")
+
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		// Execute setup-ec2:
+		if err := cmd.Run(); err != nil {
+			log.WithField("cmd", "deploy-ec2").Error(err)
+			return err
+		}
 	}
 
 	//--------------------
@@ -130,7 +170,24 @@ func (d *Data) Deploy() error {
 	//--------------------
 
 	for i := 1; i <= d.EdgeCount; i++ {
+
+		// Forge the command:
 		log.WithField("cmd", "deploy-ec2").Info("Deploy edge ", i)
+		cmd := exec.Command("katoctl", "udata",
+			"--role", "edge",
+			"--hostid", string(i),
+			"--domain", d.Domain,
+			"--ns1-api-key", d.Ns1ApiKey,
+			"--ca-cert", d.CaCert)
+
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		// Execute setup-ec2:
+		if err := cmd.Run(); err != nil {
+			log.WithField("cmd", "deploy-ec2").Error(err)
+			return err
+		}
 	}
 
 	return nil
