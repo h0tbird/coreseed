@@ -655,14 +655,14 @@ func (d *Data) exposeIdentifiers() error {
 	}
 
 	// Marshal the data:
-	idsJson, err := json.Marshal(ids)
+	idsJSON, err := json.Marshal(ids)
 	if err != nil {
 		log.WithField("cmd", "setup-ec2").Error(err)
 		return err
 	}
 
 	// Return on success:
-	fmt.Println(string(idsJson))
+	fmt.Println(string(idsJSON))
 	return nil
 }
 
