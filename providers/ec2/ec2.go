@@ -113,10 +113,10 @@ func (d *Data) Deploy() error {
 	// Deploy master nodes:
 	//----------------------
 
+	log.WithField("cmd", "deploy-ec2").Info("Deploy master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
 		// Forge the command:
-		log.WithField("cmd", "deploy-ec2").Info("Deploy master ", i)
 		cmd := exec.Command("katoctl", "udata",
 			"--role", "master",
 			"--hostid", string(i),
@@ -125,7 +125,7 @@ func (d *Data) Deploy() error {
 			"--ca-cert", d.CaCert,
 			"--etcd-token", d.EtcdToken)
 
-		cmd.Stdout = os.Stdout
+		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
 		// Execute setup-ec2:
@@ -139,10 +139,10 @@ func (d *Data) Deploy() error {
 	// Deploy worker nodes:
 	//----------------------
 
+	log.WithField("cmd", "deploy-ec2").Info("Deploy worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
 		// Forge the command:
-		log.WithField("cmd", "deploy-ec2").Info("Deploy node ", i)
 		cmd := exec.Command("katoctl", "udata",
 			"--role", "node",
 			"--hostid", string(i),
@@ -155,7 +155,7 @@ func (d *Data) Deploy() error {
 			"--flannel-subnet-max", "10.128.7.224",
 			"--flannel-backend", "vxlan")
 
-		cmd.Stdout = os.Stdout
+		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
 		// Execute setup-ec2:
@@ -169,10 +169,10 @@ func (d *Data) Deploy() error {
 	// Deploy edge nodes:
 	//--------------------
 
+	log.WithField("cmd", "deploy-ec2").Info("Deploy edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
 
 		// Forge the command:
-		log.WithField("cmd", "deploy-ec2").Info("Deploy edge ", i)
 		cmd := exec.Command("katoctl", "udata",
 			"--role", "edge",
 			"--hostid", string(i),
@@ -180,7 +180,7 @@ func (d *Data) Deploy() error {
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert)
 
-		cmd.Stdout = os.Stdout
+		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
 		// Execute setup-ec2:
@@ -201,7 +201,7 @@ func (d *Data) Deploy() error {
 func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "setup-ec2").Info("Connecting to region " + d.Region)
+	log.WithField("cmd", "setup-ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
@@ -296,7 +296,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	// Store the VPC ID:
 	d.vpcID = *resp.Vpc.VpcId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.vpcID}).
-		Info("A new VPC has been created")
+		Info("- A new VPC has been created")
 
 	// Tag the VPC:
 	if err = tag(d.vpcID, "Name", d.Domain, svc); err != nil {
@@ -341,7 +341,7 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 	// Store the main route table ID:
 	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.mainRouteTableID}).
-		Info("New main route table added")
+		Info("- New main route table added")
 
 	return nil
 }
@@ -378,7 +378,7 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
 		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SubnetID"]}).
-			Info("New " + k + " subnet")
+			Info("- New " + k + " subnet")
 
 		// Tag the subnet:
 		if err = tag(v["SubnetID"], "Name", k, svc); err != nil {
@@ -415,7 +415,7 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 	// Store the route table ID:
 	d.routeTableID = *resp.RouteTable.RouteTableId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.routeTableID}).
-		Info("New route table added")
+		Info("- New route table added")
 
 	return nil
 }
@@ -441,7 +441,7 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	}
 
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": *resp.AssociationId}).
-		Info("New route table association")
+		Info("- New route table association")
 
 	return nil
 }
@@ -467,7 +467,7 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Store the internet gateway ID:
 	d.internetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.internetGatewayID}).
-		Info("New internet gateway")
+		Info("- New internet gateway")
 
 	return nil
 }
@@ -491,7 +491,7 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithField("cmd", "setup-ec2").Info("Internet gateway attached to VPC")
+	log.WithField("cmd", "setup-ec2").Info("- Internet gateway attached to VPC")
 
 	return nil
 }
@@ -517,7 +517,7 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 	}
 
 	log.WithField("cmd", "setup-ec2").
-		Info("New default route added via internet GW")
+		Info("- New default route added via internet GW")
 
 	return nil
 }
@@ -544,7 +544,7 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 	// Store the EIP ID:
 	d.allocationID = *resp.AllocationId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.allocationID}).
-		Info("New elastic IP allocated")
+		Info("- New elastic IP allocated")
 
 	return nil
 }
@@ -572,11 +572,11 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	// Store the NAT gateway ID:
 	d.natGatewayID = *resp.NatGateway.NatGatewayId
 	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.natGatewayID}).
-		Info("New NAT gateway requested")
+		Info("- New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
 	log.WithField("cmd", "setup-ec2").
-		Info("Wait until the NAT gateway is available...")
+		Info("- Wait until the NAT gateway is available...")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {
@@ -608,7 +608,7 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 	}
 
 	log.WithField("cmd", "setup-ec2").
-		Info("New default route added via NAT gateway")
+		Info("- New default route added via NAT gateway")
 
 	return nil
 }
@@ -649,7 +649,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 		// Locally store the group ID:
 		v["SecGrpID"] = *resp.GroupId
 		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SecGrpID"]}).
-			Info("New " + k + " security group")
+			Info("- New " + k + " security group")
 
 		// Tag the group:
 		if err = tag(v["SecGrpID"], "Name", d.Domain+" "+k, svc); err != nil {

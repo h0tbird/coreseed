@@ -46,7 +46,7 @@ func (d *Data) Render() error {
 	// Read the CA certificate:
 	if d.CaCert != "" {
 
-		log.WithField("cmd", "udata").Info("Reading CA certificate.")
+		log.WithField("cmd", "udata").Info("- Reading CA certificate.")
 		data, err := ioutil.ReadFile(d.CaCert)
 		if err != nil {
 			log.WithField("cmd", "udata").Error(err)
@@ -77,7 +77,7 @@ func (d *Data) Render() error {
 	}
 
 	// Apply parsed template to data object:
-	log.WithField("cmd", "udata").Info("Rendering cloud-config template.")
+	log.WithField("cmd", "udata").Info("- Rendering cloud-config template.")
 	if err = t.Execute(os.Stdout, d); err != nil {
 		log.WithField("cmd", "udata").Error(err)
 		return err
