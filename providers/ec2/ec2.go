@@ -474,7 +474,7 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	params := &ec2.CreateNatGatewayInput{
 		AllocationId: aws.String(d.AllocationID),
 		SubnetId:     aws.String(d.ExternalSubnetID),
-		ClientToken:  aws.String("kato"),
+		ClientToken:  aws.String(d.Domain),
 	}
 
 	// Send the NAT gateway request:
