@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -175,6 +176,11 @@ func (d *Data) Setup() error {
 
 	// Create security groups:
 	if err := d.createSecurityGroups(*svc); err != nil {
+		return err
+	}
+
+	// Expose identifiers to stdout:
+	if err := d.exposeIdentifiers(); err != nil {
 		return err
 	}
 
@@ -573,6 +579,64 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 	d.EdgeIntSecGrp = grps["edge-int"]["SecGrpID"]
 	d.EdgeExtSecGrp = grps["edge-ext"]["SecGrpID"]
 
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: exposeIdentifiers
+//-------------------------------------------------------------------------
+
+func (d *Data) exposeIdentifiers() error {
+
+	type identifiers struct {
+		Region             string
+		VpcCidrBlock       string
+		VpcID              string
+		MainRouteTableID   string
+		InternalSubnetCidr string
+		ExternalSubnetCidr string
+		InternalSubnetID   string
+		ExternalSubnetID   string
+		InternetGatewayID  string
+		AllocationID       string
+		NatGatewayID       string
+		RouteTableID       string
+		MasterIntSecGrp    string
+		NodeIntSecGrp      string
+		NodeExtSecGrp      string
+		EdgeIntSecGrp      string
+		EdgeExtSecGrp      string
+	}
+
+	ids := identifiers{
+		Region:             d.Region,
+		VpcCidrBlock:       d.VpcCidrBlock,
+		VpcID:              d.VpcID,
+		MainRouteTableID:   d.MainRouteTableID,
+		InternalSubnetCidr: d.InternalSubnetCidr,
+		ExternalSubnetCidr: d.ExternalSubnetCidr,
+		InternalSubnetID:   d.InternalSubnetID,
+		ExternalSubnetID:   d.ExternalSubnetID,
+		InternetGatewayID:  d.InternetGatewayID,
+		AllocationID:       d.AllocationID,
+		NatGatewayID:       d.NatGatewayID,
+		RouteTableID:       d.RouteTableID,
+		MasterIntSecGrp:    d.MasterIntSecGrp,
+		NodeIntSecGrp:      d.NodeIntSecGrp,
+		NodeExtSecGrp:      d.NodeExtSecGrp,
+		EdgeIntSecGrp:      d.EdgeIntSecGrp,
+		EdgeExtSecGrp:      d.EdgeExtSecGrp,
+	}
+
+	// Marshal the data:
+	idsJson, err := json.Marshal(ids)
+	if err != nil {
+		log.WithField("cmd", "setup-ec2").Error(err)
+		return err
+	}
+
+	// Return on success:
+	fmt.Println(string(idsJson))
 	return nil
 }
 
