@@ -9,7 +9,6 @@ import (
 	// Stdlib:
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	// Local:
@@ -18,6 +17,7 @@ import (
 	"github.com/h0tbird/kato/udata"
 
 	// Community:
+	log "github.com/Sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -284,8 +284,10 @@ var (
 
 func init() {
 
-	// Change the flags on the default logger:
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// Customize the default logger:
+	log.SetFormatter(&log.TextFormatter{ForceColors: true})
+	log.SetOutput(os.Stderr)
+	log.SetLevel(log.InfoLevel)
 }
 
 //----------------------------------------------------------------------------

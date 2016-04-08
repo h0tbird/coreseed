@@ -74,7 +74,7 @@ func (d *Data) Deploy() error {
 	cmd := exec.Command("katoctl", "setup-ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
-	cmd.Stdout = os.Stdout
+	//cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		log.WithField("cmd", "deploy-ec2").Error(err)
