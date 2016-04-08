@@ -260,11 +260,6 @@ var (
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_KEY_PAIR").
 			Short('k').String()
 
-	flRunEc2VpcID = cmdRunEc2.Flag("vpc-id", "EC2 VPC id.").
-			Required().PlaceHolder("KATO_RUN_EC2_VPC_ID").
-			OverrideDefaultFromEnvar("KATO_RUN_EC2_VPC_ID").
-			Short('v').String()
-
 	flRunEc2SubnetIDs = cmdRunEc2.Flag("subnet-ids", "EC2 subnet ids.").
 				Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
 				OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
@@ -376,8 +371,8 @@ func main() {
 			EtcdToken:   *flDeployEc2EtcdToken,
 			Ns1ApiKey:   *flDeployEc2Ns1ApiKey,
 			CaCert:      *flDeployEc2CaCert,
-			Region:      *flDeployEc2Region,
 			Domain:      *flDeployEc2Domain,
+			Region:      *flDeployEc2Region,
 		}
 
 		err := deploy(&ec2)
@@ -390,9 +385,9 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data{
+			Domain:             *flSetupEc2Domain,
 			Region:             *flSetupEc2Region,
 			VpcCidrBlock:       *flSetupEc2VpcCidrBlock,
-			Domain:             *flSetupEc2Domain,
 			InternalSubnetCidr: *flSetupEc2IntSubnetCidr,
 			ExternalSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}
