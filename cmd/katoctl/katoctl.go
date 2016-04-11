@@ -27,20 +27,27 @@ import (
 
 var (
 
-	//----------------------------
-	// katoctl: top level command
-	//----------------------------
+	//-----------------------
+	// katoctl: root command
+	//-----------------------
 
 	app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastructure.")
 
-	flUdataFile = app.Flag("user-data", "Path to file containing user data.").
-			PlaceHolder("KATO_USER_DATA").
-			OverrideDefaultFromEnvar("KATO_USER_DATA").
-			Short('u').String()
+	//---------------------------
+	// deploy: top level command
+	//---------------------------
 
-	//-----------------------
-	// udata: nested command
-	//-----------------------
+	cmdDeploy = app.Command("deploy", "Deploy Kato's infrastructure.")
+
+	//--------------------------
+	// setup: top level command
+	//--------------------------
+
+	cmdSetup = app.Command("setup", "Setup the IaaS provider.")
+
+	//--------------------------
+	// udata: top level command
+	//--------------------------
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
@@ -99,23 +106,34 @@ var (
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				Short('b').String()
 
+	//------------------------
+	// run: top level command
+	//------------------------
+
+	cmdRun = app.Command("run", "Starts a CoreOS instance.")
+
+	flRunUserData = cmdRun.Flag("user-data", "Path to file containing user data.").
+			PlaceHolder("KATO_RUN_USER_DATA").
+			OverrideDefaultFromEnvar("KATO_RUN_USER_DATA").
+			Short('u').String()
+
 	//-------------------------------
-	// deploy-packet: nested command
+	// deploy packet: nested command
 	//-------------------------------
 
-	cmdDeployPacket = app.Command("deploy-packet", "Deploy Kato's infrastructure on Packet.net")
+	cmdDeployPacket = cmdDeploy.Command("packet", "Deploy Kato's infrastructure on Packet.net")
 
 	//------------------------------
-	// setup-packet: nested command
+	// setup packet: nested command
 	//------------------------------
 
-	cmdSetupPacket = app.Command("setup-packet", "Setup a Packet.net project to be used by katoctl.")
+	cmdSetupPacket = cmdSetup.Command("packet", "Setup a Packet.net project to be used by katoctl.")
 
 	//----------------------------
-	// run-packet: nested command
+	// run packet: nested command
 	//----------------------------
 
-	cmdRunPacket = app.Command("run-packet", "Starts a CoreOS instance on Packet.net.")
+	cmdRunPacket = cmdRun.Command("packet", "Starts a CoreOS instance on Packet.net.")
 
 	flRunPktAPIKey = cmdRunPacket.Flag("api-key", "Packet API key.").
 			Required().PlaceHolder("KATO_RUN_PKT_APIKEY").
@@ -153,10 +171,10 @@ var (
 			Short('b').String()
 
 	//----------------------------
-	// deploy-ec2: nested command
+	// deploy ec2: nested command
 	//----------------------------
 
-	cmdDeployEc2 = app.Command("deploy-ec2", "Deploy Kato's infrastructure on Amazon EC2.")
+	cmdDeployEc2 = cmdDeploy.Command("ec2", "Deploy Kato's infrastructure on Amazon EC2.")
 
 	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
@@ -199,10 +217,10 @@ var (
 				Short('d').String()
 
 	//---------------------------
-	// setup-ec2: nested command
+	// setup ec2: nested command
 	//---------------------------
 
-	cmdSetupEc2 = app.Command("setup-ec2", "Setup an EC2 VPC and all the related components.")
+	cmdSetupEc2 = cmdSetup.Command("ec2", "Setup an EC2 VPC and all the related components.")
 
 	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
 				Required().PlaceHolder("KATO_SETUP_EC2_REGION").
@@ -230,10 +248,10 @@ var (
 				Short('e').String()
 
 	//-------------------------
-	// run-ec2: nested command
+	// run ec2: nested command
 	//-------------------------
 
-	cmdRunEc2 = app.Command("run-ec2", "Starts a CoreOS instance on Amazon EC2.")
+	cmdRunEc2 = cmdRun.Command("ec2", "Starts a CoreOS instance on Amazon EC2.")
 
 	flRunEc2Hostname = cmdRunEc2.Flag("hostname", "For the EC2 dashboard.").
 				PlaceHolder("KATO_RUN_EC2_HOSTNAME").
@@ -423,8 +441,8 @@ func main() {
 func readUdata() ([]byte, error) {
 
 	// Read data from file:
-	if *flUdataFile != "" {
-		udata, err := ioutil.ReadFile(*flUdataFile)
+	if *flRunUserData != "" {
+		udata, err := ioutil.ReadFile(*flRunUserData)
 		return udata, err
 	}
 
