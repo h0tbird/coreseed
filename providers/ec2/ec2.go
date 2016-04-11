@@ -137,7 +137,8 @@ func (d *Data) Deploy() error {
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.MasterType,
-			"--key-pair", d.KeyPair)
+			"--key-pair", d.KeyPair,
+			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
 
 		// Adjust output descriptors:
 		cmdUdata.Stderr = os.Stderr
@@ -177,7 +178,8 @@ func (d *Data) Deploy() error {
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
-			"--key-pair", d.KeyPair)
+			"--key-pair", d.KeyPair,
+			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
 
 		// Adjust output descriptors:
 		cmdUdata.Stderr = os.Stderr
@@ -212,7 +214,8 @@ func (d *Data) Deploy() error {
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
-			"--key-pair", d.KeyPair)
+			"--key-pair", d.KeyPair,
+			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
 
 		// Adjust output descriptors:
 		cmdUdata.Stderr = os.Stderr
