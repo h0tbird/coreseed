@@ -119,7 +119,7 @@ func (d *Data) Deploy() error {
 	// Deploy the master nodes:
 	//--------------------------
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy master nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
 		// Forge the udata command:
@@ -134,7 +134,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "master-"+strconv.Itoa(i)+d.Domain,
+			"--hostname", "master-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.MasterType,
@@ -169,7 +169,7 @@ func (d *Data) Deploy() error {
 	// Deploy the worker nodes:
 	//--------------------------
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy worker nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
 		// Forge the udata command:
@@ -188,7 +188,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "node-"+strconv.Itoa(i)+d.Domain,
+			"--hostname", "node-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
@@ -223,7 +223,7 @@ func (d *Data) Deploy() error {
 	// Deploy the edge nodes:
 	//------------------------
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy edge nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
 
 		// Forge the udata command:
@@ -237,7 +237,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "edge-"+strconv.Itoa(i)+d.Domain,
+			"--hostname", "edge-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
@@ -374,7 +374,7 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	// Store the VPC ID:
 	d.vpcID = *resp.Vpc.VpcId
 	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.vpcID}).
-		Info("- A new VPC has been created")
+		Info("- New EC2 VPC created")
 
 	// Tag the VPC:
 	if err = tag(d.vpcID, "Name", d.Domain, svc); err != nil {
@@ -654,7 +654,7 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 
 	// Wait until the NAT gateway is available:
 	log.WithField("cmd", "setup:ec2").
-		Info("- Wait until the NAT gateway is available...")
+		Info("- Waiting until NAT gateway is available")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {

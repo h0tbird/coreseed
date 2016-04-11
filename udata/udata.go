@@ -80,7 +80,7 @@ func (d *Data) Render() error {
 
 	// Apply parsed template to data object:
 	if d.GzipUdata {
-		log.WithField("cmd", "udata").Info("- Rendering gzipped cloud-config template.")
+		log.WithField("cmd", "udata").Info("- Rendering gzipped cloud-config template")
 		w := gzip.NewWriter(os.Stdout)
 		defer w.Close()
 		if err = t.Execute(w, d); err != nil {
@@ -88,7 +88,7 @@ func (d *Data) Render() error {
 			return err
 		}
 	} else {
-		log.WithField("cmd", "udata").Info("- Rendering plain text cloud-config template.")
+		log.WithField("cmd", "udata").Info("- Rendering plain text cloud-config template")
 		if err = t.Execute(os.Stdout, d); err != nil {
 			log.WithField("cmd", "udata").Error(err)
 			return err
