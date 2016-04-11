@@ -27,36 +27,36 @@ import (
 
 // Data contains variables used by EC2 API.
 type Data struct {
-	MasterCount        int    //  deploy-ec2 |           |       |
-	NodeCount          int    //  deploy-ec2 |           |       |
-	EdgeCount          int    //  deploy-ec2 |           |       |
-	EtcdToken          string //  deploy-ec2 |           | udata |
-	Ns1ApiKey          string //  deploy-ec2 |           | udata |
-	CaCert             string //  deploy-ec2 |           | udata |
-	Domain             string //  deploy-ec2 | setup-ec2 | udata |
-	Region             string //  deploy-ec2 | setup-ec2 |       | run-ec2
-	VpcCidrBlock       string //             | setup-ec2 |       |
-	vpcID              string //             | setup-ec2 |       |
-	mainRouteTableID   string //             | setup-ec2 |       |
-	InternalSubnetCidr string //             | setup-ec2 |       |
-	ExternalSubnetCidr string //             | setup-ec2 |       |
-	internalSubnetID   string //             | setup-ec2 |       |
-	externalSubnetID   string //             | setup-ec2 |       |
-	internetGatewayID  string //             | setup-ec2 |       |
-	allocationID       string //             | setup-ec2 |       |
-	natGatewayID       string //             | setup-ec2 |       |
-	routeTableID       string //             | setup-ec2 |       |
-	masterIntSecGrp    string //             | setup-ec2 |       |
-	nodeIntSecGrp      string //             | setup-ec2 |       |
-	nodeExtSecGrp      string //             | setup-ec2 |       |
-	edgeIntSecGrp      string //             | setup-ec2 |       |
-	edgeExtSecGrp      string //             | setup-ec2 |       |
-	SubnetIDs          string //             |           |       | run-ec2
-	ImageID            string //             |           |       | run-ec2
-	KeyPair            string //             |           |       | run-ec2
-	InstanceType       string //             |           |       | run-ec2
-	Hostname           string //             |           |       | run-ec2
-	ElasticIP          string //             |           |       | run-ec2
+	MasterCount        int    //  deploy:ec2 |           |       |
+	NodeCount          int    //  deploy:ec2 |           |       |
+	EdgeCount          int    //  deploy:ec2 |           |       |
+	EtcdToken          string //  deploy:ec2 |           | udata |
+	Ns1ApiKey          string //  deploy:ec2 |           | udata |
+	CaCert             string //  deploy:ec2 |           | udata |
+	Domain             string //  deploy:ec2 | setup:ec2 | udata |
+	Region             string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	VpcCidrBlock       string //             | setup:ec2 |       |
+	vpcID              string //             | setup:ec2 |       |
+	mainRouteTableID   string //             | setup:ec2 |       |
+	InternalSubnetCidr string //             | setup:ec2 |       |
+	ExternalSubnetCidr string //             | setup:ec2 |       |
+	internalSubnetID   string //             | setup:ec2 |       |
+	externalSubnetID   string //             | setup:ec2 |       |
+	internetGatewayID  string //             | setup:ec2 |       |
+	allocationID       string //             | setup:ec2 |       |
+	natGatewayID       string //             | setup:ec2 |       |
+	routeTableID       string //             | setup:ec2 |       |
+	masterIntSecGrp    string //             | setup:ec2 |       |
+	nodeIntSecGrp      string //             | setup:ec2 |       |
+	nodeExtSecGrp      string //             | setup:ec2 |       |
+	edgeIntSecGrp      string //             | setup:ec2 |       |
+	edgeExtSecGrp      string //             | setup:ec2 |       |
+	SubnetIDs          string //             |           |       | run:ec2
+	ImageID            string //             |           |       | run:ec2
+	KeyPair            string //             |           |       | run:ec2
+	InstanceType       string //             |           |       | run:ec2
+	Hostname           string //             |           |       | run:ec2
+	ElasticIP          string //             |           |       | run:ec2
 }
 
 //--------------------------------------------------------------------------
@@ -71,23 +71,23 @@ func (d *Data) Deploy() error {
 	//------------------------
 
 	// Forge the command:
-	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
+	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
 	cmd := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
 	cmd.Stderr = os.Stderr
 
-	// Execute setup-ec2:
+	// Execute 'setup ec2':
 	out, err := cmd.Output()
 	if err != nil {
-		log.WithField("cmd", "deploy-ec2").Error(err)
+		log.WithField("cmd", "deploy:ec2").Error(err)
 		return err
 	}
 
-	// Decode JSON data from setup-ec2:
+	// Decode JSON data from 'setup ec2':
 	var dat map[string]interface{}
 	if err := json.Unmarshal(out, &dat); err != nil {
-		log.WithField("cmd", "deploy-ec2").Error(err)
+		log.WithField("cmd", "deploy:ec2").Error(err)
 		return err
 	}
 
@@ -113,7 +113,7 @@ func (d *Data) Deploy() error {
 	// Deploy master nodes:
 	//----------------------
 
-	log.WithField("cmd", "deploy-ec2").Info("Deploy master nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
 		// Forge the command:
@@ -128,9 +128,9 @@ func (d *Data) Deploy() error {
 		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		// Execute setup-ec2:
+		// Execute:
 		if err := cmd.Run(); err != nil {
-			log.WithField("cmd", "deploy-ec2").Error(err)
+			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
 	}
@@ -139,7 +139,7 @@ func (d *Data) Deploy() error {
 	// Deploy worker nodes:
 	//----------------------
 
-	log.WithField("cmd", "deploy-ec2").Info("Deploy worker nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
 		// Forge the command:
@@ -158,9 +158,9 @@ func (d *Data) Deploy() error {
 		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		// Execute setup-ec2:
+		// Execute:
 		if err := cmd.Run(); err != nil {
-			log.WithField("cmd", "deploy-ec2").Error(err)
+			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
 	}
@@ -169,7 +169,7 @@ func (d *Data) Deploy() error {
 	// Deploy edge nodes:
 	//--------------------
 
-	log.WithField("cmd", "deploy-ec2").Info("Deploy edge nodes")
+	log.WithField("cmd", "deploy:ec2").Info("Deploy edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
 
 		// Forge the command:
@@ -183,9 +183,9 @@ func (d *Data) Deploy() error {
 		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 
-		// Execute setup-ec2:
+		// Execute:
 		if err := cmd.Run(); err != nil {
-			log.WithField("cmd", "deploy-ec2").Error(err)
+			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
 	}
@@ -201,7 +201,7 @@ func (d *Data) Deploy() error {
 func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "setup-ec2").Info("- Connecting to region " + d.Region)
+	log.WithField("cmd", "setup:ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
@@ -289,13 +289,13 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	// Send the VPC request:
 	resp, err := svc.CreateVpc(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the VPC ID:
 	d.vpcID = *resp.Vpc.VpcId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.vpcID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.vpcID}).
 		Info("- A new VPC has been created")
 
 	// Tag the VPC:
@@ -334,13 +334,13 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 	// Send the description request:
 	resp, err := svc.DescribeRouteTables(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the main route table ID:
 	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.mainRouteTableID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.mainRouteTableID}).
 		Info("- New main route table added")
 
 	return nil
@@ -371,13 +371,13 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		// Send the subnet request:
 		resp, err := svc.CreateSubnet(params)
 		if err != nil {
-			log.WithField("cmd", "setup-ec2").Error(err)
+			log.WithField("cmd", "setup:ec2").Error(err)
 			return err
 		}
 
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
-		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SubnetID"]}).
+		log.WithFields(log.Fields{"cmd": "setup:ec2", "id": v["SubnetID"]}).
 			Info("- New " + k + " subnet")
 
 		// Tag the subnet:
@@ -408,13 +408,13 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 	// Send the route table request:
 	resp, err := svc.CreateRouteTable(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the route table ID:
 	d.routeTableID = *resp.RouteTable.RouteTableId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.routeTableID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.routeTableID}).
 		Info("- New route table added")
 
 	return nil
@@ -436,11 +436,11 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	// Send the association request:
 	resp, err := svc.AssociateRouteTable(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": *resp.AssociationId}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": *resp.AssociationId}).
 		Info("- New route table association")
 
 	return nil
@@ -460,13 +460,13 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Send the internet gateway request:
 	resp, err := svc.CreateInternetGateway(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the internet gateway ID:
 	d.internetGatewayID = *resp.InternetGateway.InternetGatewayId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.internetGatewayID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.internetGatewayID}).
 		Info("- New internet gateway")
 
 	return nil
@@ -487,11 +487,11 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 
 	// Send the attachement request:
 	if _, err := svc.AttachInternetGateway(params); err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup-ec2").Info("- Internet gateway attached to VPC")
+	log.WithField("cmd", "setup:ec2").Info("- Internet gateway attached to VPC")
 
 	return nil
 }
@@ -512,11 +512,11 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 
 	// Send the route request:
 	if _, err := svc.CreateRoute(params); err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup-ec2").
+	log.WithField("cmd", "setup:ec2").
 		Info("- New default route added via internet GW")
 
 	return nil
@@ -537,13 +537,13 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 	// Send the allocation request:
 	resp, err := svc.AllocateAddress(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the EIP ID:
 	d.allocationID = *resp.AllocationId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.allocationID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.allocationID}).
 		Info("- New elastic IP allocated")
 
 	return nil
@@ -565,22 +565,22 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	// Send the NAT gateway request:
 	resp, err := svc.CreateNatGateway(params)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
 	// Store the NAT gateway ID:
 	d.natGatewayID = *resp.NatGateway.NatGatewayId
-	log.WithFields(log.Fields{"cmd": "setup-ec2", "id": d.natGatewayID}).
+	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.natGatewayID}).
 		Info("- New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
-	log.WithField("cmd", "setup-ec2").
+	log.WithField("cmd", "setup:ec2").
 		Info("- Wait until the NAT gateway is available...")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
@@ -603,11 +603,11 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 
 	// Send the route request:
 	if _, err := svc.CreateRoute(params); err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup-ec2").
+	log.WithField("cmd", "setup:ec2").
 		Info("- New default route added via NAT gateway")
 
 	return nil
@@ -642,13 +642,13 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 		// Send the group request:
 		resp, err := svc.CreateSecurityGroup(params)
 		if err != nil {
-			log.WithField("cmd", "setup-ec2").Error(err)
+			log.WithField("cmd", "setup:ec2").Error(err)
 			return err
 		}
 
 		// Locally store the group ID:
 		v["SecGrpID"] = *resp.GroupId
-		log.WithFields(log.Fields{"cmd": "setup-ec2", "id": v["SecGrpID"]}).
+		log.WithFields(log.Fields{"cmd": "setup:ec2", "id": v["SecGrpID"]}).
 			Info("- New " + k + " security group")
 
 		// Tag the group:
@@ -714,7 +714,7 @@ func (d *Data) exposeIdentifiers() error {
 	// Marshal the data:
 	idsJSON, err := json.Marshal(ids)
 	if err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
@@ -745,7 +745,7 @@ func tag(resource, key, value string, svc ec2.EC2) error {
 
 	// Send the tag request:
 	if _, err := svc.CreateTags(params); err != nil {
-		log.WithField("cmd", "setup-ec2").Error(err)
+		log.WithField("cmd", "setup:ec2").Error(err)
 		return err
 	}
 
@@ -796,7 +796,7 @@ func (d *Data) Run(udata []byte) error {
 	})
 
 	if err != nil {
-		log.WithField("cmd", "run-ec2").Error(err)
+		log.WithField("cmd", "run:ec2").Error(err)
 		return err
 	}
 
@@ -815,7 +815,7 @@ func (d *Data) Run(udata []byte) error {
 	})
 
 	if err != nil {
-		log.WithField("cmd", "run-ec2").Error(err)
+		log.WithField("cmd", "run:ec2").Error(err)
 		return err
 	}
 
@@ -830,7 +830,7 @@ func (d *Data) Run(udata []byte) error {
 		// Send the request:
 		resp, err := svc.AllocateAddress(params)
 		if err != nil {
-			log.WithField("cmd", "run-ec2").Error(err)
+			log.WithField("cmd", "run:ec2").Error(err)
 			return err
 		}
 

@@ -336,7 +336,7 @@ func main() {
 		checkError(err)
 
 	//-----------------------
-	// katoctl deploy-packet
+	// katoctl deploy packet
 	//-----------------------
 
 	case cmdDeployPacket.FullCommand():
@@ -347,7 +347,7 @@ func main() {
 		checkError(err)
 
 	//----------------------
-	// katoctl setup-packet
+	// katoctl setup packet
 	//----------------------
 
 	case cmdSetupPacket.FullCommand():
@@ -358,7 +358,7 @@ func main() {
 		checkError(err)
 
 	//--------------------
-	// katoctl run-packet
+	// katoctl run packet
 	//--------------------
 
 	case cmdRunPacket.FullCommand():
@@ -377,7 +377,7 @@ func main() {
 		checkError(err)
 
 	//--------------------
-	// katoctl deploy-ec2
+	// katoctl deploy ec2
 	//--------------------
 
 	case cmdDeployEc2.FullCommand():
@@ -397,7 +397,7 @@ func main() {
 		checkError(err)
 
 	//-------------------
-	// katoctl setup-ec2
+	// katoctl setup ec2
 	//-------------------
 
 	case cmdSetupEc2.FullCommand():
@@ -414,7 +414,7 @@ func main() {
 		checkError(err)
 
 	//-----------------
-	// katoctl run-ec2
+	// katoctl run ec2
 	//-----------------
 
 	case cmdRunEc2.FullCommand():
