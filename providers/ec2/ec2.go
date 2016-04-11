@@ -123,7 +123,8 @@ func (d *Data) Deploy() error {
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert,
-			"--etcd-token", d.EtcdToken)
+			"--etcd-token", d.EtcdToken,
+			"--gzip-udata")
 
 		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -149,6 +150,7 @@ func (d *Data) Deploy() error {
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert,
+			"--gzip-udata",
 			"--flannel-network", "10.128.0.0/21",
 			"--flannel-subnet-len", "27",
 			"--flannel-subnet-min", "10.128.0.192",
@@ -178,7 +180,8 @@ func (d *Data) Deploy() error {
 			"--hostid", string(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
-			"--ca-cert", d.CaCert)
+			"--ca-cert", d.CaCert,
+			"--gzip-udata")
 
 		//cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
