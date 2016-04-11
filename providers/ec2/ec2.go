@@ -114,9 +114,9 @@ func (d *Data) Deploy() error {
 	d.edgeIntSecGrp = dat["EdgeIntSecGrp"].(string)
 	d.edgeExtSecGrp = dat["EdgeExtSecGrp"].(string)
 
-	//----------------------
-	// Deploy master nodes:
-	//----------------------
+	//--------------------------
+	// Deploy the master nodes:
+	//--------------------------
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
@@ -140,20 +140,33 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
 
-		// Adjust output descriptors:
+		// Adjust the file descriptors:
 		cmdUdata.Stderr = os.Stderr
 		cmdRun.Stderr = os.Stderr
+		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
+		if err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 
-		// Execute:
+		// Execute the pipeline:
+		if err := cmdRun.Start(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 		if err := cmdUdata.Run(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
+		if err := cmdRun.Wait(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
 	}
 
-	//----------------------
-	// Deploy worker nodes:
-	//----------------------
+	//--------------------------
+	// Deploy the worker nodes:
+	//--------------------------
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
@@ -181,20 +194,33 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
 
-		// Adjust output descriptors:
+		// Adjust the file descriptors:
 		cmdUdata.Stderr = os.Stderr
 		cmdRun.Stderr = os.Stderr
+		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
+		if err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 
-		// Execute:
+		// Execute the pipeline:
+		if err := cmdRun.Start(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 		if err := cmdUdata.Run(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
+		if err := cmdRun.Wait(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
 	}
 
-	//--------------------
-	// Deploy edge nodes:
-	//--------------------
+	//------------------------
+	// Deploy the edge nodes:
+	//------------------------
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
@@ -217,12 +243,25 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
 
-		// Adjust output descriptors:
+		// Adjust the file descriptors:
 		cmdUdata.Stderr = os.Stderr
 		cmdRun.Stderr = os.Stderr
+		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
+		if err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 
-		// Execute:
+		// Execute the pipeline:
+		if err := cmdRun.Start(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
 		if err := cmdUdata.Run(); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
+		if err := cmdRun.Wait(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
