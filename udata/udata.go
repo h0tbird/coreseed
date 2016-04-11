@@ -7,6 +7,7 @@ package udata
 import (
 
 	// Stdlib:
+	"compress/gzip"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -28,6 +29,7 @@ type Data struct {
 	Ns1ApiKey        string
 	CaCert           string
 	EtcdToken        string
+	GzipUdata        bool
 	FlannelNetwork   string
 	FlannelSubnetLen string
 	FlannelSubnetMin string
@@ -77,10 +79,20 @@ func (d *Data) Render() error {
 	}
 
 	// Apply parsed template to data object:
-	log.WithField("cmd", "udata").Info("- Rendering cloud-config template.")
-	if err = t.Execute(os.Stdout, d); err != nil {
-		log.WithField("cmd", "udata").Error(err)
-		return err
+	if d.GzipUdata {
+		log.WithField("cmd", "udata").Info("- Rendering gzipped cloud-config template.")
+		w := gzip.NewWriter(os.Stdout)
+		defer w.Close()
+		if err = t.Execute(w, d); err != nil {
+			log.WithField("cmd", "udata").Error(err)
+			return err
+		}
+	} else {
+		log.WithField("cmd", "udata").Info("- Rendering plain text cloud-config template.")
+		if err = t.Execute(os.Stdout, d); err != nil {
+			log.WithField("cmd", "udata").Error(err)
+			return err
+		}
 	}
 
 	// Return on success:

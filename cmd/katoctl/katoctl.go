@@ -81,6 +81,11 @@ var (
 				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 				Short('e').String()
 
+	flUdataGzipUdata = cmdUdata.Flag("gzip-udata", "Enable udata compression.").
+				Default("false").PlaceHolder("KATO_UDATA_GZIP_UDATA").
+				OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
+				Short('g').Bool()
+
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
 				PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
@@ -325,6 +330,7 @@ func main() {
 			Ns1ApiKey:        *flUdataNs1Apikey,
 			CaCert:           *flUdataCaCert,
 			EtcdToken:        *flUdataEtcdToken,
+			GzipUdata:        *flUdataGzipUdata,
 			FlannelNetwork:   *flUdataFlannelNetwork,
 			FlannelSubnetLen: *flUdataFlannelSubnetLen,
 			FlannelSubnetMin: *flUdataFlannelSubnetMin,
