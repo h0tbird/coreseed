@@ -30,6 +30,9 @@ type Data struct {
 	MasterCount        int    //  deploy:ec2 |           |       |
 	NodeCount          int    //  deploy:ec2 |           |       |
 	EdgeCount          int    //  deploy:ec2 |           |       |
+	MasterType         string //  deploy:ec2 |           |       |
+	NodeType           string //  deploy:ec2 |           |       |
+	EdgeType           string //  deploy:ec2 |           |       |
 	EtcdToken          string //  deploy:ec2 |           | udata |
 	Ns1ApiKey          string //  deploy:ec2 |           | udata |
 	CaCert             string //  deploy:ec2 |           | udata |
@@ -72,13 +75,15 @@ func (d *Data) Deploy() error {
 
 	// Forge the command:
 	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
-	cmd := exec.Command("katoctl", "setup", "ec2",
+	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
-	cmd.Stderr = os.Stderr
+
+	// Adjust output descriptors:
+	cmdSetup.Stderr = os.Stderr
 
 	// Execute 'setup ec2':
-	out, err := cmd.Output()
+	out, err := cmdSetup.Output()
 	if err != nil {
 		log.WithField("cmd", "deploy:ec2").Error(err)
 		return err
@@ -116,8 +121,8 @@ func (d *Data) Deploy() error {
 	log.WithField("cmd", "deploy:ec2").Info("Deploy master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
-		// Forge the command:
-		cmd := exec.Command("katoctl", "udata",
+		// Forge the udata command:
+		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "master",
 			"--hostid", string(i),
 			"--domain", d.Domain,
@@ -126,11 +131,20 @@ func (d *Data) Deploy() error {
 			"--etcd-token", d.EtcdToken,
 			"--gzip-udata")
 
-		//cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		// Forge the run command:
+		cmdRun := exec.Command("katoctl", "run", "ec2",
+			"--hostname", "master-"+string(i)+d.Domain,
+			"--region", d.Region,
+			"--image-id", "ami-7b971208",
+			"--instance-type", d.MasterType,
+			"--key-pair", d.KeyPair)
+
+		// Adjust output descriptors:
+		cmdUdata.Stderr = os.Stderr
+		cmdRun.Stderr = os.Stderr
 
 		// Execute:
-		if err := cmd.Run(); err != nil {
+		if err := cmdUdata.Run(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -143,8 +157,8 @@ func (d *Data) Deploy() error {
 	log.WithField("cmd", "deploy:ec2").Info("Deploy worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
-		// Forge the command:
-		cmd := exec.Command("katoctl", "udata",
+		// Forge the udata command:
+		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "node",
 			"--hostid", string(i),
 			"--domain", d.Domain,
@@ -157,11 +171,20 @@ func (d *Data) Deploy() error {
 			"--flannel-subnet-max", "10.128.7.224",
 			"--flannel-backend", "vxlan")
 
-		//cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		// Forge the run command:
+		cmdRun := exec.Command("katoctl", "run", "ec2",
+			"--hostname", "node-"+string(i)+d.Domain,
+			"--region", d.Region,
+			"--image-id", "ami-7b971208",
+			"--instance-type", d.NodeType,
+			"--key-pair", d.KeyPair)
+
+		// Adjust output descriptors:
+		cmdUdata.Stderr = os.Stderr
+		cmdRun.Stderr = os.Stderr
 
 		// Execute:
-		if err := cmd.Run(); err != nil {
+		if err := cmdUdata.Run(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -174,8 +197,8 @@ func (d *Data) Deploy() error {
 	log.WithField("cmd", "deploy:ec2").Info("Deploy edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
 
-		// Forge the command:
-		cmd := exec.Command("katoctl", "udata",
+		// Forge the udata command:
+		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "edge",
 			"--hostid", string(i),
 			"--domain", d.Domain,
@@ -183,11 +206,20 @@ func (d *Data) Deploy() error {
 			"--ca-cert", d.CaCert,
 			"--gzip-udata")
 
-		//cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		// Forge the run command:
+		cmdRun := exec.Command("katoctl", "run", "ec2",
+			"--hostname", "edge-"+string(i)+d.Domain,
+			"--region", d.Region,
+			"--image-id", "ami-7b971208",
+			"--instance-type", d.NodeType,
+			"--key-pair", d.KeyPair)
+
+		// Adjust output descriptors:
+		cmdUdata.Stderr = os.Stderr
+		cmdRun.Stderr = os.Stderr
 
 		// Execute:
-		if err := cmd.Run(); err != nil {
+		if err := cmdUdata.Run(); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}

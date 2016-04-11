@@ -196,6 +196,21 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_COUNT").
 				Short('e').Int()
 
+	flDeployEc2MasterType = cmdDeployEc2.Flag("master-type", "EC2 master instance type.").
+				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_MASTER_TYPE").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
+				String()
+
+	flDeployEc2NodeType = cmdDeployEc2.Flag("node-type", "EC2 node instance type.").
+				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_NODE_TYPE").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_TYPE").
+				String()
+
+	flDeployEc2EdgeType = cmdDeployEc2.Flag("edge-type", "EC2 edge instance type.").
+				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_EDGE_TYPE").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
+				String()
+
 	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
@@ -204,7 +219,7 @@ var (
 	flDeployEc2Ns1ApiKey = cmdDeployEc2.Flag("ns1-api-key", "NS1 private API key.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_NS1_API_KEY").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NS1_API_KEY").
-				Short('k').String()
+				String()
 
 	flDeployEc2CaCert = cmdDeployEc2.Flag("ca-cert", "Path to CA certificate.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_CA_CET").
@@ -220,6 +235,11 @@ var (
 				Required().PlaceHolder("KATO_DEPLOY_EC2_DOMAIN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_DOMAIN").
 				Short('d').String()
+
+	flDeployEc2KeyPair = cmdDeployEc2.Flag("key-pair", "EC2 key pair.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_KEY_PAIR").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_KEY_PAIR").
+				Short('k').String()
 
 	//---------------------------
 	// setup ec2: nested command
@@ -392,11 +412,15 @@ func main() {
 			MasterCount: *flDeployEc2MasterCount,
 			NodeCount:   *flDeployEc2NodeCount,
 			EdgeCount:   *flDeployEc2EdgeCount,
+			MasterType:  *flDeployEc2MasterType,
+			NodeType:    *flDeployEc2NodeType,
+			EdgeType:    *flDeployEc2EdgeType,
 			EtcdToken:   *flDeployEc2EtcdToken,
 			Ns1ApiKey:   *flDeployEc2Ns1ApiKey,
 			CaCert:      *flDeployEc2CaCert,
 			Domain:      *flDeployEc2Domain,
 			Region:      *flDeployEc2Region,
+			KeyPair:     *flDeployEc2KeyPair,
 		}
 
 		err := deploy(&ec2)
