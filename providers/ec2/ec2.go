@@ -837,6 +837,7 @@ func tag(resource, key, value string, svc ec2.EC2) error {
 func (d *Data) Run(udata []byte) error {
 
 	// Connect and authenticate to the API endpoint:
+	log.WithField("cmd", "run:ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Forge the network interfaces:
@@ -878,7 +879,8 @@ func (d *Data) Run(udata []byte) error {
 	}
 
 	// Pretty-print the response data:
-	fmt.Println("Created instance", *runResult.Instances[0].InstanceId)
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": *runResult.Instances[0].InstanceId}).
+		Info("- New " + d.InstanceType + " EC2 instance requested")
 
 	// Add tags to the created instance:
 	_, err = svc.CreateTags(&ec2.CreateTagsInput{
@@ -895,6 +897,10 @@ func (d *Data) Run(udata []byte) error {
 		log.WithField("cmd", "run:ec2").Error(err)
 		return err
 	}
+
+	// Pretty-print to stderr:
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
+		Info("- New EC2 instance tagged")
 
 	// Allocate an elastic IP address:
 	if d.ElasticIP == "true" {
