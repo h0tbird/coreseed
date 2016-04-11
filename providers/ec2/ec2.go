@@ -141,25 +141,8 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
 
-		// Adjust the file descriptors:
-		cmdUdata.Stderr = os.Stderr
-		cmdRun.Stderr = os.Stderr
-		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
-		if err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-
 		// Execute the pipeline:
-		if err := cmdRun.Start(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdUdata.Run(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdRun.Wait(); err != nil {
+		if err := executePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -195,25 +178,8 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
 
-		// Adjust the file descriptors:
-		cmdUdata.Stderr = os.Stderr
-		cmdRun.Stderr = os.Stderr
-		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
-		if err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-
 		// Execute the pipeline:
-		if err := cmdRun.Start(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdUdata.Run(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdRun.Wait(); err != nil {
+		if err := executePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -244,25 +210,8 @@ func (d *Data) Deploy() error {
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
 
-		// Adjust the file descriptors:
-		cmdUdata.Stderr = os.Stderr
-		cmdRun.Stderr = os.Stderr
-		cmdRun.Stdin, err = cmdUdata.StdoutPipe()
-		if err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-
 		// Execute the pipeline:
-		if err := cmdRun.Start(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdUdata.Run(); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
-			return err
-		}
-		if err := cmdRun.Wait(); err != nil {
+		if err := executePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -920,6 +869,39 @@ func (d *Data) Run(udata []byte) error {
 
 		// Pretty-print the response data:
 		fmt.Println(resp)
+	}
+
+	// Return on success:
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func executePipeline
+//-----------------------------------------------------------------------------
+
+func executePipeline(cmd1, cmd2 *exec.Cmd) error {
+
+	var err error
+
+	// Adjust the stderr:
+	cmd1.Stderr = os.Stderr
+	cmd2.Stderr = os.Stderr
+
+	// Connect both commands:
+	cmd2.Stdin, err = cmd1.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	// Execute the pipeline:
+	if err := cmd2.Start(); err != nil {
+		return err
+	}
+	if err := cmd1.Run(); err != nil {
+		return err
+	}
+	if err := cmd2.Wait(); err != nil {
+		return err
 	}
 
 	// Return on success:
