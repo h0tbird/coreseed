@@ -136,7 +136,7 @@ func (d *Data) Deploy() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "master-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-7b971208",
+			"--image-id", "ami-f4199987",
 			"--instance-type", d.MasterType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
@@ -190,7 +190,7 @@ func (d *Data) Deploy() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "node-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-7b971208",
+			"--image-id", "ami-f4199987",
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
@@ -239,7 +239,7 @@ func (d *Data) Deploy() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "edge-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-7b971208",
+			"--image-id", "ami-f4199987",
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)

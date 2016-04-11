@@ -48,7 +48,6 @@ func (d *Data) Render() error {
 	// Read the CA certificate:
 	if d.CaCert != "" {
 
-		log.WithField("cmd", "udata").Info("- Reading CA certificate.")
 		data, err := ioutil.ReadFile(d.CaCert)
 		if err != nil {
 			log.WithField("cmd", "udata").Error(err)
