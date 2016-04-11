@@ -72,7 +72,7 @@ func (d *Data) Deploy() error {
 
 	// Forge the command:
 	log.WithField("cmd", "deploy-ec2").Info("Setup the EC2 environment")
-	cmd := exec.Command("katoctl", "setup-ec2",
+	cmd := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
 	cmd.Stderr = os.Stderr
