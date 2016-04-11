@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	// Community:
@@ -124,7 +125,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "master",
-			"--hostid", string(i),
+			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert,
@@ -133,7 +134,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "master-"+string(i)+d.Domain,
+			"--hostname", "master-"+strconv.Itoa(i)+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.MasterType,
@@ -174,7 +175,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "node",
-			"--hostid", string(i),
+			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert,
@@ -187,7 +188,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "node-"+string(i)+d.Domain,
+			"--hostname", "node-"+strconv.Itoa(i)+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
@@ -228,7 +229,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "edge",
-			"--hostid", string(i),
+			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
 			"--ca-cert", d.CaCert,
@@ -236,7 +237,7 @@ func (d *Data) Deploy() error {
 
 		// Forge the run command:
 		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "edge-"+string(i)+d.Domain,
+			"--hostname", "edge-"+strconv.Itoa(i)+d.Domain,
 			"--region", d.Region,
 			"--image-id", "ami-7b971208",
 			"--instance-type", d.NodeType,
