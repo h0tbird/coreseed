@@ -60,6 +60,11 @@ var (
 
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
+	flUdataMasterCount = cmdUdata.Flag("master-count", "Number of master nodes [ 1 | 3 | 5 ]").
+				Default("3").PlaceHolder("KATO_UDATA_MASTER_COUNT").
+				OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
+				Int()
+
 	flUdataHostID = cmdUdata.Flag("hostid", "Must be a number: hostname = <role>-<hostid>").
 			Required().PlaceHolder("KATO_UDATA_HOSTID").
 			OverrideDefaultFromEnvar("KATO_UDATA_HOSTID").
@@ -353,6 +358,7 @@ func main() {
 	case cmdUdata.FullCommand():
 
 		udata := udata.Data{
+			MasterCount:      *flUdataMasterCount,
 			HostID:           *flUdataHostID,
 			Domain:           *flUdataDomain,
 			Role:             *flUdataRole,

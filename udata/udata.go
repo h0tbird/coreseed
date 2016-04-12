@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -24,6 +25,7 @@ import (
 
 // Data contains variables to be interpolated in templates.
 type Data struct {
+	MasterCount      int
 	HostID           string
 	Domain           string
 	Role             string
@@ -47,7 +49,7 @@ func (d *Data) etcdToken() error {
 	if d.EtcdToken == "auto" {
 
 		// Request an etcd bootstrap token:
-		res, err := http.Get("https://discovery.etcd.io/new?size=3")
+		res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(d.MasterCount))
 		if err != nil {
 			log.WithField("cmd", "udata").Error(err)
 			return err

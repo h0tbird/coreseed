@@ -126,6 +126,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "master",
+			"--master-count", strconv.Itoa(d.MasterCount),
 			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
@@ -159,6 +160,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "node",
+			"--master-count", strconv.Itoa(d.MasterCount),
 			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
@@ -196,6 +198,7 @@ func (d *Data) Deploy() error {
 		// Forge the udata command:
 		cmdUdata := exec.Command("katoctl", "udata",
 			"--role", "edge",
+			"--master-count", strconv.Itoa(d.MasterCount),
 			"--hostid", strconv.Itoa(i),
 			"--domain", d.Domain,
 			"--ns1-api-key", d.Ns1ApiKey,
