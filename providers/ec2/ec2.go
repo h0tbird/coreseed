@@ -27,7 +27,7 @@ import (
 // Typedefs:
 //----------------------------------------------------------------------------
 
-// Data contains variables used by EC2 API.
+// Data contains variables used by this EC2 provider.
 type Data struct {
 	MasterCount        int    //  deploy:ec2 |           |       |
 	NodeCount          int    //  deploy:ec2 |           |       |
@@ -102,6 +102,188 @@ func (d *Data) Deploy() error {
 		return err
 	}
 
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: Run
+//--------------------------------------------------------------------------
+
+// Run uses EC2 API to launch a new instance.
+func (d *Data) Run(udata []byte) error {
+
+	// Connect and authenticate to the API endpoint:
+	log.WithField("cmd", "run:ec2").Info("- Connecting to region " + d.Region)
+	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+
+	// Forge the network interfaces:
+	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
+	subnetIDs := strings.Split(d.SubnetIDs, ",")
+
+	for i := 0; i < len(subnetIDs); i++ {
+
+		// Forge the security group ids:
+		var securityGroupIds []*string
+		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
+			securityGroupIds = append(securityGroupIds, aws.String(gid))
+		}
+
+		iface := ec2.InstanceNetworkInterfaceSpecification{
+			DeleteOnTermination: aws.Bool(true),
+			DeviceIndex:         aws.Int64(int64(i)),
+			Groups:              securityGroupIds,
+			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
+		}
+
+		networkInterfaces = append(networkInterfaces, &iface)
+	}
+
+	// Send the request:
+	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+		ImageId:           aws.String(d.ImageID),
+		MinCount:          aws.Int64(1),
+		MaxCount:          aws.Int64(1),
+		KeyName:           aws.String(d.KeyPair),
+		InstanceType:      aws.String(d.InstanceType),
+		NetworkInterfaces: networkInterfaces,
+		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+	})
+
+	if err != nil {
+		log.WithField("cmd", "run:ec2").Error(err)
+		return err
+	}
+
+	// Pretty-print the response data:
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": *runResult.Instances[0].InstanceId}).
+		Info("- New " + d.InstanceType + " EC2 instance requested")
+
+	// Add tags to the created instance:
+	_, err = svc.CreateTags(&ec2.CreateTagsInput{
+		Resources: []*string{runResult.Instances[0].InstanceId},
+		Tags: []*ec2.Tag{
+			{
+				Key:   aws.String("Name"),
+				Value: aws.String(d.Hostname),
+			},
+		},
+	})
+
+	if err != nil {
+		log.WithField("cmd", "run:ec2").Error(err)
+		return err
+	}
+
+	// Pretty-print to stderr:
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
+		Info("- New EC2 instance tagged")
+
+	// Allocate an elastic IP address:
+	if d.ElasticIP == "true" {
+
+		params := &ec2.AllocateAddressInput{
+			Domain: aws.String("vpc"),
+			DryRun: aws.Bool(false),
+		}
+
+		// Send the request:
+		resp, err := svc.AllocateAddress(params)
+		if err != nil {
+			log.WithField("cmd", "run:ec2").Error(err)
+			return err
+		}
+
+		// Pretty-print the response data:
+		fmt.Println(resp)
+	}
+
+	// Return on success:
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: Setup
+//--------------------------------------------------------------------------
+
+// Setup an EC2 VPC and all the related components.
+func (d *Data) Setup() error {
+
+	// Connect and authenticate to the API endpoint:
+	log.WithField("cmd", "setup:ec2").Info("- Connecting to region " + d.Region)
+	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+
+	// Create the VPC:
+	if err := d.createVpc(*svc); err != nil {
+		return err
+	}
+
+	// Retrieve the main route table ID:
+	if err := d.retrieveMainRouteTableID(*svc); err != nil {
+		return err
+	}
+
+	// Create the external and internal subnets:
+	if err := d.createSubnets(*svc); err != nil {
+		return err
+	}
+
+	// Create a route table (ext):
+	if err := d.createRouteTable(*svc); err != nil {
+		return err
+	}
+
+	// Associate the route table to the external subnet:
+	if err := d.associateRouteTable(*svc); err != nil {
+		return err
+	}
+
+	// Create the internet gateway:
+	if err := d.createInternetGateway(*svc); err != nil {
+		return err
+	}
+
+	// Attach internet gateway to VPC:
+	if err := d.attachInternetGateway(*svc); err != nil {
+		return err
+	}
+
+	// Create a default route via internet GW (ext):
+	if err := d.createInternetGatewayRoute(*svc); err != nil {
+		return err
+	}
+
+	// Allocate a new eIP:
+	if err := d.allocateAddress(*svc); err != nil {
+		return err
+	}
+
+	// Create a NAT gateway:
+	if err := d.createNatGateway(*svc); err != nil {
+		return err
+	}
+
+	// Create a default route via NAT GW (int):
+	if err := d.createNatGatewayRoute(*svc); err != nil {
+		return err
+	}
+
+	// Create security groups:
+	if err := d.createSecurityGroups(*svc); err != nil {
+		return err
+	}
+
+	// Setup master nodes firewall:
+
+	// Setup worker nodes firewall:
+
+	// Setup edge nodes firewall:
+
+	// Expose identifiers to stdout:
+	if err := d.exposeIdentifiers(); err != nil {
+		return err
+	}
+
+	// Return on success:
 	return nil
 }
 
@@ -300,86 +482,6 @@ func (d *Data) deployEdgeNodes() error {
 		}
 	}
 
-	return nil
-}
-
-//--------------------------------------------------------------------------
-// func: Setup
-//--------------------------------------------------------------------------
-
-// Setup an EC2 VPC and all the related components.
-func (d *Data) Setup() error {
-
-	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "setup:ec2").Info("- Connecting to region " + d.Region)
-	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-
-	// Create the VPC:
-	if err := d.createVpc(*svc); err != nil {
-		return err
-	}
-
-	// Retrieve the main route table ID:
-	if err := d.retrieveMainRouteTableID(*svc); err != nil {
-		return err
-	}
-
-	// Create the external and internal subnets:
-	if err := d.createSubnets(*svc); err != nil {
-		return err
-	}
-
-	// Create a route table (ext):
-	if err := d.createRouteTable(*svc); err != nil {
-		return err
-	}
-
-	// Associate the route table to the external subnet:
-	if err := d.associateRouteTable(*svc); err != nil {
-		return err
-	}
-
-	// Create the internet gateway:
-	if err := d.createInternetGateway(*svc); err != nil {
-		return err
-	}
-
-	// Attach internet gateway to VPC:
-	if err := d.attachInternetGateway(*svc); err != nil {
-		return err
-	}
-
-	// Create a default route via internet GW (ext):
-	if err := d.createInternetGatewayRoute(*svc); err != nil {
-		return err
-	}
-
-	// Allocate a new eIP:
-	if err := d.allocateAddress(*svc); err != nil {
-		return err
-	}
-
-	// Create a NAT gateway:
-	if err := d.createNatGateway(*svc); err != nil {
-		return err
-	}
-
-	// Create a default route via NAT GW (int):
-	if err := d.createNatGatewayRoute(*svc); err != nil {
-		return err
-	}
-
-	// Create security groups:
-	if err := d.createSecurityGroups(*svc); err != nil {
-		return err
-	}
-
-	// Expose identifiers to stdout:
-	if err := d.exposeIdentifiers(); err != nil {
-		return err
-	}
-
-	// Return on success:
 	return nil
 }
 
@@ -859,101 +961,5 @@ func tag(resource, key, value string, svc ec2.EC2) error {
 		return err
 	}
 
-	return nil
-}
-
-//--------------------------------------------------------------------------
-// func: Run
-//--------------------------------------------------------------------------
-
-// Run uses EC2 API to launch a new instance.
-func (d *Data) Run(udata []byte) error {
-
-	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "run:ec2").Info("- Connecting to region " + d.Region)
-	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-
-	// Forge the network interfaces:
-	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
-	subnetIDs := strings.Split(d.SubnetIDs, ",")
-
-	for i := 0; i < len(subnetIDs); i++ {
-
-		// Forge the security group ids:
-		var securityGroupIds []*string
-		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
-			securityGroupIds = append(securityGroupIds, aws.String(gid))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(i)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
-	// Send the request:
-	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-		ImageId:           aws.String(d.ImageID),
-		MinCount:          aws.Int64(1),
-		MaxCount:          aws.Int64(1),
-		KeyName:           aws.String(d.KeyPair),
-		InstanceType:      aws.String(d.InstanceType),
-		NetworkInterfaces: networkInterfaces,
-		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
-	})
-
-	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
-		return err
-	}
-
-	// Pretty-print the response data:
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": *runResult.Instances[0].InstanceId}).
-		Info("- New " + d.InstanceType + " EC2 instance requested")
-
-	// Add tags to the created instance:
-	_, err = svc.CreateTags(&ec2.CreateTagsInput{
-		Resources: []*string{runResult.Instances[0].InstanceId},
-		Tags: []*ec2.Tag{
-			{
-				Key:   aws.String("Name"),
-				Value: aws.String(d.Hostname),
-			},
-		},
-	})
-
-	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
-		return err
-	}
-
-	// Pretty-print to stderr:
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
-		Info("- New EC2 instance tagged")
-
-	// Allocate an elastic IP address:
-	if d.ElasticIP == "true" {
-
-		params := &ec2.AllocateAddressInput{
-			Domain: aws.String("vpc"),
-			DryRun: aws.Bool(false),
-		}
-
-		// Send the request:
-		resp, err := svc.AllocateAddress(params)
-		if err != nil {
-			log.WithField("cmd", "run:ec2").Error(err)
-			return err
-		}
-
-		// Pretty-print the response data:
-		fmt.Println(resp)
-	}
-
-	// Return on success:
 	return nil
 }
