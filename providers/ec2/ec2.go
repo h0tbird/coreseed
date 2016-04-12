@@ -20,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/h0tbird/kato/katool"
 )
 
 //----------------------------------------------------------------------------
@@ -142,7 +143,7 @@ func (d *Data) Deploy() error {
 			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
 
 		// Execute the pipeline:
-		if err := executePipeline(cmdUdata, cmdRun); err != nil {
+		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -179,7 +180,7 @@ func (d *Data) Deploy() error {
 			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
 
 		// Execute the pipeline:
-		if err := executePipeline(cmdUdata, cmdRun); err != nil {
+		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -211,7 +212,7 @@ func (d *Data) Deploy() error {
 			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
 
 		// Execute the pipeline:
-		if err := executePipeline(cmdUdata, cmdRun); err != nil {
+		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
@@ -869,39 +870,6 @@ func (d *Data) Run(udata []byte) error {
 
 		// Pretty-print the response data:
 		fmt.Println(resp)
-	}
-
-	// Return on success:
-	return nil
-}
-
-//-----------------------------------------------------------------------------
-// func executePipeline
-//-----------------------------------------------------------------------------
-
-func executePipeline(cmd1, cmd2 *exec.Cmd) error {
-
-	var err error
-
-	// Adjust the stderr:
-	cmd1.Stderr = os.Stderr
-	cmd2.Stderr = os.Stderr
-
-	// Connect both commands:
-	cmd2.Stdin, err = cmd1.StdoutPipe()
-	if err != nil {
-		return err
-	}
-
-	// Execute the pipeline:
-	if err := cmd2.Start(); err != nil {
-		return err
-	}
-	if err := cmd1.Run(); err != nil {
-		return err
-	}
-	if err := cmd2.Wait(); err != nil {
-		return err
 	}
 
 	// Return on success:
