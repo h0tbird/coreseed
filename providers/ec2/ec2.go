@@ -71,9 +71,44 @@ type Data struct {
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
 
-	//----------------------------
 	// Setup the EC2 environment:
-	//----------------------------
+	if err := d.deploySetup(); err != nil {
+		return err
+	}
+
+	// Retrieve the etcd bootstrap token:
+	if err := d.retrieveEtcdToken(); err != nil {
+		return err
+	}
+
+	// Retrieve the CoreOS AMI ID:
+	if err := d.retrieveCoreosAmiId(); err != nil {
+		return err
+	}
+
+	// Deploy the master nodes:
+	if err := d.deployMasterNodes(); err != nil {
+		return err
+	}
+
+	// Deploy the worker nodes:
+	if err := d.deployWorkerNodes(); err != nil {
+		return err
+	}
+
+	// Deploy the edge nodes:
+	if err := d.deployEdgeNodes(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: deploySetup
+//--------------------------------------------------------------------------
+
+func (d *Data) deploySetup() error {
 
 	// Forge the setup command:
 	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
@@ -114,9 +149,16 @@ func (d *Data) Deploy() error {
 	d.edgeIntSecGrp = dat["EdgeIntSecGrp"].(string)
 	d.edgeExtSecGrp = dat["EdgeExtSecGrp"].(string)
 
-	//------------------------------------
-	// Retrieve the etcd bootstrap token:
-	//------------------------------------
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: retrieveEtcdToken
+//--------------------------------------------------------------------------
+
+func (d *Data) retrieveEtcdToken() error {
+
+	var err error
 
 	if d.EtcdToken == "auto" {
 		if d.EtcdToken, err = katool.EtcdToken(d.MasterCount); err != nil {
@@ -127,9 +169,22 @@ func (d *Data) Deploy() error {
 			Info("New etcd bootstrap token requested")
 	}
 
-	//--------------------------
-	// Deploy the master nodes:
-	//--------------------------
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: retrieveCoreosAmiId
+//--------------------------------------------------------------------------
+
+func (d *Data) retrieveCoreosAmiId() error {
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: deployMasterNodes
+//--------------------------------------------------------------------------
+
+func (d *Data) deployMasterNodes() error {
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
@@ -161,9 +216,14 @@ func (d *Data) Deploy() error {
 		}
 	}
 
-	//--------------------------
-	// Deploy the worker nodes:
-	//--------------------------
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: deployWorkerNodes
+//--------------------------------------------------------------------------
+
+func (d *Data) deployWorkerNodes() error {
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
@@ -199,9 +259,14 @@ func (d *Data) Deploy() error {
 		}
 	}
 
-	//------------------------
-	// Deploy the edge nodes:
-	//------------------------
+	return nil
+}
+
+//--------------------------------------------------------------------------
+// func: deployEdgeNodes
+//--------------------------------------------------------------------------
+
+func (d *Data) deployEdgeNodes() error {
 
 	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
