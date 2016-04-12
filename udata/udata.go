@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"compress/gzip"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 	"text/template"
@@ -42,6 +43,29 @@ type Data struct {
 //-----------------------------------------------------------------------------
 
 func (d *Data) etcdToken() error {
+
+	if d.EtcdToken == "auto" {
+
+		// Request an etcd bootstrap token:
+		res, err := http.Get("https://discovery.etcd.io/new?size=3")
+		if err != nil {
+			log.WithField("cmd", "udata").Error(err)
+			return err
+		}
+
+		// Retrieve the token URL:
+		tokenURL, err := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		if err != nil {
+			log.WithField("cmd", "udata").Error(err)
+			return err
+		}
+
+		// Extract the token ID:
+		slice := strings.Split(string(tokenURL), "/")
+		d.EtcdToken = slice[len(slice)-1]
+	}
+
 	return nil
 }
 

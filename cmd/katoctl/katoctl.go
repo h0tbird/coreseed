@@ -85,7 +85,7 @@ var (
 			OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
 			Short('c').String()
 
-	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
+	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token [ auto | <token> ]").
 				PlaceHolder("KATO_UDATA_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 				Short('e').String()

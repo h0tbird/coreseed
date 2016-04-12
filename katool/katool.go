@@ -15,6 +15,8 @@ import (
 // func: ExecutePipeline
 //-----------------------------------------------------------------------------
 
+// ExecutePipeline takes two commands and pipes the stdout of the first one
+// into the stdin of the second one.
 func ExecutePipeline(cmd1, cmd2 *exec.Cmd) error {
 
 	var err error
