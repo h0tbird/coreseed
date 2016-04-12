@@ -57,12 +57,14 @@ type Data struct {
 	nodeExtSecGrp      string //             | setup:ec2 |       |
 	edgeIntSecGrp      string //             | setup:ec2 |       |
 	edgeExtSecGrp      string //             | setup:ec2 |       |
+	instanceID         string //             |           |       | run:ec2
 	SubnetIDs          string //             |           |       | run:ec2
 	ImageID            string //             |           |       | run:ec2
 	KeyPair            string //             |           |       | run:ec2
 	InstanceType       string //             |           |       | run:ec2
 	Hostname           string //             |           |       | run:ec2
 	ElasticIP          string //             |           |       | run:ec2
+	networkInterfaces  []*ec2.InstanceNetworkInterfaceSpecification
 }
 
 //--------------------------------------------------------------------------
@@ -117,66 +119,14 @@ func (d *Data) Run(udata []byte) error {
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Forge the network interfaces:
-	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
-	subnetIDs := strings.Split(d.SubnetIDs, ",")
-
-	for i := 0; i < len(subnetIDs); i++ {
-
-		// Forge the security group ids:
-		var securityGroupIds []*string
-		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
-			securityGroupIds = append(securityGroupIds, aws.String(gid))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(i)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
-	// Send the request:
-	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
-		ImageId:           aws.String(d.ImageID),
-		MinCount:          aws.Int64(1),
-		MaxCount:          aws.Int64(1),
-		KeyName:           aws.String(d.KeyPair),
-		InstanceType:      aws.String(d.InstanceType),
-		NetworkInterfaces: networkInterfaces,
-		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
-	})
-
-	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
+	if err := d.forgeNetworkInterfaces(*svc); err != nil {
 		return err
 	}
 
-	// Pretty-print the response data:
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": *runResult.Instances[0].InstanceId}).
-		Info("- New " + d.InstanceType + " EC2 instance requested")
-
-	// Add tags to the created instance:
-	_, err = svc.CreateTags(&ec2.CreateTagsInput{
-		Resources: []*string{runResult.Instances[0].InstanceId},
-		Tags: []*ec2.Tag{
-			{
-				Key:   aws.String("Name"),
-				Value: aws.String(d.Hostname),
-			},
-		},
-	})
-
-	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
+	// Run the EC2 instance:
+	if err := d.runInstance(udata, *svc); err != nil {
 		return err
 	}
-
-	// Pretty-print to stderr:
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
-		Info("- New EC2 instance tagged")
 
 	// Allocate an elastic IP address:
 	if d.ElasticIP == "true" {
@@ -481,6 +431,75 @@ func (d *Data) deployEdgeNodes() error {
 			return err
 		}
 	}
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: forgeNetworkInterfaces
+//-------------------------------------------------------------------------
+
+func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) error {
+
+	// Split the subnet IDs:
+	subnetIDs := strings.Split(d.SubnetIDs, ",")
+
+	for i := 0; i < len(subnetIDs); i++ {
+
+		// Split the security group IDs:
+		var securityGroupIds []*string
+		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
+			securityGroupIds = append(securityGroupIds, aws.String(gid))
+		}
+
+		iface := ec2.InstanceNetworkInterfaceSpecification{
+			DeleteOnTermination: aws.Bool(true),
+			DeviceIndex:         aws.Int64(int64(i)),
+			Groups:              securityGroupIds,
+			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
+		}
+
+		d.networkInterfaces = append(d.networkInterfaces, &iface)
+	}
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: runInstance
+//-------------------------------------------------------------------------
+
+func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
+
+	// Send the request:
+	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
+		ImageId:           aws.String(d.ImageID),
+		MinCount:          aws.Int64(1),
+		MaxCount:          aws.Int64(1),
+		KeyName:           aws.String(d.KeyPair),
+		InstanceType:      aws.String(d.InstanceType),
+		NetworkInterfaces: d.networkInterfaces,
+		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+	})
+
+	if err != nil {
+		log.WithField("cmd", "run:ec2").Error(err)
+		return err
+	}
+
+	// Locally store the instance ID:
+	d.instanceID = *runResult.Instances[0].InstanceId
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.instanceID}).
+		Info("- New " + d.InstanceType + " EC2 instance requested")
+
+	// Tag the instance:
+	if err := tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
+		return err
+	}
+
+	// Pretty-print to stderr:
+	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
+		Info("- New EC2 instance tagged")
 
 	return nil
 }
