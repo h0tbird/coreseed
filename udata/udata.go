@@ -9,9 +9,7 @@ import (
 	// Stdlib:
 	"compress/gzip"
 	"io/ioutil"
-	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -38,37 +36,6 @@ type Data struct {
 	FlannelSubnetMin string
 	FlannelSubnetMax string
 	FlannelBackend   string
-}
-
-//-----------------------------------------------------------------------------
-// func: etcdToken
-//-----------------------------------------------------------------------------
-
-func (d *Data) etcdToken() error {
-
-	if d.EtcdToken == "auto" {
-
-		// Request an etcd bootstrap token:
-		res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(d.MasterCount))
-		if err != nil {
-			log.WithField("cmd", "udata").Error(err)
-			return err
-		}
-
-		// Retrieve the token URL:
-		tokenURL, err := ioutil.ReadAll(res.Body)
-		res.Body.Close()
-		if err != nil {
-			log.WithField("cmd", "udata").Error(err)
-			return err
-		}
-
-		// Extract the token ID:
-		slice := strings.Split(string(tokenURL), "/")
-		d.EtcdToken = slice[len(slice)-1]
-	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -104,11 +71,6 @@ func (d *Data) Render() error {
 
 	// Read the CA certificate:
 	if err = d.caCert(); err != nil {
-		return err
-	}
-
-	// Retrieve the etcd token:
-	if err = d.etcdToken(); err != nil {
 		return err
 	}
 

@@ -71,9 +71,9 @@ type Data struct {
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
 
-	//------------------------
-	// Setup the environment:
-	//------------------------
+	//----------------------------
+	// Setup the EC2 environment:
+	//----------------------------
 
 	// Forge the command:
 	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
@@ -81,10 +81,8 @@ func (d *Data) Deploy() error {
 		"--domain", d.Domain,
 		"--region", d.Region)
 
-	// Adjust output descriptors:
-	cmdSetup.Stderr = os.Stderr
-
 	// Execute 'setup ec2':
+	cmdSetup.Stderr = os.Stderr
 	out, err := cmdSetup.Output()
 	if err != nil {
 		log.WithField("cmd", "deploy:ec2").Error(err)
@@ -115,6 +113,17 @@ func (d *Data) Deploy() error {
 	d.nodeExtSecGrp = dat["NodeExtSecGrp"].(string)
 	d.edgeIntSecGrp = dat["EdgeIntSecGrp"].(string)
 	d.edgeExtSecGrp = dat["EdgeExtSecGrp"].(string)
+
+	//------------------------------------
+	// Retrieve the etcd bootstrap token:
+	//------------------------------------
+
+	if d.EtcdToken == "auto" {
+		if d.EtcdToken, err = katool.EtcdToken(d.MasterCount); err != nil {
+			log.WithField("cmd", "deploy:ec2").Error(err)
+			return err
+		}
+	}
 
 	//--------------------------
 	// Deploy the master nodes:

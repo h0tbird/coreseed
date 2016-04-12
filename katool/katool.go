@@ -6,9 +6,13 @@ package katool
 
 import (
 
-	// Stdlib
+	// Stdlib:
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
+	"strings"
 )
 
 //-----------------------------------------------------------------------------
@@ -44,4 +48,29 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) error {
 
 	// Return on success:
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: EtcdToken
+//-----------------------------------------------------------------------------
+
+// EtcdToken takes masterCount and returns a valid etcd bootstrap token:
+func EtcdToken(masterCount int) (string, error) {
+
+	// Request an etcd bootstrap token:
+	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(masterCount))
+	if err != nil {
+		return "", err
+	}
+
+	// Retrieve the token URL:
+	tokenURL, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		return "", err
+	}
+
+	// Return the token ID:
+	slice := strings.Split(string(tokenURL), "/")
+	return slice[len(slice)-1], nil
 }

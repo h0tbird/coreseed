@@ -90,7 +90,7 @@ var (
 			OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
 			Short('c').String()
 
-	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token [ auto | <token> ]").
+	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
 				PlaceHolder("KATO_UDATA_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 				Short('e').String()
@@ -225,7 +225,7 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
 				String()
 
-	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token.").
+	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				Short('t').String()
