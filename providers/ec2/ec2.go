@@ -75,13 +75,13 @@ func (d *Data) Deploy() error {
 	// Setup the EC2 environment:
 	//----------------------------
 
-	// Forge the command:
+	// Forge the setup command:
 	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
 
-	// Execute 'setup ec2':
+	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
 	out, err := cmdSetup.Output()
 	if err != nil {
@@ -89,7 +89,7 @@ func (d *Data) Deploy() error {
 		return err
 	}
 
-	// Decode JSON data from 'setup ec2':
+	// Decode JSON data from setup:
 	var dat map[string]interface{}
 	if err := json.Unmarshal(out, &dat); err != nil {
 		log.WithField("cmd", "deploy:ec2").Error(err)
@@ -123,6 +123,8 @@ func (d *Data) Deploy() error {
 			log.WithField("cmd", "deploy:ec2").Error(err)
 			return err
 		}
+		log.WithFields(log.Fields{"cmd": "deploy:ec2", "id": d.EtcdToken}).
+			Info("New etcd bootstrap token requested")
 	}
 
 	//--------------------------
