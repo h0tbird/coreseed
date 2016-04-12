@@ -225,6 +225,11 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
 				String()
 
+	flDeployEc2Channel = cmdDeployEc2.Flag("channel", "CoreOS release channel [stable | beta | alpha]").
+				Default("stable").PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CHANNEL").
+				String()
+
 	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
@@ -430,6 +435,7 @@ func main() {
 			MasterType:  *flDeployEc2MasterType,
 			NodeType:    *flDeployEc2NodeType,
 			EdgeType:    *flDeployEc2EdgeType,
+			Channel:     *flDeployEc2Channel,
 			EtcdToken:   *flDeployEc2EtcdToken,
 			Ns1ApiKey:   *flDeployEc2Ns1ApiKey,
 			CaCert:      *flDeployEc2CaCert,

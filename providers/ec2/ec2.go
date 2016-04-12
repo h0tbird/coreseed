@@ -35,6 +35,7 @@ type Data struct {
 	MasterType         string //  deploy:ec2 |           |       |
 	NodeType           string //  deploy:ec2 |           |       |
 	EdgeType           string //  deploy:ec2 |           |       |
+	Channel            string //  deploy:ec2 |           |       |
 	EtcdToken          string //  deploy:ec2 |           | udata |
 	Ns1ApiKey          string //  deploy:ec2 |           | udata |
 	CaCert             string //  deploy:ec2 |           | udata |
@@ -177,6 +178,8 @@ func (d *Data) retrieveEtcdToken() error {
 //--------------------------------------------------------------------------
 
 func (d *Data) retrieveCoreosAmiId() error {
+
+	d.ImageID = "ami-f4199987"
 	return nil
 }
 
@@ -204,7 +207,7 @@ func (d *Data) deployMasterNodes() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "master-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-f4199987",
+			"--image-id", d.ImageID,
 			"--instance-type", d.MasterType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
@@ -247,7 +250,7 @@ func (d *Data) deployWorkerNodes() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "node-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-f4199987",
+			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
@@ -285,7 +288,7 @@ func (d *Data) deployEdgeNodes() error {
 		cmdRun := exec.Command("katoctl", "run", "ec2",
 			"--hostname", "edge-"+strconv.Itoa(i)+"."+d.Domain,
 			"--region", d.Region,
-			"--image-id", "ami-f4199987",
+			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
