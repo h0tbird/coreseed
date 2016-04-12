@@ -1,8 +1,8 @@
 package udata
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Package factored import statement:
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 import (
 
@@ -17,9 +17,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Typedefs:
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // Data contains variables to be interpolated in templates.
 type Data struct {
@@ -37,15 +37,20 @@ type Data struct {
 	FlannelBackend   string
 }
 
-//--------------------------------------------------------------------------
-// func: Render
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// func: etcdToken
+//-----------------------------------------------------------------------------
 
-// Render takes a Data structure and outputs valid CoreOS cloud-config
-// in YAML format to stdout.
-func (d *Data) Render() error {
+func (d *Data) etcdToken() error {
+	return nil
+}
 
-	// Read the CA certificate:
+//-----------------------------------------------------------------------------
+// func: caCert
+//-----------------------------------------------------------------------------
+
+func (d *Data) caCert() error {
+
 	if d.CaCert != "" {
 
 		data, err := ioutil.ReadFile(d.CaCert)
@@ -58,11 +63,32 @@ func (d *Data) Render() error {
 			Replace(string(data), "\n", "\n    ", -1))
 	}
 
-	// Udata template:
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: Render
+//-----------------------------------------------------------------------------
+
+// Render takes a Data structure and outputs valid CoreOS cloud-config
+// in YAML format to stdout.
+func (d *Data) Render() error {
+
 	var err error
+
+	// Read the CA certificate:
+	if err = d.caCert(); err != nil {
+		return err
+	}
+
+	// Retrieve the etcd token:
+	if err = d.etcdToken(); err != nil {
+		return err
+	}
+
+	// Role-based parsing:
 	t := template.New("udata")
 
-	// Role based parse:
 	switch d.Role {
 	case "master":
 		t, err = t.Parse(templMaster)
