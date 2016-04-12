@@ -7,7 +7,6 @@ package main
 import (
 
 	// Stdlib:
-	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -20,6 +19,16 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
+
+//--------------------------------------------------------------------------
+// Typedefs:
+//--------------------------------------------------------------------------
+
+type cloudProvider interface {
+	Deploy() error
+	Setup() error
+	Run(udata []byte) error
+}
 
 //-----------------------------------------------------------------------------
 // Package variable declarations factored into a block:
@@ -368,8 +377,7 @@ func main() {
 	case cmdDeployPacket.FullCommand():
 
 		pkt := pkt.Data{}
-
-		err := deploy(&pkt)
+		err := pkt.Deploy()
 		checkError(err)
 
 	//----------------------
@@ -379,8 +387,7 @@ func main() {
 	case cmdSetupPacket.FullCommand():
 
 		pkt := pkt.Data{}
-
-		err := setup(&pkt)
+		err := pkt.Setup()
 		checkError(err)
 
 	//--------------------
@@ -399,7 +406,9 @@ func main() {
 			Billing:   *flRunPktBilling,
 		}
 
-		err := run(&pkt)
+		udata, err := readUdata()
+		checkError(err)
+		err = pkt.Run(udata)
 		checkError(err)
 
 	//--------------------
@@ -423,7 +432,7 @@ func main() {
 			KeyPair:     *flDeployEc2KeyPair,
 		}
 
-		err := deploy(&ec2)
+		err := ec2.Deploy()
 		checkError(err)
 
 	//-------------------
@@ -440,7 +449,7 @@ func main() {
 			ExternalSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}
 
-		err := setup(&ec2)
+		err := ec2.Setup()
 		checkError(err)
 
 	//-----------------
@@ -459,7 +468,9 @@ func main() {
 			ElasticIP:    *flRunEc2ElasticIP,
 		}
 
-		err := run(&ec2)
+		udata, err := readUdata()
+		checkError(err)
+		err = ec2.Run(udata)
 		checkError(err)
 	}
 }
@@ -487,7 +498,7 @@ func readUdata() ([]byte, error) {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Fatal error: ", err.Error())
+		log.WithField("cmd", "katoctl").Error(err)
 		os.Exit(1)
 	}
 }
