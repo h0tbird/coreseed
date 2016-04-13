@@ -101,9 +101,9 @@ func (d *Data) Deploy() error {
 	wg.Add(3)
 
 	// Deploy all the nodes:
-	go d.deployMasterNodes(wg)
-	go d.deployWorkerNodes(wg)
-	go d.deployEdgeNodes(wg)
+	go d.deployMasterNodes(&wg)
+	go d.deployWorkerNodes(&wg)
+	go d.deployEdgeNodes(&wg)
 
 	// Wait and return:
 	wg.Wait()
@@ -317,7 +317,7 @@ func (d *Data) retrieveCoreosAmiID() error {
 // func: deployMasterNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployMasterNodes(wg sync.WaitGroup) error {
+func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 
 	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
@@ -359,7 +359,7 @@ func (d *Data) deployMasterNodes(wg sync.WaitGroup) error {
 // func: deployWorkerNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployWorkerNodes(wg sync.WaitGroup) error {
+func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 
 	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
@@ -408,7 +408,7 @@ func (d *Data) deployWorkerNodes(wg sync.WaitGroup) error {
 // func: deployEdgeNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployEdgeNodes(wg sync.WaitGroup) error {
+func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 
 	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
