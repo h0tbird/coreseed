@@ -29,7 +29,6 @@ import (
 
 // Data contains variables used by this EC2 provider.
 type Data struct {
-	command            string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	MasterCount        int    //  deploy:ec2 |           |       |
 	NodeCount          int    //  deploy:ec2 |           |       |
 	EdgeCount          int    //  deploy:ec2 |           |       |
@@ -42,6 +41,7 @@ type Data struct {
 	CaCert             string //  deploy:ec2 |           | udata |
 	Domain             string //  deploy:ec2 | setup:ec2 | udata |
 	Region             string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	command            string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	VpcCidrBlock       string //             | setup:ec2 |       |
 	vpcID              string //             | setup:ec2 |       |
 	mainRouteTableID   string //             | setup:ec2 |       |
@@ -135,16 +135,17 @@ func (d *Data) Run(udata []byte) error {
 		return err
 	}
 
-	// Allocate an elastic IP address:
 	if d.ElasticIP == "true" {
+
+		// Allocate an elastic IP address:
 		if err := d.allocateElasticIP(*svc); err != nil {
 			return err
 		}
-	}
 
-	// Associate the elastic IP:
-	if err := d.associateElasticIP(*svc); err != nil {
-		return err
+		// Associate the elastic IP:
+		if err := d.associateElasticIP(*svc); err != nil {
+			return err
+		}
 	}
 
 	return nil
