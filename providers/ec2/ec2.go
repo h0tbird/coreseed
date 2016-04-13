@@ -1,8 +1,8 @@
 package ec2
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Package factored import statement:
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 import (
 
@@ -22,9 +22,9 @@ import (
 	"github.com/h0tbird/kato/katool"
 )
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Typedefs:
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // Data contains variables used by this EC2 provider.
 type Data struct {
@@ -70,9 +70,9 @@ type Data struct {
 	extIfaceID         string //             |           |       | run:ec2
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: Deploy
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
@@ -113,9 +113,9 @@ func (d *Data) Deploy() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: Run
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // Run uses EC2 API to launch a new instance.
 func (d *Data) Run(udata []byte) error {
@@ -148,9 +148,9 @@ func (d *Data) Run(udata []byte) error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: Setup
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // Setup an EC2 VPC and all the related components.
 func (d *Data) Setup() error {
@@ -159,7 +159,8 @@ func (d *Data) Setup() error {
 	d.command = "setup"
 
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", d.command+":ec2").Info("- Connecting to region " + d.Region)
+	log.WithField("cmd", d.command+":ec2").
+		Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
@@ -237,9 +238,9 @@ func (d *Data) Setup() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: deploySetup
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) deploySetup() error {
 
@@ -285,9 +286,9 @@ func (d *Data) deploySetup() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: retrieveEtcdToken
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) retrieveEtcdToken() error {
 
@@ -305,9 +306,9 @@ func (d *Data) retrieveEtcdToken() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: retrieveCoreosAmiID
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) retrieveCoreosAmiID() error {
 
@@ -315,13 +316,14 @@ func (d *Data) retrieveCoreosAmiID() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: deployMasterNodes
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) deployMasterNodes() error {
 
-	log.WithField("cmd", d.command+":ec2").Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
+	log.WithField("cmd", d.command+":ec2").
+		Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
 		// Forge the udata command:
@@ -355,13 +357,14 @@ func (d *Data) deployMasterNodes() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: deployWorkerNodes
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) deployWorkerNodes() error {
 
-	log.WithField("cmd", d.command+":ec2").Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
+	log.WithField("cmd", d.command+":ec2").
+		Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
 		// Forge the udata command:
@@ -402,9 +405,9 @@ func (d *Data) deployWorkerNodes() error {
 	return nil
 }
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: deployEdgeNodes
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) deployEdgeNodes() error {
 
@@ -449,7 +452,8 @@ func (d *Data) deployEdgeNodes() error {
 // func: forgeNetworkInterfaces
 //-----------------------------------------------------------------------------
 
-func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.InstanceNetworkInterfaceSpecification {
+func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
+	InstanceNetworkInterfaceSpecification {
 
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 
@@ -508,7 +512,8 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 		KeyName:           aws.String(d.KeyPair),
 		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: d.forgeNetworkInterfaces(svc),
-		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+		UserData: aws.String(base64.StdEncoding.
+			EncodeToString([]byte(udata))),
 	})
 
 	if err != nil {
@@ -522,8 +527,10 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 		Info("- New " + d.InstanceType + " EC2 instance requested")
 
 	// Locally store the interface IDs:
-	d.intIfaceID = *runResult.Instances[0].NetworkInterfaces[1].NetworkInterfaceId
-	d.extIfaceID = *runResult.Instances[0].NetworkInterfaces[0].NetworkInterfaceId
+	d.intIfaceID = *runResult.Instances[0].NetworkInterfaces[1].
+		NetworkInterfaceId
+	d.extIfaceID = *runResult.Instances[0].NetworkInterfaces[0].
+		NetworkInterfaceId
 
 	// Tag the instance:
 	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
@@ -537,9 +544,9 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createVpc
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createVpc(svc ec2.EC2) error {
 
@@ -570,9 +577,9 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: retrieveMainRouteTableID
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 
@@ -604,22 +611,25 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 
 	// Store the main route table ID:
 	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.mainRouteTableID}).
+	log.WithFields(log.Fields{
+		"cmd": d.command + ":ec2", "id": d.mainRouteTableID}).
 		Info("- New main route table added")
 
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createSubnets
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createSubnets(svc ec2.EC2) error {
 
 	// Map to iterate:
 	nets := map[string]map[string]string{
-		"internal": map[string]string{"SubnetCidr": d.InternalSubnetCidr, "SubnetID": ""},
-		"external": map[string]string{"SubnetCidr": d.ExternalSubnetCidr, "SubnetID": ""},
+		"internal": map[string]string{
+			"SubnetCidr": d.InternalSubnetCidr, "SubnetID": ""},
+		"external": map[string]string{
+			"SubnetCidr": d.ExternalSubnetCidr, "SubnetID": ""},
 	}
 
 	// For each subnet:
@@ -657,9 +667,9 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createRouteTable
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createRouteTable(svc ec2.EC2) error {
 
@@ -684,9 +694,9 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: associateRouteTable
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) associateRouteTable(svc ec2.EC2) error {
 
@@ -704,15 +714,16 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *resp.AssociationId}).
+	log.WithFields(log.Fields{
+		"cmd": d.command + ":ec2", "id": *resp.AssociationId}).
 		Info("- New route table association")
 
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createInternetGateway
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createInternetGateway(svc ec2.EC2) error {
 
@@ -730,15 +741,16 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 
 	// Store the internet gateway ID:
 	d.internetGatewayID = *resp.InternetGateway.InternetGatewayId
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.internetGatewayID}).
+	log.WithFields(log.Fields{
+		"cmd": d.command + ":ec2", "id": d.internetGatewayID}).
 		Info("- New internet gateway")
 
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: attachInternetGateway
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 
@@ -755,14 +767,15 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithField("cmd", d.command+":ec2").Info("- Internet gateway attached to VPC")
+	log.WithField("cmd", d.command+":ec2").
+		Info("- Internet gateway attached to VPC")
 
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createInternetGatewayRoute
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 
@@ -786,9 +799,9 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: allocateElasticIP
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) allocateElasticIP(svc ec2.EC2) error {
 
@@ -813,9 +826,9 @@ func (d *Data) allocateElasticIP(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: associateElasticIP
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) associateElasticIP(svc ec2.EC2) error {
 
@@ -840,9 +853,9 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createNatGateway
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createNatGateway(svc ec2.EC2) error {
 
@@ -878,9 +891,9 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createNatGatewayRoute
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 
@@ -904,19 +917,19 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: createSecurityGroups
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 	// Map to iterate:
 	grps := map[string]map[string]string{
-		"master-int": map[string]string{"Description": "master internal", "SecGrpID": ""},
-		"node-int":   map[string]string{"Description": "node internal", "SecGrpID": ""},
-		"node-ext":   map[string]string{"Description": "node external", "SecGrpID": ""},
-		"edge-int":   map[string]string{"Description": "edge internal", "SecGrpID": ""},
-		"edge-ext":   map[string]string{"Description": "edge external", "SecGrpID": ""},
+		"master-int": map[string]string{"Desc": "master internal", "SecGrpID": ""},
+		"node-int":   map[string]string{"Desc": "node internal", "SecGrpID": ""},
+		"node-ext":   map[string]string{"Desc": "node external", "SecGrpID": ""},
+		"edge-int":   map[string]string{"Desc": "edge internal", "SecGrpID": ""},
+		"edge-ext":   map[string]string{"Desc": "edge external", "SecGrpID": ""},
 	}
 
 	// For each security group:
@@ -924,7 +937,7 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 		// Forge the group request:
 		params := &ec2.CreateSecurityGroupInput{
-			Description: aws.String(d.Domain + " " + v["Description"]),
+			Description: aws.String(d.Domain + " " + v["Desc"]),
 			GroupName:   aws.String(k),
 			DryRun:      aws.Bool(false),
 			VpcId:       aws.String(d.vpcID),
@@ -958,9 +971,9 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: exposeIdentifiers
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) exposeIdentifiers() error {
 
@@ -1014,9 +1027,9 @@ func (d *Data) exposeIdentifiers() error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: tag
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) tag(resource, key, value string, svc ec2.EC2) error {
 
