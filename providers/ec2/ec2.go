@@ -29,6 +29,7 @@ import (
 
 // Data contains variables used by this EC2 provider.
 type Data struct {
+	command            string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	MasterCount        int    //  deploy:ec2 |           |       |
 	NodeCount          int    //  deploy:ec2 |           |       |
 	EdgeCount          int    //  deploy:ec2 |           |       |
@@ -49,7 +50,6 @@ type Data struct {
 	internalSubnetID   string //             | setup:ec2 |       |
 	externalSubnetID   string //             | setup:ec2 |       |
 	internetGatewayID  string //             | setup:ec2 |       |
-	allocationID       string //             | setup:ec2 |       |
 	natGatewayID       string //             | setup:ec2 |       |
 	routeTableID       string //             | setup:ec2 |       |
 	masterIntSecGrp    string //             | setup:ec2 |       |
@@ -57,6 +57,7 @@ type Data struct {
 	nodeExtSecGrp      string //             | setup:ec2 |       |
 	edgeIntSecGrp      string //             | setup:ec2 |       |
 	edgeExtSecGrp      string //             | setup:ec2 |       |
+	allocationID       string //             | setup:ec2 |       | run:ec2
 	instanceID         string //             |           |       | run:ec2
 	SubnetIDs          string //             |           |       | run:ec2
 	ImageID            string //             |           |       | run:ec2
@@ -73,6 +74,9 @@ type Data struct {
 
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
+
+	// Set command to deploy:
+	d.command = "deploy"
 
 	// Setup the EC2 environment:
 	if err := d.deploySetup(); err != nil {
@@ -114,8 +118,11 @@ func (d *Data) Deploy() error {
 // Run uses EC2 API to launch a new instance.
 func (d *Data) Run(udata []byte) error {
 
+	// Set command to run:
+	d.command = "run"
+
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "run:ec2").Info("- Connecting to region " + d.Region)
+	log.WithField("cmd", d.command+":ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Forge the network interfaces:
@@ -130,12 +137,15 @@ func (d *Data) Run(udata []byte) error {
 
 	// Allocate an elastic IP address:
 	if d.ElasticIP == "true" {
-		if err := d.allocateAddress(*svc); err != nil {
+		if err := d.allocateElasticIP(*svc); err != nil {
 			return err
 		}
 	}
 
 	// Associate the elastic IP:
+	if err := d.associateElasticIP(*svc); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -147,8 +157,11 @@ func (d *Data) Run(udata []byte) error {
 // Setup an EC2 VPC and all the related components.
 func (d *Data) Setup() error {
 
+	// Set command to setup:
+	d.command = "setup"
+
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", "setup:ec2").Info("- Connecting to region " + d.Region)
+	log.WithField("cmd", d.command+":ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
@@ -191,8 +204,8 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Allocate a new eIP:
-	if err := d.allocateAddress(*svc); err != nil {
+	// Allocate a new elastic IP:
+	if err := d.allocateElasticIP(*svc); err != nil {
 		return err
 	}
 
@@ -233,7 +246,7 @@ func (d *Data) Setup() error {
 func (d *Data) deploySetup() error {
 
 	// Forge the setup command:
-	log.WithField("cmd", "deploy:ec2").Info("Setup the EC2 environment")
+	log.WithField("cmd", d.command+":ec2").Info("Setup the EC2 environment")
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)
@@ -242,14 +255,14 @@ func (d *Data) deploySetup() error {
 	cmdSetup.Stderr = os.Stderr
 	out, err := cmdSetup.Output()
 	if err != nil {
-		log.WithField("cmd", "deploy:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Decode JSON data from setup:
 	var dat map[string]interface{}
 	if err := json.Unmarshal(out, &dat); err != nil {
-		log.WithField("cmd", "deploy:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
@@ -284,10 +297,10 @@ func (d *Data) retrieveEtcdToken() error {
 
 	if d.EtcdToken == "auto" {
 		if d.EtcdToken, err = katool.EtcdToken(d.MasterCount); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
-		log.WithFields(log.Fields{"cmd": "deploy:ec2", "id": d.EtcdToken}).
+		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.EtcdToken}).
 			Info("New etcd bootstrap token requested")
 	}
 
@@ -310,7 +323,7 @@ func (d *Data) retrieveCoreosAmiID() error {
 
 func (d *Data) deployMasterNodes() error {
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
+	log.WithField("cmd", d.command+":ec2").Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
 
 		// Forge the udata command:
@@ -335,7 +348,7 @@ func (d *Data) deployMasterNodes() error {
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
 	}
@@ -349,7 +362,7 @@ func (d *Data) deployMasterNodes() error {
 
 func (d *Data) deployWorkerNodes() error {
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
+	log.WithField("cmd", d.command+":ec2").Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
 
 		// Forge the udata command:
@@ -379,7 +392,7 @@ func (d *Data) deployWorkerNodes() error {
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
 	}
@@ -393,7 +406,8 @@ func (d *Data) deployWorkerNodes() error {
 
 func (d *Data) deployEdgeNodes() error {
 
-	log.WithField("cmd", "deploy:ec2").Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
+	log.WithField("cmd", d.command+":ec2").
+		Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
 
 		// Forge the udata command:
@@ -418,7 +432,7 @@ func (d *Data) deployEdgeNodes() error {
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", "deploy:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
 	}
@@ -484,7 +498,7 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 		Info("- New " + d.InstanceType + " EC2 instance requested")
 
 	// Tag the instance:
-	if err := tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
+	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
 		return err
 	}
 
@@ -511,17 +525,17 @@ func (d *Data) createVpc(svc ec2.EC2) error {
 	// Send the VPC request:
 	resp, err := svc.CreateVpc(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the VPC ID:
 	d.vpcID = *resp.Vpc.VpcId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.vpcID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.vpcID}).
 		Info("- New EC2 VPC created")
 
 	// Tag the VPC:
-	if err = tag(d.vpcID, "Name", d.Domain, svc); err != nil {
+	if err = d.tag(d.vpcID, "Name", d.Domain, svc); err != nil {
 		return err
 	}
 
@@ -556,13 +570,13 @@ func (d *Data) retrieveMainRouteTableID(svc ec2.EC2) error {
 	// Send the description request:
 	resp, err := svc.DescribeRouteTables(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the main route table ID:
 	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.mainRouteTableID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.mainRouteTableID}).
 		Info("- New main route table added")
 
 	return nil
@@ -593,17 +607,17 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 		// Send the subnet request:
 		resp, err := svc.CreateSubnet(params)
 		if err != nil {
-			log.WithField("cmd", "setup:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
 
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
-		log.WithFields(log.Fields{"cmd": "setup:ec2", "id": v["SubnetID"]}).
+		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": v["SubnetID"]}).
 			Info("- New " + k + " subnet")
 
 		// Tag the subnet:
-		if err = tag(v["SubnetID"], "Name", k, svc); err != nil {
+		if err = d.tag(v["SubnetID"], "Name", k, svc); err != nil {
 			return err
 		}
 	}
@@ -630,13 +644,13 @@ func (d *Data) createRouteTable(svc ec2.EC2) error {
 	// Send the route table request:
 	resp, err := svc.CreateRouteTable(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the route table ID:
 	d.routeTableID = *resp.RouteTable.RouteTableId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.routeTableID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.routeTableID}).
 		Info("- New route table added")
 
 	return nil
@@ -658,11 +672,11 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	// Send the association request:
 	resp, err := svc.AssociateRouteTable(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": *resp.AssociationId}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *resp.AssociationId}).
 		Info("- New route table association")
 
 	return nil
@@ -682,13 +696,13 @@ func (d *Data) createInternetGateway(svc ec2.EC2) error {
 	// Send the internet gateway request:
 	resp, err := svc.CreateInternetGateway(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the internet gateway ID:
 	d.internetGatewayID = *resp.InternetGateway.InternetGatewayId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.internetGatewayID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.internetGatewayID}).
 		Info("- New internet gateway")
 
 	return nil
@@ -709,11 +723,11 @@ func (d *Data) attachInternetGateway(svc ec2.EC2) error {
 
 	// Send the attachement request:
 	if _, err := svc.AttachInternetGateway(params); err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup:ec2").Info("- Internet gateway attached to VPC")
+	log.WithField("cmd", d.command+":ec2").Info("- Internet gateway attached to VPC")
 
 	return nil
 }
@@ -734,21 +748,21 @@ func (d *Data) createInternetGatewayRoute(svc ec2.EC2) error {
 
 	// Send the route request:
 	if _, err := svc.CreateRoute(params); err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup:ec2").
+	log.WithField("cmd", d.command+":ec2").
 		Info("- New default route added via internet GW")
 
 	return nil
 }
 
 //-------------------------------------------------------------------------
-// func: allocateAddress
+// func: allocateElasticIP
 //-------------------------------------------------------------------------
 
-func (d *Data) allocateAddress(svc ec2.EC2) error {
+func (d *Data) allocateElasticIP(svc ec2.EC2) error {
 
 	// Forge the allocation request:
 	params := &ec2.AllocateAddressInput{
@@ -759,14 +773,41 @@ func (d *Data) allocateAddress(svc ec2.EC2) error {
 	// Send the allocation request:
 	resp, err := svc.AllocateAddress(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the EIP ID:
 	d.allocationID = *resp.AllocationId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.allocationID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.allocationID}).
 		Info("- New elastic IP allocated")
+
+	return nil
+}
+
+//-------------------------------------------------------------------------
+// func: associateElasticIP
+//-------------------------------------------------------------------------
+
+func (d *Data) associateElasticIP(svc ec2.EC2) error {
+
+	// Forge the association request:
+	params := &ec2.AssociateAddressInput{
+		AllocationId:       aws.String(d.allocationID),
+		AllowReassociation: aws.Bool(true),
+		DryRun:             aws.Bool(false),
+		NetworkInterfaceId: aws.String(*d.networkInterfaces[0].NetworkInterfaceId),
+	}
+
+	// Send the association request:
+	resp, err := svc.AssociateAddress(params)
+	if err != nil {
+		log.WithField("cmd", "run:ec2").Error(err)
+		return err
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
 
 	return nil
 }
@@ -787,22 +828,22 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	// Send the NAT gateway request:
 	resp, err := svc.CreateNatGateway(params)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Store the NAT gateway ID:
 	d.natGatewayID = *resp.NatGateway.NatGatewayId
-	log.WithFields(log.Fields{"cmd": "setup:ec2", "id": d.natGatewayID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.natGatewayID}).
 		Info("- New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
-	log.WithField("cmd", "setup:ec2").
+	log.WithField("cmd", d.command+":ec2").
 		Info("- Waiting until NAT gateway is available")
 	if err := svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
@@ -825,11 +866,11 @@ func (d *Data) createNatGatewayRoute(svc ec2.EC2) error {
 
 	// Send the route request:
 	if _, err := svc.CreateRoute(params); err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
-	log.WithField("cmd", "setup:ec2").
+	log.WithField("cmd", d.command+":ec2").
 		Info("- New default route added via NAT gateway")
 
 	return nil
@@ -864,17 +905,17 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 		// Send the group request:
 		resp, err := svc.CreateSecurityGroup(params)
 		if err != nil {
-			log.WithField("cmd", "setup:ec2").Error(err)
+			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
 
 		// Locally store the group ID:
 		v["SecGrpID"] = *resp.GroupId
-		log.WithFields(log.Fields{"cmd": "setup:ec2", "id": v["SecGrpID"]}).
+		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": v["SecGrpID"]}).
 			Info("- New " + k + " security group")
 
 		// Tag the group:
-		if err = tag(v["SecGrpID"], "Name", d.Domain+" "+k, svc); err != nil {
+		if err = d.tag(v["SecGrpID"], "Name", d.Domain+" "+k, svc); err != nil {
 			return err
 		}
 	}
@@ -936,7 +977,7 @@ func (d *Data) exposeIdentifiers() error {
 	// Marshal the data:
 	idsJSON, err := json.Marshal(ids)
 	if err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
@@ -949,7 +990,7 @@ func (d *Data) exposeIdentifiers() error {
 // func: tag
 //-------------------------------------------------------------------------
 
-func tag(resource, key, value string, svc ec2.EC2) error {
+func (d *Data) tag(resource, key, value string, svc ec2.EC2) error {
 
 	// Forge the tag request:
 	params := &ec2.CreateTagsInput{
@@ -967,7 +1008,7 @@ func tag(resource, key, value string, svc ec2.EC2) error {
 
 	// Send the tag request:
 	if _, err := svc.CreateTags(params); err != nil {
-		log.WithField("cmd", "setup:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
