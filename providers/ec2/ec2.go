@@ -457,25 +457,6 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 
-	// Internal interface:
-	if d.IntSubnetID != "" {
-
-		var securityGroupIds []*string
-
-		if d.IntSecGrpID != "" {
-			securityGroupIds = append(securityGroupIds, aws.String(d.IntSecGrpID))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(0)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(d.IntSubnetID),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}
-
 	// External interface:
 	if d.ExtSubnetID != "" {
 
@@ -490,6 +471,25 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 			DeviceIndex:         aws.Int64(int64(1)),
 			Groups:              securityGroupIds,
 			SubnetId:            aws.String(d.ExtSubnetID),
+		}
+
+		networkInterfaces = append(networkInterfaces, &iface)
+	}
+
+	// Internal interface:
+	if d.IntSubnetID != "" {
+
+		var securityGroupIds []*string
+
+		if d.IntSecGrpID != "" {
+			securityGroupIds = append(securityGroupIds, aws.String(d.IntSecGrpID))
+		}
+
+		iface := ec2.InstanceNetworkInterfaceSpecification{
+			DeleteOnTermination: aws.Bool(true),
+			DeviceIndex:         aws.Int64(int64(0)),
+			Groups:              securityGroupIds,
+			SubnetId:            aws.String(d.IntSubnetID),
 		}
 
 		networkInterfaces = append(networkInterfaces, &iface)
