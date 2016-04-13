@@ -857,8 +857,9 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 		return err
 	}
 
-	// Pretty-print the response data.
-	fmt.Println(resp)
+	log.WithFields(log.Fields{
+		"cmd": d.command + ":ec2", "id": *resp.AssociationId}).
+		Info("- New elastic IP association")
 
 	return nil
 }
