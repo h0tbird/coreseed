@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"sync"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
@@ -95,21 +96,17 @@ func (d *Data) Deploy() error {
 		return err
 	}
 
-	// Deploy the master nodes:
-	if err := d.deployMasterNodes(); err != nil {
-		return err
-	}
+	// Setup a wait group:
+	var wg sync.WaitGroup
+	wg.Add(3)
 
-	// Deploy the worker nodes:
-	if err := d.deployWorkerNodes(); err != nil {
-		return err
-	}
+	// Deploy all the nodes:
+	go d.deployMasterNodes(wg)
+	go d.deployWorkerNodes(wg)
+	go d.deployEdgeNodes(wg)
 
-	// Deploy the edge nodes:
-	if err := d.deployEdgeNodes(); err != nil {
-		return err
-	}
-
+	// Wait and return:
+	wg.Wait()
 	return nil
 }
 
@@ -320,8 +317,9 @@ func (d *Data) retrieveCoreosAmiID() error {
 // func: deployMasterNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployMasterNodes() error {
+func (d *Data) deployMasterNodes(wg sync.WaitGroup) error {
 
+	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
 	for i := 1; i <= d.MasterCount; i++ {
@@ -361,8 +359,9 @@ func (d *Data) deployMasterNodes() error {
 // func: deployWorkerNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployWorkerNodes() error {
+func (d *Data) deployWorkerNodes(wg sync.WaitGroup) error {
 
+	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
 	for i := 1; i <= d.NodeCount; i++ {
@@ -409,8 +408,9 @@ func (d *Data) deployWorkerNodes() error {
 // func: deployEdgeNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployEdgeNodes() error {
+func (d *Data) deployEdgeNodes(wg sync.WaitGroup) error {
 
+	defer wg.Done()
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
 	for i := 1; i <= d.EdgeCount; i++ {
