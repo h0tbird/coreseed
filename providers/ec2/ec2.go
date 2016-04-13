@@ -489,13 +489,13 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	})
 
 	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
 	// Locally store the instance ID:
 	d.instanceID = *runResult.Instances[0].InstanceId
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.instanceID}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.instanceID}).
 		Info("- New " + d.InstanceType + " EC2 instance requested")
 
 	// Tag the instance:
@@ -504,7 +504,7 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	}
 
 	// Pretty-print to stderr:
-	log.WithFields(log.Fields{"cmd": "run:ec2", "id": d.Hostname}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.Hostname}).
 		Info("- New EC2 instance tagged")
 
 	return nil
@@ -803,7 +803,7 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 	// Send the association request:
 	resp, err := svc.AssociateAddress(params)
 	if err != nil {
-		log.WithField("cmd", "run:ec2").Error(err)
+		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
