@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"strings"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
@@ -47,8 +46,6 @@ type Data struct {
 	mainRouteTableID   string //             | setup:ec2 |       |
 	InternalSubnetCidr string //             | setup:ec2 |       |
 	ExternalSubnetCidr string //             | setup:ec2 |       |
-	internalSubnetID   string //             | setup:ec2 |       |
-	externalSubnetID   string //             | setup:ec2 |       |
 	internetGatewayID  string //             | setup:ec2 |       |
 	natGatewayID       string //             | setup:ec2 |       |
 	routeTableID       string //             | setup:ec2 |       |
@@ -58,6 +55,10 @@ type Data struct {
 	edgeIntSecGrp      string //             | setup:ec2 |       |
 	edgeExtSecGrp      string //             | setup:ec2 |       |
 	allocationID       string //             | setup:ec2 |       | run:ec2
+	IntSubnetID        string //             | setup:ec2 |       | run:ec2
+	ExtSubnetID        string //             | setup:ec2 |       | run:ec2
+	IntSecGrpID        string //             | setup:ec2 |       | run:ec2
+	ExtSecGrpID        string //             | setup:ec2 |       | run:ec2
 	instanceID         string //             |           |       | run:ec2
 	SubnetIDs          string //             |           |       | run:ec2
 	ImageID            string //             |           |       | run:ec2
@@ -65,7 +66,8 @@ type Data struct {
 	InstanceType       string //             |           |       | run:ec2
 	Hostname           string //             |           |       | run:ec2
 	ElasticIP          string //             |           |       | run:ec2
-	networkInterfaces  []*ec2.InstanceNetworkInterfaceSpecification
+	intIfaceID         string //             |           |       | run:ec2
+	extIfaceID         string //             |           |       | run:ec2
 }
 
 //--------------------------------------------------------------------------
@@ -124,11 +126,6 @@ func (d *Data) Run(udata []byte) error {
 	// Connect and authenticate to the API endpoint:
 	log.WithField("cmd", d.command+":ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-
-	// Forge the network interfaces:
-	if err := d.forgeNetworkInterfaces(*svc); err != nil {
-		return err
-	}
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata, *svc); err != nil {
@@ -273,8 +270,8 @@ func (d *Data) deploySetup() error {
 	d.mainRouteTableID = dat["MainRouteTableID"].(string)
 	d.InternalSubnetCidr = dat["InternalSubnetCidr"].(string)
 	d.ExternalSubnetCidr = dat["ExternalSubnetCidr"].(string)
-	d.internalSubnetID = dat["InternalSubnetID"].(string)
-	d.externalSubnetID = dat["ExternalSubnetID"].(string)
+	d.IntSubnetID = dat["InternalSubnetID"].(string)
+	d.ExtSubnetID = dat["ExternalSubnetID"].(string)
 	d.internetGatewayID = dat["InternetGatewayID"].(string)
 	d.allocationID = dat["AllocationID"].(string)
 	d.natGatewayID = dat["NatGatewayID"].(string)
@@ -345,7 +342,8 @@ func (d *Data) deployMasterNodes() error {
 			"--image-id", d.ImageID,
 			"--instance-type", d.MasterType,
 			"--key-pair", d.KeyPair,
-			"--subnet-ids", d.internalSubnetID+":"+d.masterIntSecGrp)
+			"--internal-subnet-id", d.IntSubnetID,
+			"--internal-security-group-id", d.masterIntSecGrp)
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -388,7 +386,10 @@ func (d *Data) deployWorkerNodes() error {
 			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
-			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp,
+			"--internal-subnet-id", d.IntSubnetID,
+			"--external-subnet-id", d.ExtSubnetID,
+			"--internal-security-group-id", d.nodeIntSecGrp,
+			"--external-security-group-id", d.nodeExtSecGrp,
 			"--elastic-ip", "true")
 
 		// Execute the pipeline:
@@ -428,7 +429,10 @@ func (d *Data) deployEdgeNodes() error {
 			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
-			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp,
+			"--internal-subnet-id", d.IntSubnetID,
+			"--external-subnet-id", d.ExtSubnetID,
+			"--internal-security-group-id", d.edgeIntSecGrp,
+			"--external-security-group-id", d.edgeExtSecGrp,
 			"--elastic-ip", "true")
 
 		// Execute the pipeline:
@@ -441,50 +445,69 @@ func (d *Data) deployEdgeNodes() error {
 	return nil
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: forgeNetworkInterfaces
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) error {
+func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.InstanceNetworkInterfaceSpecification {
 
-	// Split the subnet IDs:
-	subnetIDs := strings.Split(d.SubnetIDs, ",")
+	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 
-	for i := 0; i < len(subnetIDs); i++ {
+	// Internal interface:
+	if d.IntSubnetID != "" {
 
-		// Split the security group IDs:
 		var securityGroupIds []*string
-		for _, gid := range strings.Split(subnetIDs[i], ":")[1:] {
-			securityGroupIds = append(securityGroupIds, aws.String(gid))
+
+		if d.IntSecGrpID != "" {
+			securityGroupIds = append(securityGroupIds, aws.String(d.IntSecGrpID))
 		}
 
 		iface := ec2.InstanceNetworkInterfaceSpecification{
 			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(i)),
+			DeviceIndex:         aws.Int64(int64(0)),
 			Groups:              securityGroupIds,
-			SubnetId:            aws.String(strings.Split(subnetIDs[i], ":")[0]),
+			SubnetId:            aws.String(d.IntSubnetID),
 		}
 
-		d.networkInterfaces = append(d.networkInterfaces, &iface)
+		networkInterfaces = append(networkInterfaces, &iface)
 	}
 
-	return nil
+	// External interface:
+	if d.ExtSubnetID != "" {
+
+		var securityGroupIds []*string
+
+		if d.ExtSecGrpID != "" {
+			securityGroupIds = append(securityGroupIds, aws.String(d.ExtSecGrpID))
+		}
+
+		iface := ec2.InstanceNetworkInterfaceSpecification{
+			DeleteOnTermination: aws.Bool(true),
+			DeviceIndex:         aws.Int64(int64(0)),
+			Groups:              securityGroupIds,
+			SubnetId:            aws.String(d.IntSubnetID),
+		}
+
+		networkInterfaces = append(networkInterfaces, &iface)
+	}
+
+	return networkInterfaces
 }
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: runInstance
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 
-	// Send the request:
+	// Send the instance request:
 	runResult, err := svc.RunInstances(&ec2.RunInstancesInput{
 		ImageId:           aws.String(d.ImageID),
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
 		KeyName:           aws.String(d.KeyPair),
 		InstanceType:      aws.String(d.InstanceType),
-		NetworkInterfaces: d.networkInterfaces,
+		NetworkInterfaces: d.forgeNetworkInterfaces(svc),
 		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})
 
@@ -497,6 +520,10 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	d.instanceID = *runResult.Instances[0].InstanceId
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.instanceID}).
 		Info("- New " + d.InstanceType + " EC2 instance requested")
+
+	// Locally store the interface IDs:
+	d.intIfaceID = *runResult.Instances[0].NetworkInterfaces[1].NetworkInterfaceId
+	d.extIfaceID = *runResult.Instances[0].NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
 	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
@@ -624,8 +651,8 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	}
 
 	// Store subnet IDs:
-	d.internalSubnetID = nets["internal"]["SubnetID"]
-	d.externalSubnetID = nets["external"]["SubnetID"]
+	d.IntSubnetID = nets["internal"]["SubnetID"]
+	d.ExtSubnetID = nets["external"]["SubnetID"]
 
 	return nil
 }
@@ -666,7 +693,7 @@ func (d *Data) associateRouteTable(svc ec2.EC2) error {
 	// Forge the association request:
 	params := &ec2.AssociateRouteTableInput{
 		RouteTableId: aws.String(d.routeTableID),
-		SubnetId:     aws.String(d.externalSubnetID),
+		SubnetId:     aws.String(d.ExtSubnetID),
 		DryRun:       aws.Bool(false),
 	}
 
@@ -797,7 +824,7 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 		AllocationId:       aws.String(d.allocationID),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
-		NetworkInterfaceId: aws.String(*d.networkInterfaces[0].NetworkInterfaceId),
+		NetworkInterfaceId: aws.String(d.extIfaceID),
 	}
 
 	// Send the association request:
@@ -822,7 +849,7 @@ func (d *Data) createNatGateway(svc ec2.EC2) error {
 	// Forge the NAT gateway request:
 	params := &ec2.CreateNatGatewayInput{
 		AllocationId: aws.String(d.allocationID),
-		SubnetId:     aws.String(d.externalSubnetID),
+		SubnetId:     aws.String(d.ExtSubnetID),
 		ClientToken:  aws.String(d.Domain),
 	}
 
@@ -962,8 +989,8 @@ func (d *Data) exposeIdentifiers() error {
 		MainRouteTableID:   d.mainRouteTableID,
 		InternalSubnetCidr: d.InternalSubnetCidr,
 		ExternalSubnetCidr: d.ExternalSubnetCidr,
-		InternalSubnetID:   d.internalSubnetID,
-		ExternalSubnetID:   d.externalSubnetID,
+		InternalSubnetID:   d.IntSubnetID,
+		ExternalSubnetID:   d.ExtSubnetID,
 		InternetGatewayID:  d.internetGatewayID,
 		AllocationID:       d.allocationID,
 		NatGatewayID:       d.natGatewayID,
