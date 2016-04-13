@@ -85,7 +85,7 @@ func (d *Data) Deploy() error {
 	}
 
 	// Retrieve the CoreOS AMI ID:
-	if err := d.retrieveCoreosAmiId(); err != nil {
+	if err := d.retrieveCoreosAmiID(); err != nil {
 		return err
 	}
 
@@ -130,24 +130,13 @@ func (d *Data) Run(udata []byte) error {
 
 	// Allocate an elastic IP address:
 	if d.ElasticIP == "true" {
-
-		params := &ec2.AllocateAddressInput{
-			Domain: aws.String("vpc"),
-			DryRun: aws.Bool(false),
-		}
-
-		// Send the request:
-		resp, err := svc.AllocateAddress(params)
-		if err != nil {
-			log.WithField("cmd", "run:ec2").Error(err)
+		if err := d.allocateAddress(*svc); err != nil {
 			return err
 		}
-
-		// Pretty-print the response data:
-		fmt.Println(resp)
 	}
 
-	// Return on success:
+	// Associate the elastic IP:
+
 	return nil
 }
 
@@ -306,10 +295,10 @@ func (d *Data) retrieveEtcdToken() error {
 }
 
 //--------------------------------------------------------------------------
-// func: retrieveCoreosAmiId
+// func: retrieveCoreosAmiID
 //--------------------------------------------------------------------------
 
-func (d *Data) retrieveCoreosAmiId() error {
+func (d *Data) retrieveCoreosAmiID() error {
 
 	d.ImageID = "ami-f4199987"
 	return nil
@@ -385,7 +374,8 @@ func (d *Data) deployWorkerNodes() error {
 			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
-			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp)
+			"--subnet-ids", d.internalSubnetID+":"+d.nodeIntSecGrp+","+d.externalSubnetID+":"+d.nodeExtSecGrp,
+			"--elastic-ip", "true")
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -423,7 +413,8 @@ func (d *Data) deployEdgeNodes() error {
 			"--image-id", d.ImageID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
-			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp)
+			"--subnet-ids", d.internalSubnetID+":"+d.edgeIntSecGrp+","+d.externalSubnetID+":"+d.edgeExtSecGrp,
+			"--elastic-ip", "true")
 
 		// Execute the pipeline:
 		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
