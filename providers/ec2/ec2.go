@@ -487,7 +487,7 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 
 		iface := ec2.InstanceNetworkInterfaceSpecification{
 			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(0)),
+			DeviceIndex:         aws.Int64(int64(1)),
 			Groups:              securityGroupIds,
 			SubnetId:            aws.String(d.IntSubnetID),
 		}
@@ -831,6 +831,16 @@ func (d *Data) allocateElasticIP(svc ec2.EC2) error {
 //-----------------------------------------------------------------------------
 
 func (d *Data) associateElasticIP(svc ec2.EC2) error {
+
+	// Wait until instance is running:
+	log.WithField("cmd", d.command+":ec2").
+		Info("- Waiting until instance is running")
+	if err := svc.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
+		InstanceIds: []*string{aws.String(d.instanceID)},
+	}); err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
 
 	// Forge the association request:
 	params := &ec2.AssociateAddressInput{
