@@ -489,7 +489,7 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 			DeleteOnTermination: aws.Bool(true),
 			DeviceIndex:         aws.Int64(int64(1)),
 			Groups:              securityGroupIds,
-			SubnetId:            aws.String(d.IntSubnetID),
+			SubnetId:            aws.String(d.ExtSubnetID),
 		}
 
 		networkInterfaces = append(networkInterfaces, &iface)
@@ -512,8 +512,7 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 		KeyName:           aws.String(d.KeyPair),
 		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: d.forgeNetworkInterfaces(svc),
-		UserData: aws.String(base64.StdEncoding.
-			EncodeToString([]byte(udata))),
+		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 	})
 
 	if err != nil {
@@ -521,16 +520,22 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 		return err
 	}
 
-	// Locally store the instance ID:
+	// Store the instance ID:
 	d.instanceID = *runResult.Instances[0].InstanceId
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.instanceID}).
 		Info("- New " + d.InstanceType + " EC2 instance requested")
 
-	// Locally store the interface IDs:
-	d.intIfaceID = *runResult.Instances[0].NetworkInterfaces[1].
-		NetworkInterfaceId
-	d.extIfaceID = *runResult.Instances[0].NetworkInterfaces[0].
-		NetworkInterfaceId
+	// Store the internal interface ID:
+	if d.IntSubnetID != "" {
+		d.intIfaceID = *runResult.Instances[0].
+			NetworkInterfaces[0].NetworkInterfaceId
+	}
+
+	// Store the external interface ID:
+	if d.ExtSubnetID != "" {
+		d.extIfaceID = *runResult.Instances[0].
+			NetworkInterfaces[1].NetworkInterfaceId
+	}
 
 	// Tag the instance:
 	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
