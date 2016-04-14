@@ -10,6 +10,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -308,7 +310,36 @@ func (d *Data) retrieveEtcdToken() error {
 
 func (d *Data) retrieveCoreosAmiID() error {
 
-	d.ImageID = "ami-f4199987"
+	// Send the request:
+	res, err := http.
+		Get("https://coreos.com/dist/aws/aws-" + d.Channel + ".json")
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Retrieve the data:
+	data, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Decode JSON into Go values:
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(data, &jsonData); err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Store the AMI ID:
+	amis := jsonData[d.Region].(map[string]interface{})
+	d.ImageID = amis["hvm"].(string)
+
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.ImageID}).
+		Info("Latest CoreOS " + d.Channel + " AMI located")
+
 	return nil
 }
 
