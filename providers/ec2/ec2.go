@@ -222,10 +222,19 @@ func (d *Data) Setup() error {
 	}
 
 	// Setup master nodes firewall:
+	if err := d.masterFirewall(*svc); err != nil {
+		return err
+	}
 
 	// Setup worker nodes firewall:
+	if err := d.nodeFirewall(*svc); err != nil {
+		return err
+	}
 
 	// Setup edge nodes firewall:
+	if err := d.edgeFirewall(*svc); err != nil {
+		return err
+	}
 
 	// Expose identifiers to stdout:
 	if err := d.exposeIdentifiers(); err != nil {
@@ -1053,6 +1062,126 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 	d.nodeExtSecGrp = grps["node-ext"]["SecGrpID"]
 	d.edgeIntSecGrp = grps["edge-int"]["SecGrpID"]
 	d.edgeExtSecGrp = grps["edge-ext"]["SecGrpID"]
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: masterFirewall
+//-----------------------------------------------------------------------------
+
+func (d *Data) masterFirewall(svc ec2.EC2) error {
+
+	// Forge the rule request:
+	params := &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: aws.String(d.masterIntSecGrp),
+		IpPermissions: []*ec2.IpPermission{
+			{
+				IpProtocol: aws.String("-1"),
+				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.masterIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.nodeIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.edgeIntSecGrp),
+					},
+				},
+			},
+		},
+	}
+
+	// Send the rule request:
+	_, err := svc.AuthorizeSecurityGroupIngress(params)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "master-int"}).
+		Info("- New firewall rules defined")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: nodeFirewall
+//-----------------------------------------------------------------------------
+
+func (d *Data) nodeFirewall(svc ec2.EC2) error {
+
+	// Forge the rule request:
+	params := &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: aws.String(d.nodeIntSecGrp),
+		IpPermissions: []*ec2.IpPermission{
+			{
+				IpProtocol: aws.String("-1"),
+				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.masterIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.nodeIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.edgeIntSecGrp),
+					},
+				},
+			},
+		},
+	}
+
+	// Send the rule request:
+	_, err := svc.AuthorizeSecurityGroupIngress(params)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "node-int"}).
+		Info("- New firewall rules defined")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: edgeFirewall
+//-----------------------------------------------------------------------------
+
+func (d *Data) edgeFirewall(svc ec2.EC2) error {
+
+	// Forge the rule request:
+	params := &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: aws.String(d.edgeIntSecGrp),
+		IpPermissions: []*ec2.IpPermission{
+			{
+				IpProtocol: aws.String("-1"),
+				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.masterIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.nodeIntSecGrp),
+					},
+					{
+						GroupId: aws.String(d.edgeIntSecGrp),
+					},
+				},
+			},
+		},
+	}
+
+	// Send the rule request:
+	_, err := svc.AuthorizeSecurityGroupIngress(params)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "edge-int"}).
+		Info("- New firewall rules defined")
 
 	return nil
 }
