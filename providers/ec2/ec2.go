@@ -121,7 +121,6 @@ func (d *Data) Run(udata []byte) error {
 	d.command = "run"
 
 	// Connect and authenticate to the API endpoint:
-	log.WithField("cmd", d.command+":ec2").Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Run the EC2 instance:
@@ -324,7 +323,7 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", d.command+":ec2").
-		Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
+		Info("Deploying " + strconv.Itoa(d.MasterCount) + " master nodes")
 
 	for i := 1; i <= d.MasterCount; i++ {
 
@@ -380,7 +379,7 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", d.command+":ec2").
-		Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
+		Info("Deploying " + strconv.Itoa(d.NodeCount) + " worker nodes")
 
 	for i := 1; i <= d.NodeCount; i++ {
 
@@ -443,7 +442,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", d.command+":ec2").
-		Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
+		Info("Deploying " + strconv.Itoa(d.EdgeCount) + " edge nodes")
 
 	for i := 1; i <= d.EdgeCount; i++ {
 
@@ -880,8 +879,6 @@ func (d *Data) allocateElasticIP(svc ec2.EC2) error {
 func (d *Data) associateElasticIP(svc ec2.EC2) error {
 
 	// Wait until instance is running:
-	log.WithField("cmd", d.command+":ec2").
-		Info("- Waiting until instance is running")
 	if err := svc.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
 		InstanceIds: []*string{aws.String(d.instanceID)},
 	}); err != nil {
