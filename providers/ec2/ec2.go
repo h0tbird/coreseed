@@ -70,7 +70,7 @@ type Data struct {
 	Hostname           string //             |           |       | run:ec2
 	ElasticIP          string //             |           |       | run:ec2
 	intIfaceID         string //             |           |       | run:ec2
-	extIfaceID         string //             |           |       | run:ec2
+	//extIfaceID         string //             |           |       | run:ec2
 }
 
 //-----------------------------------------------------------------------------
@@ -453,10 +453,12 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 				"--image-id", d.ImageID,
 				"--instance-type", d.NodeType,
 				"--key-pair", d.KeyPair,
-				"--internal-subnet-id", d.IntSubnetID,
-				"--external-subnet-id", d.ExtSubnetID,
-				"--internal-security-group-id", d.nodeIntSecGrp,
-				"--external-security-group-id", d.nodeExtSecGrp,
+				"--internal-subnet-id", d.ExtSubnetID,
+				"--internal-security-group-id", d.nodeExtSecGrp,
+				//"--internal-subnet-id", d.IntSubnetID,
+				//"--external-subnet-id", d.ExtSubnetID,
+				//"--internal-security-group-id", d.nodeIntSecGrp,
+				//"--external-security-group-id", d.nodeExtSecGrp,
 				"--elastic-ip", "true")
 
 			// Execute the pipeline:
@@ -511,10 +513,12 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 				"--image-id", d.ImageID,
 				"--instance-type", d.NodeType,
 				"--key-pair", d.KeyPair,
-				"--internal-subnet-id", d.IntSubnetID,
-				"--external-subnet-id", d.ExtSubnetID,
-				"--internal-security-group-id", d.edgeIntSecGrp,
-				"--external-security-group-id", d.edgeExtSecGrp,
+				"--internal-subnet-id", d.ExtSubnetID,
+				"--internal-security-group-id", d.edgeExtSecGrp,
+				//"--internal-subnet-id", d.IntSubnetID,
+				//"--external-subnet-id", d.ExtSubnetID,
+				//"--internal-security-group-id", d.edgeIntSecGrp,
+				//"--external-security-group-id", d.edgeExtSecGrp,
 				"--elastic-ip", "true")
 
 			// Execute the pipeline:
@@ -539,7 +543,7 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 
 	// External interface:
-	if d.ExtSubnetID != "" {
+	/*if d.ExtSubnetID != "" {
 
 		var securityGroupIds []*string
 
@@ -555,7 +559,7 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 		}
 
 		networkInterfaces = append(networkInterfaces, &iface)
-	}
+	}*/
 
 	// Internal interface:
 	if d.IntSubnetID != "" {
@@ -613,10 +617,10 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	}
 
 	// Store the external interface ID:
-	if d.ExtSubnetID != "" {
-		d.extIfaceID = *runResult.Instances[0].
-			NetworkInterfaces[1].NetworkInterfaceId
-	}
+	//if d.ExtSubnetID != "" {
+	//	d.extIfaceID = *runResult.Instances[0].
+	//		NetworkInterfaces[1].NetworkInterfaceId
+	//}
 
 	// Tag the instance:
 	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
@@ -931,7 +935,7 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 		AllocationId:       aws.String(d.allocationID),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
-		NetworkInterfaceId: aws.String(d.extIfaceID),
+		NetworkInterfaceId: aws.String(d.intIfaceID),
 	}
 
 	// Send the association request:
