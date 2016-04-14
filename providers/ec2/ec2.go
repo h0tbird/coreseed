@@ -319,39 +319,53 @@ func (d *Data) retrieveCoreosAmiID() error {
 
 func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 
+	// Decrement:
 	defer wg.Done()
+	var wgInt sync.WaitGroup
+
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.MasterCount) + " master nodes")
+
 	for i := 1; i <= d.MasterCount; i++ {
 
-		// Forge the udata command:
-		cmdUdata := exec.Command("katoctl", "udata",
-			"--role", "master",
-			"--master-count", strconv.Itoa(d.MasterCount),
-			"--hostid", strconv.Itoa(i),
-			"--domain", d.Domain,
-			"--ns1-api-key", d.Ns1ApiKey,
-			"--ca-cert", d.CaCert,
-			"--etcd-token", d.EtcdToken,
-			"--gzip-udata")
+		// Increment:
+		wgInt.Add(1)
 
-		// Forge the run command:
-		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "master-"+strconv.Itoa(i)+"."+d.Domain,
-			"--region", d.Region,
-			"--image-id", d.ImageID,
-			"--instance-type", d.MasterType,
-			"--key-pair", d.KeyPair,
-			"--internal-subnet-id", d.IntSubnetID,
-			"--internal-security-group-id", d.masterIntSecGrp)
+		go func(id int) {
 
-		// Execute the pipeline:
-		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", d.command+":ec2").Error(err)
-			return err
-		}
+			// Decrement:
+			defer wgInt.Done()
+
+			// Forge the udata command:
+			cmdUdata := exec.Command("katoctl", "udata",
+				"--role", "master",
+				"--master-count", strconv.Itoa(d.MasterCount),
+				"--hostid", strconv.Itoa(id),
+				"--domain", d.Domain,
+				"--ns1-api-key", d.Ns1ApiKey,
+				"--ca-cert", d.CaCert,
+				"--etcd-token", d.EtcdToken,
+				"--gzip-udata")
+
+			// Forge the run command:
+			cmdRun := exec.Command("katoctl", "run", "ec2",
+				"--hostname", "master-"+strconv.Itoa(id)+"."+d.Domain,
+				"--region", d.Region,
+				"--image-id", d.ImageID,
+				"--instance-type", d.MasterType,
+				"--key-pair", d.KeyPair,
+				"--internal-subnet-id", d.IntSubnetID,
+				"--internal-security-group-id", d.masterIntSecGrp)
+
+			// Execute the pipeline:
+			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
+				log.WithField("cmd", d.command+":ec2").Error(err)
+			}
+		}(i)
 	}
 
+	// Wait and return:
+	wgInt.Wait()
 	return nil
 }
 
@@ -361,46 +375,60 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 
 func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 
+	// Decrement:
 	defer wg.Done()
+	var wgInt sync.WaitGroup
+
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.NodeCount) + " worker nodes")
+
 	for i := 1; i <= d.NodeCount; i++ {
 
-		// Forge the udata command:
-		cmdUdata := exec.Command("katoctl", "udata",
-			"--role", "node",
-			"--master-count", strconv.Itoa(d.MasterCount),
-			"--hostid", strconv.Itoa(i),
-			"--domain", d.Domain,
-			"--ns1-api-key", d.Ns1ApiKey,
-			"--ca-cert", d.CaCert,
-			"--gzip-udata",
-			"--flannel-network", "10.128.0.0/21",
-			"--flannel-subnet-len", "27",
-			"--flannel-subnet-min", "10.128.0.192",
-			"--flannel-subnet-max", "10.128.7.224",
-			"--flannel-backend", "vxlan")
+		// Increment:
+		wgInt.Add(1)
 
-		// Forge the run command:
-		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "node-"+strconv.Itoa(i)+"."+d.Domain,
-			"--region", d.Region,
-			"--image-id", d.ImageID,
-			"--instance-type", d.NodeType,
-			"--key-pair", d.KeyPair,
-			"--internal-subnet-id", d.IntSubnetID,
-			"--external-subnet-id", d.ExtSubnetID,
-			"--internal-security-group-id", d.nodeIntSecGrp,
-			"--external-security-group-id", d.nodeExtSecGrp,
-			"--elastic-ip", "true")
+		go func(id int) {
 
-		// Execute the pipeline:
-		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", d.command+":ec2").Error(err)
-			return err
-		}
+			// Decrement:
+			defer wgInt.Done()
+
+			// Forge the udata command:
+			cmdUdata := exec.Command("katoctl", "udata",
+				"--role", "node",
+				"--master-count", strconv.Itoa(d.MasterCount),
+				"--hostid", strconv.Itoa(id),
+				"--domain", d.Domain,
+				"--ns1-api-key", d.Ns1ApiKey,
+				"--ca-cert", d.CaCert,
+				"--gzip-udata",
+				"--flannel-network", "10.128.0.0/21",
+				"--flannel-subnet-len", "27",
+				"--flannel-subnet-min", "10.128.0.192",
+				"--flannel-subnet-max", "10.128.7.224",
+				"--flannel-backend", "vxlan")
+
+			// Forge the run command:
+			cmdRun := exec.Command("katoctl", "run", "ec2",
+				"--hostname", "node-"+strconv.Itoa(id)+"."+d.Domain,
+				"--region", d.Region,
+				"--image-id", d.ImageID,
+				"--instance-type", d.NodeType,
+				"--key-pair", d.KeyPair,
+				"--internal-subnet-id", d.IntSubnetID,
+				"--external-subnet-id", d.ExtSubnetID,
+				"--internal-security-group-id", d.nodeIntSecGrp,
+				"--external-security-group-id", d.nodeExtSecGrp,
+				"--elastic-ip", "true")
+
+			// Execute the pipeline:
+			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
+				log.WithField("cmd", d.command+":ec2").Error(err)
+			}
+		}(i)
 	}
 
+	// Wait and return:
+	wgInt.Wait()
 	return nil
 }
 
@@ -410,41 +438,55 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 
 func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 
+	// Decrement:
 	defer wg.Done()
+	var wgInt sync.WaitGroup
+
 	log.WithField("cmd", d.command+":ec2").
 		Info("Deploy " + strconv.Itoa(d.EdgeCount) + " edge nodes")
+
 	for i := 1; i <= d.EdgeCount; i++ {
 
-		// Forge the udata command:
-		cmdUdata := exec.Command("katoctl", "udata",
-			"--role", "edge",
-			"--master-count", strconv.Itoa(d.MasterCount),
-			"--hostid", strconv.Itoa(i),
-			"--domain", d.Domain,
-			"--ns1-api-key", d.Ns1ApiKey,
-			"--ca-cert", d.CaCert,
-			"--gzip-udata")
+		// Increment:
+		wgInt.Add(1)
 
-		// Forge the run command:
-		cmdRun := exec.Command("katoctl", "run", "ec2",
-			"--hostname", "edge-"+strconv.Itoa(i)+"."+d.Domain,
-			"--region", d.Region,
-			"--image-id", d.ImageID,
-			"--instance-type", d.NodeType,
-			"--key-pair", d.KeyPair,
-			"--internal-subnet-id", d.IntSubnetID,
-			"--external-subnet-id", d.ExtSubnetID,
-			"--internal-security-group-id", d.edgeIntSecGrp,
-			"--external-security-group-id", d.edgeExtSecGrp,
-			"--elastic-ip", "true")
+		go func(id int) {
 
-		// Execute the pipeline:
-		if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-			log.WithField("cmd", d.command+":ec2").Error(err)
-			return err
-		}
+			// Decrement:
+			defer wgInt.Done()
+
+			// Forge the udata command:
+			cmdUdata := exec.Command("katoctl", "udata",
+				"--role", "edge",
+				"--master-count", strconv.Itoa(d.MasterCount),
+				"--hostid", strconv.Itoa(id),
+				"--domain", d.Domain,
+				"--ns1-api-key", d.Ns1ApiKey,
+				"--ca-cert", d.CaCert,
+				"--gzip-udata")
+
+			// Forge the run command:
+			cmdRun := exec.Command("katoctl", "run", "ec2",
+				"--hostname", "edge-"+strconv.Itoa(id)+"."+d.Domain,
+				"--region", d.Region,
+				"--image-id", d.ImageID,
+				"--instance-type", d.NodeType,
+				"--key-pair", d.KeyPair,
+				"--internal-subnet-id", d.IntSubnetID,
+				"--external-subnet-id", d.ExtSubnetID,
+				"--internal-security-group-id", d.edgeIntSecGrp,
+				"--external-security-group-id", d.edgeExtSecGrp,
+				"--elastic-ip", "true")
+
+			// Execute the pipeline:
+			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
+				log.WithField("cmd", d.command+":ec2").Error(err)
+			}
+		}(i)
 	}
 
+	// Wait and return:
+	wgInt.Wait()
 	return nil
 }
 
