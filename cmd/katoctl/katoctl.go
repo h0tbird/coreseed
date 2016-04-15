@@ -332,9 +332,9 @@ var (
 				OverrideDefaultFromEnvar("KATO_RUN_EC2_SECURITY_GROUP_ID").
 				String()
 
-	flRunEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
-				Default("false").PlaceHolder("KATO_RUN_EC2_ELASTIC_IP").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_ELASTIC_IP").
+	flRunEc2PublicIP = cmdRunEc2.Flag("public-ip", "Allocate a public IP [ true | false | elastic ]").
+				Default("false").PlaceHolder("KATO_RUN_EC2_PUBLIC_IP").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
 				Short('e').String()
 )
 
@@ -483,7 +483,7 @@ func main() {
 			KeyPair:      *flRunEc2KeyPair,
 			InstanceType: *flRunEc2InsType,
 			Hostname:     *flRunEc2Hostname,
-			ElasticIP:    *flRunEc2ElasticIP,
+			PublicIP:     *flRunEc2PublicIP,
 		}
 
 		udata, err := readUdata()

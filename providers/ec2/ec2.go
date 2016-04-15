@@ -65,7 +65,7 @@ type Data struct {
 	KeyPair            string //             |           |       | run:ec2
 	InstanceType       string //             |           |       | run:ec2
 	Hostname           string //             |           |       | run:ec2
-	ElasticIP          string //             |           |       | run:ec2
+	PublicIP           string //             |           |       | run:ec2
 	interfaceID        string //             |           |       | run:ec2
 }
 
@@ -126,7 +126,7 @@ func (d *Data) Run(udata []byte) error {
 		return err
 	}
 
-	if d.ElasticIP == "true" {
+	if d.PublicIP == "elastic" {
 
 		// Allocate an elastic IP address:
 		if err := d.allocateElasticIP(*svc); err != nil {
@@ -449,7 +449,7 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.nodeSecGrp,
-				"--elastic-ip", "true")
+				"--public-ip", "true")
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -505,7 +505,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.edgeSecGrp,
-				"--elastic-ip", "true")
+				"--public-ip", "true")
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -536,6 +536,10 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 		DeviceIndex:         aws.Int64(int64(0)),
 		Groups:              securityGroupIds,
 		SubnetId:            aws.String(d.SubnetID),
+	}
+
+	if d.PublicIP == "true" {
+		iface.AssociatePublicIpAddress = aws.Bool(true)
 	}
 
 	networkInterfaces = append(networkInterfaces, &iface)
