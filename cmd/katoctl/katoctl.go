@@ -260,6 +260,21 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_KEY_PAIR").
 				Short('k').String()
 
+	flDeployEc2VpcCidrBlock = cmdDeployEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
+				Default("10.0.0.0/16").PlaceHolder("KATO_DEPLOY_EC2_VPC_CIDR_BLOCK").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_VPC_CIDR_BLOCK").
+				String()
+
+	flDeployEc2IntSubnetCidr = cmdDeployEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
+					Default("10.0.1.0/24").PlaceHolder("KATO_DEPLOY_EC2_INTERNAL_SUBNET_CIDR").
+					OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_INTERNAL_SUBNET_CIDR").
+					String()
+
+	flDeployEc2ExtSubnetCidr = cmdDeployEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
+					Default("10.0.0.0/24").PlaceHolder("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
+					OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
+					String()
+
 	//---------------------------
 	// setup ec2: nested command
 	//---------------------------
@@ -434,19 +449,22 @@ func main() {
 	case cmdDeployEc2.FullCommand():
 
 		ec2 := ec2.Data{
-			MasterCount: *flDeployEc2MasterCount,
-			NodeCount:   *flDeployEc2NodeCount,
-			EdgeCount:   *flDeployEc2EdgeCount,
-			MasterType:  *flDeployEc2MasterType,
-			NodeType:    *flDeployEc2NodeType,
-			EdgeType:    *flDeployEc2EdgeType,
-			Channel:     *flDeployEc2Channel,
-			EtcdToken:   *flDeployEc2EtcdToken,
-			Ns1ApiKey:   *flDeployEc2Ns1ApiKey,
-			CaCert:      *flDeployEc2CaCert,
-			Domain:      *flDeployEc2Domain,
-			Region:      *flDeployEc2Region,
-			KeyPair:     *flDeployEc2KeyPair,
+			MasterCount:   *flDeployEc2MasterCount,
+			NodeCount:     *flDeployEc2NodeCount,
+			EdgeCount:     *flDeployEc2EdgeCount,
+			MasterType:    *flDeployEc2MasterType,
+			NodeType:      *flDeployEc2NodeType,
+			EdgeType:      *flDeployEc2EdgeType,
+			Channel:       *flDeployEc2Channel,
+			EtcdToken:     *flDeployEc2EtcdToken,
+			Ns1ApiKey:     *flDeployEc2Ns1ApiKey,
+			CaCert:        *flDeployEc2CaCert,
+			Domain:        *flDeployEc2Domain,
+			Region:        *flDeployEc2Region,
+			KeyPair:       *flDeployEc2KeyPair,
+			VpcCidrBlock:  *flDeployEc2VpcCidrBlock,
+			IntSubnetCidr: *flDeployEc2IntSubnetCidr,
+			ExtSubnetCidr: *flDeployEc2ExtSubnetCidr,
 		}
 
 		err := ec2.Deploy()
@@ -459,11 +477,11 @@ func main() {
 	case cmdSetupEc2.FullCommand():
 
 		ec2 := ec2.Data{
-			Domain:             *flSetupEc2Domain,
-			Region:             *flSetupEc2Region,
-			VpcCidrBlock:       *flSetupEc2VpcCidrBlock,
-			InternalSubnetCidr: *flSetupEc2IntSubnetCidr,
-			ExternalSubnetCidr: *flSetupEc2ExtSubnetCidr,
+			Domain:        *flSetupEc2Domain,
+			Region:        *flSetupEc2Region,
+			VpcCidrBlock:  *flSetupEc2VpcCidrBlock,
+			IntSubnetCidr: *flSetupEc2IntSubnetCidr,
+			ExtSubnetCidr: *flSetupEc2ExtSubnetCidr,
 		}
 
 		err := ec2.Setup()

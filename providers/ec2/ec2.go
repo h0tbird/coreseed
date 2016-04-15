@@ -31,42 +31,42 @@ import (
 
 // Data contains variables used by this EC2 provider.
 type Data struct {
-	MasterCount        int    //  deploy:ec2 |           |       |
-	NodeCount          int    //  deploy:ec2 |           |       |
-	EdgeCount          int    //  deploy:ec2 |           |       |
-	MasterType         string //  deploy:ec2 |           |       |
-	NodeType           string //  deploy:ec2 |           |       |
-	EdgeType           string //  deploy:ec2 |           |       |
-	Channel            string //  deploy:ec2 |           |       |
-	EtcdToken          string //  deploy:ec2 |           | udata |
-	Ns1ApiKey          string //  deploy:ec2 |           | udata |
-	CaCert             string //  deploy:ec2 |           | udata |
-	Domain             string //  deploy:ec2 | setup:ec2 | udata |
-	Region             string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	command            string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	VpcCidrBlock       string //             | setup:ec2 |       |
-	vpcID              string //             | setup:ec2 |       |
-	mainRouteTableID   string //             | setup:ec2 |       |
-	InternalSubnetCidr string //             | setup:ec2 |       |
-	ExternalSubnetCidr string //             | setup:ec2 |       |
-	internetGatewayID  string //             | setup:ec2 |       |
-	natGatewayID       string //             | setup:ec2 |       |
-	routeTableID       string //             | setup:ec2 |       |
-	masterSecGrp       string //             | setup:ec2 |       |
-	nodeSecGrp         string //             | setup:ec2 |       |
-	edgeSecGrp         string //             | setup:ec2 |       |
-	IntSubnetID        string //             | setup:ec2 |       |
-	ExtSubnetID        string //             | setup:ec2 |       |
-	allocationID       string //             | setup:ec2 |       | run:ec2
-	instanceID         string //             |           |       | run:ec2
-	SubnetID           string //             |           |       | run:ec2
-	SecGrpID           string //             |           |       | run:ec2
-	ImageID            string //             |           |       | run:ec2
-	KeyPair            string //             |           |       | run:ec2
-	InstanceType       string //             |           |       | run:ec2
-	Hostname           string //             |           |       | run:ec2
-	PublicIP           string //             |           |       | run:ec2
-	interfaceID        string //             |           |       | run:ec2
+	MasterCount       int    //  deploy:ec2 |           |       |
+	NodeCount         int    //  deploy:ec2 |           |       |
+	EdgeCount         int    //  deploy:ec2 |           |       |
+	MasterType        string //  deploy:ec2 |           |       |
+	NodeType          string //  deploy:ec2 |           |       |
+	EdgeType          string //  deploy:ec2 |           |       |
+	Channel           string //  deploy:ec2 |           |       |
+	EtcdToken         string //  deploy:ec2 |           | udata |
+	Ns1ApiKey         string //  deploy:ec2 |           | udata |
+	CaCert            string //  deploy:ec2 |           | udata |
+	Domain            string //  deploy:ec2 | setup:ec2 | udata |
+	Region            string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	command           string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	VpcCidrBlock      string //  deploy:ec2 | setup:ec2 |       |
+	IntSubnetCidr     string //  deploy:ec2 | setup:ec2 |       |
+	ExtSubnetCidr     string //  deploy:ec2 | setup:ec2 |       |
+	vpcID             string //             | setup:ec2 |       |
+	mainRouteTableID  string //             | setup:ec2 |       |
+	internetGatewayID string //             | setup:ec2 |       |
+	natGatewayID      string //             | setup:ec2 |       |
+	routeTableID      string //             | setup:ec2 |       |
+	masterSecGrp      string //             | setup:ec2 |       |
+	nodeSecGrp        string //             | setup:ec2 |       |
+	edgeSecGrp        string //             | setup:ec2 |       |
+	IntSubnetID       string //             | setup:ec2 |       |
+	ExtSubnetID       string //             | setup:ec2 |       |
+	allocationID      string //             | setup:ec2 |       | run:ec2
+	instanceID        string //             |           |       | run:ec2
+	SubnetID          string //             |           |       | run:ec2
+	SecGrpID          string //             |           |       | run:ec2
+	ImageID           string //             |           |       | run:ec2
+	KeyPair           string //             |           |       | run:ec2
+	InstanceType      string //             |           |       | run:ec2
+	Hostname          string //             |           |       | run:ec2
+	PublicIP          string //             |           |       | run:ec2
+	interfaceID       string //             |           |       | run:ec2
 }
 
 //-----------------------------------------------------------------------------
@@ -253,9 +253,9 @@ func (d *Data) deploySetup() error {
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region,
-		"--vpc-cidr-block", "10.0.0.0/16",
-		"--internal-subnet-cidr", "10.0.1.0/24",
-		"--external-subnet-cidr", "10.0.0.0/24")
+		"--vpc-cidr-block", d.VpcCidrBlock,
+		"--internal-subnet-cidr", d.IntSubnetCidr,
+		"--external-subnet-cidr", d.ExtSubnetCidr)
 
 	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
@@ -274,10 +274,10 @@ func (d *Data) deploySetup() error {
 
 	// Store the values:
 	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
+	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
+	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
 	d.vpcID = dat["VpcID"].(string)
 	d.mainRouteTableID = dat["MainRouteTableID"].(string)
-	d.InternalSubnetCidr = dat["InternalSubnetCidr"].(string)
-	d.ExternalSubnetCidr = dat["ExternalSubnetCidr"].(string)
 	d.IntSubnetID = dat["InternalSubnetID"].(string)
 	d.ExtSubnetID = dat["ExternalSubnetID"].(string)
 	d.internetGatewayID = dat["InternetGatewayID"].(string)
@@ -677,9 +677,9 @@ func (d *Data) createSubnets(svc ec2.EC2) error {
 	// Map to iterate:
 	nets := map[string]map[string]string{
 		"internal": map[string]string{
-			"SubnetCidr": d.InternalSubnetCidr, "SubnetID": ""},
+			"SubnetCidr": d.IntSubnetCidr, "SubnetID": ""},
 		"external": map[string]string{
-			"SubnetCidr": d.ExternalSubnetCidr, "SubnetID": ""},
+			"SubnetCidr": d.ExtSubnetCidr, "SubnetID": ""},
 	}
 
 	// For each subnet:
@@ -1213,37 +1213,37 @@ func (d *Data) edgeFirewall(svc ec2.EC2) error {
 func (d *Data) exposeIdentifiers() error {
 
 	type identifiers struct {
-		VpcCidrBlock       string
-		VpcID              string
-		MainRouteTableID   string
-		InternalSubnetCidr string
-		ExternalSubnetCidr string
-		InternalSubnetID   string
-		ExternalSubnetID   string
-		InternetGatewayID  string
-		AllocationID       string
-		NatGatewayID       string
-		RouteTableID       string
-		MasterSecGrp       string
-		NodeSecGrp         string
-		EdgeSecGrp         string
+		VpcCidrBlock      string
+		VpcID             string
+		MainRouteTableID  string
+		IntSubnetCidr     string
+		ExtSubnetCidr     string
+		InternalSubnetID  string
+		ExternalSubnetID  string
+		InternetGatewayID string
+		AllocationID      string
+		NatGatewayID      string
+		RouteTableID      string
+		MasterSecGrp      string
+		NodeSecGrp        string
+		EdgeSecGrp        string
 	}
 
 	ids := identifiers{
-		VpcCidrBlock:       d.VpcCidrBlock,
-		VpcID:              d.vpcID,
-		MainRouteTableID:   d.mainRouteTableID,
-		InternalSubnetCidr: d.InternalSubnetCidr,
-		ExternalSubnetCidr: d.ExternalSubnetCidr,
-		InternalSubnetID:   d.IntSubnetID,
-		ExternalSubnetID:   d.ExtSubnetID,
-		InternetGatewayID:  d.internetGatewayID,
-		AllocationID:       d.allocationID,
-		NatGatewayID:       d.natGatewayID,
-		RouteTableID:       d.routeTableID,
-		MasterSecGrp:       d.masterSecGrp,
-		NodeSecGrp:         d.nodeSecGrp,
-		EdgeSecGrp:         d.edgeSecGrp,
+		VpcCidrBlock:      d.VpcCidrBlock,
+		VpcID:             d.vpcID,
+		MainRouteTableID:  d.mainRouteTableID,
+		IntSubnetCidr:     d.IntSubnetCidr,
+		ExtSubnetCidr:     d.ExtSubnetCidr,
+		InternalSubnetID:  d.IntSubnetID,
+		ExternalSubnetID:  d.ExtSubnetID,
+		InternetGatewayID: d.internetGatewayID,
+		AllocationID:      d.allocationID,
+		NatGatewayID:      d.natGatewayID,
+		RouteTableID:      d.routeTableID,
+		MasterSecGrp:      d.masterSecGrp,
+		NodeSecGrp:        d.nodeSecGrp,
+		EdgeSecGrp:        d.edgeSecGrp,
 	}
 
 	// Marshal the data:
