@@ -1122,6 +1122,46 @@ func (d *Data) edgeFirewall(svc ec2.EC2) error {
 					},
 				},
 			},
+			{
+				FromPort:   aws.Int64(22),
+				ToPort:     aws.Int64(22),
+				IpProtocol: aws.String("tcp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
+			{
+				FromPort:   aws.Int64(80),
+				ToPort:     aws.Int64(80),
+				IpProtocol: aws.String("tcp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
+			{
+				FromPort:   aws.Int64(443),
+				ToPort:     aws.Int64(443),
+				IpProtocol: aws.String("tcp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
+			{
+				FromPort:   aws.Int64(18443),
+				ToPort:     aws.Int64(18443),
+				IpProtocol: aws.String("udp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
 		},
 	}
 
