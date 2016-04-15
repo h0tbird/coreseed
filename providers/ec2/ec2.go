@@ -252,7 +252,10 @@ func (d *Data) deploySetup() error {
 		Info("Setup the EC2 environment")
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
-		"--region", d.Region)
+		"--region", d.Region,
+		"--vpc-cidr-block", "10.0.0.0/16",
+		"--internal-subnet-cidr", "10.0.1.0/24",
+		"--external-subnet-cidr", "10.0.0.0/24")
 
 	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
