@@ -1056,7 +1056,7 @@ func (d *Data) masterFirewall(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "master-int"}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "master"}).
 		Info("- New firewall rules defined")
 
 	return nil
@@ -1116,7 +1116,7 @@ func (d *Data) nodeFirewall(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "node-int"}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "node"}).
 		Info("- New firewall rules defined")
 
 	return nil
@@ -1196,7 +1196,7 @@ func (d *Data) edgeFirewall(svc ec2.EC2) error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "edge-int"}).
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "edge"}).
 		Info("- New firewall rules defined")
 
 	return nil
