@@ -322,24 +322,14 @@ var (
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_KEY_PAIR").
 			Short('k').String()
 
-	flRunEc2IntSubnetID = cmdRunEc2.Flag("internal-subnet-id", "EC2 internal subnet ID.").
-				Required().PlaceHolder("KATO_RUN_EC2_INTERNAL_SUBNET_ID").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_INTERNAL_SUBNET_ID").
+	flRunEc2SubnetID = cmdRunEc2.Flag("subnet-id", "EC2 subnet ID.").
+				Required().PlaceHolder("KATO_RUN_EC2_SUBNET_ID").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_SUBNET_ID").
 				String()
 
-	flRunEc2ExtSubnetID = cmdRunEc2.Flag("external-subnet-id", "EC2 external subnet ID.").
-				PlaceHolder("KATO_RUN_EC2_EXTERNAL_SUBNET_ID").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_EXTERNAL_SUBNET_ID").
-				String()
-
-	flRunEc2IntSecGrpID = cmdRunEc2.Flag("internal-security-group-id", "EC2 internal security group ID.").
-				Required().PlaceHolder("KATO_RUN_EC2_INTERNAL_SECURITY_GROUP_ID").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_INTERNAL_SECURITY_GROUP_ID").
-				String()
-
-	flRunEc2ExtSecGrpID = cmdRunEc2.Flag("external-security-group-id", "EC2 external security group ID.").
-				PlaceHolder("KATO_RUN_EC2_EXTERNAL_SECURITY_GROUP_ID").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_EXTERNAL_SECURITY_GROUP_ID").
+	flRunEc2SecGrpID = cmdRunEc2.Flag("security-group-id", "EC2 security group ID.").
+				Required().PlaceHolder("KATO_RUN_EC2_SECURITY_GROUP_ID").
+				OverrideDefaultFromEnvar("KATO_RUN_EC2_SECURITY_GROUP_ID").
 				String()
 
 	flRunEc2ElasticIP = cmdRunEc2.Flag("elastic-ip", "Allocate an elastic IP [ true | false ]").
@@ -487,10 +477,8 @@ func main() {
 
 		ec2 := ec2.Data{
 			Region:       *flRunEc2Region,
-			IntSubnetID:  *flRunEc2IntSubnetID,
-			ExtSubnetID:  *flRunEc2ExtSubnetID,
-			IntSecGrpID:  *flRunEc2IntSecGrpID,
-			ExtSecGrpID:  *flRunEc2ExtSecGrpID,
+			SubnetID:     *flRunEc2SubnetID,
+			SecGrpID:     *flRunEc2SecGrpID,
 			ImageID:      *flRunEc2ImageID,
 			KeyPair:      *flRunEc2KeyPair,
 			InstanceType: *flRunEc2InsType,

@@ -52,25 +52,21 @@ type Data struct {
 	internetGatewayID  string //             | setup:ec2 |       |
 	natGatewayID       string //             | setup:ec2 |       |
 	routeTableID       string //             | setup:ec2 |       |
-	masterIntSecGrp    string //             | setup:ec2 |       |
-	nodeIntSecGrp      string //             | setup:ec2 |       |
-	nodeExtSecGrp      string //             | setup:ec2 |       |
-	edgeIntSecGrp      string //             | setup:ec2 |       |
-	edgeExtSecGrp      string //             | setup:ec2 |       |
+	masterSecGrp       string //             | setup:ec2 |       |
+	nodeSecGrp         string //             | setup:ec2 |       |
+	edgeSecGrp         string //             | setup:ec2 |       |
+	IntSubnetID        string //             | setup:ec2 |       |
+	ExtSubnetID        string //             | setup:ec2 |       |
 	allocationID       string //             | setup:ec2 |       | run:ec2
-	IntSubnetID        string //             | setup:ec2 |       | run:ec2
-	ExtSubnetID        string //             | setup:ec2 |       | run:ec2
-	IntSecGrpID        string //             | setup:ec2 |       | run:ec2
-	ExtSecGrpID        string //             | setup:ec2 |       | run:ec2
 	instanceID         string //             |           |       | run:ec2
-	SubnetIDs          string //             |           |       | run:ec2
+	SubnetID           string //             |           |       | run:ec2
+	SecGrpID           string //             |           |       | run:ec2
 	ImageID            string //             |           |       | run:ec2
 	KeyPair            string //             |           |       | run:ec2
 	InstanceType       string //             |           |       | run:ec2
 	Hostname           string //             |           |       | run:ec2
 	ElasticIP          string //             |           |       | run:ec2
-	intIfaceID         string //             |           |       | run:ec2
-	//extIfaceID         string //             |           |       | run:ec2
+	interfaceID        string //             |           |       | run:ec2
 }
 
 //-----------------------------------------------------------------------------
@@ -284,11 +280,9 @@ func (d *Data) deploySetup() error {
 	d.allocationID = dat["AllocationID"].(string)
 	d.natGatewayID = dat["NatGatewayID"].(string)
 	d.routeTableID = dat["RouteTableID"].(string)
-	d.masterIntSecGrp = dat["MasterIntSecGrp"].(string)
-	d.nodeIntSecGrp = dat["NodeIntSecGrp"].(string)
-	d.nodeExtSecGrp = dat["NodeExtSecGrp"].(string)
-	d.edgeIntSecGrp = dat["EdgeIntSecGrp"].(string)
-	d.edgeExtSecGrp = dat["EdgeExtSecGrp"].(string)
+	d.masterSecGrp = dat["MasterSecGrp"].(string)
+	d.nodeSecGrp = dat["NodeSecGrp"].(string)
+	d.edgeSecGrp = dat["EdgeSecGrp"].(string)
 
 	return nil
 }
@@ -393,8 +387,8 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 				"--image-id", d.ImageID,
 				"--instance-type", d.MasterType,
 				"--key-pair", d.KeyPair,
-				"--internal-subnet-id", d.IntSubnetID,
-				"--internal-security-group-id", d.masterIntSecGrp)
+				"--subnet-id", d.IntSubnetID,
+				"--security-group-id", d.masterSecGrp)
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -453,12 +447,8 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 				"--image-id", d.ImageID,
 				"--instance-type", d.NodeType,
 				"--key-pair", d.KeyPair,
-				"--internal-subnet-id", d.ExtSubnetID,
-				"--internal-security-group-id", d.nodeExtSecGrp,
-				//"--internal-subnet-id", d.IntSubnetID,
-				//"--external-subnet-id", d.ExtSubnetID,
-				//"--internal-security-group-id", d.nodeIntSecGrp,
-				//"--external-security-group-id", d.nodeExtSecGrp,
+				"--subnet-id", d.ExtSubnetID,
+				"--security-group-id", d.nodeSecGrp,
 				"--elastic-ip", "true")
 
 			// Execute the pipeline:
@@ -513,12 +503,8 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 				"--image-id", d.ImageID,
 				"--instance-type", d.NodeType,
 				"--key-pair", d.KeyPair,
-				"--internal-subnet-id", d.ExtSubnetID,
-				"--internal-security-group-id", d.edgeExtSecGrp,
-				//"--internal-subnet-id", d.IntSubnetID,
-				//"--external-subnet-id", d.ExtSubnetID,
-				//"--internal-security-group-id", d.edgeIntSecGrp,
-				//"--external-security-group-id", d.edgeExtSecGrp,
+				"--subnet-id", d.ExtSubnetID,
+				"--security-group-id", d.edgeSecGrp,
 				"--elastic-ip", "true")
 
 			// Execute the pipeline:
@@ -541,44 +527,18 @@ func (d *Data) forgeNetworkInterfaces(svc ec2.EC2) []*ec2.
 	InstanceNetworkInterfaceSpecification {
 
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
+	var securityGroupIds []*string
 
-	// External interface:
-	/*if d.ExtSubnetID != "" {
+	securityGroupIds = append(securityGroupIds, aws.String(d.SecGrpID))
 
-		var securityGroupIds []*string
-
-		if d.ExtSecGrpID != "" {
-			securityGroupIds = append(securityGroupIds, aws.String(d.ExtSecGrpID))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(1)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(d.ExtSubnetID),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
-	}*/
-
-	// Internal interface:
-	if d.IntSubnetID != "" {
-
-		var securityGroupIds []*string
-
-		if d.IntSecGrpID != "" {
-			securityGroupIds = append(securityGroupIds, aws.String(d.IntSecGrpID))
-		}
-
-		iface := ec2.InstanceNetworkInterfaceSpecification{
-			DeleteOnTermination: aws.Bool(true),
-			DeviceIndex:         aws.Int64(int64(0)),
-			Groups:              securityGroupIds,
-			SubnetId:            aws.String(d.IntSubnetID),
-		}
-
-		networkInterfaces = append(networkInterfaces, &iface)
+	iface := ec2.InstanceNetworkInterfaceSpecification{
+		DeleteOnTermination: aws.Bool(true),
+		DeviceIndex:         aws.Int64(int64(0)),
+		Groups:              securityGroupIds,
+		SubnetId:            aws.String(d.SubnetID),
 	}
+
+	networkInterfaces = append(networkInterfaces, &iface)
 
 	return networkInterfaces
 }
@@ -610,17 +570,9 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.instanceID}).
 		Info("- New " + d.InstanceType + " EC2 instance requested")
 
-	// Store the internal interface ID:
-	if d.IntSubnetID != "" {
-		d.intIfaceID = *runResult.Instances[0].
-			NetworkInterfaces[0].NetworkInterfaceId
-	}
-
-	// Store the external interface ID:
-	//if d.ExtSubnetID != "" {
-	//	d.extIfaceID = *runResult.Instances[0].
-	//		NetworkInterfaces[1].NetworkInterfaceId
-	//}
+	// Store the interface ID:
+	d.interfaceID = *runResult.Instances[0].
+		NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
 	if err := d.tag(d.instanceID, "Name", d.Hostname, svc); err != nil {
@@ -935,7 +887,7 @@ func (d *Data) associateElasticIP(svc ec2.EC2) error {
 		AllocationId:       aws.String(d.allocationID),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
-		NetworkInterfaceId: aws.String(d.intIfaceID),
+		NetworkInterfaceId: aws.String(d.interfaceID),
 	}
 
 	// Send the association request:
@@ -1024,11 +976,9 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 
 	// Map to iterate:
 	grps := map[string]map[string]string{
-		"master-int": map[string]string{"Desc": "master internal", "SecGrpID": ""},
-		"node-int":   map[string]string{"Desc": "node internal", "SecGrpID": ""},
-		"node-ext":   map[string]string{"Desc": "node external", "SecGrpID": ""},
-		"edge-int":   map[string]string{"Desc": "edge internal", "SecGrpID": ""},
-		"edge-ext":   map[string]string{"Desc": "edge external", "SecGrpID": ""},
+		"master": map[string]string{"Desc": "master", "SecGrpID": ""},
+		"node":   map[string]string{"Desc": "node", "SecGrpID": ""},
+		"edge":   map[string]string{"Desc": "edge", "SecGrpID": ""},
 	}
 
 	// For each security group:
@@ -1061,11 +1011,9 @@ func (d *Data) createSecurityGroups(svc ec2.EC2) error {
 	}
 
 	// Store security groups IDs:
-	d.masterIntSecGrp = grps["master-int"]["SecGrpID"]
-	d.nodeIntSecGrp = grps["node-int"]["SecGrpID"]
-	d.nodeExtSecGrp = grps["node-ext"]["SecGrpID"]
-	d.edgeIntSecGrp = grps["edge-int"]["SecGrpID"]
-	d.edgeExtSecGrp = grps["edge-ext"]["SecGrpID"]
+	d.masterSecGrp = grps["master"]["SecGrpID"]
+	d.nodeSecGrp = grps["node"]["SecGrpID"]
+	d.edgeSecGrp = grps["edge"]["SecGrpID"]
 
 	return nil
 }
@@ -1078,19 +1026,19 @@ func (d *Data) masterFirewall(svc ec2.EC2) error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.masterIntSecGrp),
+		GroupId: aws.String(d.masterSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterIntSecGrp),
+						GroupId: aws.String(d.masterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeIntSecGrp),
+						GroupId: aws.String(d.nodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeIntSecGrp),
+						GroupId: aws.String(d.edgeSecGrp),
 					},
 				},
 			},
@@ -1118,19 +1066,19 @@ func (d *Data) nodeFirewall(svc ec2.EC2) error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.nodeIntSecGrp),
+		GroupId: aws.String(d.nodeSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterIntSecGrp),
+						GroupId: aws.String(d.masterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeIntSecGrp),
+						GroupId: aws.String(d.nodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeIntSecGrp),
+						GroupId: aws.String(d.edgeSecGrp),
 					},
 				},
 			},
@@ -1158,19 +1106,19 @@ func (d *Data) edgeFirewall(svc ec2.EC2) error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.edgeIntSecGrp),
+		GroupId: aws.String(d.edgeSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterIntSecGrp),
+						GroupId: aws.String(d.masterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeIntSecGrp),
+						GroupId: aws.String(d.nodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeIntSecGrp),
+						GroupId: aws.String(d.edgeSecGrp),
 					},
 				},
 			},
@@ -1208,11 +1156,9 @@ func (d *Data) exposeIdentifiers() error {
 		AllocationID       string
 		NatGatewayID       string
 		RouteTableID       string
-		MasterIntSecGrp    string
-		NodeIntSecGrp      string
-		NodeExtSecGrp      string
-		EdgeIntSecGrp      string
-		EdgeExtSecGrp      string
+		MasterSecGrp       string
+		NodeSecGrp         string
+		EdgeSecGrp         string
 	}
 
 	ids := identifiers{
@@ -1227,11 +1173,9 @@ func (d *Data) exposeIdentifiers() error {
 		AllocationID:       d.allocationID,
 		NatGatewayID:       d.natGatewayID,
 		RouteTableID:       d.routeTableID,
-		MasterIntSecGrp:    d.masterIntSecGrp,
-		NodeIntSecGrp:      d.nodeIntSecGrp,
-		NodeExtSecGrp:      d.nodeExtSecGrp,
-		EdgeIntSecGrp:      d.edgeIntSecGrp,
-		EdgeExtSecGrp:      d.edgeExtSecGrp,
+		MasterSecGrp:       d.masterSecGrp,
+		NodeSecGrp:         d.nodeSecGrp,
+		EdgeSecGrp:         d.edgeSecGrp,
 	}
 
 	// Marshal the data:
