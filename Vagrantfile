@@ -6,6 +6,9 @@ Vagrant.require_version ">= 1.6.0"
 # Variables:
 #------------------------------------------------------------------------------
 
+$master_count   = ENV['KATO_MASTER_COUNT'] || 3
+$node_count     = ENV['KATO_NODE_COUNT'] || 2
+$edge_count     = ENV['KATO_EDGE_COUNT'] || 1
 $master_cpus    = ENV['KATO_MASTER_CPUS'] || 2
 $master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
@@ -18,8 +21,8 @@ $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT'] || '~/certificates/certs/server-crt.pem'
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$katoctl        = "katoctl udata -k %s -d %s -i %s -r %s -c %s -g"
-$discovery_url  = "https://discovery.etcd.io/new?size=3"
+$katoctl        = "katoctl udata --master-count %s -k %s -d %s -i %s -r %s -c %s -g"
+$discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
 #------------------------------------------------------------------------------
 # Generate a new etcd discovery token:
@@ -27,7 +30,7 @@ $discovery_url  = "https://discovery.etcd.io/new?size=3"
 
 if $discovery_url && ARGV[0].eql?('up')
   require 'open-uri'
-  token = open($discovery_url).read.split("/")[-1]
+  token = open($discovery_url % $master_count).read.split("/")[-1]
 end
 
 #------------------------------------------------------------------------------
@@ -54,11 +57,11 @@ Vagrant.configure("2") do |config|
     config.vbguest.auto_update = false
   end
 
-  #-----------------
-  # Start 3 masters
-  #-----------------
+  #----------------------------
+  # Start master_count masters
+  #----------------------------
 
-  (1..3).each do |i|
+  (1..$master_count.to_i).each do |i|
 
     config.vm.define vm_name = "master-%d" % i do |conf|
 
@@ -77,10 +80,10 @@ Vagrant.configure("2") do |config|
 
         if $discovery_url
           cmd = $katoctl + " -e %s > user_mdata_%s"
-          system cmd % [$ns1_api_key, $domain, i, 'master', $ca_cert, token, i ]
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', $ca_cert, token, i ]
         else
           cmd = $katoctl + " > user_mdata_%s"
-          system cmd % [$ns1_api_key, $domain, i, 'master', $ca_cert, i ]
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', $ca_cert, i ]
         end
 
         if File.exist?("user_mdata_%s" % i)
@@ -92,11 +95,11 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  #---------------
-  # Start 3 nodes
-  #---------------
+  #------------------------
+  # Start node_count nodes
+  #------------------------
 
-  (1..3).each do |i|
+  (1..$node_count.to_i).each do |i|
 
     config.vm.define vm_name = "node-%d" % i do |conf|
 
@@ -114,7 +117,7 @@ Vagrant.configure("2") do |config|
       if ARGV[0].eql?('up')
 
         cmd = $katoctl + " > user_ndata_%s"
-        system cmd % [$ns1_api_key, $domain, i, 'node', $ca_cert, i ]
+        system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', $ca_cert, i ]
 
         if File.exist?("user_ndata_%s" % i)
           conf.vm.provision :file, :source => "user_ndata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
@@ -125,11 +128,12 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  #--------------
-  # Start 1 edge
-  #--------------
+  #------------------------
+  # Start edge_count edges
+  #------------------------
 
-  (1..1).each do |i|
+
+  (1..$edge_count.to_i).each do |i|
 
     config.vm.define vm_name = "edge-%d" % i do |conf|
 
@@ -147,7 +151,7 @@ Vagrant.configure("2") do |config|
       if ARGV[0].eql?('up')
 
         cmd = $katoctl + " > user_edata_%s"
-        system cmd % [$ns1_api_key, $domain, i, 'edge', $ca_cert, i ]
+        system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', $ca_cert, i ]
 
         if File.exist?("user_edata_%s" % i)
           conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
