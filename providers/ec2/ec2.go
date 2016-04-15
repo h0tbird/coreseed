@@ -41,6 +41,11 @@ type Data struct {
 	EtcdToken         string //  deploy:ec2 |           | udata |
 	Ns1ApiKey         string //  deploy:ec2 |           | udata |
 	CaCert            string //  deploy:ec2 |           | udata |
+	FlannelNetwork    string //  deploy:ec2 |           | udata |
+	FlannelSubnetLen  string //  deploy:ec2 |           | udata |
+	FlannelSubnetMin  string //  deploy:ec2 |           | udata |
+	FlannelSubnetMax  string //  deploy:ec2 |           | udata |
+	FlannelBackend    string //  deploy:ec2 |           | udata |
 	Domain            string //  deploy:ec2 | setup:ec2 | udata |
 	Region            string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	command           string //  deploy:ec2 | setup:ec2 |       | run:ec2
@@ -438,11 +443,11 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 				"--ns1-api-key", d.Ns1ApiKey,
 				"--ca-cert", d.CaCert,
 				"--gzip-udata",
-				"--flannel-network", "10.128.0.0/21",
-				"--flannel-subnet-len", "27",
-				"--flannel-subnet-min", "10.128.0.192",
-				"--flannel-subnet-max", "10.128.7.224",
-				"--flannel-backend", "vxlan")
+				"--flannel-network", d.FlannelNetwork,
+				"--flannel-subnet-len", d.FlannelSubnetLen,
+				"--flannel-subnet-min", d.FlannelSubnetMin,
+				"--flannel-subnet-max", d.FlannelSubnetMax,
+				"--flannel-backend", d.FlannelBackend)
 
 			// Forge the run command:
 			cmdRun := exec.Command("katoctl", "run", "ec2",

@@ -275,6 +275,31 @@ var (
 					OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
 					String()
 
+	flDeployFlannelNetwork = cmdDeploy.Flag("flannel-network", "Flannel entire overlay network.").
+				PlaceHolder("KATO_DEPLOY_FLANNEL_NETWORK").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
+				String()
+
+	flDeployFlannelSubnetLen = cmdDeploy.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
+					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
+					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
+					String()
+
+	flDeployFlannelSubnetMin = cmdDeploy.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
+					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
+					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
+					String()
+
+	flDeployFlannelSubnetMax = cmdDeploy.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
+					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
+					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
+					String()
+
+	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
+				PlaceHolder("KATO_DEPLOY_FLANNEL_BACKEND").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
+				String()
+
 	//---------------------------
 	// setup ec2: nested command
 	//---------------------------
@@ -449,22 +474,27 @@ func main() {
 	case cmdDeployEc2.FullCommand():
 
 		ec2 := ec2.Data{
-			MasterCount:   *flDeployEc2MasterCount,
-			NodeCount:     *flDeployEc2NodeCount,
-			EdgeCount:     *flDeployEc2EdgeCount,
-			MasterType:    *flDeployEc2MasterType,
-			NodeType:      *flDeployEc2NodeType,
-			EdgeType:      *flDeployEc2EdgeType,
-			Channel:       *flDeployEc2Channel,
-			EtcdToken:     *flDeployEc2EtcdToken,
-			Ns1ApiKey:     *flDeployEc2Ns1ApiKey,
-			CaCert:        *flDeployEc2CaCert,
-			Domain:        *flDeployEc2Domain,
-			Region:        *flDeployEc2Region,
-			KeyPair:       *flDeployEc2KeyPair,
-			VpcCidrBlock:  *flDeployEc2VpcCidrBlock,
-			IntSubnetCidr: *flDeployEc2IntSubnetCidr,
-			ExtSubnetCidr: *flDeployEc2ExtSubnetCidr,
+			MasterCount:      *flDeployEc2MasterCount,
+			NodeCount:        *flDeployEc2NodeCount,
+			EdgeCount:        *flDeployEc2EdgeCount,
+			MasterType:       *flDeployEc2MasterType,
+			NodeType:         *flDeployEc2NodeType,
+			EdgeType:         *flDeployEc2EdgeType,
+			Channel:          *flDeployEc2Channel,
+			EtcdToken:        *flDeployEc2EtcdToken,
+			Ns1ApiKey:        *flDeployEc2Ns1ApiKey,
+			CaCert:           *flDeployEc2CaCert,
+			Domain:           *flDeployEc2Domain,
+			Region:           *flDeployEc2Region,
+			KeyPair:          *flDeployEc2KeyPair,
+			VpcCidrBlock:     *flDeployEc2VpcCidrBlock,
+			IntSubnetCidr:    *flDeployEc2IntSubnetCidr,
+			ExtSubnetCidr:    *flDeployEc2ExtSubnetCidr,
+			FlannelNetwork:   *flDeployFlannelNetwork,
+			FlannelSubnetLen: *flDeployFlannelSubnetLen,
+			FlannelSubnetMin: *flDeployFlannelSubnetMin,
+			FlannelSubnetMax: *flDeployFlannelSubnetMax,
+			FlannelBackend:   *flDeployFlannelBackend,
 		}
 
 		err := ec2.Deploy()
