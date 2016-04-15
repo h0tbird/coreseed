@@ -248,7 +248,8 @@ func (d *Data) Setup() error {
 func (d *Data) deploySetup() error {
 
 	// Forge the setup command:
-	log.WithField("cmd", d.command+":ec2").Info("Setup the EC2 environment")
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.Domain}).
+		Info("Setup the EC2 environment")
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region)

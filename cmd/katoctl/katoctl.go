@@ -266,27 +266,27 @@ var (
 
 	cmdSetupEc2 = cmdSetup.Command("ec2", "Setup an EC2 VPC and all the related components.")
 
-	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
-				Required().PlaceHolder("KATO_SETUP_EC2_REGION").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
-				Short('r').String()
-
-	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC (default: 10.0.0.0/16).").
-				Default("10.0.0.0/16").PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
-				Short('c').String()
-
 	flSetupEc2Domain = cmdSetupEc2.Flag("domain", "Used to identify the VPC..").
 				Required().PlaceHolder("KATO_SETUP_EC2_DOMAIN").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_DOMAIN").
 				Short('t').String()
 
-	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet (default: 10.0.1.0/24).").
+	flSetupEc2Region = cmdSetupEc2.Flag("region", "EC2 region.").
+				Required().PlaceHolder("KATO_SETUP_EC2_REGION").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
+				Short('r').String()
+
+	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
+				Default("10.0.0.0/16").PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+				Short('c').String()
+
+	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
 				Default("10.0.1.0/24").PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
 				Short('i').String()
 
-	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet (default: 10.0.0.0/24).").
+	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
 				Default("10.0.0.0/24").PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
 				Short('e').String()
