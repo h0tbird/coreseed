@@ -18,7 +18,7 @@ $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT'] || '~/certificates/certs/server-crt.pem'
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$katoctl        = "katoctl udata -k %s -d %s -i %s -r %s -c %s"
+$katoctl        = "katoctl udata -k %s -d %s -i %s -r %s -c %s -g"
 $discovery_url  = "https://discovery.etcd.io/new?size=3"
 
 #------------------------------------------------------------------------------
@@ -76,10 +76,10 @@ Vagrant.configure("2") do |config|
       if ARGV[0].eql?('up')
 
         if $discovery_url
-          cmd = $katoctl + " -e %s | gzip --best > user_mdata_%s"
+          cmd = $katoctl + " -e %s > user_mdata_%s"
           system cmd % [$ns1_api_key, $domain, i, 'master', $ca_cert, token, i ]
         else
-          cmd = $katoctl + " | gzip --best > user_mdata_%s"
+          cmd = $katoctl + " > user_mdata_%s"
           system cmd % [$ns1_api_key, $domain, i, 'master', $ca_cert, i ]
         end
 
@@ -113,7 +113,7 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        cmd = $katoctl + " | gzip --best > user_ndata_%s"
+        cmd = $katoctl + " > user_ndata_%s"
         system cmd % [$ns1_api_key, $domain, i, 'node', $ca_cert, i ]
 
         if File.exist?("user_ndata_%s" % i)
@@ -146,7 +146,7 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        cmd = $katoctl + " | gzip --best > user_edata_%s"
+        cmd = $katoctl + " > user_edata_%s"
         system cmd % [$ns1_api_key, $domain, i, 'edge', $ca_cert, i ]
 
         if File.exist?("user_edata_%s" % i)
