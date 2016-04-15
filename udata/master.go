@@ -508,7 +508,7 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill pritunl
     ExecStartPre=-/usr/bin/docker rm pritunl
-    ExecStartPre=-/usr/bin/docker pull pritunl:v1.20.917.37-1
+    ExecStartPre=-/usr/bin/docker pull h0tbird/pritunl:v1.20.917.37-1
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged \
       --name pritunl \
