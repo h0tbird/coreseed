@@ -101,27 +101,27 @@ var (
 				Short('g').Bool()
 
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
-				PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
+				Default("10.128.0.0/21").PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
 				Short('n').String()
 
 	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
+				Default("27").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
 				Short('s').String()
 
 	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
+				Default("10.128.0.192").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
 				Short('m').String()
 
 	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-				PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
+				Default("10.128.7.224").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
 				Short('x').String()
 
 	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
+				Default("vxlan").PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				Short('b').String()
 
@@ -276,27 +276,27 @@ var (
 					String()
 
 	flDeployFlannelNetwork = cmdDeploy.Flag("flannel-network", "Flannel entire overlay network.").
-				PlaceHolder("KATO_DEPLOY_FLANNEL_NETWORK").
+				Default("10.128.0.0/21").PlaceHolder("KATO_DEPLOY_FLANNEL_NETWORK").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
 				String()
 
 	flDeployFlannelSubnetLen = cmdDeploy.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
+					Default("27").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
 					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
 					String()
 
 	flDeployFlannelSubnetMin = cmdDeploy.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
+					Default("10.128.0.192").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
 					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
 					String()
 
 	flDeployFlannelSubnetMax = cmdDeploy.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-					PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
+					Default("10.128.7.224").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
 					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
 					String()
 
 	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				PlaceHolder("KATO_DEPLOY_FLANNEL_BACKEND").
+				Default("vxlan").PlaceHolder("KATO_DEPLOY_FLANNEL_BACKEND").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
 				String()
 
