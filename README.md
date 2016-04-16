@@ -65,7 +65,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 ```
 go get github.com/h0tbird/kato/cmd/katoctl
 go install github.com/h0tbird/kato/cmd/katoctl
-eval "$(katoctl --completion-script-${0})"
+eval "$(katoctl --completion-script-${0#-})"
 ```
 
 ## 1. Deploy Káto's infrastructure
