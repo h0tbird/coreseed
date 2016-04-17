@@ -332,8 +332,13 @@ func (d *Data) retrieveCoreosAmiID() error {
 
 	// Retrieve the data:
 	data, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
 	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Close the handler:
+	if err = res.Body.Close(); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
@@ -359,7 +364,7 @@ func (d *Data) retrieveCoreosAmiID() error {
 // func: deployMasterNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
+func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -406,16 +411,15 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) error {
 		}(i)
 	}
 
-	// Wait and return:
+	// Wait:
 	wgInt.Wait()
-	return nil
 }
 
 //-----------------------------------------------------------------------------
 // func: deployWorkerNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
+func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -467,16 +471,15 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) error {
 		}(i)
 	}
 
-	// Wait and return:
+	// Wait:
 	wgInt.Wait()
-	return nil
 }
 
 //-----------------------------------------------------------------------------
 // func: deployEdgeNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
+func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -523,9 +526,8 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) error {
 		}(i)
 	}
 
-	// Wait and return:
+	// Wait:
 	wgInt.Wait()
-	return nil
 }
 
 //-----------------------------------------------------------------------------
