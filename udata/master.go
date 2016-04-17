@@ -121,7 +121,14 @@ write_files:
     for i in $A; do ssh -o UserKnownHostsFile=/dev/null \
     -o StrictHostKeyChecking=no $i -C "$*"; done
 
- - path: "/etc/fleet/zookeeper@.service"
+ - path: "/etc/kato.env"
+   content: |
+    KATO_ROLE={{.Role}}
+    KATO_HOST_ID={{.HostID}}
+    KATO_ZK_SERVERS='master-1,master-2,master-3'
+    KATO_ZK_URL='zk://master-1:2181,master-2:2181,master-3:2181'
+
+ - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
     Description=Zookeeper
@@ -133,30 +140,31 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill zookeeper-%i
-    ExecStartPre=-/usr/bin/docker rm zookeeper-%i
+    EnvironmentFile=/etc/kato.env
+    ExecStartPre=-/usr/bin/docker kill zookeeper
+    ExecStartPre=-/usr/bin/docker rm zookeeper
     ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-1
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
-      --name zookeeper-%i \
-      --env ZK_SERVER_ID=%i \
+      --name zookeeper \
+      --env ZK_SERVER_ID=${KATO_HOST_ID} \
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
       --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=master-1,master-2,master-3 \
+      --env ZK_SERVERS=${KATO_ZK_SERVERS} \
       --env ZK_DATA_DIR=/var/lib/zookeeper \
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
       --env JMXDISABLE=true \
       h0tbird/zookeeper:v3.4.8-1"
-    ExecStop=/usr/bin/docker stop -t 5 zookeeper-%i
+    ExecStop=/usr/bin/docker stop -t 5 zookeeper
 
     [Install]
     WantedBy=multi-user.target
 
     [X-Fleet]
-    MachineMetadata="role=master" "id=%i"
-    X-Conflicts=zookeeper@*.service
+    Global=true
+    MachineMetadata=role=master
 
  - path: "/etc/fleet/mesos-master.service"
    content: |
@@ -169,6 +177,7 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-master
     ExecStartPre=-/usr/bin/docker rm mesos-master
     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404
@@ -180,7 +189,7 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404 \
       --ip=$(hostname -i) \
-      --zk=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
+      --zk=${KATO_ZK_URL}/mesos \
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
       --quorum=2"
@@ -205,6 +214,7 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-node
     ExecStartPre=-/usr/bin/docker rm mesos-node
     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404
@@ -225,7 +235,7 @@ write_files:
       --ip=$(hostname -i) \
       --containerizers=docker \
       --executor_registration_timeout=2mins \
-      --master=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
+      --master=${KATO_ZK_URL}/mesos \
       --work_dir=/var/lib/mesos/node \
       --log_dir=/var/log/mesos/node"
     ExecStop=/usr/bin/docker stop -t 5 mesos-node
@@ -248,13 +258,14 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-dns
     ExecStartPre=-/usr/bin/docker rm mesos-dns
     ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
     ExecStart=/usr/bin/sh -c "docker run \
       --name mesos-dns \
       --net host \
-      --env MDNS_ZK=zk://master-1:2181,master-2:2181,master-3:2181/mesos \
+      --env MDNS_ZK=${KATO_ZK_URL}/mesos \
       --env MDNS_REFRESHSECONDS=45 \
       --env MDNS_LISTENER=$(hostname -i) \
       --env MDNS_HTTPON=false \
@@ -289,6 +300,7 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill marathon
     ExecStartPre=-/usr/bin/docker rm marathon
     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v0.15.3
@@ -300,8 +312,8 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/marathon:v0.15.3 \
       --http_address $(hostname -i) \
-      --master zk://master-1:2181,master-2:2181,master-3:2181/mesos \
-      --zk zk://master-1:2181,master-2:2181,master-3:2181/marathon \
+      --master ${KATO_ZK_URL}/mesos \
+      --zk ${KATO_ZK_URL}/marathon \
       --task_launch_timeout 240000 \
       --checkpoint"
     ExecStop=/usr/bin/docker stop -t 5 marathon
@@ -324,12 +336,10 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
-
     ExecStartPre=-/usr/bin/docker kill ceph-mon
     ExecStartPre=-/usr/bin/docker rm ceph-mon
     ExecStartPre=-/usr/bin/docker pull h0tbird/ceph:v9.2.0-2
     ExecStartPre=/opt/bin/ceph2etcd
-
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name ceph-mon \
@@ -367,11 +377,9 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
-
     ExecStartPre=-/usr/bin/docker kill ceph-osd
     ExecStartPre=-/usr/bin/docker rm ceph-osd
     ExecStartPre=-/usr/bin/docker pull h0tbird/ceph:v9.2.0-2
-
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged=true \
       --net host \
@@ -387,7 +395,6 @@ write_files:
       --env KV_IP=127.0.0.1 \
       --env KV_PORT=2379 \
       h0tbird/ceph:v9.2.0-2 osd"
-
     ExecStop=/usr/bin/docker stop -t 5 ceph-osd
 
     [Install]

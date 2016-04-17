@@ -76,13 +76,19 @@ eval "$(katoctl --completion-script-${0#-})"
 |---|---|---|---|---|
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
-## 2. Start the stack
+## 2. Pre-flight checklist
+```
+etcdctl cluster-health
+fleetctl list-machines
+loopssh hostname
+```
+
+## 3. Start the stack
 ```
 cd /etc/fleet
-fleetctl start zookeeper@1 zookeeper@2 zookeeper@3
+fleetctl start zookeeper.service
 fleetctl start mesos-master.service mesos-dns.service
 fleetctl start marathon.service cadvisor.service
 fleetctl start dnsmasq.service mesos-node.service
 fleetctl start mongodb.service pritunl.service
-fleetctl start ceph-mon.service ceph-osd.service
 ```
