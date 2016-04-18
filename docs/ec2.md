@@ -3,7 +3,8 @@ Make sure your system's clock is synchronized:
 ```
 timedatectl set-ntp true
 ```
-If you are an *operator* you need the `real thing`&trade;:
+#### For operators
+If you are an *operator* you need the `real thing`&trade;
 ```bash
 NS1_API_KEY='ns1-private-key-goes-here'
 
@@ -20,6 +21,7 @@ katoctl deploy ec2 \
   --key-pair your-ec2-ssh-key-name
 ```
 
+#### For developers
 If you are a *developer* you need a lighter version:
 ```bash
 NS1_API_KEY='ns1-private-key-goes-here'
