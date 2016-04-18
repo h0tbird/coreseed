@@ -84,13 +84,23 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
+
 ```
 etcdctl cluster-health
 fleetctl list-machines
-loopssh hostname
+loopssh sudo etchost
+loopssh ip r | grep docker
+watch "fleetctl list-units"
 ```
 
 ## 4. Start the stack
+Open a second terminal to `edge-1` and jump to `master-1` from there. If you are using vagrant you can ssh directly to `master-1`:
+```
+TERM=xterm ssh -A core@edge-1.your.domain
+core@edge-1 ~ $ ssh master-1
+```
+
+Use `fleetctl` to start the service units while you check the status on the first terminal:
 ```
 cd /etc/fleet
 fleetctl start zookeeper.service
