@@ -24,7 +24,6 @@ katoctl deploy ec2 \
   --region eu-west-1 \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --etcd-token auto \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR}
 ```
 
@@ -39,6 +38,5 @@ katoctl deploy ec2 \
   --region eu-west-1 \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --etcd-token auto \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR}
 ```

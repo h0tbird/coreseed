@@ -91,7 +91,7 @@ var (
 			Short('c').String()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
-				PlaceHolder("KATO_UDATA_ETCD_TOKEN").
+				Required().PlaceHolder("KATO_UDATA_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 				Short('e').String()
 
@@ -231,7 +231,7 @@ var (
 				String()
 
 	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
-				Required().PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
+				Default("auto").PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				Short('t').String()
 
