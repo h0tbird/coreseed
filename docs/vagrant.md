@@ -1,6 +1,6 @@
-#### Deploy on Vagrant
+### Deploy on Vagrant
 
-If you are an *operator* you need the `real thing`&trade;:
+If you are an *operator* you need `the real thing`&trade;
 ```bash
 export KATO_MASTER_COUNT=3
 export KATO_NODE_COUNT=2

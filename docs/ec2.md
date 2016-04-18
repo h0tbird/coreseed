@@ -1,10 +1,11 @@
-#### Deploy on Amazon EC2
+### Deploy on Amazon EC2
 Make sure your system's clock is synchronized:
 ```
 timedatectl set-ntp true
+systemctl restart systemd-timesyncd.service
 ```
 #### For operators
-If you are an *operator* you need the `real thing`&trade;
+If you are an *operator* you need `the real thing`&trade;
 ```bash
 NS1_API_KEY='ns1-private-key-goes-here'
 
