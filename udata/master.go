@@ -150,7 +150,7 @@ write_files:
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
       --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=${${KATO_ZK_URL//:2181/}:5} \
+      --env ZK_SERVERS=$(echo ${KATO_ZK_URL//:2181/} | cut -b6-) \
       --env ZK_DATA_DIR=/var/lib/zookeeper \
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
