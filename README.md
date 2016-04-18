@@ -61,7 +61,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 |[cAdvisor](https://github.com/google/cadvisor)|[0.22.0](https://github.com/google/cadvisor/releases/tag/v0.22.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/google/cadvisor.svg)](https://hub.docker.com/r/google/cadvisor/)|
 |[Ceph](http://ceph.com)|[9.2.0](https://github.com/h0tbird/docker-ceph/releases/tag/v9.2.0-2)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/ceph.svg)](https://hub.docker.com/r/h0tbird/ceph/)|
 
-## 1. Install
+## 1. Install katoctl
 
 ##### From the source (developers)
 ```
