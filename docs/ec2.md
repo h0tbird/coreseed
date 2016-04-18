@@ -17,7 +17,6 @@ katoctl deploy ec2 \
   --domain cell-1.dc-1.demo.com \
   --ns1-api-key ${NS1_API_KEY} \
   --etcd-token auto \
-  --ca-cert certificates/cell-1.dc-1.demo.com/certs/server-crt.pem \
   --key-pair your-ec2-ssh-key-name
 ```
 
@@ -35,6 +34,5 @@ katoctl deploy ec2 \
   --domain cell-1.dc-1.demo.com \
   --ns1-api-key ${NS1_API_KEY} \
   --etcd-token auto \
-  --ca-cert certificates/cell-1.dc-1.demo.com/certs/server-crt.pem \
   --key-pair your-ec2-ssh-key-name
 ```
