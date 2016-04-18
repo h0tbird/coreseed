@@ -133,7 +133,6 @@ write_files:
     [Unit]
     Description=Zookeeper
     After=docker.service
-    Before=mesos-master.service marathon.service
     Requires=docker.service
 
     [Service]
@@ -170,8 +169,8 @@ write_files:
    content: |
     [Unit]
     Description=Mesos Master
-    After=docker.service
-    Requires=docker.service
+    After=docker.service zookeeper.service
+    Requires=docker.service zookeeper.service
 
     [Service]
     Restart=on-failure
@@ -251,8 +250,8 @@ write_files:
    content: |
     [Unit]
     Description=Mesos DNS
-    After=docker.service mesos-master.service
-    Requires=docker.service mesos-master.service
+    After=docker.service zookeeper.service mesos-master.service
+    Requires=docker.service zookeeper.service mesos-master.service
 
     [Service]
     Restart=on-failure
@@ -293,8 +292,8 @@ write_files:
    content: |
     [Unit]
     Description=Marathon
-    After=docker.service mesos-master.service
-    Requires=docker.service mesos-master.service
+    After=docker.service zookeeper.service mesos-master.service
+    Requires=docker.service zookeeper.service mesos-master.service
 
     [Service]
     Restart=on-failure
