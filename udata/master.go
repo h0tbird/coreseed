@@ -125,7 +125,6 @@ write_files:
    content: |
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
-    KATO_ZK_SERVERS='master-1,master-2,master-3'
     KATO_ZK_URL='zk://master-1:2181,master-2:2181,master-3:2181'
 
  - path: "/etc/fleet/zookeeper.service"
@@ -151,7 +150,7 @@ write_files:
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
       --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=${KATO_ZK_SERVERS} \
+      --env ZK_SERVERS=${${KATO_ZK_URL//:2181/}:5} \
       --env ZK_DATA_DIR=/var/lib/zookeeper \
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
