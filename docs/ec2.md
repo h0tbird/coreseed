@@ -2,13 +2,13 @@
 
 Before you start make sure:
 - Your system's clock is synchronized.
-- You have uploaded valid SSH keys to EC2.
+- You have uploaded valid `SSH` keys to `EC2`.
 - You have AWS credentials in `~/.aws/credentials`.
 - You have permissions to manage `EC2` and `VPC`.
 
 Define your environment:
 ```bash
-NS1_API_KEY='<ns1-private-key-goes-here>'
+NS1_API_KEY='<your-ns1-private-key-goes-here>'
 DOMAIN='<your-public-domain-goes-here>'
 KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
 ```
@@ -29,7 +29,7 @@ katoctl deploy ec2 \
 ```
 
 #### For developers
-If you are a *developer* you need a lighter version:
+If you are a *developer* you can deploy a lighter version:
 ```bash
 katoctl deploy ec2 \
   --master-count 1 \
