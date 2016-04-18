@@ -150,7 +150,7 @@ write_files:
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
       --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=$(echo $${KATO_ZK_URL//:2181/} | cut -b6-) \
+      --env ZK_SERVERS=${KATO_ZK//:2181/} \
       --env ZK_DATA_DIR=/var/lib/zookeeper \
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
@@ -188,7 +188,7 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404 \
       --ip=$(hostname -i) \
-      --zk=${KATO_ZK_URL}/mesos \
+      --zk=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
       --quorum=2"
@@ -234,7 +234,7 @@ write_files:
       --ip=$(hostname -i) \
       --containerizers=docker \
       --executor_registration_timeout=2mins \
-      --master=${KATO_ZK_URL}/mesos \
+      --master=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/node \
       --log_dir=/var/log/mesos/node"
     ExecStop=/usr/bin/docker stop -t 5 mesos-node
@@ -264,7 +264,7 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name mesos-dns \
       --net host \
-      --env MDNS_ZK=${KATO_ZK_URL}/mesos \
+      --env MDNS_ZK=zk://${KATO_ZK}/mesos \
       --env MDNS_REFRESHSECONDS=45 \
       --env MDNS_LISTENER=$(hostname -i) \
       --env MDNS_HTTPON=false \
@@ -311,8 +311,8 @@ write_files:
       --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/marathon:v0.15.3 \
       --http_address $(hostname -i) \
-      --master ${KATO_ZK_URL}/mesos \
-      --zk ${KATO_ZK_URL}/marathon \
+      --master zk://${KATO_ZK}/mesos \
+      --zk zk://${KATO_ZK}/marathon \
       --task_launch_timeout 240000 \
       --checkpoint"
     ExecStop=/usr/bin/docker stop -t 5 marathon
