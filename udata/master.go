@@ -23,6 +23,7 @@ write_files:
 
  - path: "/etc/kato.env"
    content: |
+    KATO_MASTER_COUNT={{.MasterCount}
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
@@ -191,7 +192,7 @@ write_files:
       --zk=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
-      --quorum=2"
+      --quorum=$(($KATO_MASTER_COUNT/2 + 1))"
     ExecStop=/usr/bin/docker stop -t 5 mesos-master
 
     [Install]

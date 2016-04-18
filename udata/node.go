@@ -23,6 +23,7 @@ write_files:
 
  - path: "/etc/kato.env"
    content: |
+    KATO_MASTER_COUNT={{.MasterCount}
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
