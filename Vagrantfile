@@ -19,9 +19,9 @@ $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
-$ca_cert        = ENV['KATO_CA_CERT'] || ''
+$ca_cert        = ENV['KATO_CA_CERT']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$katoctl        = "katoctl udata --master-count %s -k %s -d %s -i %s -r %s -c %s -g"
+$katoctl        = "katoctl udata --master-count %s -k %s -d %s -i %s -r %s -e %s -g"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
 #------------------------------------------------------------------------------
@@ -78,16 +78,16 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        if $discovery_url
-          cmd = $katoctl + " -e %s > user_mdata_%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', $ca_cert, token, i ]
+        if $ca_cert
+          cmd = $katoctl + " -c %s > user_data_master-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, $ca_cert, i ]
         else
-          cmd = $katoctl + " > user_mdata_%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', $ca_cert, i ]
+          cmd = $katoctl + " > user_data_master-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, i ]
         end
 
-        if File.exist?("user_mdata_%s" % i)
-          conf.vm.provision :file, :source => "user_mdata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
+        if File.exist?("user_data_master-%s" % i)
+          conf.vm.provision :file, :source => "user_data_master-%s" % i, :destination => "/tmp/vagrantfile-user-data"
           conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
         end
 
@@ -116,11 +116,16 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        cmd = $katoctl + " > user_ndata_%s"
-        system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', $ca_cert, i ]
+        if $ca_cert
+          cmd = $katoctl + " -c %s > user_data_node-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, $ca_cert, i ]
+        else
+          cmd = $katoctl + " > user_data_node-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, i ]
+        end
 
-        if File.exist?("user_ndata_%s" % i)
-          conf.vm.provision :file, :source => "user_ndata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
+        if File.exist?("user_data_node-%s" % i)
+          conf.vm.provision :file, :source => "user_data_node-%s" % i, :destination => "/tmp/vagrantfile-user-data"
           conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
         end
 
@@ -150,8 +155,13 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        cmd = $katoctl + " > user_edata_%s"
-        system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', $ca_cert, i ]
+        if $ca_cert
+          cmd = $katoctl + " -c %s > user_edata_%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, $ca_cert, i ]
+        else
+          cmd = $katoctl + " > user_edata_%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
+        end
 
         if File.exist?("user_edata_%s" % i)
           conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
