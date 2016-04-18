@@ -241,7 +241,7 @@ var (
 				String()
 
 	flDeployEc2CaCert = cmdDeployEc2.Flag("ca-cert", "Path to CA certificate.").
-				Required().PlaceHolder("KATO_DEPLOY_EC2_CA_CET").
+				PlaceHolder("KATO_DEPLOY_EC2_CA_CET").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CA_CET").
 				Short('c').String()
 
