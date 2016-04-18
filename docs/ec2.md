@@ -8,10 +8,10 @@ Before you start make sure:
 
 Define your environment:
 ```bash
-KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
-KATO_DEPLOY_EC2_DOMAIN='<your-public-domain-goes-here>'
-KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
-KATO_DEPLOY_EC2_REGION='<your-ec2-region-goes-here>'
+export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
+export KATO_DEPLOY_EC2_DOMAIN='<your-public-domain-goes-here>'
+export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
+export KATO_DEPLOY_EC2_REGION='<your-ec2-region-goes-here>'
 ```
 
 #### For operators
