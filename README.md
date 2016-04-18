@@ -63,14 +63,14 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ## 1. Install
 
-### From the source (developers)
+##### From the source (developers)
 ```
 go get github.com/h0tbird/kato/cmd/katoctl
 go install github.com/h0tbird/kato/cmd/katoctl
 eval "$(katoctl --completion-script-${0#-})"
 ```
 
-### From the latest release (users)
+##### From the latest release (users)
 ```
 not yet
 ```
