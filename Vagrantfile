@@ -19,7 +19,7 @@ $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
-$ca_cert        = ENV['KATO_CA_CERT'] || '~/certificates/certs/server-crt.pem'
+$ca_cert        = ENV['KATO_CA_CERT'] || ''
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $katoctl        = "katoctl udata --master-count %s -k %s -d %s -i %s -r %s -c %s -g"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
