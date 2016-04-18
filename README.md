@@ -63,14 +63,14 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ## 1. Install katoctl
 
-##### From the source (developers)
+##### From the source (for developers)
 ```bash
 marc@arch-1 ~ $ go get github.com/h0tbird/kato/cmd/katoctl
 marc@arch-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
 marc@arch-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 ```
 
-##### From the latest release (users)
+##### From the latest release (for end users)
 ```bash
 not yet
 ```
@@ -84,7 +84,7 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
-Basic sanity checks to evaluate whether the cluster is ready for normal operation:
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. This can be done on any node type `master`, `node` or `edge`:
 ```bash
 core@edge-1 ~ $ etcdctl cluster-health
 core@edge-1 ~ $ fleetctl list-machines
