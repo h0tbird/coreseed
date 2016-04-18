@@ -25,7 +25,7 @@ write_files:
    content: |
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
-    KATO_ZK_URL={{.ZkServers}}
+    KATO_ZK={{.ZkServers}}
 
  {{if .CaCert }}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
    content: |

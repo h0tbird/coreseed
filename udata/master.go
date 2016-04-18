@@ -21,6 +21,12 @@ write_files:
     search {{.Domain}}
     nameserver 8.8.8.8
 
+ - path: "/etc/kato.env"
+   content: |
+    KATO_ROLE={{.Role}}
+    KATO_HOST_ID={{.HostID}}
+    KATO_ZK={{.ZkServers}}
+
  {{if .CaCert }}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
    content: |
     {{.CaCert}}{{end}}
@@ -120,12 +126,6 @@ write_files:
     A=$(fleetctl list-machines -fields=ip -no-legend)
     for i in $A; do ssh -o UserKnownHostsFile=/dev/null \
     -o StrictHostKeyChecking=no $i -C "$*"; done
-
- - path: "/etc/kato.env"
-   content: |
-    KATO_ROLE={{.Role}}
-    KATO_HOST_ID={{.HostID}}
-    KATO_ZK_URL={{.ZkServers}}
 
  - path: "/etc/fleet/zookeeper.service"
    content: |

@@ -67,8 +67,6 @@ func (d *Data) caCert() error {
 
 func (d *Data) forgeZookeeperURL() {
 
-	d.ZkServers = "zk://"
-
 	for i := 1; i <= d.MasterCount; i++ {
 		d.ZkServers = d.ZkServers + "master-" + strconv.Itoa(i) + ":2181"
 		if i != d.MasterCount {
