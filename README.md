@@ -61,14 +61,21 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 |[cAdvisor](https://github.com/google/cadvisor)|[0.22.0](https://github.com/google/cadvisor/releases/tag/v0.22.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/google/cadvisor.svg)](https://hub.docker.com/r/google/cadvisor/)|
 |[Ceph](http://ceph.com)|[9.2.0](https://github.com/h0tbird/docker-ceph/releases/tag/v9.2.0-2)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/ceph.svg)](https://hub.docker.com/r/h0tbird/ceph/)|
 
-## Install
+## 1. Install
+
+### From the source (developers)
 ```
 go get github.com/h0tbird/kato/cmd/katoctl
 go install github.com/h0tbird/kato/cmd/katoctl
 eval "$(katoctl --completion-script-${0#-})"
 ```
 
-## 1. Deploy Káto's infrastructure
+### From the latest release (users)
+```
+not yet
+```
+
+## 2. Deploy Káto's infrastructure
 
 *Káto* can be deployed on a few *IaaS* providers. More providers are planned but feel free to send a pull request if your prefered provider is not supported yet. Find below deployment guides for each supported provider:
 
@@ -76,14 +83,14 @@ eval "$(katoctl --completion-script-${0#-})"
 |---|---|---|---|---|
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
-## 2. Pre-flight checklist
+## 3. Pre-flight checklist
 ```
 etcdctl cluster-health
 fleetctl list-machines
 loopssh hostname
 ```
 
-## 3. Start the stack
+## 4. Start the stack
 ```
 cd /etc/fleet
 fleetctl start zookeeper.service

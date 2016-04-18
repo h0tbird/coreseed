@@ -1,13 +1,15 @@
 ### Deploy on Amazon EC2
-Make sure your system's clock is synchronized:
-```
-timedatectl set-ntp true
-systemctl restart systemd-timesyncd.service
-```
+
+Before you start make sure:
+- Your system's clock is synchronized.
+- You have uploaded valid SSH keys to EC2.
+- You have AWS credentials in `~/.aws/credentials`.
+- You have permissions to manage `EC2` and `VPC`.
+
 #### For operators
 If you are an *operator* you need `the real thing`&trade;
 ```bash
-NS1_API_KEY='ns1-private-key-goes-here'
+NS1_API_KEY='<ns1-private-key-goes-here>'
 
 katoctl deploy ec2 \
   --master-count 3 \
@@ -15,10 +17,10 @@ katoctl deploy ec2 \
   --edge-count 1 \
   --channel alpha \
   --region eu-west-1 \
-  --domain cell-1.dc-1.demo.com \
+  --domain <cell-1.dc-1.demo.com> \
   --ns1-api-key ${NS1_API_KEY} \
   --etcd-token auto \
-  --key-pair your-ec2-ssh-key-name
+  --key-pair <your-ec2-ssh-key-name>
 ```
 
 #### For developers
@@ -32,8 +34,8 @@ katoctl deploy ec2 \
   --edge-count 1 \
   --channel alpha \
   --region eu-west-1 \
-  --domain cell-1.dc-1.demo.com \
+  --domain <cell-1.dc-1.demo.com> \
   --ns1-api-key ${NS1_API_KEY} \
   --etcd-token auto \
-  --key-pair your-ec2-ssh-key-name
+  --key-pair <your-ec2-ssh-key-name>
 ```
