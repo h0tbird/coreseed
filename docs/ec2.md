@@ -3,86 +3,36 @@ Make sure your system's clock is synchronized:
 ```
 timedatectl set-ntp true
 ```
-
+If you are an *operator* you need the `real thing`&trade;:
 ```bash
-#!/bin/bash
+NS1_API_KEY='ns1-private-key-goes-here'
 
-case $1 in
+katoctl deploy ec2 \
+  --master-count 3 \
+  --node-count 2 \
+  --edge-count 1 \
+  --channel alpha \
+  --region eu-west-1 \
+  --domain cell-1.dc-1.demo.com \
+  --ns1-api-key ${NS1_API_KEY} \
+  --etcd-token auto \
+  --ca-cert certificates/cell-1.dc-1.demo.com/certs/server-crt.pem \
+  --key-pair your-ec2-ssh-key-name
+```
 
-  "masters")
+If you are a *developer* you need a lighter version:
+```bash
+NS1_API_KEY='ns1-private-key-goes-here'
 
-    ETCD_TOKEN=$(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}')
-
-    for i in 1 2 3; do
-
-      katoctl udata \
-      --role master \
-      --hostid ${i} \
-      --domain cell-1.dc-1.demo.com \
-      --ns1-api-key xxx \
-      --ca-cert path/to/cert.pem \
-      --etcd-token ${ETCD_TOKEN} |
-
-      gzip --best | katoctl run-ec2 \
-      --hostname master-${i}.cell-1.dc-1 \
-      --region eu-west-1 \
-      --image-id ami-7b971208 \
-      --instance-type t2.medium \
-      --key-pair xxx \
-      --vpc-id vpc-xxx \
-      --subnet-ids subnet-xxx:sg-xxx
-
-    done ;;
-
-  "nodes")
-
-    for i in $(seq $2); do
-
-      katoctl udata \
-      --role node \
-      --hostid ${i} \
-      --domain cell-1.dc-1.demo.com \
-      --ns1-api-key xxx \
-      --ca-cert path/to/cert.pem \
-      --flannel-network 10.128.0.0/21 \
-      --flannel-subnet-len 27 \
-      --flannel-subnet-min 10.128.0.192 \
-      --flannel-subnet-max 10.128.7.224 \
-      --flannel-backend vxlan |
-
-      gzip --best | katoctl run-ec2 \
-      --hostname node-${i}.cell-1.dc-1 \
-      --region eu-west-1 \
-      --image-id ami-7b971208 \
-      --instance-type t2.medium \
-      --key-pair xxx \
-      --vpc-id vpc-xxx \
-      --subnet-ids subnet-xxx:sg-xxx
-
-    done ;;
-
-  "edge")
-
-    for i in 1; do
-
-      katoctl udata \
-      --role edge \
-      --hostid ${i} \
-      --domain cell-1.dc-1.demo.com \
-      --ns1-api-key xxx \
-      --ca-cert path/to/cert.pem |
-
-      gzip --best | katoctl run-ec2 \
-      --hostname edge-${i}.cell-1.dc-1 \
-      --region eu-west-1 \
-      --image-id ami-7b971208 \
-      --instance-type t2.medium \
-      --elastic-ip true \
-      --key-pair xxx \
-      --vpc-id xxx \
-      --subnet-ids subnet-xxx:sg-xxx,subnet-xxx:sg-xxx
-
-    done ;;
-
-esac
+katoctl deploy ec2 \
+  --master-count 1 \
+  --node-count 1 \
+  --edge-count 1 \
+  --channel alpha \
+  --region eu-west-1 \
+  --domain cell-1.dc-1.demo.com \
+  --ns1-api-key ${NS1_API_KEY} \
+  --etcd-token auto \
+  --ca-cert certificates/cell-1.dc-1.demo.com/certs/server-crt.pem \
+  --key-pair your-ec2-ssh-key-name
 ```
