@@ -31,7 +31,7 @@ type Data struct {
 	Ns1ApiKey        string
 	CaCert           string
 	EtcdToken        string
-	zkServers        string
+	ZkServers        string
 	GzipUdata        bool
 	FlannelNetwork   string
 	FlannelSubnetLen string
@@ -67,12 +67,12 @@ func (d *Data) caCert() error {
 
 func (d *Data) forgeZookeeperURL() {
 
-	d.zkServers = "zk://"
+	d.ZkServers = "zk://"
 
 	for i := 1; i <= d.MasterCount; i++ {
-		d.zkServers = d.zkServers + "master-" + strconv.Itoa(i) + ":2181"
+		d.ZkServers = d.ZkServers + "master-" + strconv.Itoa(i) + ":2181"
 		if i != d.MasterCount {
-			d.zkServers = d.zkServers + ","
+			d.ZkServers = d.ZkServers + ","
 		}
 	}
 }
