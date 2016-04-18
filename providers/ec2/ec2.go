@@ -446,6 +446,7 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 				"--domain", d.Domain,
 				"--ns1-api-key", d.Ns1ApiKey,
 				"--ca-cert", d.CaCert,
+				"--etcd-token", d.EtcdToken,
 				"--gzip-udata",
 				"--flannel-network", d.FlannelNetwork,
 				"--flannel-subnet-len", d.FlannelSubnetLen,
@@ -506,6 +507,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 				"--domain", d.Domain,
 				"--ns1-api-key", d.Ns1ApiKey,
 				"--ca-cert", d.CaCert,
+				"--etcd-token", d.EtcdToken,
 				"--gzip-udata")
 
 			// Forge the run command:

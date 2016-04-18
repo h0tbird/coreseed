@@ -161,8 +161,8 @@ coreos:
   metadata: "role=edge,id={{.HostID}}"
 
  etcd2:
-  name: "edge-{{.HostID}}"
-  initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "edge-{{.HostID}}"
+  initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
   proxy: on
