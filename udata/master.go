@@ -142,7 +142,7 @@ write_files:
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill zookeeper
     ExecStartPre=-/usr/bin/docker rm zookeeper
-    ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-1
+    ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-2
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name zookeeper \
@@ -155,7 +155,7 @@ write_files:
       --env ZK_CLIENT_PORT=2181 \
       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
       --env JMXDISABLE=true \
-      h0tbird/zookeeper:v3.4.8-1"
+      h0tbird/zookeeper:v3.4.8-2"
     ExecStop=/usr/bin/docker stop -t 5 zookeeper
 
     [Install]
