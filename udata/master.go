@@ -125,7 +125,7 @@ write_files:
    content: |
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
-    KATO_ZK_URL='zk://master-1:2181,master-2:2181,master-3:2181'
+    KATO_ZK_URL={{.zkServers}}
 
  - path: "/etc/fleet/zookeeper.service"
    content: |

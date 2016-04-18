@@ -10,6 +10,7 @@ import (
 	"compress/gzip"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -30,6 +31,7 @@ type Data struct {
 	Ns1ApiKey        string
 	CaCert           string
 	EtcdToken        string
+	zkServers        string
 	GzipUdata        bool
 	FlannelNetwork   string
 	FlannelSubnetLen string
@@ -60,6 +62,22 @@ func (d *Data) caCert() error {
 }
 
 //-----------------------------------------------------------------------------
+// func: forgeZookeeperURL
+//-----------------------------------------------------------------------------
+
+func (d *Data) forgeZookeeperURL() {
+
+	d.zkServers = "zk://"
+
+	for i := 1; i <= d.MasterCount; i++ {
+		d.zkServers = d.zkServers + "master-" + strconv.Itoa(i) + ":2181"
+		if i != d.MasterCount {
+			d.zkServers = d.zkServers + ","
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // func: Render
 //-----------------------------------------------------------------------------
 
@@ -73,6 +91,9 @@ func (d *Data) Render() error {
 	if err = d.caCert(); err != nil {
 		return err
 	}
+
+	// Forge the Zookeeper URL:
+	d.forgeZookeeperURL()
 
 	// Role-based parsing:
 	t := template.New("udata")
