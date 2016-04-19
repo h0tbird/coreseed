@@ -63,15 +63,15 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ## 1. Install katoctl
 
-##### From the source (developers)
-```
-go get github.com/h0tbird/kato/cmd/katoctl
-go install github.com/h0tbird/kato/cmd/katoctl
-eval "$(katoctl --completion-script-${0#-})"
+##### From the source (for developers)
+```bash
+marc@desk-1 ~ $ go get github.com/h0tbird/kato/cmd/katoctl
+marc@desk-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
+marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 ```
 
-##### From the latest release (users)
-```
+##### From the latest release (for end users)
+```bash
 not yet
 ```
 
@@ -84,18 +84,29 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
-```
-etcdctl cluster-health
-fleetctl list-machines
-loopssh hostname
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. This can be done on any node type `master`, `node` or `edge`:
+```bash
+marc@desk-1 ~ $ ssh -A core@edge-1.your.domain
+core@edge-1 ~ $ etcdctl cluster-health
+core@edge-1 ~ $ fleetctl list-machines
+core@edge-1 ~ $ loopssh sudo etchost
+core@edge-1 ~ $ loopssh ip r | grep docker
+core@edge-1 ~ $ watch "fleetctl list-units"
 ```
 
 ## 4. Start the stack
+Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there. If you are using vagrant you can ssh directly to `master-1` instead. Also enable forwarding of the authentication agent (`ssh -A`):
+```bash
+marc@desk-1 ~ $ ssh -A core@edge-1.your.domain
+core@edge-1 ~ $ ssh master-1
 ```
-cd /etc/fleet
-fleetctl start zookeeper.service
-fleetctl start mesos-master.service mesos-dns.service
-fleetctl start marathon.service cadvisor.service
-fleetctl start dnsmasq.service mesos-node.service
-fleetctl start mongodb.service pritunl.service
+
+Use `fleetctl` to start the service units while you check the status on the first terminal:
+```bash
+core@master-1 ~ $ cd /etc/fleet
+core@master-1 ~ $ fleetctl start zookeeper.service
+core@master-1 ~ $ fleetctl start mesos-master.service mesos-dns.service
+core@master-1 ~ $ fleetctl start marathon.service cadvisor.service
+core@master-1 ~ $ fleetctl start dnsmasq.service mesos-node.service
+core@master-1 ~ $ fleetctl start mongodb.service pritunl.service
 ```

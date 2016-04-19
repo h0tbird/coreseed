@@ -8,9 +8,10 @@ Before you start make sure:
 
 Define your environment:
 ```bash
-KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
-KATO_DEPLOY_EC2_DOMAIN='<your-public-domain-goes-here>'
-KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
+export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
+export KATO_DEPLOY_EC2_DOMAIN='<your-public-domain-goes-here>'
+export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
+export KATO_DEPLOY_EC2_REGION='<your-ec2-region-goes-here>'
 ```
 
 #### For operators
@@ -20,11 +21,7 @@ katoctl deploy ec2 \
   --master-count 3 \
   --node-count 2 \
   --edge-count 1 \
-  --channel alpha \
-  --region eu-west-1 \
-  --domain ${KATO_DEPLOY_EC2_DOMAIN} \
-  --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR}
+  --channel alpha
 ```
 
 #### For developers
@@ -34,9 +31,5 @@ katoctl deploy ec2 \
   --master-count 1 \
   --node-count 1 \
   --edge-count 1 \
-  --channel alpha \
-  --region eu-west-1 \
-  --domain ${KATO_DEPLOY_EC2_DOMAIN} \
-  --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR}
+  --channel alpha
 ```
