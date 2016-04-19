@@ -63,14 +63,14 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ## 1. Install katoctl
 
-##### From the source (for developers)
+##### From the source (for *Káto* developers)
 ```bash
 marc@desk-1 ~ $ go get github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 ```
 
-##### From the latest release (for end users)
+##### From the latest release (for *Káto* end users)
 ```bash
 not yet
 ```
@@ -95,7 +95,7 @@ core@edge-1 ~ $ watch "fleetctl list-units"
 ```
 
 ## 4. Start the stack
-Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there. If you are using vagrant you can ssh directly to `master-1` instead. Also enable forwarding of the authentication agent (`ssh -A`):
+Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there. If you are using vagrant you can ssh directly to `master-1` instead. Also, enable forwarding of the authentication agent (`ssh -A`):
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.your.domain
 core@edge-1 ~ $ ssh master-1
