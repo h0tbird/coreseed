@@ -63,7 +63,7 @@ var (
 	flUdataMasterCount = cmdUdata.Flag("master-count", "Number of master nodes [ 1 | 3 | 5 ]").
 				Default("3").PlaceHolder("KATO_UDATA_MASTER_COUNT").
 				OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
-				Int()
+				HintOptions("1", "3", "5").Int()
 
 	flUdataHostID = cmdUdata.Flag("hostid", "Must be a number: hostname = <role>-<hostid>").
 			Required().PlaceHolder("KATO_UDATA_HOSTID").
@@ -78,7 +78,7 @@ var (
 	flUdataRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ]").
 			Required().PlaceHolder("KATO_UDATA_ROLE").
 			OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
-			Short('r').String()
+			Short('r').HintOptions("master", "node", "edge").String()
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
 				Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
@@ -91,7 +91,7 @@ var (
 			Short('c').String()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
-				Required().PlaceHolder("KATO_UDATA_ETCD_TOKEN").
+				PlaceHolder("KATO_UDATA_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
 				Short('e').String()
 
@@ -172,22 +172,22 @@ var (
 	flRunPktPlan = cmdRunPacket.Flag("plan", "One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
 			Required().PlaceHolder("KATO_RUN_PKT_PLAN").
 			OverrideDefaultFromEnvar("KATO_RUN_PKT_PLAN").
-			Short('p').String()
+			Short('p').HintOptions("baremetal_0", "baremetal_1", "baremetal_2", "baremetal_3").String()
 
 	flRunPktOS = cmdRunPacket.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
-			Required().PlaceHolder("KATO_RUN_PKT_OS").
+			Default("coreos_stable").PlaceHolder("KATO_RUN_PKT_OS").
 			OverrideDefaultFromEnvar("KATO_RUN_PKT_OS").
-			Short('o').String()
+			Short('o').HintOptions("coreos_stable", "coreos_beta", "coreos_alpha").String()
 
 	flRunPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
 				Required().PlaceHolder("KATO_RUN_PKT_FACILITY").
 				OverrideDefaultFromEnvar("KATO_RUN_PKT_FACILITY").
-				Short('f').String()
+				Short('f').HintOptions("ewr1", "ams1").String()
 
 	flRunPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
-			Required().PlaceHolder("KATO_RUN_PKT_BILLING").
+			Default("hourly").PlaceHolder("KATO_RUN_PKT_BILLING").
 			OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
-			Short('b').String()
+			Short('b').HintOptions("hourly", "monthly").String()
 
 	//----------------------------
 	// deploy ec2: nested command
@@ -195,10 +195,10 @@ var (
 
 	cmdDeployEc2 = cmdDeploy.Command("ec2", "Deploy Kato's infrastructure on Amazon EC2.")
 
-	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 ]").
-				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
+	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 | 5 ]").
+				Default("3").PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
-				Short('m').Int()
+				Short('m').HintOptions("1", "3", "5").Int()
 
 	flDeployEc2NodeCount = cmdDeployEc2.Flag("node-count", "Number of worker nodes to deploy.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_NODE_COUNT").
@@ -225,15 +225,15 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
 				String()
 
-	flDeployEc2Channel = cmdDeployEc2.Flag("channel", "CoreOS release channel [stable | beta | alpha]").
+	flDeployEc2Channel = cmdDeployEc2.Flag("channel", "CoreOS release channel [ stable | beta | alpha ]").
 				Default("stable").PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CHANNEL").
-				String()
+				HintOptions("stable", "beta", "alpha").String()
 
 	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
 				Default("auto").PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
-				Short('t').String()
+				Short('t').HintOptions("auto").String()
 
 	flDeployEc2Ns1ApiKey = cmdDeployEc2.Flag("ns1-api-key", "NS1 private API key.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_NS1_API_KEY").
@@ -298,7 +298,7 @@ var (
 	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
 				Default("vxlan").PlaceHolder("KATO_DEPLOY_FLANNEL_BACKEND").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
-				String()
+				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
 
 	//---------------------------
 	// setup ec2: nested command
