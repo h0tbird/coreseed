@@ -110,3 +110,7 @@ core@master-1 ~ $ fleetctl start marathon.service cadvisor.service
 core@master-1 ~ $ fleetctl start dnsmasq.service mesos-node.service
 core@master-1 ~ $ fleetctl start mongodb.service pritunl.service
 ```
+
+## 5. Setup pritunl
+*Pritunl* is an OpenVPN server that provides secure access to *Káto*'s private network.
+Access your pritunl WebGUI at `http://edge-1.ext.<your.domain>`
