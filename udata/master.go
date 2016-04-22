@@ -324,6 +324,70 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
+ - path: "/etc/fleet/marathon-lb-ext.service"
+   content: |
+    [Unit]
+    Description=Marathon-lb-ext
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill marathon-lb-ext
+    ExecStartPre=-/usr/bin/docker rm marathon-lb-ext
+    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.2.0
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name marathon-lb-ext \
+      --net host \
+      --privileged \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --env PORTS=9090 \
+      mesosphere/marathon-lb:v1.2.0 sse \
+      --marathon http://marathon:8080 \
+      --group external"
+    ExecStop=/usr/bin/docker stop -t 5 marathon-lb-ext
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=node
+
+ - path: "/etc/fleet/marathon-lb-int.service"
+   content: |
+    [Unit]
+    Description=Marathon-lb-int
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill marathon-lb-int
+    ExecStartPre=-/usr/bin/docker rm marathon-lb-int
+    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.2.0
+    ExecStart=/usr/bin/sh -c "docker run \
+      --name marathon-lb-int \
+      --net host \
+      --privileged \
+      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --env PORTS=9090 \
+      mesosphere/marathon-lb:v1.2.0 sse \
+      --marathon http://marathon:8080 \
+      --group internal"
+    ExecStop=/usr/bin/docker stop -t 5 marathon-lb-int
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=node
+ 
  - path: "/etc/fleet/ceph-mon.service"
    content: |
     [Unit]

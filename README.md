@@ -108,6 +108,7 @@ core@master-1 ~ $ fleetctl start zookeeper.service
 core@master-1 ~ $ fleetctl start mesos-master.service mesos-dns.service
 core@master-1 ~ $ fleetctl start marathon.service cadvisor.service
 core@master-1 ~ $ fleetctl start dnsmasq.service mesos-node.service
+core@master-1 ~ $ fleetctl start marathon-lb-int.service marathon-lb-ext.service
 core@master-1 ~ $ fleetctl start mongodb.service pritunl.service
 ```
 
