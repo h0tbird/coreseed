@@ -387,7 +387,7 @@ write_files:
     [X-Fleet]
     Global=true
     MachineMetadata=role=node
- 
+
  - path: "/etc/fleet/ceph-mon.service"
    content: |
     [Unit]
