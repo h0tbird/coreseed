@@ -375,7 +375,7 @@ write_files:
       --net host \
       --privileged \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      --env PORTS=9090 \
+      --env PORTS=9190 \
       mesosphere/marathon-lb:v1.2.0 sse \
       --marathon http://marathon:8080 \
       --group internal"
