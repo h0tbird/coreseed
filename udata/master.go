@@ -343,9 +343,10 @@ write_files:
       --net host \
       --privileged \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      --env PORTS=9090 \
+      --env PORTS=9090,9091 \
       mesosphere/marathon-lb:v1.2.0 sse \
       --marathon http://marathon:8080 \
+      --health-check \
       --group external"
     ExecStop=/usr/bin/docker stop -t 5 marathon-lb-ext
 
@@ -375,9 +376,11 @@ write_files:
       --net host \
       --privileged \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      --env PORTS=9190 \
+      --env PORTS=9190,9191 \
       mesosphere/marathon-lb:v1.2.0 sse \
       --marathon http://marathon:8080 \
+      --dont-bind-http-https \
+      --health-check \
       --group internal"
     ExecStop=/usr/bin/docker stop -t 5 marathon-lb-int
 

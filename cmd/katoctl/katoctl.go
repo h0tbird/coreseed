@@ -196,7 +196,7 @@ var (
 	cmdDeployEc2 = cmdDeploy.Command("ec2", "Deploy Kato's infrastructure on Amazon EC2.")
 
 	flDeployEc2MasterCount = cmdDeployEc2.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 | 5 ]").
-				Default("3").PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
 				Short('m').HintOptions("1", "3", "5").Int()
 
@@ -226,7 +226,7 @@ var (
 				String()
 
 	flDeployEc2Channel = cmdDeployEc2.Flag("channel", "CoreOS release channel [ stable | beta | alpha ]").
-				Default("stable").PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CHANNEL").
 				HintOptions("stable", "beta", "alpha").String()
 
