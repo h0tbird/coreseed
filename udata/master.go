@@ -324,10 +324,10 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/marathon-lb-ext.service"
+ - path: "/etc/fleet/marathon-lb.service"
    content: |
     [Unit]
-    Description=Marathon-lb-ext
+    Description=marathon-lb
     After=docker.service
     Requires=docker.service
 
@@ -335,11 +335,11 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill marathon-lb-ext
-    ExecStartPre=-/usr/bin/docker rm marathon-lb-ext
+    ExecStartPre=-/usr/bin/docker kill marathon-lb
+    ExecStartPre=-/usr/bin/docker rm marathon-lb
     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.2.0
     ExecStart=/usr/bin/sh -c "docker run \
-      --name marathon-lb-ext \
+      --name marathon-lb \
       --net host \
       --privileged \
       --volume /etc/resolv.conf:/etc/resolv.conf \
@@ -347,42 +347,9 @@ write_files:
       mesosphere/marathon-lb:v1.2.0 sse \
       --marathon http://marathon:8080 \
       --health-check \
-      --group external"
-    ExecStop=/usr/bin/docker stop -t 5 marathon-lb-ext
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=node
-
- - path: "/etc/fleet/marathon-lb-int.service"
-   content: |
-    [Unit]
-    Description=Marathon-lb-int
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=20
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill marathon-lb-int
-    ExecStartPre=-/usr/bin/docker rm marathon-lb-int
-    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.2.0
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name marathon-lb-int \
-      --net host \
-      --privileged \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
-      --env PORTS=9190,9191 \
-      mesosphere/marathon-lb:v1.2.0 sse \
-      --marathon http://marathon:8080 \
-      --dont-bind-http-https \
-      --health-check \
+      --group external \
       --group internal"
-    ExecStop=/usr/bin/docker stop -t 5 marathon-lb-int
+    ExecStop=/usr/bin/docker stop -t 5 marathon-lb
 
     [Install]
     WantedBy=multi-user.target
