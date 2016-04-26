@@ -21,7 +21,7 @@ $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$katoctl        = "katoctl udata --master-count %s -k %s -d %s -i %s -r %s -e %s -g"
+$katoctl        = "katoctl udata --rexray-storage-driver virtualbox --master-count %s -k %s -d %s -i %s -r %s -e %s -g"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
 #------------------------------------------------------------------------------

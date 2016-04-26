@@ -125,6 +125,11 @@ var (
 				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				Short('b').String()
 
+	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver", "REX-Ray storage driver: [ ec2 | virtualbox ]").
+					PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").
+					OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
+					String()
+
 	//------------------------
 	// run: top level command
 	//------------------------
@@ -408,19 +413,20 @@ func main() {
 	case cmdUdata.FullCommand():
 
 		udata := udata.Data{
-			MasterCount:      *flUdataMasterCount,
-			HostID:           *flUdataHostID,
-			Domain:           *flUdataDomain,
-			Role:             *flUdataRole,
-			Ns1ApiKey:        *flUdataNs1Apikey,
-			CaCert:           *flUdataCaCert,
-			EtcdToken:        *flUdataEtcdToken,
-			GzipUdata:        *flUdataGzipUdata,
-			FlannelNetwork:   *flUdataFlannelNetwork,
-			FlannelSubnetLen: *flUdataFlannelSubnetLen,
-			FlannelSubnetMin: *flUdataFlannelSubnetMin,
-			FlannelSubnetMax: *flUdataFlannelSubnetMax,
-			FlannelBackend:   *flUdataFlannelBackend,
+			MasterCount:         *flUdataMasterCount,
+			HostID:              *flUdataHostID,
+			Domain:              *flUdataDomain,
+			Role:                *flUdataRole,
+			Ns1ApiKey:           *flUdataNs1Apikey,
+			CaCert:              *flUdataCaCert,
+			EtcdToken:           *flUdataEtcdToken,
+			GzipUdata:           *flUdataGzipUdata,
+			FlannelNetwork:      *flUdataFlannelNetwork,
+			FlannelSubnetLen:    *flUdataFlannelSubnetLen,
+			FlannelSubnetMin:    *flUdataFlannelSubnetMin,
+			FlannelSubnetMax:    *flUdataFlannelSubnetMax,
+			FlannelBackend:      *flUdataFlannelBackend,
+			RexrayStorageDriver: *flUdataRexrayStorageDriver,
 		}
 
 		err := udata.Render()

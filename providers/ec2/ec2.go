@@ -452,7 +452,8 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 				"--flannel-subnet-len", d.FlannelSubnetLen,
 				"--flannel-subnet-min", d.FlannelSubnetMin,
 				"--flannel-subnet-max", d.FlannelSubnetMax,
-				"--flannel-backend", d.FlannelBackend)
+				"--flannel-backend", d.FlannelBackend,
+				"--rexray-storage-driver", "ec2")
 
 			// Forge the run command:
 			cmdRun := exec.Command("katoctl", "run", "ec2",

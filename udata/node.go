@@ -43,7 +43,7 @@ write_files:
    content: |
     rexray:
       storageDrivers:
-      - ec2
+      - {{.RexraxStorageDriver}}
 
  - path: "/home/core/.bashrc"
    owner: "core:core"

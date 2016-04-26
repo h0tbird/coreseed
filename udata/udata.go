@@ -24,20 +24,21 @@ import (
 
 // Data contains variables to be interpolated in templates.
 type Data struct {
-	MasterCount      int
-	HostID           string
-	Domain           string
-	Role             string
-	Ns1ApiKey        string
-	CaCert           string
-	EtcdToken        string
-	ZkServers        string
-	GzipUdata        bool
-	FlannelNetwork   string
-	FlannelSubnetLen string
-	FlannelSubnetMin string
-	FlannelSubnetMax string
-	FlannelBackend   string
+	MasterCount         int
+	HostID              string
+	Domain              string
+	Role                string
+	Ns1ApiKey           string
+	CaCert              string
+	EtcdToken           string
+	ZkServers           string
+	GzipUdata           bool
+	FlannelNetwork      string
+	FlannelSubnetLen    string
+	FlannelSubnetMin    string
+	FlannelSubnetMax    string
+	FlannelBackend      string
+	RexrayStorageDriver string
 }
 
 //-----------------------------------------------------------------------------
