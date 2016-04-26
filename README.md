@@ -103,13 +103,8 @@ core@edge-1 ~ $ ssh master-1
 
 Use `fleetctl` to start the service units while you check the status on the first terminal:
 ```bash
-core@master-1 ~ $ cd /etc/fleet
-core@master-1 ~ $ fleetctl start zookeeper.service
-core@master-1 ~ $ fleetctl start mesos-master.service mesos-dns.service
-core@master-1 ~ $ fleetctl start marathon.service cadvisor.service
-core@master-1 ~ $ fleetctl start dnsmasq.service mesos-node.service
-core@master-1 ~ $ fleetctl start marathon-lb.service
-core@master-1 ~ $ fleetctl start mongodb.service pritunl.service
+core@master-1 ~ $ cd /etc/fleet && fleetctl start zookeeper.service
+core@master-1 ~ $ fleetctl start *.service
 ```
 
 ## 5. Setup pritunl
