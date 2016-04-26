@@ -37,6 +37,14 @@ write_files:
     [Service]
     Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
 
+ - path: "/etc/rexray/rexray.env"
+
+ - path: "/etc/rexray/config.yml"
+   content: |
+    rexray:
+      storageDrivers:
+      - ec2
+
  - path: "/home/core/.bashrc"
    owner: "core:core"
    content: |
@@ -105,20 +113,6 @@ write_files:
     done
 
     echo "${PULL}" | grep -q $(hostname -s) && echo "${PULL}" > /etc/hosts
-
- - path: "/opt/bin/ceph"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    sudo rkt run \
-    --interactive \
-    --net=host \
-    --insecure-options=all \
-    --stage1-name=coreos.com/rkt/stage1-fly \
-    --volume volume-etc-ceph,kind=host,source=/etc/ceph \
-    --volume volume-var-lib-ceph,kind=host,source=/var/lib/ceph \
-    docker://h0tbird/ceph:v9.2.0-2 \
-    --exec /usr/bin/$(basename $0) -- "$@" 2>/dev/null
 
  - path: "/opt/bin/loopssh"
    permissions: "0755"
@@ -210,40 +204,25 @@ coreos:
      OnBootSec=1min
      OnUnitActiveSec=30min
 
-  - name: "ceph-tools.service"
+  - name: "rexray.service"
     command: "start"
     content: |
      [Unit]
-     Description=Ceph tools
-     Requires=docker.service
-     After=docker.service
+     Description=REX-Ray volume plugin
+     Before=docker.service
 
      [Service]
-     Type=oneshot
-     RemainAfterExit=yes
-     ExecStart=/bin/bash -c '\
-       [ -h /opt/bin/rbd ] || { ln -fs ceph /opt/bin/rbd; }; \
-       [ -h /opt/bin/rados ] || { ln -fs ceph /opt/bin/rados; }; \
-       rkt --insecure-options=image fetch /usr/share/rkt/stage1-fly.aci; \
-       rkt --insecure-options=image fetch docker://h0tbird/ceph:v9.2.0-2'
+     EnvironmentFile=/etc/rexray/rexray.env
+     ExecStartPre=-/bin/bash -c '\
+       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/latest/rexray-Linux-x86_64.tar.gz; \
+       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
+       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
+     ExecStart=/opt/bin/rexray start -f
+     ExecReload=/bin/kill -HUP $MAINPID
+     KillMode=process
 
-  - name: "docker-volume-rbd.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Docker RBD volume plugin
-     Requires=docker.service
-     After=docker.service
-
-     [Service]
-     Restart=on-failure
-     RestartSec=10
-     TimeoutStartSec=0
-
-     Environment="PATH=/sbin:/bin:/usr/sbin:/usr/bin:/opt/bin"
-     ExecStartPre=-/usr/bin/wget https://github.com/h0tbird/docker-volume-rbd/releases/download/v0.1.2/docker-volume-rbd -O /opt/bin/docker-volume-rbd
-     ExecStartPre=-/usr/bin/chmod 755 /opt/bin/docker-volume-rbd
-     ExecStart=/opt/bin/docker-volume-rbd
+     [Install]
+     WantedBy=docker.service
 
  fleet:
   public-ip: "$private_ipv4"

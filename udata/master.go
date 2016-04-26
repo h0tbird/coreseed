@@ -37,6 +37,8 @@ write_files:
     [Service]
     Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
 
+ - path: "/etc/rexray/rexray.env"
+
  - path: "/etc/rexray/config.yml"
    content: |
     rexray:
