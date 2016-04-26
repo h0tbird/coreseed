@@ -515,7 +515,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 				"--hostname", "edge-"+strconv.Itoa(id)+"."+d.Domain,
 				"--region", d.Region,
 				"--image-id", d.ImageID,
-				"--instance-type", d.NodeType,
+				"--instance-type", d.EdgeType,
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.edgeSecGrp,
