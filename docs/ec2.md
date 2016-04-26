@@ -23,6 +23,9 @@ katoctl deploy ec2 \
   --master-count 3 \
   --node-count 2 \
   --edge-count 1 \
+  --master-type t2.medium \
+  --node-type m3.large \
+  --edge-type t2.small \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
@@ -37,6 +40,8 @@ katoctl deploy ec2 \
   --master-count 1 \
   --node-count 1 \
   --edge-count 1 \
+  --node-type m3.large \
+  --edge-type t2.small \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
