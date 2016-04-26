@@ -101,10 +101,10 @@ marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your.domain>
 core@edge-1 ~ $ ssh master-1
 ```
 
-Use `fleetctl` to start the service units while you check the status on the first terminal:
+Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for `zookeeper` to start before you start all the other units:
 ```bash
-core@master-1 ~ $ cd /etc/fleet && fleetctl start zookeeper.service
-core@master-1 ~ $ fleetctl start *.service
+core@master-1 ~ $ fleetctl start /etc/fleet/zookeeper.service
+core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 ```
 
 ## 5. Setup pritunl
