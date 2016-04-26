@@ -37,14 +37,6 @@ write_files:
     [Service]
     Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
 
- - path: "/etc/rexray/rexray.env"
-
- - path: "/etc/rexray/config.yml"
-   content: |
-    rexray:
-      storageDrivers:
-      - ec2
-
  - path: "/home/core/.bashrc"
    owner: "core:core"
    content: |
@@ -521,26 +513,6 @@ coreos:
      [Timer]
      OnBootSec=2min
      OnUnitActiveSec=5min
-
-  - name: "rexray.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=rexray
-     Before=docker.service
-
-     [Service]
-     EnvironmentFile=/etc/rexray/rexray.env
-     ExecStartPre=-/bin/bash -c '\
-       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/latest/rexray-Linux-x86_64.tar.gz; \
-       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
-     ExecStart=/opt/bin/rexray start -f
-     ExecReload=/bin/kill -HUP $MAINPID
-     KillMode=process
-
-     [Install]
-     WantedBy=docker.service
 
  fleet:
   public-ip: "$private_ipv4"
