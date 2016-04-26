@@ -43,7 +43,7 @@ write_files:
    content: |
     rexray:
       storageDrivers:
-      - {{.RexraxStorageDriver}}
+      - {{.RexrayStorageDriver}}
 
  - path: "/home/core/.bashrc"
    owner: "core:core"
