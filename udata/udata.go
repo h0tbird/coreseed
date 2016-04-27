@@ -40,6 +40,7 @@ type Data struct {
 	FlannelBackend      string
 	RexrayStorageDriver string
 	RexrayConfigSnippet string
+	RexrayEndpointIP    string
 }
 
 //-----------------------------------------------------------------------------
@@ -87,8 +88,8 @@ func (d *Data) rexraySnippet() {
 
 	case "virtualbox":
 		d.RexrayConfigSnippet = `virtualbox:
-      endpoint: http://virtualBoxIP:18083
-      volumePath: /Users/your_user/VirtualBox Volumes`
+      endpoint: http://` + d.RexrayEndpointIP + `:18083
+      volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes`
 	case "ec2":
 		d.RexrayConfigSnippet = `ec2`
 	}

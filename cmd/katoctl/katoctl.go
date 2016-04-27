@@ -130,6 +130,11 @@ var (
 					OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
 					HintOptions("virtualbox", "ec2").String()
 
+	flUdataRexrayEndpointIP = cmdUdata.Flag("rexray-endpoint-ip", "REX-Ray endpoint IP address.").
+				PlaceHolder("KATO_UDATA_REXRAY_ENDPOINT_IP").
+				OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_ENDPOINT_IP").
+				String()
+
 	//------------------------
 	// run: top level command
 	//------------------------
@@ -427,6 +432,7 @@ func main() {
 			FlannelSubnetMax:    *flUdataFlannelSubnetMax,
 			FlannelBackend:      *flUdataFlannelBackend,
 			RexrayStorageDriver: *flUdataRexrayStorageDriver,
+			RexrayEndpointIP:    *flUdataRexrayEndpointIP,
 		}
 
 		err := udata.Render()
