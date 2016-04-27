@@ -17,8 +17,13 @@ export KATO_EDGE_COUNT=0
 ```
 
 #### Start and connect
+The REX-Ray driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the VirtualBox host:
+```bash
+vboxwebsrv -H 0.0.0.0 -b
+```
+
 ```bash
 vagrant up
 ssh-add ~/.vagrant.d/insecure_private_key
-TERM=xterm vagrant ssh master-1
+vagrant ssh master-1
 ```
