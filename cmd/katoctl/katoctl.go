@@ -128,7 +128,7 @@ var (
 	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver", "REX-Ray storage driver: [ ec2 | virtualbox ]").
 					PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").
 					OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
-					String()
+					HintOptions("virtualbox", "ec2").String()
 
 	//------------------------
 	// run: top level command

@@ -39,6 +39,7 @@ type Data struct {
 	FlannelSubnetMax    string
 	FlannelBackend      string
 	RexrayStorageDriver string
+	RexrayConfigSnippet string
 }
 
 //-----------------------------------------------------------------------------
@@ -77,6 +78,23 @@ func (d *Data) forgeZookeeperURL() {
 }
 
 //-----------------------------------------------------------------------------
+// func: rexraySnippet
+//-----------------------------------------------------------------------------
+
+func (d *Data) rexraySnippet() {
+
+	switch d.RexrayStorageDriver {
+
+	case "virtualbox":
+		d.RexrayConfigSnippet = `virtualbox:
+      endpoint: http://virtualBoxIP:18083
+      volumePath: /Users/your_user/VirtualBox Volumes`
+	case "ec2":
+		d.RexrayConfigSnippet = `ec2`
+	}
+}
+
+//-----------------------------------------------------------------------------
 // func: Render
 //-----------------------------------------------------------------------------
 
@@ -93,6 +111,9 @@ func (d *Data) Render() error {
 
 	// Forge the Zookeeper URL:
 	d.forgeZookeeperURL()
+
+	// REX-Ray configuration snippet:
+	d.rexraySnippet()
 
 	// Role-based parsing:
 	t := template.New("udata")
