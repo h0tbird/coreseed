@@ -80,6 +80,7 @@ Vagrant.configure("2") do |config|
         vb.gui = false
         vb.memory = $master_memory
         vb.cpus = $master_cpus
+        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
       end
 
       ip = "172.17.8.#{i+100}"
@@ -119,6 +120,7 @@ Vagrant.configure("2") do |config|
         vb.memory = $node_memory
         vb.cpus = $node_cpus
         vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
+        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
       end
 
       ip = "172.17.8.#{i+110}"
