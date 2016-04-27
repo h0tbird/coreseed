@@ -89,7 +89,8 @@ func (d *Data) rexraySnippet() {
 	case "virtualbox":
 		d.RexrayConfigSnippet = `virtualbox:
       endpoint: http://` + d.RexrayEndpointIP + `:18083
-      volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes`
+      volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+			controllerName: SATA`
 	case "ec2":
 		d.RexrayConfigSnippet = `ec2`
 	}
