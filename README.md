@@ -84,8 +84,8 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. This can be done on any node type `master`, `node` or `edge`:
-```bash
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. This can be done on any node type `master`, `node` or `edge`, ssh and run:
+```
 etcdctl cluster-health
 fleetctl list-machines
 watch "fleetctl list-units"
