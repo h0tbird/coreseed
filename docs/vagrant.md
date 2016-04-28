@@ -16,15 +16,44 @@ export KATO_NODE_COUNT=1
 export KATO_EDGE_COUNT=0
 ```
 
-#### Start and connect
-The REX-Ray driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the VirtualBox host. It is optional to leverage authentication. The HTTP SOAP API can have authentication disabled:
+#### Everyone
+Export your `NS1` private API key and your managed public domain:
+```bash
+export KATO_NS1_API_KEY='<your-ns1-api-key>'
+export KATO_DOMAIN='<your-ns1-managed-domain>'
+```
+
+Find below other options and its default values:
+```bash
+export KATO_MASTER_COUNT=3
+export KATO_NODE_COUNT=2
+export KATO_EDGE_COUNT=1
+export KATO_MASTER_CPUS=2
+export KATO_MASTER_MEMORY=1024
+export KATO_NODE_CPUS=2
+export KATO_NODE_MEMORY=1024
+export KATO_EDGE_CPUS=2
+export KATO_EDGE_MEMORY=1024
+export KATO_COREOS_CHANNEL=alpha
+export KATO_COREOS_VERSION=current
+export KATO_NS1_API_KEY=aabbccddeeaabbccddee
+export KATO_DOMAIN=cell-1.dc-1.demo.lan
+export KATO_CA_CERT=''
+```
+
+#### Start Vagrant
+The REX-Ray driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the VirtualBox host. It is optional to leverage authentication and it can be disabled:
 ```bash
 VBoxManage setproperty websrvauthlibrary null
 vboxwebsrv -H 0.0.0.0 -b
+vagrant up
 ```
 
+#### Connect
+It is very convenient to add the private ssh key to the ssh agent forwarding before you ssh into the box:
 ```bash
-vagrant up
 ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh master-1
 ```
+
+Congratulations, you have now deployed the infrastructure. Go back to the main README and run the pre-flight checklist before you start the *Káto's* stack.
