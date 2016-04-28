@@ -167,14 +167,14 @@ write_files:
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-master
     ExecStartPre=-/usr/bin/docker rm mesos-master
-    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404
+    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.0-2.0.16.ubuntu1404
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged \
       --name mesos-master \
       --net host \
       --volume /var/lib/mesos:/var/lib/mesos \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      mesosphere/mesos-master:0.27.2-2.0.15.ubuntu1404 \
+      mesosphere/mesos-master:0.28.0-2.0.16.ubuntu1404 \
       --ip=$(hostname -i) \
       --zk=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/master \
@@ -204,7 +204,7 @@ write_files:
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-node
     ExecStartPre=-/usr/bin/docker rm mesos-node
-    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404
+    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.28.0-2.0.16.ubuntu1404
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged \
       --name mesos-node \
@@ -218,7 +218,7 @@ write_files:
       --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
       --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
       --volume /var/lib/mesos:/var/lib/mesos \
-      mesosphere/mesos-slave:0.27.2-2.0.15.ubuntu1404 \
+      mesosphere/mesos-slave:0.28.0-2.0.16.ubuntu1404 \
       --ip=$(hostname -i) \
       --containerizers=docker \
       --executor_registration_timeout=2mins \
@@ -290,14 +290,14 @@ write_files:
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill marathon
     ExecStartPre=-/usr/bin/docker rm marathon
-    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v0.15.3
+    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.1.1
     ExecStart=/usr/bin/sh -c "docker run \
       --name marathon \
       --net host \
       --env LIBPROCESS_IP=$(hostname -i) \
       --env LIBPROCESS_PORT=9090 \
       --volume /etc/resolv.conf:/etc/resolv.conf \
-      mesosphere/marathon:v0.15.3 \
+      mesosphere/marathon:v1.1.1 \
       --http_address $(hostname -i) \
       --master zk://${KATO_ZK}/mesos \
       --zk zk://${KATO_ZK}/marathon \
