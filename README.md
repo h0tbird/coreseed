@@ -86,12 +86,9 @@ not yet
 ## 3. Pre-flight checklist
 Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. This can be done on any node type `master`, `node` or `edge`:
 ```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your.domain>
-core@edge-1 ~ $ etcdctl cluster-health
-core@edge-1 ~ $ fleetctl list-machines
-core@edge-1 ~ $ loopssh sudo etchost
-core@edge-1 ~ $ loopssh ip r | grep docker
-core@edge-1 ~ $ watch "fleetctl list-units"
+etcdctl cluster-health
+fleetctl list-machines
+watch "fleetctl list-units"
 ```
 
 ## 4. Start the stack
