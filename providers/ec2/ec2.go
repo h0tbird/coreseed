@@ -85,7 +85,7 @@ func (d *Data) Deploy() error {
 	d.command = "deploy"
 
 	// Setup the EC2 environment:
-	if err := d.deploySetup(); err != nil {
+	if err := d.environmentSetup(); err != nil {
 		return err
 	}
 
@@ -167,13 +167,8 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Create security groups:
-	if err := d.createSecurityGroups(*svc); err != nil {
-		return err
-	}
-
-	// Setup the nodes:
-	if err := d.setupNodes(*svc); err != nil {
+	// Setup security items:
+	if err := d.setupSecurity(*svc); err != nil {
 		return err
 	}
 
@@ -182,19 +177,19 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Return on success:
 	return nil
 }
 
 //-----------------------------------------------------------------------------
-// func: deploySetup
+// func: environmentSetup
 //-----------------------------------------------------------------------------
 
-func (d *Data) deploySetup() error {
+func (d *Data) environmentSetup() error {
 
 	// Forge the setup command:
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.Domain}).
 		Info("Setup the EC2 environment")
+
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region,
@@ -210,7 +205,7 @@ func (d *Data) deploySetup() error {
 		return err
 	}
 
-	// Decode JSON data from setup:
+	// Decode JSON data returned from katoctl-setup:
 	var dat map[string]interface{}
 	if err := json.Unmarshal(out, &dat); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
@@ -609,10 +604,15 @@ func (d *Data) setupNetwork(svc ec2.EC2) error {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupNodes
+// func: setupSecurity
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupNodes(svc ec2.EC2) error {
+func (d *Data) setupSecurity(svc ec2.EC2) error {
+
+	// Create security groups:
+	if err := d.createSecurityGroups(svc); err != nil {
+		return err
+	}
 
 	// Setup master nodes firewall:
 	if err := d.masterFirewall(svc); err != nil {
