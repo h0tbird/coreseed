@@ -61,8 +61,7 @@ var (
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
 	flUdataMasterCount = cmdUdata.Flag("master-count", "Number of master nodes [ 1 | 3 | 5 ]").
-				Default("3").PlaceHolder("KATO_UDATA_MASTER_COUNT").
-				OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
+				Default("3").OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
 				HintOptions("1", "3", "5").Int()
 
 	flUdataHostID = cmdUdata.Flag("hostid", "Must be a number: hostname = <role>-<hostid>").
@@ -96,33 +95,27 @@ var (
 				Short('e').String()
 
 	flUdataGzipUdata = cmdUdata.Flag("gzip-udata", "Enable udata compression.").
-				Default("false").PlaceHolder("KATO_UDATA_GZIP_UDATA").
-				OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
+				Default("false").OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
 				Short('g').Bool()
 
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network", "Flannel entire overlay network.").
-				Default("10.128.0.0/21").PlaceHolder("KATO_UDATA_FLANNEL_NETWORK").
-				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
+				Default("10.128.0.0/21").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
 				Short('n').String()
 
 	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-				Default("27").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_LEN").
-				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
+				Default("27").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
 				Short('s').String()
 
 	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-				Default("10.128.0.192").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MIN").
-				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
+				Default("10.128.0.192").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
 				Short('m').String()
 
 	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-				Default("10.128.7.224").PlaceHolder("KATO_UDATA_FLANNEL_SUBNET_MAX").
-				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
+				Default("10.128.7.224").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
 				Short('x').String()
 
 	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").PlaceHolder("KATO_UDATA_FLANNEL_BACKEND").
-				OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
+				Default("vxlan").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				Short('b').String()
 
 	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver", "REX-Ray storage driver: [ ec2 | virtualbox ]").
@@ -185,8 +178,7 @@ var (
 			Short('p').HintOptions("baremetal_0", "baremetal_1", "baremetal_2", "baremetal_3").String()
 
 	flRunPktOS = cmdRunPacket.Flag("os", "One of [ coreos_stable | coreos_beta | coreos_alpha ]").
-			Default("coreos_stable").PlaceHolder("KATO_RUN_PKT_OS").
-			OverrideDefaultFromEnvar("KATO_RUN_PKT_OS").
+			Default("coreos_stable").OverrideDefaultFromEnvar("KATO_RUN_PKT_OS").
 			Short('o').HintOptions("coreos_stable", "coreos_beta", "coreos_alpha").String()
 
 	flRunPktFacility = cmdRunPacket.Flag("facility", "One of [ ewr1 | ams1 ]").
@@ -195,8 +187,7 @@ var (
 				Short('f').HintOptions("ewr1", "ams1").String()
 
 	flRunPktBilling = cmdRunPacket.Flag("billing", "One of [ hourly | monthly ]").
-			Default("hourly").PlaceHolder("KATO_RUN_PKT_BILLING").
-			OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
+			Default("hourly").OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
 			Short('b').HintOptions("hourly", "monthly").String()
 
 	//----------------------------
@@ -221,18 +212,15 @@ var (
 				Short('e').Int()
 
 	flDeployEc2MasterType = cmdDeployEc2.Flag("master-type", "EC2 master instance type.").
-				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_MASTER_TYPE").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
+				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
 				String()
 
 	flDeployEc2NodeType = cmdDeployEc2.Flag("node-type", "EC2 node instance type.").
-				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_NODE_TYPE").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_TYPE").
+				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_TYPE").
 				String()
 
 	flDeployEc2EdgeType = cmdDeployEc2.Flag("edge-type", "EC2 edge instance type.").
-				Default("t2.medium").PlaceHolder("KATO_DEPLOY_EC2_EDGE_TYPE").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
+				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
 				String()
 
 	flDeployEc2Channel = cmdDeployEc2.Flag("channel", "CoreOS release channel [ stable | beta | alpha ]").
@@ -241,8 +229,7 @@ var (
 				HintOptions("stable", "beta", "alpha").String()
 
 	flDeployEc2EtcdToken = cmdDeployEc2.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
-				Default("auto").PlaceHolder("KATO_DEPLOY_EC2_ETCD_TOKEN").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
+				Default("auto").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
 				Short('t').HintOptions("auto").String()
 
 	flDeployEc2Ns1ApiKey = cmdDeployEc2.Flag("ns1-api-key", "NS1 private API key.").
@@ -271,43 +258,35 @@ var (
 				Short('k').String()
 
 	flDeployEc2VpcCidrBlock = cmdDeployEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
-				Default("10.0.0.0/16").PlaceHolder("KATO_DEPLOY_EC2_VPC_CIDR_BLOCK").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_VPC_CIDR_BLOCK").
+				Default("10.0.0.0/16").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_VPC_CIDR_BLOCK").
 				String()
 
 	flDeployEc2IntSubnetCidr = cmdDeployEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
-					Default("10.0.1.0/24").PlaceHolder("KATO_DEPLOY_EC2_INTERNAL_SUBNET_CIDR").
-					OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_INTERNAL_SUBNET_CIDR").
+					Default("10.0.1.0/24").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_INTERNAL_SUBNET_CIDR").
 					String()
 
 	flDeployEc2ExtSubnetCidr = cmdDeployEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
-					Default("10.0.0.0/24").PlaceHolder("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
-					OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
+					Default("10.0.0.0/24").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
 					String()
 
 	flDeployFlannelNetwork = cmdDeploy.Flag("flannel-network", "Flannel entire overlay network.").
-				Default("10.128.0.0/21").PlaceHolder("KATO_DEPLOY_FLANNEL_NETWORK").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
+				Default("10.128.0.0/21").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
 				String()
 
 	flDeployFlannelSubnetLen = cmdDeploy.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
-					Default("27").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
-					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
+					Default("27").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
 					String()
 
 	flDeployFlannelSubnetMin = cmdDeploy.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
-					Default("10.128.0.192").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
-					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
+					Default("10.128.0.192").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
 					String()
 
 	flDeployFlannelSubnetMax = cmdDeploy.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
-					Default("10.128.7.224").PlaceHolder("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
-					OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
+					Default("10.128.7.224").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
 					String()
 
 	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").PlaceHolder("KATO_DEPLOY_FLANNEL_BACKEND").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
+				Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
 				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
 
 	//---------------------------
@@ -327,18 +306,15 @@ var (
 				Short('r').String()
 
 	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
-				Default("10.0.0.0/16").PlaceHolder("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
+				Default("10.0.0.0/16").OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
 				Short('c').String()
 
 	flSetupEc2IntSubnetCidr = cmdSetupEc2.Flag("internal-subnet-cidr", "CIDR for the internal subnet.").
-				Default("10.0.1.0/24").PlaceHolder("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
+				Default("10.0.1.0/24").OverrideDefaultFromEnvar("KATO_SETUP_EC2_INTERNAL_SUBNET_CIDR").
 				Short('i').String()
 
 	flSetupEc2ExtSubnetCidr = cmdSetupEc2.Flag("external-subnet-cidr", "CIDR for the external subnet.").
-				Default("10.0.0.0/24").PlaceHolder("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
-				OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
+				Default("10.0.0.0/24").OverrideDefaultFromEnvar("KATO_SETUP_EC2_EXTERNAL_SUBNET_CIDR").
 				Short('e').String()
 
 	//-------------------------
@@ -383,8 +359,7 @@ var (
 				String()
 
 	flRunEc2PublicIP = cmdRunEc2.Flag("public-ip", "Allocate a public IP [ true | false | elastic ]").
-				Default("false").PlaceHolder("KATO_RUN_EC2_PUBLIC_IP").
-				OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
+				Default("false").OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
 				Short('e').String()
 )
 
