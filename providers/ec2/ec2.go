@@ -172,18 +172,8 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Setup master nodes firewall:
-	if err := d.masterFirewall(*svc); err != nil {
-		return err
-	}
-
-	// Setup worker nodes firewall:
-	if err := d.nodeFirewall(*svc); err != nil {
-		return err
-	}
-
-	// Setup edge nodes firewall:
-	if err := d.edgeFirewall(*svc); err != nil {
+	// Setup the nodes:
+	if err := d.setupNodes(*svc); err != nil {
 		return err
 	}
 
@@ -612,6 +602,30 @@ func (d *Data) setupNetwork(svc ec2.EC2) error {
 
 	// Create a default route via NAT GW (int):
 	if err := d.createNatGatewayRoute(svc); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: setupNodes
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupNodes(svc ec2.EC2) error {
+
+	// Setup master nodes firewall:
+	if err := d.masterFirewall(svc); err != nil {
+		return err
+	}
+
+	// Setup worker nodes firewall:
+	if err := d.nodeFirewall(svc); err != nil {
+		return err
+	}
+
+	// Setup edge nodes firewall:
+	if err := d.edgeFirewall(svc); err != nil {
 		return err
 	}
 
