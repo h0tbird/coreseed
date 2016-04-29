@@ -162,58 +162,8 @@ func (d *Data) Setup() error {
 		Info("- Connecting to region " + d.Region)
 	svc := ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
-	// Create the VPC:
-	if err := d.createVpc(*svc); err != nil {
-		return err
-	}
-
-	// Retrieve the main route table ID:
-	if err := d.retrieveMainRouteTableID(*svc); err != nil {
-		return err
-	}
-
-	// Create the external and internal subnets:
-	if err := d.createSubnets(*svc); err != nil {
-		return err
-	}
-
-	// Create a route table (ext):
-	if err := d.createRouteTable(*svc); err != nil {
-		return err
-	}
-
-	// Associate the route table to the external subnet:
-	if err := d.associateRouteTable(*svc); err != nil {
-		return err
-	}
-
-	// Create the internet gateway:
-	if err := d.createInternetGateway(*svc); err != nil {
-		return err
-	}
-
-	// Attach internet gateway to VPC:
-	if err := d.attachInternetGateway(*svc); err != nil {
-		return err
-	}
-
-	// Create a default route via internet GW (ext):
-	if err := d.createInternetGatewayRoute(*svc); err != nil {
-		return err
-	}
-
-	// Allocate a new elastic IP:
-	if err := d.allocateElasticIP(*svc); err != nil {
-		return err
-	}
-
-	// Create a NAT gateway:
-	if err := d.createNatGateway(*svc); err != nil {
-		return err
-	}
-
-	// Create a default route via NAT GW (int):
-	if err := d.createNatGatewayRoute(*svc); err != nil {
+	// Setup the network:
+	if err := d.setupNetwork(*svc); err != nil {
 		return err
 	}
 
@@ -600,6 +550,70 @@ func (d *Data) runInstance(udata []byte, svc ec2.EC2) error {
 	// Pretty-print to stderr:
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.Hostname}).
 		Info("- New EC2 instance tagged")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: setupNetwork
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupNetwork(svc ec2.EC2) error {
+
+	// Create the VPC:
+	if err := d.createVpc(svc); err != nil {
+		return err
+	}
+
+	// Retrieve the main route table ID:
+	if err := d.retrieveMainRouteTableID(svc); err != nil {
+		return err
+	}
+
+	// Create the external and internal subnets:
+	if err := d.createSubnets(svc); err != nil {
+		return err
+	}
+
+	// Create a route table (ext):
+	if err := d.createRouteTable(svc); err != nil {
+		return err
+	}
+
+	// Associate the route table to the external subnet:
+	if err := d.associateRouteTable(svc); err != nil {
+		return err
+	}
+
+	// Create the internet gateway:
+	if err := d.createInternetGateway(svc); err != nil {
+		return err
+	}
+
+	// Attach internet gateway to VPC:
+	if err := d.attachInternetGateway(svc); err != nil {
+		return err
+	}
+
+	// Create a default route via internet GW (ext):
+	if err := d.createInternetGatewayRoute(svc); err != nil {
+		return err
+	}
+
+	// Allocate a new elastic IP:
+	if err := d.allocateElasticIP(svc); err != nil {
+		return err
+	}
+
+	// Create a NAT gateway:
+	if err := d.createNatGateway(svc); err != nil {
+		return err
+	}
+
+	// Create a default route via NAT GW (int):
+	if err := d.createNatGatewayRoute(svc); err != nil {
+		return err
+	}
 
 	return nil
 }
