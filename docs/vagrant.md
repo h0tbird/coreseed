@@ -64,4 +64,4 @@ Congratulations, you have now deployed the infrastructure. Go back to step 3 in 
 
 This is optional but helpful. Manage your `/etc/hosts` with [Gas Mask](http://clockwise.ee/) so you don't have to wait for the public DNS to propagate.
 
-![Gas Mask](https://www.dropbox.com/s/xrc7gyb8n3x7t10/gasmask_vagrant.png?dl=0)
+![Gas Mask](https://dl.dropboxusercontent.com/u/29639331/kato/gasmask_vagrant.png)
