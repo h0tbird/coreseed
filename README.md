@@ -84,10 +84,10 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge` node if you are in the cloud or `master` if you are using Vagrant:
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` if you are using Vagrant:
 
 ```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain-goes-here>
+marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
 core@edge-1 ~ $ etcdctl cluster-health
 core@edge-1 ~ $ fleetctl list-machines
 core@edge-1 ~ $ watch "fleetctl list-units"
@@ -97,7 +97,7 @@ core@edge-1 ~ $ watch "fleetctl list-units"
 Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there (don't forget to enable forwarding of the authentication agent `ssh -A`). If you are using vagrant you can ssh directly to `master-1` instead:
 
 ```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain-goes-here>
+marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
 core@edge-1 ~ $ ssh master-1
 ```
 
