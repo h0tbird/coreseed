@@ -2,8 +2,8 @@
 
 Before you start make sure:
 - Your system's clock is synchronized.
-- You have uploaded valid `SSH` keys to `EC2`.
-- You have AWS credentials in `~/.aws/credentials`.
+- You have uploaded valid `SSH` keys to `EC2`([doc](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)).
+- You have AWS credentials in `~/.aws/credentials` (([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
 - You have permissions to manage `EC2` and `VPC`.
 
 #### Environment
