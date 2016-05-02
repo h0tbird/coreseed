@@ -10,7 +10,7 @@ Before you start make sure:
 Define your environment:
 ```bash
 export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
-export KATO_DEPLOY_EC2_DOMAIN='<your-public-domain-goes-here>'
+export KATO_DEPLOY_EC2_DOMAIN='<your-ns1-managed-public-domain-goes-here>'
 export KATO_DEPLOY_EC2_REGION='<your-ec2-region-goes-here>'
 export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
 export KATO_DEPLOY_EC2_CHANNEL='<your-coreos-release-channel>'
