@@ -79,9 +79,9 @@ marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 
 *Káto* can be deployed on a few *IaaS* providers. More providers are planned but feel free to send a pull request if your prefered provider is not supported yet. Find below deployment guides for each supported provider:
 
-|:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|
+|:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|:x:|
 |---|---|---|---|---|
-|[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
+|[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
 
 ## 3. Pre-flight checklist
 Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using Vagrant and you decided not to deploy an `edge` node:
