@@ -63,16 +63,16 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ## 1. Install katoctl
 
+##### From the latest release (for *Káto* end users)
+```bash
+not yet
+```
+
 ##### From the source (for *Káto* developers)
 ```bash
 marc@desk-1 ~ $ go get github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
-```
-
-##### From the latest release (for *Káto* end users)
-```bash
-not yet
 ```
 
 ## 2. Deploy Káto's infrastructure
@@ -84,7 +84,7 @@ not yet
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` if you are using Vagrant:
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using Vagrant and you decided not to deploy an `edge` node:
 
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
@@ -101,7 +101,7 @@ marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
 core@edge-1 ~ $ ssh master-1
 ```
 
-Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for `zookeeper` to start before you start all the other units:
+Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for `zookeeper` to become active and running before you start all the other units:
 ```bash
 core@master-1 ~ $ fleetctl start /etc/fleet/zookeeper.service
 core@master-1 ~ $ fleetctl start /etc/fleet/*.service
