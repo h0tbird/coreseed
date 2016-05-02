@@ -17,7 +17,7 @@ export KATO_EDGE_COUNT=0
 ```
 
 #### Everyone
-Export your `NS1` private API key and your managed public domain:
+Export your *NS1* private API key and your managed public domain:
 ```bash
 export KATO_NS1_API_KEY='<your-ns1-api-key>'
 export KATO_DOMAIN='<your-ns1-managed-public-domain>'
@@ -42,7 +42,7 @@ export KATO_CA_CERT=''
 ```
 
 #### Start Vagrant
-The REX-Ray driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the VirtualBox host. It is optional to leverage authentication and it can be disabled:
+The *REX-Ray* driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the *VirtualBox* host. It is optional to leverage authentication and it can be disabled:
 
 ```bash
 VBoxManage setproperty websrvauthlibrary null
@@ -60,8 +60,8 @@ vagrant ssh master-1
 
 Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md) and run the pre-flight checklist before you start the *Káto's* stack.
 
-#### Gas Mask
+#### Manage /etc/hosts
 
-This is optional but helpful. Manage your `/etc/hosts` with [Gas Mask](http://clockwise.ee/) so you don't have to wait for the public DNS to propagate.
+This is optional but recommended. Edit your `/etc/hosts` so you don't have to wait for the public DNS to propagate. In *OSX* you can use [Gas Mask](http://clockwise.ee/):
 
 ![Gas Mask](https://dl.dropboxusercontent.com/u/29639331/kato/gasmask_vagrant.png)

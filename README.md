@@ -84,7 +84,7 @@ marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 |[Vagrant](https://github.com/h0tbird/coreseed/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/coreseed/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/coreseed/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using Vagrant and you decided not to deploy an `edge` node:
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant* and you decided not to deploy an `edge` node:
 
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
@@ -94,19 +94,19 @@ core@edge-1 ~ $ watch "fleetctl list-units"
 ```
 
 ## 4. Start the stack
-Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there (don't forget to enable forwarding of the authentication agent `ssh -A`). If you are using vagrant you can ssh directly to `master-1` instead:
+Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there (don't forget to enable forwarding of the authentication agent `ssh -A`). If you are using *Vagrant* you can ssh directly to `master-1` instead:
 
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
 core@edge-1 ~ $ ssh master-1
 ```
 
-Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for `zookeeper` to become active and running before you start all the other units:
+Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for *Zookeeper* to become active and running before you start all the other units:
 ```bash
 core@master-1 ~ $ fleetctl start /etc/fleet/zookeeper.service
 core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 ```
 
 ## 5. Setup pritunl
-*Pritunl* is an OpenVPN server that provides secure access to *Káto*'s private network.
-Access your pritunl WebGUI at `http://edge-1.ext.<your-ns1-managed-public-domain-goes-here>`
+*Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private network.
+Access your *Pritunl* WebGUI at `http://edge-1.ext.<your-ns1-managed-public-domain-goes-here>`
