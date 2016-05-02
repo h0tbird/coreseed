@@ -15,7 +15,7 @@ $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
 $node_memory    = ENV['KATO_NODE_MEMORY'] || 1024
 $edge_cpus      = ENV['KATO_EDGE_CPUS'] || 2
 $edge_memory    = ENV['KATO_EDGE_MEMORY'] || 1024
-$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'beta'
+$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
@@ -168,7 +168,7 @@ Vagrant.configure("2") do |config|
       if ARGV[0].eql?('up')
 
         if $ca_cert
-          cmd = $katoctl + " -c %s > user_edata_%s"
+          cmd = $katoctl + " -c %s > user_data_edge-%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, $ca_cert, i ]
         else
           cmd = $katoctl + " > user_edata_%s"
