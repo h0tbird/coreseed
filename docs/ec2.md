@@ -2,9 +2,9 @@
 
 Before you start make sure:
 - Your system's clock is synchronized.
-- You have uploaded valid `SSH` keys to `EC2`([doc](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)).
-- You have AWS credentials in `~/.aws/credentials` (([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
-- You have permissions to manage `EC2` and `VPC`.
+- You have uploaded valid `SSH` keys to `EC2` ([doc](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)).
+- You have AWS credentials in `~/.aws/credentials` ([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
+- You have permissions to manage `EC2` and `VPC` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
 #### Environment
 Define your environment:
@@ -48,3 +48,6 @@ katoctl deploy ec2 \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
   --channel ${KATO_DEPLOY_EC2_CHANNEL}
 ```
+
+#### Wait for it...
+At this point you must wait for `EC2` to report helthy checks for all your instances. Now you're done deploying infrastructure, go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md).
