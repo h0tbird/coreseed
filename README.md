@@ -101,7 +101,7 @@ marc@desk-1 ~ $ ssh -A core@edge-1.ext.<your-ns1-managed-public-domain>
 core@edge-1 ~ $ ssh master-1
 ```
 
-Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for *Zookeeper* to become active and running before you start all the other units:
+Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for *Zookeeper* to become active and running before starting all the remaining units:
 ```bash
 core@master-1 ~ $ fleetctl start /etc/fleet/zookeeper.service
 core@master-1 ~ $ fleetctl start /etc/fleet/*.service
@@ -109,4 +109,4 @@ core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 
 ## 5. Setup pritunl
 *Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private network.
-Access your *Pritunl* WebGUI at `http://edge-1.ext.<your-ns1-managed-public-domain-goes-here>`
+Access your *Pritunl* WebGUI at `http://edge-1.ext.<your-ns1-managed-public-domain>`
