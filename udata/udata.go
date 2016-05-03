@@ -93,7 +93,7 @@ func (d *Data) rexraySnippet() {
       controllerName: SATA`
 	case "ec2":
 		d.RexrayConfigSnippet = `aws:
-		  rexrayTag: kato`
+      rexrayTag: kato`
 	}
 }
 
