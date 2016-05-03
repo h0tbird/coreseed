@@ -34,7 +34,7 @@ import (
 type Data struct {
 
 	// AWS API endpoints:
-	svc    *ec2.EC2
+	svcEC2 *ec2.EC2
 	svcIAM *iam.IAM
 
 	MasterCount       int    //  deploy:ec2 |           |       |
@@ -130,7 +130,7 @@ func (d *Data) Run(udata []byte) error {
 	d.command = "run"
 
 	// Connect and authenticate to the API endpoint:
-	d.svc = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata); err != nil {
@@ -167,7 +167,7 @@ func (d *Data) Setup() error {
 	log.WithField("cmd", d.command+":ec2").
 		Info("- Connecting to region " + d.Region)
 
-	d.svc = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 	d.svcIAM = iam.New(session.New())
 
 	// Setup the network:
@@ -511,7 +511,7 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 func (d *Data) runInstance(udata []byte) error {
 
 	// Send the instance request:
-	runResult, err := d.svc.RunInstances(&ec2.RunInstancesInput{
+	runResult, err := d.svcEC2.RunInstances(&ec2.RunInstancesInput{
 		ImageId:           aws.String(d.ImageID),
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
@@ -659,7 +659,7 @@ func (d *Data) createVpc() error {
 	}
 
 	// Send the VPC request:
-	resp, err := d.svc.CreateVpc(params)
+	resp, err := d.svcEC2.CreateVpc(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -704,7 +704,7 @@ func (d *Data) retrieveMainRouteTableID() error {
 	}
 
 	// Send the description request:
-	resp, err := d.svc.DescribeRouteTables(params)
+	resp, err := d.svcEC2.DescribeRouteTables(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -744,7 +744,7 @@ func (d *Data) createSubnets() error {
 		}
 
 		// Send the subnet request:
-		resp, err := d.svc.CreateSubnet(params)
+		resp, err := d.svcEC2.CreateSubnet(params)
 		if err != nil {
 			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
@@ -781,7 +781,7 @@ func (d *Data) createRouteTable() error {
 	}
 
 	// Send the route table request:
-	resp, err := d.svc.CreateRouteTable(params)
+	resp, err := d.svcEC2.CreateRouteTable(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -809,7 +809,7 @@ func (d *Data) associateRouteTable() error {
 	}
 
 	// Send the association request:
-	resp, err := d.svc.AssociateRouteTable(params)
+	resp, err := d.svcEC2.AssociateRouteTable(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -834,7 +834,7 @@ func (d *Data) createInternetGateway() error {
 	}
 
 	// Send the internet gateway request:
-	resp, err := d.svc.CreateInternetGateway(params)
+	resp, err := d.svcEC2.CreateInternetGateway(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -863,7 +863,7 @@ func (d *Data) attachInternetGateway() error {
 	}
 
 	// Send the attachement request:
-	if _, err := d.svc.AttachInternetGateway(params); err != nil {
+	if _, err := d.svcEC2.AttachInternetGateway(params); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
@@ -889,7 +889,7 @@ func (d *Data) createInternetGatewayRoute() error {
 	}
 
 	// Send the route request:
-	if _, err := d.svc.CreateRoute(params); err != nil {
+	if _, err := d.svcEC2.CreateRoute(params); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
@@ -913,7 +913,7 @@ func (d *Data) allocateElasticIP() error {
 	}
 
 	// Send the allocation request:
-	resp, err := d.svc.AllocateAddress(params)
+	resp, err := d.svcEC2.AllocateAddress(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -934,7 +934,7 @@ func (d *Data) allocateElasticIP() error {
 func (d *Data) associateElasticIP() error {
 
 	// Wait until instance is running:
-	if err := d.svc.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
+	if err := d.svcEC2.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
 		InstanceIds: []*string{aws.String(d.instanceID)},
 	}); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
@@ -950,7 +950,7 @@ func (d *Data) associateElasticIP() error {
 	}
 
 	// Send the association request:
-	resp, err := d.svc.AssociateAddress(params)
+	resp, err := d.svcEC2.AssociateAddress(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -977,7 +977,7 @@ func (d *Data) createNatGateway() error {
 	}
 
 	// Send the NAT gateway request:
-	resp, err := d.svc.CreateNatGateway(params)
+	resp, err := d.svcEC2.CreateNatGateway(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -991,7 +991,7 @@ func (d *Data) createNatGateway() error {
 	// Wait until the NAT gateway is available:
 	log.WithField("cmd", d.command+":ec2").
 		Info("- Waiting until NAT gateway is available")
-	if err := d.svc.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
+	if err := d.svcEC2.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
@@ -1016,7 +1016,7 @@ func (d *Data) createNatGatewayRoute() error {
 	}
 
 	// Send the route request:
-	if _, err := d.svc.CreateRoute(params); err != nil {
+	if _, err := d.svcEC2.CreateRoute(params); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
@@ -1074,7 +1074,7 @@ func (d *Data) createSecurityGroups() error {
 		}
 
 		// Send the group request:
-		resp, err := d.svc.CreateSecurityGroup(params)
+		resp, err := d.svcEC2.CreateSecurityGroup(params)
 		if err != nil {
 			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
@@ -1127,7 +1127,7 @@ func (d *Data) masterFirewall() error {
 	}
 
 	// Send the rule request:
-	_, err := d.svc.AuthorizeSecurityGroupIngress(params)
+	_, err := d.svcEC2.AuthorizeSecurityGroupIngress(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -1187,7 +1187,7 @@ func (d *Data) nodeFirewall() error {
 	}
 
 	// Send the rule request:
-	_, err := d.svc.AuthorizeSecurityGroupIngress(params)
+	_, err := d.svcEC2.AuthorizeSecurityGroupIngress(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -1267,7 +1267,7 @@ func (d *Data) edgeFirewall() error {
 	}
 
 	// Send the rule request:
-	_, err := d.svc.AuthorizeSecurityGroupIngress(params)
+	_, err := d.svcEC2.AuthorizeSecurityGroupIngress(params)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
@@ -1352,7 +1352,7 @@ func (d *Data) tag(resource, key, value string) error {
 	}
 
 	// Send the tag request:
-	if _, err := d.svc.CreateTags(params); err != nil {
+	if _, err := d.svcEC2.CreateTags(params); err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
