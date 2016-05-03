@@ -1060,6 +1060,8 @@ func (d *Data) createRexrayPolicy() error {
 	// Check whether the policy exists:
 	for _, v := range listRsp.Policies {
 		if *v.PolicyName == "REX-Ray" {
+			log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *listRsp.
+				Policies[0].PolicyId}).Info("- Using existing REX-Ray security policy")
 			return nil
 		}
 	}
