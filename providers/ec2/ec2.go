@@ -1135,6 +1135,23 @@ func (d *Data) createRexrayPolicy() error {
 //-----------------------------------------------------------------------------
 
 func (d *Data) attachRexrayPolicy() error {
+
+	// Forge the attachment request:
+	params := &iam.AttachRolePolicyInput{
+		PolicyArn: aws.String(d.rexrayPolicyARN),
+		RoleName:  aws.String("katoNode"),
+	}
+
+	// Send the attachement request:
+	_, err := d.svcIAM.AttachRolePolicy(params)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	log.WithField("cmd", d.command+":ec2").
+		Info("- REX-Ray policy attached to katoNode")
+
 	return nil
 }
 
