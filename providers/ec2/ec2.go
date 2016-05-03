@@ -22,6 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/h0tbird/kato/katool"
 )
 
@@ -31,7 +32,11 @@ import (
 
 // Data contains variables used by this EC2 provider.
 type Data struct {
-	svc               *ec2.EC2
+
+	// AWS API endpoints:
+	svc    *ec2.EC2
+	svcIAM *iam.IAM
+
 	MasterCount       int    //  deploy:ec2 |           |       |
 	NodeCount         int    //  deploy:ec2 |           |       |
 	EdgeCount         int    //  deploy:ec2 |           |       |
@@ -158,10 +163,12 @@ func (d *Data) Setup() error {
 	// Set command to setup:
 	d.command = "setup"
 
-	// Connect and authenticate to the API endpoint:
+	// Connect and authenticate to the API endpoints:
 	log.WithField("cmd", d.command+":ec2").
 		Info("- Connecting to region " + d.Region)
+
 	d.svc = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.svcIAM = iam.New(session.New())
 
 	// Setup the network:
 	if err := d.setupNetwork(); err != nil {
@@ -610,6 +617,11 @@ func (d *Data) setupNetwork() error {
 
 func (d *Data) setupSecurity() error {
 
+	// Create REX-Ray policy:
+	if err := d.createRexrayPolicy(); err != nil {
+		return err
+	}
+
 	// Create security groups:
 	if err := d.createSecurityGroups(); err != nil {
 		return err
@@ -1011,6 +1023,28 @@ func (d *Data) createNatGatewayRoute() error {
 
 	log.WithField("cmd", d.command+":ec2").
 		Info("- New default route added via NAT gateway")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: createRexrayPolicy
+//-----------------------------------------------------------------------------
+
+func (d *Data) createRexrayPolicy() error {
+
+	// Forge the policy request:
+	params := &iam.CreatePolicyInput{
+		PolicyDocument: aws.String("policyDocumentType"),
+		PolicyName:     aws.String("REX-Ray"),
+		Description:    aws.String("Policy that enables all necessary functionality for REX-Ray"),
+		Path:           aws.String("policyPathType"),
+	}
+
+	resp, err := d.svcIAM.CreatePolicy(params)
+	if err == nil {
+		fmt.Println(resp)
+	}
 
 	return nil
 }
