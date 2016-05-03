@@ -92,7 +92,8 @@ func (d *Data) rexraySnippet() {
       volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
       controllerName: SATA`
 	case "ec2":
-		d.RexrayConfigSnippet = `ec2`
+		d.RexrayConfigSnippet = `aws:
+		  rexrayTag: kato`
 	}
 }
 
