@@ -67,6 +67,7 @@ type Data struct {
 	masterRoleID      string //             | setup:ec2 |       |
 	nodeRoleID        string //             | setup:ec2 |       |
 	edgeRoleID        string //             | setup:ec2 |       |
+	rexrayPolicyARN   string //             | setup:ec2 |       |
 	masterSecGrp      string //             | setup:ec2 |       |
 	nodeSecGrp        string //             | setup:ec2 |       |
 	edgeSecGrp        string //             | setup:ec2 |       |
@@ -621,13 +622,18 @@ func (d *Data) setupNetwork() error {
 
 func (d *Data) setupSecurity() error {
 
+	// Create security roles:
+	if err := d.createSecurityRoles(); err != nil {
+		return err
+	}
+
 	// Create REX-Ray policy:
 	if err := d.createRexrayPolicy(); err != nil {
 		return err
 	}
 
-	// Create security roles:
-	if err := d.createSecurityRoles(); err != nil {
+	// Attach REX-Ray policy:
+	if err := d.attachRexrayPolicy(); err != nil {
 		return err
 	}
 
@@ -1060,6 +1066,7 @@ func (d *Data) createRexrayPolicy() error {
 	// Check whether the policy exists:
 	for _, v := range listRsp.Policies {
 		if *v.PolicyName == "REX-Ray" {
+			d.rexrayPolicyARN = *listRsp.Policies[0].Arn
 			log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *listRsp.
 				Policies[0].PolicyId}).Info("- Using existing REX-Ray security policy")
 			return nil
@@ -1115,9 +1122,19 @@ func (d *Data) createRexrayPolicy() error {
 		return err
 	}
 
+	// Store the policy ARN:
+	d.rexrayPolicyARN = *policyRsp.Policy.Arn
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *policyRsp.Policy.
 		PolicyId}).Info("- Setup REX-Ray security policy")
 
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: atachRexrayPolicy
+//-----------------------------------------------------------------------------
+
+func (d *Data) attachRexrayPolicy() error {
 	return nil
 }
 
