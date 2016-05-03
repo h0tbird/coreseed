@@ -58,7 +58,7 @@ ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh master-1
 ```
 
-Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md) and run the pre-flight checklist before you start the *Káto's* stack.
+Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist before you start the *Káto's* stack.
 
 #### Manage /etc/hosts
 
