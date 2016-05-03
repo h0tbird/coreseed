@@ -1033,6 +1033,28 @@ func (d *Data) createNatGatewayRoute() error {
 
 func (d *Data) createRexrayPolicy() error {
 
+	// Forge the listing request:
+	listPrms := &iam.ListPoliciesInput{
+		MaxItems:     aws.Int64(100),
+		OnlyAttached: aws.Bool(false),
+		PathPrefix:   aws.String("/kato/"),
+		Scope:        aws.String("Local"),
+	}
+
+	// Send the listing request:
+	listRsp, err := d.svcIAM.ListPolicies(listPrms)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Check whether the policy exists:
+	for _, v := range listRsp.Policies {
+		if *v.PolicyName == "REX-Ray" {
+			return nil
+		}
+	}
+
 	// REX-Ray IAM policy:
 	policy := `{
     "Version": "2012-10-17",
@@ -1068,7 +1090,7 @@ func (d *Data) createRexrayPolicy() error {
 	}`
 
 	// Forge the policy request:
-	params := &iam.CreatePolicyInput{
+	policyPrms := &iam.CreatePolicyInput{
 		PolicyDocument: aws.String(policy),
 		PolicyName:     aws.String("REX-Ray"),
 		Description:    aws.String("Enables necessary functionality for REX-Ray"),
@@ -1076,14 +1098,14 @@ func (d *Data) createRexrayPolicy() error {
 	}
 
 	// Send the policy request:
-	_, err := d.svcIAM.CreatePolicy(params)
+	policyRsp, err := d.svcIAM.CreatePolicy(policyPrms)
 	if err != nil {
 		log.WithField("cmd", d.command+":ec2").Error(err)
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": "hola"}).
-		Info("- Setup REX-Ray security policy")
+	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": *policyRsp.Policy.
+		PolicyId}).Info("- Setup REX-Ray security policy")
 
 	return nil
 }
