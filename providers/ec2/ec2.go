@@ -20,6 +20,7 @@ import (
 	// Community:
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -1156,6 +1157,11 @@ func (d *Data) createSecurityRoles() error {
 		// Send the role request:
 		resp, err := d.svcIAM.CreateRole(params)
 		if err != nil {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 409 {
+					continue
+				}
+			}
 			log.WithField("cmd", d.command+":ec2").Error(err)
 			return err
 		}
@@ -1167,9 +1173,15 @@ func (d *Data) createSecurityRoles() error {
 	}
 
 	// Store security role IDs:
-	d.masterRoleID = grps["master"]["roleID"]
-	d.nodeRoleID = grps["node"]["roleID"]
-	d.edgeRoleID = grps["edge"]["roleID"]
+	if grps["master"]["roleID"] != "" {
+		d.masterRoleID = grps["master"]["roleID"]
+	}
+	if grps["node"]["roleID"] != "" {
+		d.nodeRoleID = grps["node"]["roleID"]
+	}
+	if grps["edge"]["roleID"] != "" {
+		d.edgeRoleID = grps["edge"]["roleID"]
+	}
 
 	return nil
 }
