@@ -529,7 +529,7 @@ func (d *Data) runInstance(udata []byte) error {
 		NetworkInterfaces: d.forgeNetworkInterfaces(),
 		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
-			Name: aws.String("/kato/" + d.IAMRole),
+			Name: aws.String(d.IAMRole),
 		},
 	})
 
@@ -609,17 +609,17 @@ func (d *Data) setupNetwork() error {
 	if err := d.allocateElasticIP(); err != nil {
 		return err
 	}
-	/*
-		// Create a NAT gateway:
-		if err := d.createNatGateway(); err != nil {
-			return err
-		}
 
-		// Create a default route via NAT GW (int):
-		if err := d.createNatGatewayRoute(); err != nil {
-			return err
-		}
-	*/
+	// Create a NAT gateway:
+	if err := d.createNatGateway(); err != nil {
+		return err
+	}
+
+	// Create a default route via NAT GW (int):
+	if err := d.createNatGatewayRoute(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
