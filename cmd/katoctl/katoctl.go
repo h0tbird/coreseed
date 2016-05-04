@@ -361,6 +361,10 @@ var (
 	flRunEc2PublicIP = cmdRunEc2.Flag("public-ip", "Allocate a public IP [ true | false | elastic ]").
 				Default("false").OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
 				Short('e').String()
+
+	flRunEc2IAMRole = cmdRunEc2.Flag("iam-role", "IAM role [ master | node | edge ]").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_IAM_ROLE").
+			HintOptions("master", "node", "edge").String()
 )
 
 //----------------------------------------------------------------------------
@@ -519,6 +523,7 @@ func main() {
 			InstanceType: *flRunEc2InsType,
 			Hostname:     *flRunEc2Hostname,
 			PublicIP:     *flRunEc2PublicIP,
+			IAMRole:      *flRunEc2IAMRole,
 		}
 
 		udata, err := readUdata()

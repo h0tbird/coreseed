@@ -82,6 +82,7 @@ type Data struct {
 	InstanceType      string //             |           |       | run:ec2
 	Hostname          string //             |           |       | run:ec2
 	PublicIP          string //             |           |       | run:ec2
+	IAMRole           string //             |           |       | run:ec2
 	interfaceID       string //             |           |       | run:ec2
 }
 
@@ -350,7 +351,8 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 				"--instance-type", d.MasterType,
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.IntSubnetID,
-				"--security-group-id", d.masterSecGrp)
+				"--security-group-id", d.masterSecGrp,
+				"--iam-role", "master")
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -412,6 +414,7 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.nodeSecGrp,
+				"--iam-role", "node",
 				"--public-ip", "true")
 
 			// Execute the pipeline:
@@ -468,6 +471,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.edgeSecGrp,
+				"--iam-role", "edge",
 				"--public-ip", "true")
 
 			// Execute the pipeline:
@@ -524,6 +528,9 @@ func (d *Data) runInstance(udata []byte) error {
 		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: d.forgeNetworkInterfaces(),
 		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
+			Name: aws.String("/kato/" + d.IAMRole),
+		},
 	})
 
 	if err != nil {
@@ -602,17 +609,17 @@ func (d *Data) setupNetwork() error {
 	if err := d.allocateElasticIP(); err != nil {
 		return err
 	}
+	/*
+		// Create a NAT gateway:
+		if err := d.createNatGateway(); err != nil {
+			return err
+		}
 
-	// Create a NAT gateway:
-	if err := d.createNatGateway(); err != nil {
-		return err
-	}
-
-	// Create a default route via NAT GW (int):
-	if err := d.createNatGatewayRoute(); err != nil {
-		return err
-	}
-
+		// Create a default route via NAT GW (int):
+		if err := d.createNatGatewayRoute(); err != nil {
+			return err
+		}
+	*/
 	return nil
 }
 
@@ -622,22 +629,32 @@ func (d *Data) setupNetwork() error {
 
 func (d *Data) setupSecurity() error {
 
-	// Create security roles:
-	if err := d.createSecurityRoles(); err != nil {
-		return err
-	}
-
 	// Create REX-Ray policy:
 	if err := d.createRexrayPolicy(); err != nil {
 		return err
 	}
 
-	// Attach REX-Ray policy:
+	// Create IAM roles:
+	if err := d.createIAMRoles(); err != nil {
+		return err
+	}
+
+	// Create instance profiles:
+	if err := d.createInstanceProfiles(); err != nil {
+		return err
+	}
+
+	// Attach REX-Ray policy to IAM role:
 	if err := d.attachRexrayPolicy(); err != nil {
 		return err
 	}
 
-	// Create security groups:
+	// Add IAM roles to instance profiles:
+	if err := d.addIAMRolesToInstanceProfiles(); err != nil {
+		return err
+	}
+
+	// Create EC2 security groups:
 	if err := d.createSecurityGroups(); err != nil {
 		return err
 	}
@@ -1139,7 +1156,7 @@ func (d *Data) attachRexrayPolicy() error {
 	// Forge the attachment request:
 	params := &iam.AttachRolePolicyInput{
 		PolicyArn: aws.String(d.rexrayPolicyARN),
-		RoleName:  aws.String("katoNode"),
+		RoleName:  aws.String("node"),
 	}
 
 	// Send the attachement request:
@@ -1150,22 +1167,22 @@ func (d *Data) attachRexrayPolicy() error {
 	}
 
 	log.WithField("cmd", d.command+":ec2").
-		Info("- REX-Ray policy attached to katoNode")
+		Info("- REX-Ray policy attached to node")
 
 	return nil
 }
 
 //-----------------------------------------------------------------------------
-// func: createSecurityRoles
+// func: createIAMRoles
 //-----------------------------------------------------------------------------
 
-func (d *Data) createSecurityRoles() error {
+func (d *Data) createIAMRoles() error {
 
 	// Map to iterate:
 	grps := map[string]map[string]string{
-		"master": map[string]string{"name": "katoMaster", "roleID": ""},
-		"node":   map[string]string{"name": "katoNode", "roleID": ""},
-		"edge":   map[string]string{"name": "katoEdge", "roleID": ""},
+		"master": map[string]string{"roleID": ""},
+		"node":   map[string]string{"roleID": ""},
+		"edge":   map[string]string{"roleID": ""},
 	}
 
 	// IAM Role type:
@@ -1181,12 +1198,12 @@ func (d *Data) createSecurityRoles() error {
   }`
 
 	// For each security role:
-	for _, v := range grps {
+	for k, v := range grps {
 
 		// Forge the role request:
 		params := &iam.CreateRoleInput{
 			AssumeRolePolicyDocument: aws.String(policy),
-			RoleName:                 aws.String(v["name"]),
+			RoleName:                 aws.String(k),
 			Path:                     aws.String("/kato/"),
 		}
 
@@ -1205,7 +1222,7 @@ func (d *Data) createSecurityRoles() error {
 		// Locally store the role ID:
 		v["roleID"] = *resp.Role.RoleId
 		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": v["roleID"]}).
-			Info("- New " + v["name"] + " IAM role")
+			Info("- New " + k + " IAM role")
 	}
 
 	// Store security role IDs:
@@ -1223,6 +1240,83 @@ func (d *Data) createSecurityRoles() error {
 }
 
 //-----------------------------------------------------------------------------
+// func: createInstanceProfiles
+//-----------------------------------------------------------------------------
+
+func (d *Data) createInstanceProfiles() error {
+
+	// Map to iterate:
+	grps := [3]string{"master", "node", "edge"}
+
+	// For each instance profile:
+	for _, v := range grps {
+
+		// Forge the profile request:
+		params := &iam.CreateInstanceProfileInput{
+			InstanceProfileName: aws.String(v),
+			Path:                aws.String("/kato/"),
+		}
+
+		// Send the profile request:
+		resp, err := d.svcIAM.CreateInstanceProfile(params)
+		if err != nil {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 409 {
+					continue
+				}
+			}
+			log.WithField("cmd", d.command+":ec2").Error(err)
+			return err
+		}
+
+		// Log the instance profile ID:
+		log.WithFields(log.Fields{"cmd": d.command + ":ec2",
+			"id": *resp.InstanceProfile.InstanceProfileId}).
+			Info("- New " + v + " instance profile")
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: addIAMRolesToInstanceProfiles
+//-----------------------------------------------------------------------------
+
+func (d *Data) addIAMRolesToInstanceProfiles() error {
+
+	// Map to iterate:
+	grps := [3]string{"master", "node", "edge"}
+
+	// For each instance profile:
+	for _, v := range grps {
+
+		// Forge the addition request:
+		params := &iam.AddRoleToInstanceProfileInput{
+			InstanceProfileName: aws.String(v),
+			RoleName:            aws.String(v),
+		}
+
+		// Send the addition request:
+		_, err := d.svcIAM.AddRoleToInstanceProfile(params)
+		if err != nil {
+			if reqErr, ok := err.(awserr.RequestFailure); ok {
+				if reqErr.StatusCode() == 409 {
+					continue
+				}
+			}
+			log.WithField("cmd", d.command+":ec2").Error(err)
+			return err
+		}
+
+		// Log the addition request:
+		log.WithField("cmd", d.command+":ec2").
+			Info("- New " + v + " IAM role added to profile")
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
 // func: createSecurityGroups
 //-----------------------------------------------------------------------------
 
@@ -1230,9 +1324,9 @@ func (d *Data) createSecurityGroups() error {
 
 	// Map to iterate:
 	grps := map[string]map[string]string{
-		"master": map[string]string{"Desc": "master", "SecGrpID": ""},
-		"node":   map[string]string{"Desc": "node", "SecGrpID": ""},
-		"edge":   map[string]string{"Desc": "edge", "SecGrpID": ""},
+		"master": map[string]string{"secGrpID": ""},
+		"node":   map[string]string{"secGrpID": ""},
+		"edge":   map[string]string{"secGrpID": ""},
 	}
 
 	// For each security group:
@@ -1240,7 +1334,7 @@ func (d *Data) createSecurityGroups() error {
 
 		// Forge the group request:
 		params := &ec2.CreateSecurityGroupInput{
-			Description: aws.String(d.Domain + " " + v["Desc"]),
+			Description: aws.String(d.Domain + " " + k),
 			GroupName:   aws.String(k),
 			DryRun:      aws.Bool(false),
 			VpcId:       aws.String(d.vpcID),
@@ -1254,20 +1348,20 @@ func (d *Data) createSecurityGroups() error {
 		}
 
 		// Locally store the group ID:
-		v["SecGrpID"] = *resp.GroupId
-		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": v["SecGrpID"]}).
-			Info("- New " + k + " security group")
+		v["secGrpID"] = *resp.GroupId
+		log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": v["secGrpID"]}).
+			Info("- New EC2 " + k + " security group")
 
 		// Tag the group:
-		if err = d.tag(v["SecGrpID"], "Name", d.Domain+" "+k); err != nil {
+		if err = d.tag(v["secGrpID"], "Name", d.Domain+" "+k); err != nil {
 			return err
 		}
 	}
 
 	// Store security groups IDs:
-	d.masterSecGrp = grps["master"]["SecGrpID"]
-	d.nodeSecGrp = grps["node"]["SecGrpID"]
-	d.edgeSecGrp = grps["edge"]["SecGrpID"]
+	d.masterSecGrp = grps["master"]["secGrpID"]
+	d.nodeSecGrp = grps["node"]["secGrpID"]
+	d.edgeSecGrp = grps["edge"]["secGrpID"]
 
 	return nil
 }
