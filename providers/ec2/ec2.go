@@ -176,8 +176,8 @@ func (d *Data) Setup() error {
 	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 	d.svcIAM = iam.New(session.New())
 
-	// Setup the network:
-	if err := d.setupNetwork(); err != nil {
+	// Setup the VPC network:
+	if err := d.setupVPCNetwork(); err != nil {
 		return err
 	}
 
@@ -565,10 +565,10 @@ func (d *Data) runInstance(udata []byte) error {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupNetwork
+// func: setupVPCNetwork
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupNetwork() error {
+func (d *Data) setupVPCNetwork() error {
 
 	// Create the VPC:
 	if err := d.createVpc(); err != nil {
