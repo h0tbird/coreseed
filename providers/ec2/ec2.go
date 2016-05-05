@@ -175,23 +175,24 @@ func (d *Data) Setup() error {
 	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 	d.svcIAM = iam.New(session.New())
 
+	// Create the VPC:
+	if err := d.createVpc(); err != nil {
+		return err
+	}
+
 	// Setup a wait group:
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
-	// Setup VPC and IAM:
+	// Setup VPC, IAM and EC2:
 	go d.setupVPCNetwork(&wg)
 	go d.setupIAMSecurity(&wg)
+	go d.setupEC2Firewall(&wg)
 
 	// Wait to proceed:
 	wg.Wait()
 
-	// Setup EC2 firewall:
-	if err := d.setupEC2Firewall(); err != nil {
-		return err
-	}
-
-	// Expose identifiers to stdout:
+	// Dump context to stdout:
 	if err := d.exposeIdentifiers(); err != nil {
 		return err
 	}
@@ -573,11 +574,6 @@ func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
-	// Create the VPC:
-	if err := d.createVpc(); err != nil {
-		os.Exit(1)
-	}
-
 	// Retrieve the main route table ID:
 	if err := d.retrieveMainRouteTableID(); err != nil {
 		os.Exit(1)
@@ -666,29 +662,30 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 // func: setupEC2Firewall
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupEC2Firewall() error {
+func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
 
 	// Create EC2 security groups:
 	if err := d.createSecurityGroups(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Setup master nodes firewall:
 	if err := d.masterFirewall(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Setup worker nodes firewall:
 	if err := d.nodeFirewall(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Setup edge nodes firewall:
 	if err := d.edgeFirewall(); err != nil {
-		return err
+		os.Exit(1)
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
