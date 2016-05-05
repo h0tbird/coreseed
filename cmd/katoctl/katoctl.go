@@ -556,7 +556,6 @@ func readUdata() ([]byte, error) {
 
 func checkError(err error) {
 	if err != nil {
-		log.WithField("cmd", "katoctl").Error(err)
 		os.Exit(1)
 	}
 }
