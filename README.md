@@ -108,5 +108,6 @@ core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 ```
 
 ## 5. Setup pritunl
-*Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private network.
+*Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private networks.
 Access your *Pritunl* WebGUI at `http://edge-1.ext.<your-ns1-managed-public-domain>`
+Make sure you setup udp port `18443` for VPN connections.
