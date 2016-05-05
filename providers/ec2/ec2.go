@@ -181,8 +181,13 @@ func (d *Data) Setup() error {
 		return err
 	}
 
-	// Setup security items:
-	if err := d.setupSecurity(); err != nil {
+	// Setup IAM security:
+	if err := d.setupIAMSecurity(); err != nil {
+		return err
+	}
+
+	// Setup EC2 firewall:
+	if err := d.setupEC2Firewall(); err != nil {
 		return err
 	}
 
@@ -624,10 +629,10 @@ func (d *Data) setupNetwork() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupSecurity
+// func: setupIAMSecurity
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupSecurity() error {
+func (d *Data) setupIAMSecurity() error {
 
 	// Create REX-Ray policy:
 	if err := d.createRexrayPolicy(); err != nil {
@@ -651,6 +656,15 @@ func (d *Data) setupSecurity() error {
 	if err := d.addIAMRolesToInstanceProfiles(); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: setupEC2Firewall
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupEC2Firewall() error {
 
 	// Create EC2 security groups:
 	if err := d.createSecurityGroups(); err != nil {
