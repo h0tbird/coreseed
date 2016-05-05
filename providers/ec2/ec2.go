@@ -163,28 +163,28 @@ func (d *Data) Run(udata []byte) error {
 // func: Setup
 //-----------------------------------------------------------------------------
 
-// Setup an EC2 VPC and all the related components.
+// Setup VPC, IAM and EC2 components.
 func (d *Data) Setup() error {
 
-	// Set command to setup:
+	// Set current command:
 	d.command = "setup"
 
 	// Connect and authenticate to the API endpoints:
 	log.WithField("cmd", d.command+":ec2").
 		Info("- Connecting to region " + d.Region)
-
 	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 	d.svcIAM = iam.New(session.New())
 
-	// Setup the VPC network:
-	if err := d.setupVPCNetwork(); err != nil {
-		return err
-	}
+	// Setup a wait group:
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	// Setup IAM security:
-	if err := d.setupIAMSecurity(); err != nil {
-		return err
-	}
+	// Setup VPC and IAM:
+	go d.setupVPCNetwork(&wg)
+	go d.setupIAMSecurity(&wg)
+
+	// Wait to proceed:
+	wg.Wait()
 
 	// Setup EC2 firewall:
 	if err := d.setupEC2Firewall(); err != nil {
@@ -568,80 +568,84 @@ func (d *Data) runInstance(udata []byte) error {
 // func: setupVPCNetwork
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupVPCNetwork() error {
+func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
 
 	// Create the VPC:
 	if err := d.createVpc(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Retrieve the main route table ID:
 	if err := d.retrieveMainRouteTableID(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create the external and internal subnets:
 	if err := d.createSubnets(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create a route table (ext):
 	if err := d.createRouteTable(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Associate the route table to the external subnet:
 	if err := d.associateRouteTable(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create the internet gateway:
 	if err := d.createInternetGateway(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Attach internet gateway to VPC:
 	if err := d.attachInternetGateway(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create a default route via internet GW (ext):
 	if err := d.createInternetGatewayRoute(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Allocate a new elastic IP:
 	if err := d.allocateElasticIP(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create a NAT gateway:
 	if err := d.createNatGateway(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create a default route via NAT GW (int):
 	if err := d.createNatGatewayRoute(); err != nil {
-		return err
+		os.Exit(1)
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
 // func: setupIAMSecurity
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupIAMSecurity() error {
+func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
 
 	// Create REX-Ray policy:
 	if err := d.createRexrayPolicy(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create IAM roles:
 	if err := d.createIAMRoles(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Create instance profiles:
@@ -649,15 +653,13 @@ func (d *Data) setupIAMSecurity() error {
 
 	// Attach REX-Ray policy to IAM role:
 	if err := d.attachRexrayPolicy(); err != nil {
-		return err
+		os.Exit(1)
 	}
 
 	// Add IAM roles to instance profiles:
 	if err := d.addIAMRolesToInstanceProfiles(); err != nil {
-		return err
+		os.Exit(1)
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
