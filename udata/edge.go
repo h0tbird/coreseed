@@ -124,6 +124,14 @@ coreos:
   - name: "fleet.service"
     command: "start"
 
+  - name: flanneld.service
+    command: "start"
+    drop-ins:
+     - name: 50-network-config.conf
+       content: |
+        [Service]
+        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
+
   - name: "ns1dns.service"
     command: "start"
     content: |
