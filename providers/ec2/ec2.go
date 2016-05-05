@@ -640,9 +640,7 @@ func (d *Data) setupSecurity() error {
 	}
 
 	// Create instance profiles:
-	if err := d.createInstanceProfiles(); err != nil {
-		return err
-	}
+	d.createInstanceProfiles()
 
 	// Attach REX-Ray policy to IAM role:
 	if err := d.attachRexrayPolicy(); err != nil {
@@ -1243,39 +1241,55 @@ func (d *Data) createIAMRoles() error {
 // func: createInstanceProfiles
 //-----------------------------------------------------------------------------
 
-func (d *Data) createInstanceProfiles() error {
+func (d *Data) createInstanceProfiles() {
 
-	// Map to iterate:
-	grps := [3]string{"master", "node", "edge"}
+	// Setup a wait group:
+	var wg sync.WaitGroup
 
 	// For each instance profile:
-	for _, v := range grps {
+	for _, v := range [3]string{"master", "node", "edge"} {
 
-		// Forge the profile request:
-		params := &iam.CreateInstanceProfileInput{
-			InstanceProfileName: aws.String(v),
-			Path:                aws.String("/kato/"),
-		}
+		// Increment wait group:
+		wg.Add(1)
 
-		// Send the profile request:
-		resp, err := d.svcIAM.CreateInstanceProfile(params)
-		if err != nil {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 409 {
-					continue
-				}
+		go func(role string) {
+
+			// Decrement wait group:
+			defer wg.Done()
+
+			// Forge the profile request:
+			params := &iam.CreateInstanceProfileInput{
+				InstanceProfileName: aws.String(role),
+				Path:                aws.String("/kato/"),
 			}
-			log.WithField("cmd", d.command+":ec2").Error(err)
-			return err
-		}
 
-		// Log the instance profile ID:
-		log.WithFields(log.Fields{"cmd": d.command + ":ec2",
-			"id": *resp.InstanceProfile.InstanceProfileId}).
-			Info("- New " + v + " instance profile")
+			// Send the profile request:
+			resp, err := d.svcIAM.CreateInstanceProfile(params)
+			if err != nil {
+				if reqErr, ok := err.(awserr.RequestFailure); ok {
+					if reqErr.StatusCode() == 409 {
+						return
+					}
+				}
+				log.WithField("cmd", d.command+":ec2").Error(err)
+				os.Exit(1)
+			}
+
+			// Wait until the instance profile exists:
+			log.WithFields(log.Fields{"cmd": d.command + ":ec2",
+				"id": *resp.InstanceProfile.InstanceProfileId}).
+				Info("- Waiting until " + role + " profile exists")
+			if err := d.svcIAM.WaitUntilInstanceProfileExists(&iam.GetInstanceProfileInput{
+				InstanceProfileName: aws.String(role),
+			}); err != nil {
+				log.WithField("cmd", d.command+":ec2").Error(err)
+				os.Exit(1)
+			}
+		}(v)
 	}
 
-	return nil
+	// Wait:
+	wg.Wait()
 }
 
 //-----------------------------------------------------------------------------
