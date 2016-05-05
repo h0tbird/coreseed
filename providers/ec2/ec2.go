@@ -1298,11 +1298,8 @@ func (d *Data) createInstanceProfiles() {
 
 func (d *Data) addIAMRolesToInstanceProfiles() error {
 
-	// Map to iterate:
-	grps := [3]string{"master", "node", "edge"}
-
 	// For each instance profile:
-	for _, v := range grps {
+	for _, v := range [3]string{"master", "node", "edge"} {
 
 		// Forge the addition request:
 		params := &iam.AddRoleToInstanceProfileInput{
@@ -1311,8 +1308,7 @@ func (d *Data) addIAMRolesToInstanceProfiles() error {
 		}
 
 		// Send the addition request:
-		_, err := d.svcIAM.AddRoleToInstanceProfile(params)
-		if err != nil {
+		if _, err := d.svcIAM.AddRoleToInstanceProfile(params); err != nil {
 			if reqErr, ok := err.(awserr.RequestFailure); ok {
 				if reqErr.StatusCode() == 409 {
 					continue
