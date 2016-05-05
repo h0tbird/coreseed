@@ -9,11 +9,11 @@ Before you start make sure:
 #### Environment
 Define your environment:
 ```bash
-export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key-goes-here>'
-export KATO_DEPLOY_EC2_DOMAIN='<your-ns1-managed-public-domain-goes-here>'
-export KATO_DEPLOY_EC2_REGION='<your-ec2-region-goes-here>'
-export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name-goes-here>'
-export KATO_DEPLOY_EC2_CHANNEL='<your-coreos-release-channel>'
+export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key>'
+export KATO_DEPLOY_EC2_DOMAIN='<your-ns1-managed-public-domain>'
+export KATO_DEPLOY_EC2_REGION='<your-ec2-region>'
+export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name>'
+export KATO_DEPLOY_EC2_COREOS_CHANNEL='<your-coreos-release-channel>'
 ```
 
 #### For operators
@@ -30,7 +30,7 @@ katoctl deploy ec2 \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
-  --channel ${KATO_DEPLOY_EC2_CHANNEL}
+  --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
 ```
 
 #### For developers
@@ -46,7 +46,7 @@ katoctl deploy ec2 \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
-  --channel ${KATO_DEPLOY_EC2_CHANNEL}
+  --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
 ```
 
 #### Wait for it...
