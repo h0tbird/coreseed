@@ -59,7 +59,8 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 |[Zookeeper](https://zookeeper.apache.org)|[3.4.8](https://zookeeper.apache.org/doc/r3.4.8/)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/zookeeper.svg)](https://hub.docker.com/r/h0tbird/zookeeper/)|
 |[go-dnsmasq](https://github.com/janeczku/go-dnsmasq)|[1.0.0](https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/janeczku/go-dnsmasq.svg)](https://hub.docker.com/r/janeczku/go-dnsmasq/)|
 |[cAdvisor](https://github.com/google/cadvisor)|[0.22.0](https://github.com/google/cadvisor/releases/tag/v0.22.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/google/cadvisor.svg)](https://hub.docker.com/r/google/cadvisor/)|
-|[REX-Ray](http://rexray.readthedocs.io/en/stable/)|[0.3.3](https://github.com/emccode/rexray)|-|
+|[Pritunl](https://pritunl.com)|[1.21.954.48](https://github.com/pritunl/pritunl/releases/tag/1.21.954.48)|[![Docker Pulls](https://img.shields.io/docker/pulls/h0tbird/pritunl.svg)](https://hub.docker.com/r/h0tbird/pritunl/)|
+|[REX-Ray](http://rexray.readthedocs.io/en/stable)|[0.3.3](https://github.com/emccode/rexray)|-|
 
 ## 1. Install katoctl
 
