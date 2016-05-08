@@ -98,7 +98,7 @@ write_files:
    content: |
     #!/bin/bash
 
-    PUSH=$(cat /etc/hosts | grep $(hostname -s)) \
+    PUSH=$(cat /etc/hosts | grep $(hostname -s) | sort -u) \
     && etcdctl set /hosts/$(hostname) "${PUSH}"
 
     PULL='127.0.0.1 localhost'$'\n'
@@ -106,7 +106,8 @@ write_files:
       PULL+=$(etcdctl get ${i})$'\n'
     done
 
-    echo "${PULL}" | grep -q $(hostname -s) && echo "${PULL}" > /etc/hosts
+    echo "${PULL}" | grep -q $(hostname -s) \
+    && echo "${PULL}" | sort -u > /etc/hosts
 
  - path: "/opt/bin/loopssh"
    permissions: "0755"
