@@ -13,7 +13,13 @@ write_files:
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 node-{{.HostID}}.{{.Domain}} node-{{.HostID}}
+    $private_ipv4 node-{{.HostID}}.{{.Domain}} node-{{.HostID}} marathon-lb
+    $private_ipv4 node-{{.HostID}}.int.{{.Domain}} node-{{.HostID}}.int
+
+ - path: "/etc/.hosts"
+   content: |
+    127.0.0.1 localhost
+    $private_ipv4 node-{{.HostID}}.{{.Domain}} node-{{.HostID}} marathon-lb
     $private_ipv4 node-{{.HostID}}.int.{{.Domain}} node-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
@@ -110,15 +116,16 @@ write_files:
    content: |
     #!/bin/bash
 
-    PUSH=$(cat /etc/hosts | grep $(hostname -s)) \
-    && etcdctl set /hosts/$(hostname) "${PUSH}"
+    PUSH+=$(echo $(hostname -i) $(hostname) $(hostname -s))$'\n'
+    PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
+    etcdctl set /hosts/$(hostname) "${PUSH}"
 
-    PULL='127.0.0.1 localhost'$'\n'
-    for i in $(etcdctl ls /hosts 2>/dev/null | sort); do
+    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname -s) | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
     done
 
-    echo "${PULL}" | grep -q $(hostname -s) && echo "${PULL}" > /etc/hosts
+    cat /etc/.hosts > /etc/hosts
+    echo "${PULL}" >> /etc/hosts
 
  - path: "/opt/bin/loopssh"
    permissions: "0755"
