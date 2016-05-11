@@ -71,7 +71,7 @@ not yet
 
 ##### From the source (for *Káto* developers)
 ```bash
-marc@desk-1 ~ $ go get github.com/h0tbird/kato/cmd/katoctl
+marc@desk-1 ~ $ go get -u github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
 marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
 ```
