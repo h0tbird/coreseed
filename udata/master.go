@@ -108,7 +108,7 @@ write_files:
     PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
     etcdctl set /hosts/$(hostname) "${PUSH}"
 
-    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname -s) | sort); do
+    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname) | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
     done
 
