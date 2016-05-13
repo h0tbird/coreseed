@@ -41,19 +41,11 @@ export KATO_DOMAIN=cell-1.dc-1.demo.lan
 export KATO_CA_CERT=''
 ```
 
-#### Start Vagrant
-The *REX-Ray* driver leverages the `vboxwebserv` HTTP SOAP API which is a process that must be started from the *VirtualBox* host. It is optional to leverage authentication and it can be disabled:
-
-```bash
-VBoxManage setproperty websrvauthlibrary null
-vboxwebsrv -H 0.0.0.0 -b
-vagrant up
-```
-
-#### Connect
+#### Start and connect
 It is very convenient to add the private ssh key to the ssh agent forwarding before you ssh into the box:
 
 ```bash
+vagrant up
 ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh master-1
 ```

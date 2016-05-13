@@ -57,9 +57,13 @@ Vagrant.configure("2") do |config|
     config.vm.box_version = $coreos_version
   end
 
-  config.vm.provider :virtualbox do |v|
-    v.check_guest_additions = false
-    v.functional_vboxsf     = false
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["setproperty", "websrvauthlibrary", "null"]
+    vb.check_guest_additions = false
+    vb.functional_vboxsf = false
+    if `pgrep vboxwebsrv` == ''
+      `vboxwebsrv -H 0.0.0.0 -b`
+    end
   end
 
   if Vagrant.has_plugin?("vagrant-vbguest") then
@@ -78,6 +82,7 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
+        vb.name = "master-%s" % [i]
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
@@ -117,10 +122,13 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
+        vb.name = "node-%s" % [i]
         vb.memory = $node_memory
         vb.cpus = $node_cpus
-        vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+        if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
+          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
+        end
       end
 
       ip = "172.17.8.#{i+110}"
@@ -149,7 +157,6 @@ Vagrant.configure("2") do |config|
   # Start edge_count edges
   #------------------------
 
-
   (1..$edge_count.to_i).each do |i|
 
     config.vm.define vm_name = "edge-%d" % i do |conf|
@@ -158,6 +165,7 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
+        vb.name = "edge-%s" % [i]
         vb.memory = $edge_memory
         vb.cpus = $edge_cpus
       end
