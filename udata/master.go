@@ -141,6 +141,8 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name zookeeper \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --env ZK_SERVER_ID=${KATO_HOST_ID} \
       --env ZK_TICK_TIME=2000 \
       --env ZK_INIT_LIMIT=5 \
@@ -179,8 +181,9 @@ write_files:
       --privileged \
       --name mesos-master \
       --net host \
-      --volume /var/lib/mesos:/var/lib/mesos \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --volume /var/lib/mesos:/var/lib/mesos:rw \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       mesosphere/mesos-master:0.28.0-2.0.16.ubuntu1404 \
       --ip=$(hostname -i) \
       --zk=zk://${KATO_ZK}/mesos \
@@ -218,13 +221,14 @@ write_files:
       --net host \
       --pid host \
       --volume /sys:/sys \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --volume /usr/bin/docker:/usr/bin/docker:ro \
-      --volume /var/run/docker.sock:/var/run/docker.sock \
+      --volume /var/run/docker.sock:/var/run/docker.sock:rw \
       --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
       --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
       --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
-      --volume /var/lib/mesos:/var/lib/mesos \
+      --volume /var/lib/mesos:/var/lib/mesos:rw \
       mesosphere/mesos-slave:0.28.0-2.0.16.ubuntu1404 \
       --ip=$(hostname -i) \
       --containerizers=docker \
@@ -259,6 +263,8 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name mesos-dns \
       --net host \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --env MDNS_ZK=zk://${KATO_ZK}/mesos \
       --env MDNS_REFRESHSECONDS=45 \
       --env MDNS_LISTENER=$(hostname -i) \
@@ -301,9 +307,10 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name marathon \
       --net host \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --env LIBPROCESS_IP=$(hostname -i) \
       --env LIBPROCESS_PORT=9090 \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
       mesosphere/marathon:v1.1.1 \
       --http_address $(hostname -i) \
       --master zk://${KATO_ZK}/mesos \
@@ -337,7 +344,8 @@ write_files:
       --name marathon-lb \
       --net host \
       --privileged \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --env PORTS=9090,9091 \
       mesosphere/marathon-lb:v1.2.0 sse \
       --marathon http://marathon:8080 \
@@ -374,6 +382,8 @@ write_files:
       --volume /var/run:/var/run:rw \
       --volume /sys:/sys:ro \
       --volume /var/lib/docker/:/var/lib/docker:ro \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       google/cadvisor:v0.22.0 \
       --listen_ip $(hostname -i) \
       --logtostderr \
@@ -406,7 +416,8 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name dnsmasq \
       --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf \
+      --volume /etc/resolv.conf:/etc/resolv.conf:rw \
+      --volume /etc/hosts:/etc/hosts:ro \
       janeczku/go-dnsmasq:release-1.0.5 \
       --listen $(hostname -i) \
       --nameservers $(cat /tmp/ns) \
@@ -441,7 +452,9 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run \
       --name mongodb \
       --net host \
-      --volume /var/lib/mongo:/data/db \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
+      --volume /var/lib/mongo:/data/db:rw \
       mongo:3.2 \
       --bind_ip 127.0.0.1"
     ExecStop=/usr/bin/docker stop -t 5 mongodb
@@ -471,6 +484,8 @@ write_files:
       --privileged \
       --name pritunl \
       --net host \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
       --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
       h0tbird/pritunl:v1.21.954.48-3"
     ExecStop=/usr/bin/docker stop -t 5 pritunl
