@@ -199,13 +199,12 @@ coreos:
      ExecStart=/bin/bash -c '\
        docker ps -aq --no-trunc | sort -u > containers.all; \
        docker ps -q --no-trunc | sort -u > containers.running; \
-       docker rm -v $$(comm -23 containers.all containers.running) 2>/dev/null; \
+       docker rm $$(comm -23 containers.all containers.running) 2>/dev/null; \
        docker rmi $$(docker images -qf dangling=true) 2>/dev/null; \
        etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{"{{"}}.Image{{"}}"}}" | sort -u)"; \
        for i in $$(etcdctl ls /docker/images); do etcdctl get $$i; done | sort -u > images.running; \
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
-       for i in $$(comm -23 images.local images.running); do docker rmi $$i; done; \
-       docker volume rm $$(docker volume ls -qf dangling=true) 2>/dev/null; true'
+       for i in $$(comm -23 images.local images.running); do docker rmi $$i; done; true'
 
   - name: docker-gc.timer
     command: start
