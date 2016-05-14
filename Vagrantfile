@@ -82,7 +82,7 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "master-%s" % [i]
+        vb.name = "master-%s.%s" % [i, $domain]
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
@@ -122,7 +122,7 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "node-%s" % [i]
+        vb.name = "node-%s.%s" % [i, $domain]
         vb.memory = $node_memory
         vb.cpus = $node_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
@@ -165,7 +165,7 @@ Vagrant.configure("2") do |config|
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "edge-%s" % [i]
+        vb.name = "edge-%s.%s" % [i, $domain]
         vb.memory = $edge_memory
         vb.cpus = $edge_cpus
       end

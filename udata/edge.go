@@ -102,11 +102,11 @@ write_files:
    content: |
     #!/bin/bash
 
-    PUSH+=$(echo $(hostname -i) $(hostname) $(hostname -s))$'\n'
+    PUSH+=$(echo $(hostname -i) $(hostname -f) $(hostname -s))$'\n'
     PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
-    etcdctl set /hosts/$(hostname) "${PUSH}"
+    etcdctl set /hosts/$(hostname -f) "${PUSH}"
 
-    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname) | sort); do
+    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname -f) | sort); do
       PULL+=$(etcdctl get ${i})$'\n'
     done
 
