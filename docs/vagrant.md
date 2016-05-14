@@ -25,18 +25,18 @@ export KATO_DOMAIN='<your-ns1-managed-public-domain>'
 
 Find below other options and its default values:
 ```bash
-export KATO_MASTER_COUNT=3
-export KATO_NODE_COUNT=2
-export KATO_EDGE_COUNT=1
-export KATO_MASTER_CPUS=2
+export KATO_MASTER_COUNT=1
+export KATO_NODE_COUNT=1
+export KATO_EDGE_COUNT=0
+export KATO_MASTER_CPUS=1
 export KATO_MASTER_MEMORY=1024
 export KATO_NODE_CPUS=2
-export KATO_NODE_MEMORY=1024
-export KATO_EDGE_CPUS=2
-export KATO_EDGE_MEMORY=1024
+export KATO_NODE_MEMORY=2048
+export KATO_EDGE_CPUS=1
+export KATO_EDGE_MEMORY=512
 export KATO_COREOS_CHANNEL=alpha
 export KATO_COREOS_VERSION=current
-export KATO_NS1_API_KEY=aabbccddeeaabbccddee
+export KATO_NS1_API_KEY=x
 export KATO_DOMAIN=cell-1.dc-1.demo.lan
 export KATO_CA_CERT=''
 ```

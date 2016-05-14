@@ -6,18 +6,18 @@ Vagrant.require_version ">= 1.6.0"
 # Variables:
 #------------------------------------------------------------------------------
 
-$master_count   = ENV['KATO_MASTER_COUNT'] || 3
-$node_count     = ENV['KATO_NODE_COUNT'] || 2
-$edge_count     = ENV['KATO_EDGE_COUNT'] || 1
-$master_cpus    = ENV['KATO_MASTER_CPUS'] || 2
+$master_count   = ENV['KATO_MASTER_COUNT'] || 1
+$node_count     = ENV['KATO_NODE_COUNT'] || 1
+$edge_count     = ENV['KATO_EDGE_COUNT'] || 0
+$master_cpus    = ENV['KATO_MASTER_CPUS'] || 1
 $master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
-$node_memory    = ENV['KATO_NODE_MEMORY'] || 1024
-$edge_cpus      = ENV['KATO_EDGE_CPUS'] || 2
-$edge_memory    = ENV['KATO_EDGE_MEMORY'] || 1024
+$node_memory    = ENV['KATO_NODE_MEMORY'] || 2048
+$edge_cpus      = ENV['KATO_EDGE_CPUS'] || 1
+$edge_memory    = ENV['KATO_EDGE_MEMORY'] || 512
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
-$ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'aabbccddeeaabbccddee'
+$ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
