@@ -66,10 +66,6 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  if Vagrant.has_plugin?("vagrant-vbguest") then
-    config.vbguest.auto_update = false
-  end
-
   #----------------------------
   # Start master_count masters
   #----------------------------
@@ -78,11 +74,11 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "master-%d" % i do |conf|
 
-      conf.vm.hostname = "master-%s.%s" % [i, $domain]
+      conf.vm.hostname = "master-%d.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "master-%s.%s" % [i, $domain]
+        vb.name = "master-%d.%s" % [i, $domain]
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
@@ -118,11 +114,11 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "node-%d" % i do |conf|
 
-      conf.vm.hostname = "node-%s.%s" % [i, $domain]
+      conf.vm.hostname = "node-%d.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "node-%s.%s" % [i, $domain]
+        vb.name = "node-%d.%s" % [i, $domain]
         vb.memory = $node_memory
         vb.cpus = $node_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
@@ -161,11 +157,11 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "edge-%d" % i do |conf|
 
-      conf.vm.hostname = "edge-%s.%s" % [i, $domain]
+      conf.vm.hostname = "edge-%d.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "edge-%s.%s" % [i, $domain]
+        vb.name = "edge-%d.%s" % [i, $domain]
         vb.memory = $edge_memory
         vb.cpus = $edge_cpus
       end
