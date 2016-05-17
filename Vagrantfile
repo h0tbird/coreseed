@@ -22,9 +22,15 @@ $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
-$katoctl        = "katoctl udata " +
+
+#------------------------------------------------------------------------------
+# Forge the katoctl command:
+#------------------------------------------------------------------------------
+
+$katoctl = "katoctl udata " +
   "--rexray-storage-driver virtualbox " +
   "--rexray-endpoint-ip 172.17.8.1 " +
+  "--flannel-backend udp " +
   "--master-count %s " +
   "--ns1-api-key %s " +
   "--domain %s " +
@@ -82,10 +88,11 @@ Vagrant.configure("2") do |config|
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+10}.0/24" ]
       end
 
-      ip = "172.17.8.#{i+100}"
-      conf.vm.network :private_network, ip: ip
+      ip_pri = "172.17.8.#{i+10}"
+      conf.vm.network :private_network, ip: ip_pri
 
       if ARGV[0].eql?('up')
 
@@ -96,6 +103,8 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_data_master-%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, i ]
         end
+
+        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_data_master-%s" % i)
           conf.vm.provision :file, :source => "user_data_master-%s" % i, :destination => "/tmp/vagrantfile-user-data"
@@ -122,13 +131,14 @@ Vagrant.configure("2") do |config|
         vb.memory = $node_memory
         vb.cpus = $node_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+20}.0/24" ]
         if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
           vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
         end
       end
 
-      ip = "172.17.8.#{i+110}"
-      conf.vm.network :private_network, ip: ip
+      ip_pri = "172.17.8.#{i+20}"
+      conf.vm.network :private_network, ip: ip_pri
 
       if ARGV[0].eql?('up')
 
@@ -139,6 +149,8 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_data_node-%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, i ]
         end
+
+        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_data_node-%s" % i)
           conf.vm.provision :file, :source => "user_data_node-%s" % i, :destination => "/tmp/vagrantfile-user-data"
@@ -164,10 +176,12 @@ Vagrant.configure("2") do |config|
         vb.name = "edge-%d.%s" % [i, $domain]
         vb.memory = $edge_memory
         vb.cpus = $edge_cpus
+        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+30}.0/24" ]
       end
 
-      ip = "172.17.8.#{i+120}"
-      conf.vm.network :private_network, ip: ip
+      ip_pri = "172.17.8.#{i+30}"
+      conf.vm.network :private_network, ip: ip_pri
 
       if ARGV[0].eql?('up')
 
@@ -178,6 +192,8 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_edata_%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
         end
+
+        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_edata_%s" % i)
           conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
