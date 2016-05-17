@@ -30,7 +30,7 @@ $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 $katoctl = "katoctl udata " +
   "--rexray-storage-driver virtualbox " +
   "--rexray-endpoint-ip 172.17.8.1 " +
-  "--flannel-backend udp " +
+  "--flannel-backend host-gw " +
   "--master-count %s " +
   "--ns1-api-key %s " +
   "--domain %s " +
