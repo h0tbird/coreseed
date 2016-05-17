@@ -236,6 +236,9 @@ coreos:
      [Install]
      WantedBy=docker.service
 
+ flannel:
+  interface: $private_ipv4
+
  fleet:
   public-ip: "$private_ipv4"
   metadata: "role=node,id={{.HostID}}"

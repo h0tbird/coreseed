@@ -88,7 +88,6 @@ Vagrant.configure("2") do |config|
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
-        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+10}.0/24" ]
       end
 
       ip_pri = "172.17.8.#{i+10}"
@@ -103,8 +102,6 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_data_master-%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, i ]
         end
-
-        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_data_master-%s" % i)
           conf.vm.provision :file, :source => "user_data_master-%s" % i, :destination => "/tmp/vagrantfile-user-data"
@@ -131,7 +128,6 @@ Vagrant.configure("2") do |config|
         vb.memory = $node_memory
         vb.cpus = $node_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
-        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+20}.0/24" ]
         if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
           vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
         end
@@ -149,8 +145,6 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_data_node-%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, i ]
         end
-
-        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_data_node-%s" % i)
           conf.vm.provision :file, :source => "user_data_node-%s" % i, :destination => "/tmp/vagrantfile-user-data"
@@ -177,7 +171,6 @@ Vagrant.configure("2") do |config|
         vb.memory = $edge_memory
         vb.cpus = $edge_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
-        vb.customize ["modifyvm", :id, "--natnet1", "10.0.#{i+30}.0/24" ]
       end
 
       ip_pri = "172.17.8.#{i+30}"
@@ -192,8 +185,6 @@ Vagrant.configure("2") do |config|
           cmd = $katoctl + " > user_edata_%s"
           system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
         end
-
-        # conf.vm.provision :shell, :inline => "echo FLANNELD_IFACE=eth1 >> /run/flannel/options.env", :privileged => true
 
         if File.exist?("user_edata_%s" % i)
           conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"

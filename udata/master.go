@@ -548,6 +548,9 @@ coreos:
      OnBootSec=2min
      OnUnitActiveSec=5min
 
+ flannel:
+  interface: $private_ipv4
+
  fleet:
   public-ip: "$private_ipv4"
   metadata: "role=master,id={{.HostID}}"
