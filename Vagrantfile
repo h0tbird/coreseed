@@ -78,7 +78,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "master-%d" % i do |conf|
 
-      conf.vm.hostname = vm_name
+      conf.vm.hostname = "master-%s.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
@@ -118,7 +118,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "node-%d" % i do |conf|
 
-      conf.vm.hostname = vm_name
+      conf.vm.hostname = "node-%s.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
@@ -161,7 +161,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define vm_name = "edge-%d" % i do |conf|
 
-      conf.vm.hostname = vm_name
+      conf.vm.hostname = "edge-%s.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
