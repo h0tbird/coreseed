@@ -115,7 +115,7 @@ var (
 				Short('x').String()
 
 	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
+				Default("host-gw").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
 				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
 
 	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver", "REX-Ray storage driver: [ ec2 | virtualbox ]").
