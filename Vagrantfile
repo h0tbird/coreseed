@@ -12,7 +12,7 @@ $edge_count     = ENV['KATO_EDGE_COUNT'] || 0
 $master_cpus    = ENV['KATO_MASTER_CPUS'] || 1
 $master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
-$node_memory    = ENV['KATO_NODE_MEMORY'] || 2048
+$node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $edge_cpus      = ENV['KATO_EDGE_CPUS'] || 1
 $edge_memory    = ENV['KATO_EDGE_MEMORY'] || 512
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
@@ -20,6 +20,7 @@ $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
 $ca_cert        = ENV['KATO_CA_CERT']
+$code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
@@ -135,6 +136,8 @@ Vagrant.configure("2") do |config|
       conf.vm.network :private_network, ip: ip_pri
 
       if ARGV[0].eql?('up')
+
+        config.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
         if $ca_cert
           cmd = $katoctl + " -c %s > user_data_node-%s"
