@@ -349,7 +349,12 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 				"--ns1-api-key", d.Ns1ApiKey,
 				"--ca-cert", d.CaCert,
 				"--etcd-token", d.EtcdToken,
-				"--gzip-udata")
+				"--gzip-udata",
+				"--flannel-network", d.FlannelNetwork,
+				"--flannel-subnet-len", d.FlannelSubnetLen,
+				"--flannel-subnet-min", d.FlannelSubnetMin,
+				"--flannel-subnet-max", d.FlannelSubnetMax,
+				"--flannel-backend", d.FlannelBackend)
 
 			// Forge the run command:
 			cmdRun := exec.Command("katoctl", "run", "ec2",
@@ -470,7 +475,12 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 				"--ns1-api-key", d.Ns1ApiKey,
 				"--ca-cert", d.CaCert,
 				"--etcd-token", d.EtcdToken,
-				"--gzip-udata")
+				"--gzip-udata",
+				"--flannel-network", d.FlannelNetwork,
+				"--flannel-subnet-len", d.FlannelSubnetLen,
+				"--flannel-subnet-min", d.FlannelSubnetMin,
+				"--flannel-subnet-max", d.FlannelSubnetMax,
+				"--flannel-backend", d.FlannelBackend)
 
 			// Forge the run command:
 			cmdRun := exec.Command("katoctl", "run", "ec2",

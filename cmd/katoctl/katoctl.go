@@ -291,7 +291,7 @@ var (
 					String()
 
 	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
+				Default("host-gw").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
 				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
 
 	//---------------------------
