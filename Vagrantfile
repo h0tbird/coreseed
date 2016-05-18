@@ -59,16 +59,14 @@ Vagrant.configure("2") do |config|
   config.vm.box = "coreos-%s" % $coreos_channel
   config.vm.box_url = $box_url % [$coreos_channel, $coreos_version]
 
-  if $coreos_version != "current"
-    config.vm.box_version = $coreos_version
-  end
-
-  config.vm.provider :virtualbox do |vb|
-    vb.customize ["setproperty", "websrvauthlibrary", "null"]
-    vb.check_guest_additions = false
-    vb.functional_vboxsf = false
-    if `pgrep vboxwebsrv` == ''
-      `vboxwebsrv -H 0.0.0.0 -b`
+  if ARGV[0].eql?('up')
+    config.vm.provider :virtualbox do |vb|
+      vb.customize ["setproperty", "websrvauthlibrary", "null"]
+      vb.check_guest_additions = false
+      vb.functional_vboxsf = false
+      if `pgrep vboxwebsrv` == ''
+        `vboxwebsrv -H 0.0.0.0 -b`
+      end
     end
   end
 
