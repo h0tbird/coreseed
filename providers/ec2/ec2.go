@@ -55,6 +55,7 @@ type Data struct {
 	FlannelBackend    string //  deploy:ec2 |           | udata |
 	Domain            string //  deploy:ec2 | setup:ec2 | udata |
 	Region            string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	Zone              string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	command           string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	VpcCidrBlock      string //  deploy:ec2 | setup:ec2 |       |
 	IntSubnetCidr     string //  deploy:ec2 | setup:ec2 |       |
@@ -213,6 +214,7 @@ func (d *Data) environmentSetup() error {
 	cmdSetup := exec.Command("katoctl", "setup", "ec2",
 		"--domain", d.Domain,
 		"--region", d.Region,
+		"--zone", d.Zone,
 		"--vpc-cidr-block", d.VpcCidrBlock,
 		"--internal-subnet-cidr", d.IntSubnetCidr,
 		"--external-subnet-cidr", d.ExtSubnetCidr)
@@ -353,6 +355,7 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 			cmdRun := exec.Command("katoctl", "run", "ec2",
 				"--hostname", "master-"+strconv.Itoa(id)+"."+d.Domain,
 				"--region", d.Region,
+				"--zone", d.Zone,
 				"--image-id", d.ImageID,
 				"--instance-type", d.MasterType,
 				"--key-pair", d.KeyPair,
@@ -415,6 +418,7 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 			cmdRun := exec.Command("katoctl", "run", "ec2",
 				"--hostname", "node-"+strconv.Itoa(id)+"."+d.Domain,
 				"--region", d.Region,
+				"--zone", d.Zone,
 				"--image-id", d.ImageID,
 				"--instance-type", d.NodeType,
 				"--key-pair", d.KeyPair,
@@ -472,6 +476,7 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 			cmdRun := exec.Command("katoctl", "run", "ec2",
 				"--hostname", "edge-"+strconv.Itoa(id)+"."+d.Domain,
 				"--region", d.Region,
+				"--zone", d.Zone,
 				"--image-id", d.ImageID,
 				"--instance-type", d.EdgeType,
 				"--key-pair", d.KeyPair,
@@ -533,7 +538,10 @@ func (d *Data) runInstance(udata []byte) error {
 		KeyName:           aws.String(d.KeyPair),
 		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: d.forgeNetworkInterfaces(),
-		UserData:          aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
+		Placement: &ec2.Placement{
+			AvailabilityZone: aws.String(d.Zone),
+		},
+		UserData: aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
 			Name: aws.String(d.IAMRole),
 		},
@@ -781,9 +789,10 @@ func (d *Data) createSubnets() error {
 
 		// Forge the subnet request:
 		params := &ec2.CreateSubnetInput{
-			CidrBlock: aws.String(v["SubnetCidr"]),
-			VpcId:     aws.String(d.vpcID),
-			DryRun:    aws.Bool(false),
+			CidrBlock:        aws.String(v["SubnetCidr"]),
+			VpcId:            aws.String(d.vpcID),
+			AvailabilityZone: aws.String(d.Zone),
+			DryRun:           aws.Bool(false),
 		}
 
 		// Send the subnet request:

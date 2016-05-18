@@ -7,11 +7,12 @@ Before you start make sure:
 - You have permissions to manage `EC2` and `VPC` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
 #### Environment
-Define your environment:
+Define your environment. If you want to reuse existing EBS volumes you must target the EC2 region and availability zone where your volumes are stored:
 ```bash
 export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key>'
 export KATO_DEPLOY_EC2_DOMAIN='<your-ns1-managed-public-domain>'
 export KATO_DEPLOY_EC2_REGION='<your-ec2-region>'
+export KATO_DEPLOY_EC2_ZONE='<your-ec2-availability-zone>'
 export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name>'
 export KATO_DEPLOY_EC2_COREOS_CHANNEL='<your-coreos-release-channel>'
 ```
@@ -29,6 +30,7 @@ katoctl deploy ec2 \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
+  --zone ${KATO_DEPLOY_EC2_ZONE} \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
   --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
 ```
@@ -45,6 +47,7 @@ katoctl deploy ec2 \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
+  --zone ${KATO_DEPLOY_EC2_ZONE} \
   --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
   --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
 ```

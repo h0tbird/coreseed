@@ -247,6 +247,11 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_REGION").
 				Short('r').String()
 
+	flDeployEc2Zone = cmdDeployEc2.Flag("zone", "Amazon EC2 availability zone.").
+			Required().PlaceHolder("KATO_DEPLOY_EC2_ZONE").
+			OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ZONE").
+			String()
+
 	flDeployEc2Domain = cmdDeployEc2.Flag("domain", "Used to identify the VPC.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_DOMAIN").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_DOMAIN").
@@ -305,6 +310,11 @@ var (
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
 				Short('r').String()
 
+	flSetupEc2Zone = cmdSetupEc2.Flag("zone", "EC2 availability zone.").
+			Required().PlaceHolder("KATO_SETUP_EC2_ZONE").
+			OverrideDefaultFromEnvar("KATO_SETUP_EC2_ZONE").
+			Short('z').String()
+
 	flSetupEc2VpcCidrBlock = cmdSetupEc2.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
 				Default("10.0.0.0/16").OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
 				Short('c').String()
@@ -332,6 +342,11 @@ var (
 			Required().PlaceHolder("KATO_RUN_EC2_REGION").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_REGION").
 			Short('r').String()
+
+	flRunEc2Zone = cmdRunEc2.Flag("zone", "EC2 availability zone.").
+			Required().PlaceHolder("KATO_RUN_EC2_ZONE").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_ZONE").
+			Short('z').String()
 
 	flRunEc2ImageID = cmdRunEc2.Flag("image-id", "EC2 image id.").
 			Required().PlaceHolder("KATO_RUN_EC2_IMAGE_ID").
@@ -477,6 +492,7 @@ func main() {
 			CaCert:           *flDeployEc2CaCert,
 			Domain:           *flDeployEc2Domain,
 			Region:           *flDeployEc2Region,
+			Zone:             *flDeployEc2Zone,
 			KeyPair:          *flDeployEc2KeyPair,
 			VpcCidrBlock:     *flDeployEc2VpcCidrBlock,
 			IntSubnetCidr:    *flDeployEc2IntSubnetCidr,
@@ -500,6 +516,7 @@ func main() {
 		ec2 := ec2.Data{
 			Domain:        *flSetupEc2Domain,
 			Region:        *flSetupEc2Region,
+			Zone:          *flSetupEc2Zone,
 			VpcCidrBlock:  *flSetupEc2VpcCidrBlock,
 			IntSubnetCidr: *flSetupEc2IntSubnetCidr,
 			ExtSubnetCidr: *flSetupEc2ExtSubnetCidr,
@@ -516,6 +533,7 @@ func main() {
 
 		ec2 := ec2.Data{
 			Region:       *flRunEc2Region,
+			Zone:         *flRunEc2Zone,
 			SubnetID:     *flRunEc2SubnetID,
 			SecGrpID:     *flRunEc2SecGrpID,
 			ImageID:      *flRunEc2ImageID,
