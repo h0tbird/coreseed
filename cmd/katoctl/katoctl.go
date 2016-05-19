@@ -380,6 +380,10 @@ var (
 	flRunEc2IAMRole = cmdRunEc2.Flag("iam-role", "IAM role [ master | node | edge ]").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_IAM_ROLE").
 			HintOptions("master", "node", "edge").String()
+
+	flRunEc2SrcDstCheck = cmdRunEc2.Flag("source-dest-check", " [ true | false ]").
+				Default("true").OverrideDefaultFromEnvar("KATO_RUN_EC2_SOURCE_DEST_CHECK").
+				HintOptions("true", "false").String()
 )
 
 //----------------------------------------------------------------------------
@@ -542,6 +546,7 @@ func main() {
 			Hostname:     *flRunEc2Hostname,
 			PublicIP:     *flRunEc2PublicIP,
 			IAMRole:      *flRunEc2IAMRole,
+			SrcDstCheck:  *flRunEc2SrcDstCheck,
 		}
 
 		udata, err := readUdata()

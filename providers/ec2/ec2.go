@@ -84,6 +84,7 @@ type Data struct {
 	Hostname          string //             |           |       | run:ec2
 	PublicIP          string //             |           |       | run:ec2
 	IAMRole           string //             |           |       | run:ec2
+	SrcDstCheck       string //             |           |       | run:ec2
 	interfaceID       string //             |           |       | run:ec2
 }
 
@@ -110,6 +111,13 @@ func (d *Data) Deploy() error {
 	// Retrieve the CoreOS AMI ID:
 	if err := d.retrieveCoreosAmiID(); err != nil {
 		return err
+	}
+
+	// Whether or not to source-dest-check:
+	if d.FlannelBackend == "host-gw" {
+		d.SrcDstCheck = "false"
+	} else {
+		d.SrcDstCheck = "true"
 	}
 
 	// Setup a wait group:
@@ -141,6 +149,11 @@ func (d *Data) Run(udata []byte) error {
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata); err != nil {
+		return err
+	}
+
+	// Modify instance attributes:
+	if err := d.modifyInstanceAttribute(); err != nil {
 		return err
 	}
 
@@ -367,7 +380,8 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 				"--subnet-id", d.IntSubnetID,
 				"--security-group-id", d.masterSecGrp,
 				"--iam-role", "master",
-				"--public-ip", "false")
+				"--public-ip", "false",
+				"--source-dest-check", d.SrcDstCheck)
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -431,7 +445,8 @@ func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.nodeSecGrp,
 				"--iam-role", "node",
-				"--public-ip", "true")
+				"--public-ip", "true",
+				"--source-dest-check", d.SrcDstCheck)
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -494,7 +509,8 @@ func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
 				"--subnet-id", d.ExtSubnetID,
 				"--security-group-id", d.edgeSecGrp,
 				"--iam-role", "edge",
-				"--public-ip", "true")
+				"--public-ip", "true",
+				"--source-dest-check", d.SrcDstCheck)
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -580,6 +596,37 @@ func (d *Data) runInstance(udata []byte) error {
 	// Pretty-print to stderr:
 	log.WithFields(log.Fields{"cmd": d.command + ":ec2", "id": d.Hostname}).
 		Info("- New EC2 instance tagged")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: modifyInstanceAttribute
+//-----------------------------------------------------------------------------
+
+func (d *Data) modifyInstanceAttribute() error {
+
+	// Variable transformation:
+	SrcDstCheck, err := strconv.ParseBool(d.SrcDstCheck)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
+
+	// Forge the attribute modification request:
+	params := &ec2.ModifyInstanceAttributeInput{
+		InstanceId: aws.String(d.instanceID),
+		SourceDestCheck: &ec2.AttributeBooleanValue{
+			Value: aws.Bool(SrcDstCheck),
+		},
+	}
+
+	// Send the attribute modification request:
+	_, err = d.svcEC2.ModifyInstanceAttribute(params)
+	if err != nil {
+		log.WithField("cmd", d.command+":ec2").Error(err)
+		return err
+	}
 
 	return nil
 }
