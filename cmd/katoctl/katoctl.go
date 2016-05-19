@@ -274,25 +274,25 @@ var (
 					Default("10.0.0.0/24").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EXTERNAL_SUBNET_CIDR").
 					String()
 
-	flDeployFlannelNetwork = cmdDeploy.Flag("flannel-network", "Flannel entire overlay network.").
-				Default("10.128.0.0/21").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
-				String()
+	flDeployEc2FlannelNetwork = cmdDeploy.Flag("flannel-network", "Flannel entire overlay network.").
+					Default("10.128.0.0/21").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_NETWORK").
+					String()
 
-	flDeployFlannelSubnetLen = cmdDeploy.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
+	flDeployEc2FlannelSubnetLen = cmdDeploy.Flag("flannel-subnet-len", "Subnet len to llocate to each host.").
 					Default("27").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_LEN").
 					String()
 
-	flDeployFlannelSubnetMin = cmdDeploy.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
+	flDeployEc2FlannelSubnetMin = cmdDeploy.Flag("flannel-subnet-min", "Minimum subnet IP addresses.").
 					Default("10.128.0.192").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MIN").
 					String()
 
-	flDeployFlannelSubnetMax = cmdDeploy.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
+	flDeployEc2FlannelSubnetMax = cmdDeploy.Flag("flannel-subnet-max", "Maximum subnet IP addresses.").
 					Default("10.128.7.224").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
 					String()
 
-	flDeployFlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
-				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
+	flDeployEc2FlannelBackend = cmdDeploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
+					Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
+					HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
 
 	//---------------------------
 	// setup ec2: nested command
@@ -497,11 +497,11 @@ func main() {
 			VpcCidrBlock:     *flDeployEc2VpcCidrBlock,
 			IntSubnetCidr:    *flDeployEc2IntSubnetCidr,
 			ExtSubnetCidr:    *flDeployEc2ExtSubnetCidr,
-			FlannelNetwork:   *flDeployFlannelNetwork,
-			FlannelSubnetLen: *flDeployFlannelSubnetLen,
-			FlannelSubnetMin: *flDeployFlannelSubnetMin,
-			FlannelSubnetMax: *flDeployFlannelSubnetMax,
-			FlannelBackend:   *flDeployFlannelBackend,
+			FlannelNetwork:   *flDeployEc2FlannelNetwork,
+			FlannelSubnetLen: *flDeployEc2FlannelSubnetLen,
+			FlannelSubnetMin: *flDeployEc2FlannelSubnetMin,
+			FlannelSubnetMax: *flDeployEc2FlannelSubnetMax,
+			FlannelBackend:   *flDeployEc2FlannelBackend,
 		}
 
 		err := ec2.Deploy()

@@ -366,7 +366,8 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 				"--key-pair", d.KeyPair,
 				"--subnet-id", d.IntSubnetID,
 				"--security-group-id", d.masterSecGrp,
-				"--iam-role", "master")
+				"--iam-role", "master",
+				"--public-ip", "false")
 
 			// Execute the pipeline:
 			if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
