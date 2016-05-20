@@ -20,7 +20,7 @@ export KATO_DEPLOY_EC2_COREOS_CHANNEL='<your-coreos-release-channel>'
 #### For operators
 If you are an *operator* you need `the real thing`&trade;
 ```bash
-katoctl deploy ec2 \
+katoctl ec2 deploy \
   --master-count 3 \
   --node-count 2 \
   --edge-count 1 \
@@ -38,7 +38,7 @@ katoctl deploy ec2 \
 #### For developers
 If you are a *developer* you can deploy a lighter version:
 ```bash
-katoctl deploy ec2 \
+katoctl ec2 deploy \
   --master-count 1 \
   --node-count 1 \
   --edge-count 1 \
