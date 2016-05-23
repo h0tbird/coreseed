@@ -9,7 +9,6 @@ import (
 	// Stdlib:
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -236,15 +235,22 @@ func (d *Data) environmentSetup() error {
 
 	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
-	out, err := cmdSetup.Output()
+	if err := cmdSetup.Run(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Load data from state file:
+	state_file := os.Getenv("HOME") + "/.kato/" + d.ClusterID + ".json"
+	raw, err := ioutil.ReadFile(state_file)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
-	// Decode JSON data returned from katoctl-ec2-setup:
+	// Decode the loaded JSON data:
 	var dat map[string]interface{}
-	if err := json.Unmarshal(out, &dat); err != nil {
+	if err := json.Unmarshal(raw, &dat); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
@@ -257,7 +263,7 @@ func (d *Data) environmentSetup() error {
 	d.mainRouteTableID = dat["MainRouteTableID"].(string)
 	d.IntSubnetID = dat["IntSubnetID"].(string)
 	d.ExtSubnetID = dat["ExtSubnetID"].(string)
-	d.inetGatewayID = dat["InternetGatewayID"].(string)
+	d.inetGatewayID = dat["InetGatewayID"].(string)
 	d.allocationID = dat["AllocationID"].(string)
 	d.natGatewayID = dat["NatGatewayID"].(string)
 	d.routeTableID = dat["RouteTableID"].(string)
@@ -1704,8 +1710,6 @@ func (d *Data) dumpState() error {
 		return err
 	}
 
-	// Return on success:
-	fmt.Println(string(idsJSON))
 	return nil
 }
 
