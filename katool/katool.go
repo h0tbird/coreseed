@@ -7,6 +7,7 @@ package katool
 import (
 
 	// Stdlib:
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -73,4 +74,28 @@ func EtcdToken(masterCount int) (string, error) {
 	// Return the token ID:
 	slice := strings.Split(string(tokenURL), "/")
 	return slice[len(slice)-1], nil
+}
+
+//-----------------------------------------------------------------------------
+// func: LoadState
+//-----------------------------------------------------------------------------
+
+// LoadState reads the current ClusterID state file and decodes its content
+// into a data structure:
+func LoadState(clusterID string) (map[string]interface{}, error) {
+
+	// Load data from state file:
+	state_file := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
+	raw, err := ioutil.ReadFile(state_file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decode the loaded JSON data:
+	var dat map[string]interface{}
+	if err := json.Unmarshal(raw, &dat); err != nil {
+		return nil, err
+	}
+
+	return dat, nil
 }

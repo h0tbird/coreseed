@@ -142,6 +142,17 @@ func (d *Data) Deploy() error {
 
 // Adds a new instance to the cluster.
 func (d *Data) Add() error {
+
+	// Set command to add:
+	d.command = "add"
+
+	// Load data from state file:
+	_, err := katool.LoadState(d.ClusterID)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
 	return nil
 }
 
@@ -252,16 +263,8 @@ func (d *Data) environmentSetup() error {
 	}
 
 	// Load data from state file:
-	state_file := os.Getenv("HOME") + "/.kato/" + d.ClusterID + ".json"
-	raw, err := ioutil.ReadFile(state_file)
+	dat, err := katool.LoadState(d.ClusterID)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
-	}
-
-	// Decode the loaded JSON data:
-	var dat map[string]interface{}
-	if err := json.Unmarshal(raw, &dat); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
