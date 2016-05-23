@@ -122,6 +122,11 @@ func (d *Data) Deploy() error {
 		d.SrcDstCheck = "true"
 	}
 
+	// Dump state to file:
+	if err := d.dumpState(); err != nil {
+		return err
+	}
+
 	// Setup a wait group:
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -228,7 +233,7 @@ func (d *Data) Setup() error {
 	// Wait to proceed:
 	wg.Wait()
 
-	// Dump state:
+	// Dump state to file:
 	if err := d.dumpState(); err != nil {
 		return err
 	}
@@ -1665,6 +1670,7 @@ func (d *Data) edgeFirewall() error {
 func (d *Data) dumpState() error {
 
 	type identifiers struct {
+		MasterCount      int
 		VpcCidrBlock     string
 		VpcID            string
 		MainRouteTableID string
@@ -1679,9 +1685,26 @@ func (d *Data) dumpState() error {
 		MasterSecGrp     string
 		NodeSecGrp       string
 		EdgeSecGrp       string
+		Domain           string
+		Ns1ApiKey        string
+		CaCert           string
+		EtcdToken        string
+		FlannelNetwork   string
+		FlannelSubnetLen string
+		FlannelSubnetMin string
+		FlannelSubnetMax string
+		FlannelBackend   string
+		Region           string
+		Zone             string
+		ImageID          string
+		MasterType       string
+		NodeType         string
+		EdgeType         string
+		KeyPair          string
 	}
 
 	ids := identifiers{
+		MasterCount:      d.MasterCount,
 		VpcCidrBlock:     d.VpcCidrBlock,
 		VpcID:            d.vpcID,
 		MainRouteTableID: d.mainRouteTableID,
@@ -1696,6 +1719,22 @@ func (d *Data) dumpState() error {
 		MasterSecGrp:     d.masterSecGrp,
 		NodeSecGrp:       d.nodeSecGrp,
 		EdgeSecGrp:       d.edgeSecGrp,
+		Domain:           d.Domain,
+		Ns1ApiKey:        d.Ns1ApiKey,
+		CaCert:           d.CaCert,
+		EtcdToken:        d.EtcdToken,
+		FlannelNetwork:   d.FlannelNetwork,
+		FlannelSubnetLen: d.FlannelSubnetLen,
+		FlannelSubnetMin: d.FlannelSubnetMin,
+		FlannelSubnetMax: d.FlannelSubnetMax,
+		FlannelBackend:   d.FlannelBackend,
+		Region:           d.Region,
+		Zone:             d.Zone,
+		ImageID:          d.ImageID,
+		MasterType:       d.MasterType,
+		NodeType:         d.NodeType,
+		EdgeType:         d.EdgeType,
+		KeyPair:          d.KeyPair,
 	}
 
 	// Marshal the data:
