@@ -1679,7 +1679,26 @@ func (d *Data) dumpState() error {
 	}
 
 	// Marshal the data:
-	idsJSON, err := json.Marshal(ids)
+	idsJSON, err := json.MarshalIndent(ids, "", "  ")
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Create the state directory:
+	path := os.Getenv("HOME") + "/.kato"
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			err = os.Mkdir(path, 0700)
+			if err != nil {
+				log.WithField("cmd", "ec2:"+d.command).Error(err)
+				return err
+			}
+		}
+	}
+
+	// Write the state file:
+	err = ioutil.WriteFile(path+"/"+d.ClusterID+".json", idsJSON, 0600)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
