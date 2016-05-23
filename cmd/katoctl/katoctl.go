@@ -134,6 +134,7 @@ func main() {
 	case cmdEc2Deploy.FullCommand():
 
 		ec2 := ec2.Data{
+			ClusterID:        *flEc2DeployClusterID,
 			MasterCount:      *flEc2DeployMasterCount,
 			NodeCount:        *flEc2DeployNodeCount,
 			EdgeCount:        *flEc2DeployEdgeCount,
@@ -168,6 +169,7 @@ func main() {
 	case cmdEc2Setup.FullCommand():
 
 		ec2 := ec2.Data{
+			ClusterID:     *flEc2SetupClusterID,
 			Domain:        *flEc2SetupDomain,
 			Region:        *flEc2SetupRegion,
 			Zone:          *flEc2SetupZone,

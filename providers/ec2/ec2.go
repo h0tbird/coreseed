@@ -54,6 +54,7 @@ type Data struct {
 	FlannelSubnetMax  string //  deploy:ec2 |           | udata |
 	FlannelBackend    string //  deploy:ec2 |           | udata |
 	Domain            string //  deploy:ec2 | setup:ec2 | udata |
+	ClusterID         string //  deploy:ec2 | setup:ec2 |       |
 	Region            string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	Zone              string //  deploy:ec2 | setup:ec2 |       | run:ec2
 	command           string //  deploy:ec2 | setup:ec2 |       | run:ec2
@@ -225,6 +226,7 @@ func (d *Data) environmentSetup() error {
 		Info("Setup the EC2 environment")
 
 	cmdSetup := exec.Command("katoctl", "ec2", "setup",
+		"--cluster-id", d.ClusterID,
 		"--domain", d.Domain,
 		"--region", d.Region,
 		"--zone", d.Zone,

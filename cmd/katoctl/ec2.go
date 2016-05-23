@@ -18,6 +18,11 @@ var (
 
 	cmdEc2Deploy = cmdEc2.Command("deploy", "Deploy Kato's infrastructure on Amazon EC2.")
 
+	flEc2DeployClusterID = cmdEc2Deploy.Flag("cluster-id", "Cluster ID for later reference.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_CLUSTER_ID").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CLUSTER_ID").
+				String()
+
 	flEc2DeployMasterCount = cmdEc2Deploy.Flag("master-count", "Number of master nodes to deploy [ 1 | 3 | 5 ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_MASTER_COUNT").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
@@ -121,6 +126,11 @@ var (
 	//---------------------------
 
 	cmdEc2Setup = cmdEc2.Command("setup", "Setup an EC2 VPC and all the related components.")
+
+	flEc2SetupClusterID = cmdEc2Setup.Flag("cluster-id", "Cluster ID for later reference.").
+				Required().PlaceHolder("KATO_SETUP_EC2_CLUSTER_ID").
+				OverrideDefaultFromEnvar("KATO_SETUP_EC2_CLUSTER_ID").
+				String()
 
 	flEc2SetupDomain = cmdEc2Setup.Flag("domain", "Used to identify the VPC..").
 				Required().PlaceHolder("KATO_SETUP_EC2_DOMAIN").
