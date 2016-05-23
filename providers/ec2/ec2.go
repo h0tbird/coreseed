@@ -38,55 +38,55 @@ type Data struct {
 	svcEC2 *ec2.EC2
 	svcIAM *iam.IAM
 
-	MasterCount       int    //  deploy:ec2 |           |       |
-	NodeCount         int    //  deploy:ec2 |           |       |
-	EdgeCount         int    //  deploy:ec2 |           |       |
-	MasterType        string //  deploy:ec2 |           |       |
-	NodeType          string //  deploy:ec2 |           |       |
-	EdgeType          string //  deploy:ec2 |           |       |
-	Channel           string //  deploy:ec2 |           |       |
-	EtcdToken         string //  deploy:ec2 |           | udata |
-	Ns1ApiKey         string //  deploy:ec2 |           | udata |
-	CaCert            string //  deploy:ec2 |           | udata |
-	FlannelNetwork    string //  deploy:ec2 |           | udata |
-	FlannelSubnetLen  string //  deploy:ec2 |           | udata |
-	FlannelSubnetMin  string //  deploy:ec2 |           | udata |
-	FlannelSubnetMax  string //  deploy:ec2 |           | udata |
-	FlannelBackend    string //  deploy:ec2 |           | udata |
-	Domain            string //  deploy:ec2 | setup:ec2 | udata |
-	ClusterID         string //  deploy:ec2 | setup:ec2 |       |
-	Region            string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	Zone              string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	command           string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	VpcCidrBlock      string //  deploy:ec2 | setup:ec2 |       |
-	IntSubnetCidr     string //  deploy:ec2 | setup:ec2 |       |
-	ExtSubnetCidr     string //  deploy:ec2 | setup:ec2 |       |
-	vpcID             string //             | setup:ec2 |       |
-	mainRouteTableID  string //             | setup:ec2 |       |
-	internetGatewayID string //             | setup:ec2 |       |
-	natGatewayID      string //             | setup:ec2 |       |
-	routeTableID      string //             | setup:ec2 |       |
-	masterRoleID      string //             | setup:ec2 |       |
-	nodeRoleID        string //             | setup:ec2 |       |
-	edgeRoleID        string //             | setup:ec2 |       |
-	rexrayPolicyARN   string //             | setup:ec2 |       |
-	masterSecGrp      string //             | setup:ec2 |       |
-	nodeSecGrp        string //             | setup:ec2 |       |
-	edgeSecGrp        string //             | setup:ec2 |       |
-	IntSubnetID       string //             | setup:ec2 |       |
-	ExtSubnetID       string //             | setup:ec2 |       |
-	allocationID      string //             | setup:ec2 |       | run:ec2
-	instanceID        string //             |           |       | run:ec2
-	SubnetID          string //             |           |       | run:ec2
-	SecGrpID          string //             |           |       | run:ec2
-	ImageID           string //             |           |       | run:ec2
-	KeyPair           string //             |           |       | run:ec2
-	InstanceType      string //             |           |       | run:ec2
-	Hostname          string //             |           |       | run:ec2
-	PublicIP          string //             |           |       | run:ec2
-	IAMRole           string //             |           |       | run:ec2
-	SrcDstCheck       string //             |           |       | run:ec2
-	interfaceID       string //             |           |       | run:ec2
+	MasterCount      int    //  deploy:ec2 |           |       |
+	NodeCount        int    //  deploy:ec2 |           |       |
+	EdgeCount        int    //  deploy:ec2 |           |       |
+	MasterType       string //  deploy:ec2 |           |       |
+	NodeType         string //  deploy:ec2 |           |       |
+	EdgeType         string //  deploy:ec2 |           |       |
+	Channel          string //  deploy:ec2 |           |       |
+	EtcdToken        string //  deploy:ec2 |           | udata |
+	Ns1ApiKey        string //  deploy:ec2 |           | udata |
+	CaCert           string //  deploy:ec2 |           | udata |
+	FlannelNetwork   string //  deploy:ec2 |           | udata |
+	FlannelSubnetLen string //  deploy:ec2 |           | udata |
+	FlannelSubnetMin string //  deploy:ec2 |           | udata |
+	FlannelSubnetMax string //  deploy:ec2 |           | udata |
+	FlannelBackend   string //  deploy:ec2 |           | udata |
+	Domain           string //  deploy:ec2 | setup:ec2 | udata |
+	ClusterID        string //  deploy:ec2 | setup:ec2 |       |
+	Region           string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	Zone             string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	command          string //  deploy:ec2 | setup:ec2 |       | run:ec2
+	VpcCidrBlock     string //  deploy:ec2 | setup:ec2 |       |
+	IntSubnetCidr    string //  deploy:ec2 | setup:ec2 |       |
+	ExtSubnetCidr    string //  deploy:ec2 | setup:ec2 |       |
+	vpcID            string //             | setup:ec2 |       |
+	mainRouteTableID string //             | setup:ec2 |       |
+	inetGatewayID    string //             | setup:ec2 |       |
+	natGatewayID     string //             | setup:ec2 |       |
+	routeTableID     string //             | setup:ec2 |       |
+	masterRoleID     string //             | setup:ec2 |       |
+	nodeRoleID       string //             | setup:ec2 |       |
+	edgeRoleID       string //             | setup:ec2 |       |
+	rexrayPolicyARN  string //             | setup:ec2 |       |
+	masterSecGrp     string //             | setup:ec2 |       |
+	nodeSecGrp       string //             | setup:ec2 |       |
+	edgeSecGrp       string //             | setup:ec2 |       |
+	IntSubnetID      string //             | setup:ec2 |       |
+	ExtSubnetID      string //             | setup:ec2 |       |
+	allocationID     string //             | setup:ec2 |       | run:ec2
+	instanceID       string //             |           |       | run:ec2
+	SubnetID         string //             |           |       | run:ec2
+	SecGrpID         string //             |           |       | run:ec2
+	ImageID          string //             |           |       | run:ec2
+	KeyPair          string //             |           |       | run:ec2
+	InstanceType     string //             |           |       | run:ec2
+	Hostname         string //             |           |       | run:ec2
+	PublicIP         string //             |           |       | run:ec2
+	IAMRole          string //             |           |       | run:ec2
+	SrcDstCheck      string //             |           |       | run:ec2
+	interfaceID      string //             |           |       | run:ec2
 }
 
 //-----------------------------------------------------------------------------
@@ -255,9 +255,9 @@ func (d *Data) environmentSetup() error {
 	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
 	d.vpcID = dat["VpcID"].(string)
 	d.mainRouteTableID = dat["MainRouteTableID"].(string)
-	d.IntSubnetID = dat["InternalSubnetID"].(string)
-	d.ExtSubnetID = dat["ExternalSubnetID"].(string)
-	d.internetGatewayID = dat["InternetGatewayID"].(string)
+	d.IntSubnetID = dat["IntSubnetID"].(string)
+	d.ExtSubnetID = dat["ExtSubnetID"].(string)
+	d.inetGatewayID = dat["InternetGatewayID"].(string)
 	d.allocationID = dat["AllocationID"].(string)
 	d.natGatewayID = dat["NatGatewayID"].(string)
 	d.routeTableID = dat["RouteTableID"].(string)
@@ -953,9 +953,9 @@ func (d *Data) createInternetGateway() error {
 	}
 
 	// Store the internet gateway ID:
-	d.internetGatewayID = *resp.InternetGateway.InternetGatewayId
+	d.inetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.WithFields(log.Fields{
-		"cmd": d.command + ":ec2", "id": d.internetGatewayID}).
+		"cmd": d.command + ":ec2", "id": d.inetGatewayID}).
 		Info("- New internet gateway")
 
 	return nil
@@ -969,7 +969,7 @@ func (d *Data) attachInternetGateway() error {
 
 	// Forge the attachement request:
 	params := &ec2.AttachInternetGatewayInput{
-		InternetGatewayId: aws.String(d.internetGatewayID),
+		InternetGatewayId: aws.String(d.inetGatewayID),
 		VpcId:             aws.String(d.vpcID),
 		DryRun:            aws.Bool(false),
 	}
@@ -997,7 +997,7 @@ func (d *Data) createInternetGatewayRoute() error {
 		DestinationCidrBlock: aws.String("0.0.0.0/0"),
 		RouteTableId:         aws.String(d.routeTableID),
 		DryRun:               aws.Bool(false),
-		GatewayId:            aws.String(d.internetGatewayID),
+		GatewayId:            aws.String(d.inetGatewayID),
 	}
 
 	// Send the route request:
@@ -1645,37 +1645,37 @@ func (d *Data) edgeFirewall() error {
 func (d *Data) dumpState() error {
 
 	type identifiers struct {
-		VpcCidrBlock      string
-		VpcID             string
-		MainRouteTableID  string
-		IntSubnetCidr     string
-		ExtSubnetCidr     string
-		InternalSubnetID  string
-		ExternalSubnetID  string
-		InternetGatewayID string
-		AllocationID      string
-		NatGatewayID      string
-		RouteTableID      string
-		MasterSecGrp      string
-		NodeSecGrp        string
-		EdgeSecGrp        string
+		VpcCidrBlock     string
+		VpcID            string
+		MainRouteTableID string
+		IntSubnetCidr    string
+		ExtSubnetCidr    string
+		IntSubnetID      string
+		ExtSubnetID      string
+		InetGatewayID    string
+		AllocationID     string
+		NatGatewayID     string
+		RouteTableID     string
+		MasterSecGrp     string
+		NodeSecGrp       string
+		EdgeSecGrp       string
 	}
 
 	ids := identifiers{
-		VpcCidrBlock:      d.VpcCidrBlock,
-		VpcID:             d.vpcID,
-		MainRouteTableID:  d.mainRouteTableID,
-		IntSubnetCidr:     d.IntSubnetCidr,
-		ExtSubnetCidr:     d.ExtSubnetCidr,
-		InternalSubnetID:  d.IntSubnetID,
-		ExternalSubnetID:  d.ExtSubnetID,
-		InternetGatewayID: d.internetGatewayID,
-		AllocationID:      d.allocationID,
-		NatGatewayID:      d.natGatewayID,
-		RouteTableID:      d.routeTableID,
-		MasterSecGrp:      d.masterSecGrp,
-		NodeSecGrp:        d.nodeSecGrp,
-		EdgeSecGrp:        d.edgeSecGrp,
+		VpcCidrBlock:     d.VpcCidrBlock,
+		VpcID:            d.vpcID,
+		MainRouteTableID: d.mainRouteTableID,
+		IntSubnetCidr:    d.IntSubnetCidr,
+		ExtSubnetCidr:    d.ExtSubnetCidr,
+		IntSubnetID:      d.IntSubnetID,
+		ExtSubnetID:      d.ExtSubnetID,
+		InetGatewayID:    d.inetGatewayID,
+		AllocationID:     d.allocationID,
+		NatGatewayID:     d.natGatewayID,
+		RouteTableID:     d.routeTableID,
+		MasterSecGrp:     d.masterSecGrp,
+		NodeSecGrp:       d.nodeSecGrp,
+		EdgeSecGrp:       d.edgeSecGrp,
 	}
 
 	// Marshal the data:
