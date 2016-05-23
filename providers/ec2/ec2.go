@@ -206,8 +206,8 @@ func (d *Data) Setup() error {
 	// Wait to proceed:
 	wg.Wait()
 
-	// Dump context to stdout:
-	if err := d.exposeIdentifiers(); err != nil {
+	// Dump state:
+	if err := d.dumpState(); err != nil {
 		return err
 	}
 
@@ -1637,10 +1637,10 @@ func (d *Data) edgeFirewall() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: exposeIdentifiers
+// func: dumpState
 //-----------------------------------------------------------------------------
 
-func (d *Data) exposeIdentifiers() error {
+func (d *Data) dumpState() error {
 
 	type identifiers struct {
 		VpcCidrBlock      string
