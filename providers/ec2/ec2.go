@@ -100,20 +100,15 @@ func (d *Data) Deploy() error {
 	// Set command to deploy:
 	d.command = "deploy"
 
-	// Setup the EC2 environment:
-	if err := d.environmentSetup(); err != nil {
-		return err
-	}
+	// Setup a wait group:
+	var wg sync.WaitGroup
 
-	// Retrieve the etcd bootstrap token:
-	if err := d.retrieveEtcdToken(); err != nil {
-		return err
-	}
-
-	// Retrieve the CoreOS AMI ID:
-	if err := d.retrieveCoreosAmiID(); err != nil {
-		return err
-	}
+	// Setup the environment:
+	wg.Add(3)
+	go d.environmentSetup(&wg)
+	go d.retrieveEtcdToken(&wg)
+	go d.retrieveCoreosAmiID(&wg)
+	wg.Wait()
 
 	// Whether or not to source-dest-check:
 	if d.FlannelBackend == "host-gw" {
@@ -127,17 +122,13 @@ func (d *Data) Deploy() error {
 		return err
 	}
 
-	// Setup a wait group:
-	var wg sync.WaitGroup
-	wg.Add(3)
-
 	// Deploy all the nodes:
+	wg.Add(3)
 	go d.deployMasterNodes(&wg)
 	go d.deployWorkerNodes(&wg)
 	go d.deployEdgeNodes(&wg)
-
-	// Wait and return:
 	wg.Wait()
+
 	return nil
 }
 
@@ -245,7 +236,10 @@ func (d *Data) Setup() error {
 // func: environmentSetup
 //-----------------------------------------------------------------------------
 
-func (d *Data) environmentSetup() error {
+func (d *Data) environmentSetup(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
 
 	// Forge the setup command:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.Domain}).
@@ -264,14 +258,14 @@ func (d *Data) environmentSetup() error {
 	cmdSetup.Stderr = os.Stderr
 	if err := cmdSetup.Run(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Load data from state file:
 	dat, err := katool.LoadState(d.ClusterID)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Store the values:
@@ -289,62 +283,63 @@ func (d *Data) environmentSetup() error {
 	d.masterSecGrp = dat["MasterSecGrp"].(string)
 	d.nodeSecGrp = dat["NodeSecGrp"].(string)
 	d.edgeSecGrp = dat["EdgeSecGrp"].(string)
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
 // func: retrieveEtcdToken
 //-----------------------------------------------------------------------------
 
-func (d *Data) retrieveEtcdToken() error {
+func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 
+	// Decrement:
+	defer wg.Done()
 	var err error
 
 	if d.EtcdToken == "auto" {
 		if d.EtcdToken, err = katool.EtcdToken(d.MasterCount); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			return err
+			os.Exit(1)
 		}
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
 			Info("New etcd bootstrap token requested")
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
 // func: retrieveCoreosAmiID
 //-----------------------------------------------------------------------------
 
-func (d *Data) retrieveCoreosAmiID() error {
+func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
 
 	// Send the request:
 	res, err := http.
 		Get("https://coreos.com/dist/aws/aws-" + d.Channel + ".json")
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Retrieve the data:
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Close the handler:
 	if err = res.Body.Close(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Decode JSON into Go values:
 	var jsonData map[string]interface{}
 	if err := json.Unmarshal(data, &jsonData); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		os.Exit(1)
 	}
 
 	// Store the AMI ID:
@@ -353,8 +348,6 @@ func (d *Data) retrieveCoreosAmiID() error {
 
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.ImageID}).
 		Info("Latest CoreOS " + d.Channel + " AMI located")
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
