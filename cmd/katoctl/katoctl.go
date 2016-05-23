@@ -182,6 +182,20 @@ func main() {
 		checkError(err)
 
 	//-----------------
+	// katoctl ec2 add
+	//-----------------
+
+	case cmdEc2Add.FullCommand():
+
+		ec2 := ec2.Data{
+			Role: *flEc2AddRole,
+			ID:   *flEc2AddID,
+		}
+
+		err := ec2.Add()
+		checkError(err)
+
+	//-----------------
 	// katoctl ec2 run
 	//-----------------
 

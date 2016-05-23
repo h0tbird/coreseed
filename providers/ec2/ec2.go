@@ -86,6 +86,8 @@ type Data struct {
 	IAMRole          string //             |           |       | run:ec2
 	SrcDstCheck      string //             |           |       | run:ec2
 	interfaceID      string //             |           |       | run:ec2
+	Role             string //             |           |       | ec2:add
+	ID               string //             |           |       | ec2:add
 }
 
 //-----------------------------------------------------------------------------

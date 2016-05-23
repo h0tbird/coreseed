@@ -170,10 +170,10 @@ var (
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
 			HintOptions("master", "node", "edge").String()
 
-	flEc2AddId = cmdEc2Add.Flag("id", "New instance ID.").
+	flEc2AddID = cmdEc2Add.Flag("id", "New instance ID.").
 			Required().PlaceHolder("KATO_EC2_ADD_ID").
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ID").
-			Int()
+			String()
 
 	//-------------------------
 	// ec2 run: nested command
