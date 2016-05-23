@@ -37,55 +37,55 @@ type Data struct {
 	svcEC2 *ec2.EC2
 	svcIAM *iam.IAM
 
-	MasterCount      int    //  deploy:ec2 |           |       |
-	NodeCount        int    //  deploy:ec2 |           |       |
-	EdgeCount        int    //  deploy:ec2 |           |       |
-	MasterType       string //  deploy:ec2 |           |       |
-	NodeType         string //  deploy:ec2 |           |       |
-	EdgeType         string //  deploy:ec2 |           |       |
-	Channel          string //  deploy:ec2 |           |       |
-	EtcdToken        string //  deploy:ec2 |           | udata |
-	Ns1ApiKey        string //  deploy:ec2 |           | udata |
-	CaCert           string //  deploy:ec2 |           | udata |
-	FlannelNetwork   string //  deploy:ec2 |           | udata |
-	FlannelSubnetLen string //  deploy:ec2 |           | udata |
-	FlannelSubnetMin string //  deploy:ec2 |           | udata |
-	FlannelSubnetMax string //  deploy:ec2 |           | udata |
-	FlannelBackend   string //  deploy:ec2 |           | udata |
-	Domain           string //  deploy:ec2 | setup:ec2 | udata |
-	ClusterID        string //  deploy:ec2 | setup:ec2 |       |
-	Region           string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	Zone             string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	command          string //  deploy:ec2 | setup:ec2 |       | run:ec2
-	VpcCidrBlock     string //  deploy:ec2 | setup:ec2 |       |
-	IntSubnetCidr    string //  deploy:ec2 | setup:ec2 |       |
-	ExtSubnetCidr    string //  deploy:ec2 | setup:ec2 |       |
-	vpcID            string //             | setup:ec2 |       |
-	mainRouteTableID string //             | setup:ec2 |       |
-	inetGatewayID    string //             | setup:ec2 |       |
-	natGatewayID     string //             | setup:ec2 |       |
-	routeTableID     string //             | setup:ec2 |       |
-	masterRoleID     string //             | setup:ec2 |       |
-	nodeRoleID       string //             | setup:ec2 |       |
-	edgeRoleID       string //             | setup:ec2 |       |
-	rexrayPolicyARN  string //             | setup:ec2 |       |
-	masterSecGrp     string //             | setup:ec2 |       |
-	nodeSecGrp       string //             | setup:ec2 |       |
-	edgeSecGrp       string //             | setup:ec2 |       |
-	IntSubnetID      string //             | setup:ec2 |       |
-	ExtSubnetID      string //             | setup:ec2 |       |
-	allocationID     string //             | setup:ec2 |       | run:ec2
-	instanceID       string //             |           |       | run:ec2
-	SubnetID         string //             |           |       | run:ec2
-	SecGrpID         string //             |           |       | run:ec2
-	ImageID          string //             |           |       | run:ec2
-	KeyPair          string //             |           |       | run:ec2
-	InstanceType     string //             |           |       | run:ec2
-	Hostname         string //             |           |       | run:ec2
-	PublicIP         string //             |           |       | run:ec2
-	IAMRole          string //             |           |       | run:ec2
-	SrcDstCheck      string //             |           |       | run:ec2
-	interfaceID      string //             |           |       | run:ec2
+	MasterCount      int    //  ec2:deploy |           |       |
+	NodeCount        int    //  ec2:deploy |           |       |
+	EdgeCount        int    //  ec2:deploy |           |       |
+	MasterType       string //  ec2:deploy |           |       |
+	NodeType         string //  ec2:deploy |           |       |
+	EdgeType         string //  ec2:deploy |           |       |
+	Channel          string //  ec2:deploy |           |       |
+	EtcdToken        string //  ec2:deploy |           | udata |
+	Ns1ApiKey        string //  ec2:deploy |           | udata |
+	CaCert           string //  ec2:deploy |           | udata |
+	FlannelNetwork   string //  ec2:deploy |           | udata |
+	FlannelSubnetLen string //  ec2:deploy |           | udata |
+	FlannelSubnetMin string //  ec2:deploy |           | udata |
+	FlannelSubnetMax string //  ec2:deploy |           | udata |
+	FlannelBackend   string //  ec2:deploy |           | udata |
+	Domain           string //  ec2:deploy | ec2:setup | udata |
+	ClusterID        string //  ec2:deploy | ec2:setup |       |
+	Region           string //  ec2:deploy | ec2:setup |       | ec2:run
+	Zone             string //  ec2:deploy | ec2:setup |       | ec2:run
+	command          string //  ec2:deploy | ec2:setup |       | ec2:run
+	VpcCidrBlock     string //  ec2:deploy | ec2:setup |       |
+	IntSubnetCidr    string //  ec2:deploy | ec2:setup |       |
+	ExtSubnetCidr    string //  ec2:deploy | ec2:setup |       |
+	vpcID            string //             | ec2:setup |       |
+	mainRouteTableID string //             | ec2:setup |       |
+	inetGatewayID    string //             | ec2:setup |       |
+	natGatewayID     string //             | ec2:setup |       |
+	routeTableID     string //             | ec2:setup |       |
+	masterRoleID     string //             | ec2:setup |       |
+	nodeRoleID       string //             | ec2:setup |       |
+	edgeRoleID       string //             | ec2:setup |       |
+	rexrayPolicyARN  string //             | ec2:setup |       |
+	masterSecGrp     string //             | ec2:setup |       |
+	nodeSecGrp       string //             | ec2:setup |       |
+	edgeSecGrp       string //             | ec2:setup |       |
+	IntSubnetID      string //             | ec2:setup |       |
+	ExtSubnetID      string //             | ec2:setup |       |
+	allocationID     string //             | ec2:setup |       | ec2:run
+	instanceID       string //             |           |       | ec2:run
+	SubnetID         string //             |           |       | ec2:run
+	SecGrpID         string //             |           |       | ec2:run
+	ImageID          string //             |           |       | ec2:run
+	KeyPair          string //             |           |       | ec2:run
+	InstanceType     string //             |           |       | ec2:run
+	Hostname         string //             |           |       | ec2:run
+	PublicIP         string //             |           |       | ec2:run
+	IAMRole          string //             |           |       | ec2:run
+	SrcDstCheck      string //             |           |       | ec2:run
+	interfaceID      string //             |           |       | ec2:run
 	Role             string //             |           |       | ec2:add
 	ID               string //             |           |       | ec2:add
 }
