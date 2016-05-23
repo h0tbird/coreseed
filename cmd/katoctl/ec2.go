@@ -160,6 +160,22 @@ var (
 				Short('e').String()
 
 	//-------------------------
+	// ec2 add: nested command
+	//-------------------------
+
+	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
+
+	flEc2AddRole = cmdEc2Add.Flag("role", "New instance role [ master | node | edge ]").
+			Required().PlaceHolder("KATO_EC2_ADD_ROLE").
+			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
+			HintOptions("master", "node", "edge").String()
+
+	flEc2AddId = cmdEc2Add.Flag("id", "New instance ID.").
+			Required().PlaceHolder("KATO_EC2_ADD_ID").
+			OverrideDefaultFromEnvar("KATO_EC2_ADD_ID").
+			Int()
+
+	//-------------------------
 	// ec2 run: nested command
 	//-------------------------
 
