@@ -39,16 +39,16 @@ type svc struct {
 // Instance data.
 type Instance struct {
 	command      string
-	InstanceID   string `json:"InstanceID"`   //             |           | ec2:run |
-	SubnetID     string `json:"SubnetID"`     //             |           | ec2:run |
-	SecGrpID     string `json:"SecGrpID"`     //             |           | ec2:run |
-	InstanceType string `json:"InstanceType"` //             |           | ec2:run |
-	Hostname     string `json:"Hostname"`     //             |           | ec2:run |
-	PublicIP     string `json:"PublicIP"`     //             |           | ec2:run |
-	IAMRole      string `json:"IAMRole"`      //             |           | ec2:run |
-	InterfaceID  string `json:"InterfaceID"`  //             |           | ec2:run |
-	Role         string `json:"Role"`         //             |           |         | ec2:add
-	HostID       string `json:"HostID"`       //             |           |         | ec2:add
+	InstanceID   string `json:"InstanceID"`   //  ec2:run |
+	SubnetID     string `json:"SubnetID"`     //  ec2:run |
+	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
+	InstanceType string `json:"InstanceType"` //  ec2:run |
+	Hostname     string `json:"Hostname"`     //  ec2:run |
+	PublicIP     string `json:"PublicIP"`     //  ec2:run |
+	IAMRole      string `json:"IAMRole"`      //  ec2:run |
+	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
+	Role         string `json:"Role"`         //          | ec2:add
+	HostID       string `json:"HostID"`       //          | ec2:add
 }
 
 // State data.
