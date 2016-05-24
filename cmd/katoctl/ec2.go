@@ -175,9 +175,9 @@ var (
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
 			HintOptions("master", "node", "edge").String()
 
-	flEc2AddID = cmdEc2Add.Flag("id", "New instance ID.").
-			Required().PlaceHolder("KATO_EC2_ADD_ID").
-			OverrideDefaultFromEnvar("KATO_EC2_ADD_ID").
+	flEc2AddHostID = cmdEc2Add.Flag("host-id", "New instance host ID.").
+			Required().PlaceHolder("KATO_EC2_ADD_HOST_ID").
+			OverrideDefaultFromEnvar("KATO_EC2_ADD_HOST_ID").
 			String()
 
 	//-------------------------

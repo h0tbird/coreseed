@@ -48,7 +48,7 @@ type Instance struct {
 	IAMRole      string `json:"IAMRole"`      //             |           | ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //             |           | ec2:run |
 	Role         string `json:"Role"`         //             |           |         | ec2:add
-	ID           string `json:"ID"`           //             |           |         | ec2:add
+	HostID       string `json:"HostID"`       //             |           |         | ec2:add
 }
 
 // State data.
@@ -199,7 +199,7 @@ func (d *Data) Add() error {
 	cmdUdata := exec.Command("katoctl", "udata",
 		"--role", d.Role,
 		"--master-count", strconv.Itoa(d.MasterCount),
-		"--hostid", d.ID,
+		"--hostid", d.HostID,
 		"--domain", d.Domain,
 		"--ns1-api-key", d.Ns1ApiKey,
 		"--ca-cert", d.CaCert,
@@ -218,7 +218,7 @@ func (d *Data) Add() error {
 	switch d.Role {
 	case "master":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--image-id", d.ImageID,
@@ -232,7 +232,7 @@ func (d *Data) Add() error {
 
 	case "node":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--image-id", d.ImageID,
@@ -246,7 +246,7 @@ func (d *Data) Add() error {
 
 	case "edge":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--image-id", d.ImageID,

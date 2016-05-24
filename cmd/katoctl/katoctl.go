@@ -196,8 +196,8 @@ func main() {
 				ClusterID: *flEc2AddCluserID,
 			},
 			Instance: ec2.Instance{
-				Role: *flEc2AddRole,
-				ID:   *flEc2AddID,
+				Role:   *flEc2AddRole,
+				HostID: *flEc2AddHostID,
 			},
 		}
 
