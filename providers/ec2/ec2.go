@@ -36,7 +36,7 @@ type svc struct {
 	iam *iam.IAM
 }
 
-// Per instance data:
+// Instance data.
 type Instance struct {
 	command      string
 	InstanceID   string `json:"InstanceID"`   //             |           | ec2:run |
@@ -51,7 +51,7 @@ type Instance struct {
 	ID           string `json:"ID"`           //             |           |         | ec2:add
 }
 
-// Global state data:
+// State data.
 type State struct {
 	MasterCount      int    `json:"MasterCount"`      //  ec2:deploy |           |       |
 	NodeCount        int    `json:"NodeCount"`        //  ec2:deploy |           |       |
@@ -95,7 +95,7 @@ type State struct {
 	SrcDstCheck      string `json:"SrcDstCheck"`      //             |           |       | ec2:run
 }
 
-// Service endpoints and deployment state.
+// Data struct for EC2 endpoints, instance and state data.
 type Data struct {
 	svc
 	Instance
@@ -148,7 +148,7 @@ func (d *Data) Deploy() error {
 // func: Add
 //-----------------------------------------------------------------------------
 
-// Adds a new instance to the cluster.
+// Add a new instance to the cluster.
 func (d *Data) Add() error {
 
 	// Set command to add:
