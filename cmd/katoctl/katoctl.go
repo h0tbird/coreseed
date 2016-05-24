@@ -136,9 +136,9 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
-				MasterCount:      *flEc2DeployMasterCount,
-				NodeCount:        *flEc2DeployNodeCount,
-				EdgeCount:        *flEc2DeployEdgeCount,
+				MasterCount:      float64(*flEc2DeployMasterCount),
+				NodeCount:        float64(*flEc2DeployNodeCount),
+				EdgeCount:        float64(*flEc2DeployEdgeCount),
 				MasterType:       *flEc2DeployMasterType,
 				NodeType:         *flEc2DeployNodeType,
 				EdgeType:         *flEc2DeployEdgeType,

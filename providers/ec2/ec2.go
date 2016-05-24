@@ -24,6 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/h0tbird/kato/katool"
+	"github.com/imdario/mergo"
 )
 
 //-----------------------------------------------------------------------------
@@ -53,46 +54,46 @@ type Instance struct {
 
 // State data.
 type State struct {
-	MasterCount      int    `json:"MasterCount"`      //  ec2:deploy |           |       |
-	NodeCount        int    `json:"NodeCount"`        //  ec2:deploy |           |       |
-	EdgeCount        int    `json:"EdgeCount"`        //  ec2:deploy |           |       |
-	MasterType       string `json:"MasterType"`       //  ec2:deploy |           |       |
-	NodeType         string `json:"NodeType"`         //  ec2:deploy |           |       |
-	EdgeType         string `json:"EdgeType"`         //  ec2:deploy |           |       |
-	Channel          string `json:"Channel"`          //  ec2:deploy |           |       |
-	EtcdToken        string `json:"EtcdToken"`        //  ec2:deploy |           | udata |
-	Ns1ApiKey        string `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
-	CaCert           string `json:"CaCert"`           //  ec2:deploy |           | udata |
-	FlannelNetwork   string `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
-	FlannelSubnetLen string `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
-	FlannelSubnetMin string `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
-	FlannelSubnetMax string `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
-	FlannelBackend   string `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
-	Domain           string `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
-	ClusterID        string `json:"ClusterID"`        //  ec2:deploy | ec2:setup |       |
-	Region           string `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
-	Zone             string `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
-	VpcCidrBlock     string `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
-	IntSubnetCidr    string `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	ExtSubnetCidr    string `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	VpcID            string `json:"VpcID"`            //             | ec2:setup |       |
-	MainRouteTableID string `json:"MainRouteTableID"` //             | ec2:setup |       |
-	InetGatewayID    string `json:"InetGatewayID"`    //             | ec2:setup |       |
-	NatGatewayID     string `json:"NatGatewayID"`     //             | ec2:setup |       |
-	RouteTableID     string `json:"RouteTableID"`     //             | ec2:setup |       |
-	MasterRoleID     string `json:"MasterRoleID"`     //             | ec2:setup |       |
-	NodeRoleID       string `json:"NodeRoleID"`       //             | ec2:setup |       |
-	EdgeRoleID       string `json:"EdgeRoleID"`       //             | ec2:setup |       |
-	RexrayPolicyARN  string `json:"RexrayPolicyARN"`  //             | ec2:setup |       |
-	MasterSecGrp     string `json:"MasterSecGrp"`     //             | ec2:setup |       |
-	NodeSecGrp       string `json:"NodeSecGrp"`       //             | ec2:setup |       |
-	EdgeSecGrp       string `json:"EdgeSecGrp"`       //             | ec2:setup |       |
-	IntSubnetID      string `json:"IntSubnetID"`      //             | ec2:setup |       |
-	ExtSubnetID      string `json:"ExtSubnetID"`      //             | ec2:setup |       |
-	AllocationID     string `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
-	ImageID          string `json:"ImageID"`          //             |           |       | ec2:run
-	KeyPair          string `json:"KeyPair"`          //             |           |       | ec2:run
-	SrcDstCheck      string `json:"SrcDstCheck"`      //             |           |       | ec2:run
+	MasterCount      float64 `json:"MasterCount"`      //  ec2:deploy |           |       |
+	NodeCount        float64 `json:"NodeCount"`        //  ec2:deploy |           |       |
+	EdgeCount        float64 `json:"EdgeCount"`        //  ec2:deploy |           |       |
+	MasterType       string  `json:"MasterType"`       //  ec2:deploy |           |       |
+	NodeType         string  `json:"NodeType"`         //  ec2:deploy |           |       |
+	EdgeType         string  `json:"EdgeType"`         //  ec2:deploy |           |       |
+	Channel          string  `json:"Channel"`          //  ec2:deploy |           |       |
+	EtcdToken        string  `json:"EtcdToken"`        //  ec2:deploy |           | udata |
+	Ns1ApiKey        string  `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
+	CaCert           string  `json:"CaCert"`           //  ec2:deploy |           | udata |
+	FlannelNetwork   string  `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
+	FlannelSubnetLen string  `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
+	FlannelSubnetMin string  `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
+	FlannelSubnetMax string  `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
+	FlannelBackend   string  `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
+	Domain           string  `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
+	ClusterID        string  `json:"ClusterID"`        //  ec2:deploy | ec2:setup |       |
+	Region           string  `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
+	Zone             string  `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
+	VpcCidrBlock     string  `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
+	IntSubnetCidr    string  `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	ExtSubnetCidr    string  `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	VpcID            string  `json:"VpcID"`            //             | ec2:setup |       |
+	MainRouteTableID string  `json:"MainRouteTableID"` //             | ec2:setup |       |
+	InetGatewayID    string  `json:"InetGatewayID"`    //             | ec2:setup |       |
+	NatGatewayID     string  `json:"NatGatewayID"`     //             | ec2:setup |       |
+	RouteTableID     string  `json:"RouteTableID"`     //             | ec2:setup |       |
+	MasterRoleID     string  `json:"MasterRoleID"`     //             | ec2:setup |       |
+	NodeRoleID       string  `json:"NodeRoleID"`       //             | ec2:setup |       |
+	EdgeRoleID       string  `json:"EdgeRoleID"`       //             | ec2:setup |       |
+	RexrayPolicyARN  string  `json:"RexrayPolicyARN"`  //             | ec2:setup |       |
+	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
+	NodeSecGrp       string  `json:"NodeSecGrp"`       //             | ec2:setup |       |
+	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
+	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
+	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
+	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
+	ImageID          string  `json:"ImageID"`          //             |           |       | ec2:run
+	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
+	SrcDstCheck      string  `json:"SrcDstCheck"`      //             |           |       | ec2:run
 }
 
 // Data struct for EC2 endpoints, instance and state data.
@@ -136,9 +137,9 @@ func (d *Data) Deploy() error {
 
 	// Deploy all the nodes:
 	wg.Add(3)
-	go d.deployNodes("master", d.MasterCount, &wg)
-	go d.deployNodes("node", d.NodeCount, &wg)
-	go d.deployNodes("edge", d.EdgeCount, &wg)
+	go d.deployNodes("master", int(d.MasterCount), &wg)
+	go d.deployNodes("node", int(d.NodeCount), &wg)
+	go d.deployNodes("edge", int(d.EdgeCount), &wg)
 	wg.Wait()
 
 	return nil
@@ -154,51 +155,16 @@ func (d *Data) Add() error {
 	// Set command to add:
 	d.command = "add"
 
-	// Load data from state file:
-	dat, err := katool.LoadState(d.ClusterID)
-	if err != nil {
+	// Load state from state file:
+	if err := d.loadState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
-	// Store the values:
-	d.VpcID = dat["VpcID"].(string)
-	d.MasterCount = int(dat["MasterCount"].(float64))
-	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
-	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
-	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
-	d.MainRouteTableID = dat["MainRouteTableID"].(string)
-	d.IntSubnetID = dat["IntSubnetID"].(string)
-	d.ExtSubnetID = dat["ExtSubnetID"].(string)
-	d.InetGatewayID = dat["InetGatewayID"].(string)
-	d.AllocationID = dat["AllocationID"].(string)
-	d.NatGatewayID = dat["NatGatewayID"].(string)
-	d.RouteTableID = dat["RouteTableID"].(string)
-	d.MasterSecGrp = dat["MasterSecGrp"].(string)
-	d.NodeSecGrp = dat["NodeSecGrp"].(string)
-	d.EdgeSecGrp = dat["EdgeSecGrp"].(string)
-	d.Domain = dat["Domain"].(string)
-	d.Ns1ApiKey = dat["Ns1ApiKey"].(string)
-	d.CaCert = dat["CaCert"].(string)
-	d.EtcdToken = dat["EtcdToken"].(string)
-	d.FlannelNetwork = dat["FlannelNetwork"].(string)
-	d.FlannelSubnetLen = dat["FlannelSubnetLen"].(string)
-	d.FlannelSubnetMin = dat["FlannelSubnetMin"].(string)
-	d.FlannelSubnetMax = dat["FlannelSubnetMax"].(string)
-	d.FlannelBackend = dat["FlannelBackend"].(string)
-	d.Region = dat["Region"].(string)
-	d.Zone = dat["Zone"].(string)
-	d.ImageID = dat["ImageID"].(string)
-	d.MasterType = dat["MasterType"].(string)
-	d.NodeType = dat["NodeType"].(string)
-	d.EdgeType = dat["EdgeType"].(string)
-	d.KeyPair = dat["KeyPair"].(string)
-	d.SrcDstCheck = dat["SrcDstCheck"].(string)
-
 	// Forge the udata command:
 	cmdUdata := exec.Command("katoctl", "udata",
 		"--role", d.Role,
-		"--master-count", strconv.Itoa(d.MasterCount),
+		"--master-count", strconv.Itoa(int(d.MasterCount)),
 		"--hostid", d.HostID,
 		"--domain", d.Domain,
 		"--ns1-api-key", d.Ns1ApiKey,
@@ -376,28 +342,11 @@ func (d *Data) environmentSetup(wg *sync.WaitGroup) {
 		os.Exit(1)
 	}
 
-	// Load data from state file:
-	dat, err := katool.LoadState(d.ClusterID)
-	if err != nil {
+	// Load state from state file:
+	if err := d.loadState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		os.Exit(1)
 	}
-
-	// Store the values:
-	d.VpcID = dat["VpcID"].(string)
-	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
-	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
-	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
-	d.MainRouteTableID = dat["MainRouteTableID"].(string)
-	d.IntSubnetID = dat["IntSubnetID"].(string)
-	d.ExtSubnetID = dat["ExtSubnetID"].(string)
-	d.InetGatewayID = dat["InetGatewayID"].(string)
-	d.AllocationID = dat["AllocationID"].(string)
-	d.NatGatewayID = dat["NatGatewayID"].(string)
-	d.RouteTableID = dat["RouteTableID"].(string)
-	d.MasterSecGrp = dat["MasterSecGrp"].(string)
-	d.NodeSecGrp = dat["NodeSecGrp"].(string)
-	d.EdgeSecGrp = dat["EdgeSecGrp"].(string)
 }
 
 //-----------------------------------------------------------------------------
@@ -411,7 +360,7 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 	var err error
 
 	if d.EtcdToken == "auto" {
-		if d.EtcdToken, err = katool.EtcdToken(d.MasterCount); err != nil {
+		if d.EtcdToken, err = katool.EtcdToken(int(d.MasterCount)); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Error(err)
 			os.Exit(1)
 		}
@@ -1645,6 +1594,28 @@ func (d *Data) dumpState() error {
 	// Write the state file:
 	err = ioutil.WriteFile(path+"/"+d.ClusterID+".json", data, 0600)
 	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: loadState
+//-----------------------------------------------------------------------------
+
+func (d *Data) loadState() error {
+
+	// Load data from state file:
+	dat, err := katool.LoadState(d.ClusterID)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Map loaded data to current state:
+	if err := mergo.Map(&d.State, dat); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
