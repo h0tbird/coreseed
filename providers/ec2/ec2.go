@@ -61,21 +61,21 @@ type State struct {
 	VpcCidrBlock     string `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |         |
 	IntSubnetCidr    string `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |         |
 	ExtSubnetCidr    string `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |         |
-	vpcID            string `json:"VpcID"`            //             | ec2:setup |       |         |
-	mainRouteTableID string `json:"MainRouteTableID"` //             | ec2:setup |       |         |
-	inetGatewayID    string `json:"InetGatewayID"`    //             | ec2:setup |       |         |
-	natGatewayID     string `json:"NatGatewayID"`     //             | ec2:setup |       |         |
-	routeTableID     string `json:"RouteTableID"`     //             | ec2:setup |       |         |
+	VpcID            string `json:"VpcID"`            //             | ec2:setup |       |         |
+	MainRouteTableID string `json:"MainRouteTableID"` //             | ec2:setup |       |         |
+	InetGatewayID    string `json:"InetGatewayID"`    //             | ec2:setup |       |         |
+	NatGatewayID     string `json:"NatGatewayID"`     //             | ec2:setup |       |         |
+	RouteTableID     string `json:"RouteTableID"`     //             | ec2:setup |       |         |
 	masterRoleID     string `json:"MasterRoleID"`     //             | ec2:setup |       |         |
 	nodeRoleID       string `json:"NodeRoleID"`       //             | ec2:setup |       |         |
 	edgeRoleID       string `json:"EdgeRoleID"`       //             | ec2:setup |       |         |
 	rexrayPolicyARN  string `json:"RexrayPolicyARN"`  //             | ec2:setup |       |         |
-	masterSecGrp     string `json:"MasterSecGrp"`     //             | ec2:setup |       |         |
-	nodeSecGrp       string `json:"NodeSecGrp"`       //             | ec2:setup |       |         |
-	edgeSecGrp       string `json:"EdgeSecGrp"`       //             | ec2:setup |       |         |
+	MasterSecGrp     string `json:"MasterSecGrp"`     //             | ec2:setup |       |         |
+	NodeSecGrp       string `json:"NodeSecGrp"`       //             | ec2:setup |       |         |
+	EdgeSecGrp       string `json:"EdgeSecGrp"`       //             | ec2:setup |       |         |
 	IntSubnetID      string `json:"IntSubnetID"`      //             | ec2:setup |       |         |
 	ExtSubnetID      string `json:"ExtSubnetID"`      //             | ec2:setup |       |         |
-	allocationID     string `json:"AllocationID"`     //             | ec2:setup |       | ec2:run |
+	AllocationID     string `json:"AllocationID"`     //             | ec2:setup |       | ec2:run |
 	instanceID       string `json:"InstanceID"`       //             |           |       | ec2:run |
 	SubnetID         string `json:"SubnetID"`         //             |           |       | ec2:run |
 	SecGrpID         string `json:"SecGrpID"`         //             |           |       | ec2:run |
@@ -157,21 +157,21 @@ func (d *Data) Add() error {
 	}
 
 	// Store the values:
-	d.vpcID = dat["VpcID"].(string)
+	d.VpcID = dat["VpcID"].(string)
 	d.MasterCount = int(dat["MasterCount"].(float64))
 	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
 	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
 	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
-	d.mainRouteTableID = dat["MainRouteTableID"].(string)
+	d.MainRouteTableID = dat["MainRouteTableID"].(string)
 	d.IntSubnetID = dat["IntSubnetID"].(string)
 	d.ExtSubnetID = dat["ExtSubnetID"].(string)
-	d.inetGatewayID = dat["InetGatewayID"].(string)
-	d.allocationID = dat["AllocationID"].(string)
-	d.natGatewayID = dat["NatGatewayID"].(string)
-	d.routeTableID = dat["RouteTableID"].(string)
-	d.masterSecGrp = dat["MasterSecGrp"].(string)
-	d.nodeSecGrp = dat["NodeSecGrp"].(string)
-	d.edgeSecGrp = dat["EdgeSecGrp"].(string)
+	d.InetGatewayID = dat["InetGatewayID"].(string)
+	d.AllocationID = dat["AllocationID"].(string)
+	d.NatGatewayID = dat["NatGatewayID"].(string)
+	d.RouteTableID = dat["RouteTableID"].(string)
+	d.MasterSecGrp = dat["MasterSecGrp"].(string)
+	d.NodeSecGrp = dat["NodeSecGrp"].(string)
+	d.EdgeSecGrp = dat["EdgeSecGrp"].(string)
 	d.Domain = dat["Domain"].(string)
 	d.Ns1ApiKey = dat["Ns1ApiKey"].(string)
 	d.CaCert = dat["CaCert"].(string)
@@ -220,7 +220,7 @@ func (d *Data) Add() error {
 			"--instance-type", d.MasterType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.IntSubnetID,
-			"--security-group-id", d.masterSecGrp,
+			"--security-group-id", d.MasterSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
 			"--public-ip", "false")
@@ -234,7 +234,7 @@ func (d *Data) Add() error {
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.ExtSubnetID,
-			"--security-group-id", d.nodeSecGrp,
+			"--security-group-id", d.NodeSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
 			"--public-ip", "true")
@@ -248,7 +248,7 @@ func (d *Data) Add() error {
 			"--instance-type", d.EdgeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.ExtSubnetID,
-			"--security-group-id", d.edgeSecGrp,
+			"--security-group-id", d.EdgeSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
 			"--public-ip", "true")
@@ -379,20 +379,20 @@ func (d *Data) environmentSetup(wg *sync.WaitGroup) {
 	}
 
 	// Store the values:
-	d.vpcID = dat["VpcID"].(string)
+	d.VpcID = dat["VpcID"].(string)
 	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
 	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
 	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
-	d.mainRouteTableID = dat["MainRouteTableID"].(string)
+	d.MainRouteTableID = dat["MainRouteTableID"].(string)
 	d.IntSubnetID = dat["IntSubnetID"].(string)
 	d.ExtSubnetID = dat["ExtSubnetID"].(string)
-	d.inetGatewayID = dat["InetGatewayID"].(string)
-	d.allocationID = dat["AllocationID"].(string)
-	d.natGatewayID = dat["NatGatewayID"].(string)
-	d.routeTableID = dat["RouteTableID"].(string)
-	d.masterSecGrp = dat["MasterSecGrp"].(string)
-	d.nodeSecGrp = dat["NodeSecGrp"].(string)
-	d.edgeSecGrp = dat["EdgeSecGrp"].(string)
+	d.InetGatewayID = dat["InetGatewayID"].(string)
+	d.AllocationID = dat["AllocationID"].(string)
+	d.NatGatewayID = dat["NatGatewayID"].(string)
+	d.RouteTableID = dat["RouteTableID"].(string)
+	d.MasterSecGrp = dat["MasterSecGrp"].(string)
+	d.NodeSecGrp = dat["NodeSecGrp"].(string)
+	d.EdgeSecGrp = dat["EdgeSecGrp"].(string)
 }
 
 //-----------------------------------------------------------------------------
@@ -750,12 +750,12 @@ func (d *Data) createVpc() error {
 	}
 
 	// Store the VPC ID:
-	d.vpcID = *resp.Vpc.VpcId
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.vpcID}).
+	d.VpcID = *resp.Vpc.VpcId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.VpcID}).
 		Info("New EC2 VPC created")
 
 	// Tag the VPC:
-	if err = d.tag(d.vpcID, "Name", d.Domain); err != nil {
+	if err = d.tag(d.VpcID, "Name", d.Domain); err != nil {
 		return err
 	}
 
@@ -781,7 +781,7 @@ func (d *Data) retrieveMainRouteTableID() error {
 			{
 				Name: aws.String("vpc-id"),
 				Values: []*string{
-					aws.String(d.vpcID),
+					aws.String(d.VpcID),
 				},
 			},
 		},
@@ -795,9 +795,9 @@ func (d *Data) retrieveMainRouteTableID() error {
 	}
 
 	// Store the main route table ID:
-	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
+	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
 	log.WithFields(log.Fields{
-		"cmd": "ec2:" + d.command, "id": d.mainRouteTableID}).
+		"cmd": "ec2:" + d.command, "id": d.MainRouteTableID}).
 		Info("New main route table added")
 
 	return nil
@@ -823,7 +823,7 @@ func (d *Data) createSubnets() error {
 		// Forge the subnet request:
 		params := &ec2.CreateSubnetInput{
 			CidrBlock:        aws.String(v["SubnetCidr"]),
-			VpcId:            aws.String(d.vpcID),
+			VpcId:            aws.String(d.VpcID),
 			AvailabilityZone: aws.String(d.Zone),
 			DryRun:           aws.Bool(false),
 		}
@@ -861,7 +861,7 @@ func (d *Data) createRouteTable() error {
 
 	// Forge the route table request:
 	params := &ec2.CreateRouteTableInput{
-		VpcId:  aws.String(d.vpcID),
+		VpcId:  aws.String(d.VpcID),
 		DryRun: aws.Bool(false),
 	}
 
@@ -873,8 +873,8 @@ func (d *Data) createRouteTable() error {
 	}
 
 	// Store the route table ID:
-	d.routeTableID = *resp.RouteTable.RouteTableId
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.routeTableID}).
+	d.RouteTableID = *resp.RouteTable.RouteTableId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.RouteTableID}).
 		Info("New route table added")
 
 	return nil
@@ -888,7 +888,7 @@ func (d *Data) associateRouteTable() error {
 
 	// Forge the association request:
 	params := &ec2.AssociateRouteTableInput{
-		RouteTableId: aws.String(d.routeTableID),
+		RouteTableId: aws.String(d.RouteTableID),
 		SubnetId:     aws.String(d.ExtSubnetID),
 		DryRun:       aws.Bool(false),
 	}
@@ -926,9 +926,9 @@ func (d *Data) createInternetGateway() error {
 	}
 
 	// Store the internet gateway ID:
-	d.inetGatewayID = *resp.InternetGateway.InternetGatewayId
+	d.InetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.WithFields(log.Fields{
-		"cmd": "ec2:" + d.command, "id": d.inetGatewayID}).
+		"cmd": "ec2:" + d.command, "id": d.InetGatewayID}).
 		Info("New internet gateway")
 
 	return nil
@@ -942,8 +942,8 @@ func (d *Data) attachInternetGateway() error {
 
 	// Forge the attachement request:
 	params := &ec2.AttachInternetGatewayInput{
-		InternetGatewayId: aws.String(d.inetGatewayID),
-		VpcId:             aws.String(d.vpcID),
+		InternetGatewayId: aws.String(d.InetGatewayID),
+		VpcId:             aws.String(d.VpcID),
 		DryRun:            aws.Bool(false),
 	}
 
@@ -968,9 +968,9 @@ func (d *Data) createInternetGatewayRoute() error {
 	// Forge the route request:
 	params := &ec2.CreateRouteInput{
 		DestinationCidrBlock: aws.String("0.0.0.0/0"),
-		RouteTableId:         aws.String(d.routeTableID),
+		RouteTableId:         aws.String(d.RouteTableID),
 		DryRun:               aws.Bool(false),
-		GatewayId:            aws.String(d.inetGatewayID),
+		GatewayId:            aws.String(d.InetGatewayID),
 	}
 
 	// Send the route request:
@@ -1005,8 +1005,8 @@ func (d *Data) allocateElasticIP() error {
 	}
 
 	// Store the EIP ID:
-	d.allocationID = *resp.AllocationId
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.allocationID}).
+	d.AllocationID = *resp.AllocationId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.AllocationID}).
 		Info("New elastic IP allocated")
 
 	return nil
@@ -1028,7 +1028,7 @@ func (d *Data) associateElasticIP() error {
 
 	// Forge the association request:
 	params := &ec2.AssociateAddressInput{
-		AllocationId:       aws.String(d.allocationID),
+		AllocationId:       aws.String(d.AllocationID),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
 		NetworkInterfaceId: aws.String(d.interfaceID),
@@ -1056,7 +1056,7 @@ func (d *Data) createNatGateway() error {
 
 	// Forge the NAT gateway request:
 	params := &ec2.CreateNatGatewayInput{
-		AllocationId: aws.String(d.allocationID),
+		AllocationId: aws.String(d.AllocationID),
 		SubnetId:     aws.String(d.ExtSubnetID),
 		ClientToken:  aws.String(d.Domain),
 	}
@@ -1069,15 +1069,15 @@ func (d *Data) createNatGateway() error {
 	}
 
 	// Store the NAT gateway ID:
-	d.natGatewayID = *resp.NatGateway.NatGatewayId
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.natGatewayID}).
+	d.NatGatewayID = *resp.NatGateway.NatGatewayId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.NatGatewayID}).
 		Info("New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
 	log.WithField("cmd", "ec2:"+d.command).
 		Info("Waiting until NAT gateway is available")
 	if err := d.ec2.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
-		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
+		NatGatewayIds: []*string{aws.String(d.NatGatewayID)},
 	}); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1095,9 +1095,9 @@ func (d *Data) createNatGatewayRoute() error {
 	// Forge the route request:
 	params := &ec2.CreateRouteInput{
 		DestinationCidrBlock: aws.String("0.0.0.0/0"),
-		RouteTableId:         aws.String(d.mainRouteTableID),
+		RouteTableId:         aws.String(d.MainRouteTableID),
 		DryRun:               aws.Bool(false),
-		NatGatewayId:         aws.String(d.natGatewayID),
+		NatGatewayId:         aws.String(d.NatGatewayID),
 	}
 
 	// Send the route request:
@@ -1403,7 +1403,7 @@ func (d *Data) createSecurityGroups() error {
 			Description: aws.String(d.Domain + " " + k),
 			GroupName:   aws.String(k),
 			DryRun:      aws.Bool(false),
-			VpcId:       aws.String(d.vpcID),
+			VpcId:       aws.String(d.VpcID),
 		}
 
 		// Send the group request:
@@ -1425,9 +1425,9 @@ func (d *Data) createSecurityGroups() error {
 	}
 
 	// Store security groups IDs:
-	d.masterSecGrp = grps["master"]["secGrpID"]
-	d.nodeSecGrp = grps["node"]["secGrpID"]
-	d.edgeSecGrp = grps["edge"]["secGrpID"]
+	d.MasterSecGrp = grps["master"]["secGrpID"]
+	d.NodeSecGrp = grps["node"]["secGrpID"]
+	d.EdgeSecGrp = grps["edge"]["secGrpID"]
 
 	return nil
 }
@@ -1440,19 +1440,19 @@ func (d *Data) masterFirewall() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.masterSecGrp),
+		GroupId: aws.String(d.MasterSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterSecGrp),
+						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeSecGrp),
+						GroupId: aws.String(d.NodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeSecGrp),
+						GroupId: aws.String(d.EdgeSecGrp),
 					},
 				},
 			},
@@ -1480,19 +1480,19 @@ func (d *Data) nodeFirewall() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.nodeSecGrp),
+		GroupId: aws.String(d.NodeSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterSecGrp),
+						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeSecGrp),
+						GroupId: aws.String(d.NodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeSecGrp),
+						GroupId: aws.String(d.EdgeSecGrp),
 					},
 				},
 			},
@@ -1540,19 +1540,19 @@ func (d *Data) edgeFirewall() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.edgeSecGrp),
+		GroupId: aws.String(d.EdgeSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
 					{
-						GroupId: aws.String(d.masterSecGrp),
+						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.nodeSecGrp),
+						GroupId: aws.String(d.NodeSecGrp),
 					},
 					{
-						GroupId: aws.String(d.edgeSecGrp),
+						GroupId: aws.String(d.EdgeSecGrp),
 					},
 				},
 			},
@@ -1618,78 +1618,8 @@ func (d *Data) edgeFirewall() error {
 
 func (d *Data) dumpState() error {
 
-	type identifiers struct {
-		MasterCount      int
-		VpcCidrBlock     string
-		VpcID            string
-		MainRouteTableID string
-		IntSubnetCidr    string
-		ExtSubnetCidr    string
-		IntSubnetID      string
-		ExtSubnetID      string
-		InetGatewayID    string
-		AllocationID     string
-		NatGatewayID     string
-		RouteTableID     string
-		MasterSecGrp     string
-		NodeSecGrp       string
-		EdgeSecGrp       string
-		Domain           string
-		Ns1ApiKey        string
-		CaCert           string
-		EtcdToken        string
-		FlannelNetwork   string
-		FlannelSubnetLen string
-		FlannelSubnetMin string
-		FlannelSubnetMax string
-		FlannelBackend   string
-		Region           string
-		Zone             string
-		ImageID          string
-		MasterType       string
-		NodeType         string
-		EdgeType         string
-		KeyPair          string
-		SrcDstCheck      string
-	}
-
-	ids := identifiers{
-		MasterCount:      d.MasterCount,
-		VpcCidrBlock:     d.VpcCidrBlock,
-		VpcID:            d.vpcID,
-		MainRouteTableID: d.mainRouteTableID,
-		IntSubnetCidr:    d.IntSubnetCidr,
-		ExtSubnetCidr:    d.ExtSubnetCidr,
-		IntSubnetID:      d.IntSubnetID,
-		ExtSubnetID:      d.ExtSubnetID,
-		InetGatewayID:    d.inetGatewayID,
-		AllocationID:     d.allocationID,
-		NatGatewayID:     d.natGatewayID,
-		RouteTableID:     d.routeTableID,
-		MasterSecGrp:     d.masterSecGrp,
-		NodeSecGrp:       d.nodeSecGrp,
-		EdgeSecGrp:       d.edgeSecGrp,
-		Domain:           d.Domain,
-		Ns1ApiKey:        d.Ns1ApiKey,
-		CaCert:           d.CaCert,
-		EtcdToken:        d.EtcdToken,
-		FlannelNetwork:   d.FlannelNetwork,
-		FlannelSubnetLen: d.FlannelSubnetLen,
-		FlannelSubnetMin: d.FlannelSubnetMin,
-		FlannelSubnetMax: d.FlannelSubnetMax,
-		FlannelBackend:   d.FlannelBackend,
-		Region:           d.Region,
-		Zone:             d.Zone,
-		ImageID:          d.ImageID,
-		MasterType:       d.MasterType,
-		NodeType:         d.NodeType,
-		EdgeType:         d.EdgeType,
-		KeyPair:          d.KeyPair,
-		SrcDstCheck:      d.SrcDstCheck,
-	}
-
 	// Marshal the data:
-	idsJSON, err := json.MarshalIndent(ids, "", "  ")
+	data, err := json.MarshalIndent(d.State, "", "  ")
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1708,7 +1638,7 @@ func (d *Data) dumpState() error {
 	}
 
 	// Write the state file:
-	err = ioutil.WriteFile(path+"/"+d.ClusterID+".json", idsJSON, 0600)
+	err = ioutil.WriteFile(path+"/"+d.ClusterID+".json", data, 0600)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
