@@ -85,8 +85,8 @@ func EtcdToken(masterCount int) (string, error) {
 func LoadState(clusterID string) (map[string]interface{}, error) {
 
 	// Load data from state file:
-	state_file := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
-	raw, err := ioutil.ReadFile(state_file)
+	stateFile := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
+	raw, err := ioutil.ReadFile(stateFile)
 	if err != nil {
 		return nil, err
 	}
