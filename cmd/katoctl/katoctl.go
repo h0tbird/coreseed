@@ -134,29 +134,31 @@ func main() {
 	case cmdEc2Deploy.FullCommand():
 
 		ec2 := ec2.Data{
-			ClusterID:        *flEc2DeployClusterID,
-			MasterCount:      *flEc2DeployMasterCount,
-			NodeCount:        *flEc2DeployNodeCount,
-			EdgeCount:        *flEc2DeployEdgeCount,
-			MasterType:       *flEc2DeployMasterType,
-			NodeType:         *flEc2DeployNodeType,
-			EdgeType:         *flEc2DeployEdgeType,
-			Channel:          *flEc2DeployChannel,
-			EtcdToken:        *flEc2DeployEtcdToken,
-			Ns1ApiKey:        *flEc2DeployNs1ApiKey,
-			CaCert:           *flEc2DeployCaCert,
-			Domain:           *flEc2DeployDomain,
-			Region:           *flEc2DeployRegion,
-			Zone:             *flEc2DeployZone,
-			KeyPair:          *flEc2DeployKeyPair,
-			VpcCidrBlock:     *flEc2DeployVpcCidrBlock,
-			IntSubnetCidr:    *flEc2DeployIntSubnetCidr,
-			ExtSubnetCidr:    *flEc2DeployExtSubnetCidr,
-			FlannelNetwork:   *flEc2DeployFlannelNetwork,
-			FlannelSubnetLen: *flEc2DeployFlannelSubnetLen,
-			FlannelSubnetMin: *flEc2DeployFlannelSubnetMin,
-			FlannelSubnetMax: *flEc2DeployFlannelSubnetMax,
-			FlannelBackend:   *flEc2DeployFlannelBackend,
+			State: ec2.State{
+				ClusterID:        *flEc2DeployClusterID,
+				MasterCount:      *flEc2DeployMasterCount,
+				NodeCount:        *flEc2DeployNodeCount,
+				EdgeCount:        *flEc2DeployEdgeCount,
+				MasterType:       *flEc2DeployMasterType,
+				NodeType:         *flEc2DeployNodeType,
+				EdgeType:         *flEc2DeployEdgeType,
+				Channel:          *flEc2DeployChannel,
+				EtcdToken:        *flEc2DeployEtcdToken,
+				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
+				CaCert:           *flEc2DeployCaCert,
+				Domain:           *flEc2DeployDomain,
+				Region:           *flEc2DeployRegion,
+				Zone:             *flEc2DeployZone,
+				KeyPair:          *flEc2DeployKeyPair,
+				VpcCidrBlock:     *flEc2DeployVpcCidrBlock,
+				IntSubnetCidr:    *flEc2DeployIntSubnetCidr,
+				ExtSubnetCidr:    *flEc2DeployExtSubnetCidr,
+				FlannelNetwork:   *flEc2DeployFlannelNetwork,
+				FlannelSubnetLen: *flEc2DeployFlannelSubnetLen,
+				FlannelSubnetMin: *flEc2DeployFlannelSubnetMin,
+				FlannelSubnetMax: *flEc2DeployFlannelSubnetMax,
+				FlannelBackend:   *flEc2DeployFlannelBackend,
+			},
 		}
 
 		err := ec2.Deploy()
@@ -169,13 +171,15 @@ func main() {
 	case cmdEc2Setup.FullCommand():
 
 		ec2 := ec2.Data{
-			ClusterID:     *flEc2SetupClusterID,
-			Domain:        *flEc2SetupDomain,
-			Region:        *flEc2SetupRegion,
-			Zone:          *flEc2SetupZone,
-			VpcCidrBlock:  *flEc2SetupVpcCidrBlock,
-			IntSubnetCidr: *flEc2SetupIntSubnetCidr,
-			ExtSubnetCidr: *flEc2SetupExtSubnetCidr,
+			State: ec2.State{
+				ClusterID:     *flEc2SetupClusterID,
+				Domain:        *flEc2SetupDomain,
+				Region:        *flEc2SetupRegion,
+				Zone:          *flEc2SetupZone,
+				VpcCidrBlock:  *flEc2SetupVpcCidrBlock,
+				IntSubnetCidr: *flEc2SetupIntSubnetCidr,
+				ExtSubnetCidr: *flEc2SetupExtSubnetCidr,
+			},
 		}
 
 		err := ec2.Setup()
@@ -188,9 +192,11 @@ func main() {
 	case cmdEc2Add.FullCommand():
 
 		ec2 := ec2.Data{
-			ClusterID: *flEc2AddCluserID,
-			Role:      *flEc2AddRole,
-			ID:        *flEc2AddID,
+			State: ec2.State{
+				ClusterID: *flEc2AddCluserID,
+				Role:      *flEc2AddRole,
+				ID:        *flEc2AddID,
+			},
 		}
 
 		err := ec2.Add()
@@ -203,17 +209,19 @@ func main() {
 	case cmdEc2Run.FullCommand():
 
 		ec2 := ec2.Data{
-			Region:       *flEc2RunRegion,
-			Zone:         *flEc2RunZone,
-			SubnetID:     *flEc2RunSubnetID,
-			SecGrpID:     *flEc2RunSecGrpID,
-			ImageID:      *flEc2RunImageID,
-			KeyPair:      *flEc2RunKeyPair,
-			InstanceType: *flEc2RunInsType,
-			Hostname:     *flEc2RunHostname,
-			PublicIP:     *flEc2RunPublicIP,
-			IAMRole:      *flEc2RunIAMRole,
-			SrcDstCheck:  *flEc2RunSrcDstCheck,
+			State: ec2.State{
+				Region:       *flEc2RunRegion,
+				Zone:         *flEc2RunZone,
+				SubnetID:     *flEc2RunSubnetID,
+				SecGrpID:     *flEc2RunSecGrpID,
+				ImageID:      *flEc2RunImageID,
+				KeyPair:      *flEc2RunKeyPair,
+				InstanceType: *flEc2RunInsType,
+				Hostname:     *flEc2RunHostname,
+				PublicIP:     *flEc2RunPublicIP,
+				IAMRole:      *flEc2RunIAMRole,
+				SrcDstCheck:  *flEc2RunSrcDstCheck,
+			},
 		}
 
 		udata, err := readUdata()

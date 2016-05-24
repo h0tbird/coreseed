@@ -36,9 +36,8 @@ type svc struct {
 	iam *iam.IAM
 }
 
-// Data contains variables used by this EC2 provider.
-type Data struct {
-	svc
+// Deployment state data:
+type State struct {
 	MasterCount      int    //  ec2:deploy |           |       |         |
 	NodeCount        int    //  ec2:deploy |           |       |         |
 	EdgeCount        int    //  ec2:deploy |           |       |         |
@@ -90,6 +89,12 @@ type Data struct {
 	interfaceID      string //             |           |       | ec2:run |
 	Role             string //             |           |       |         | ec2:add
 	ID               string //             |           |       |         | ec2:add
+}
+
+// Service endpoints and deployment state.
+type Data struct {
+	svc
+	State
 }
 
 //-----------------------------------------------------------------------------
