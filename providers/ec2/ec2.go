@@ -38,7 +38,7 @@ type svc struct {
 
 // Per instance data:
 type Instance struct {
-	command      string `json:"Command"`      //  ec2:deploy | ec2:setup | ec2:run | ec2:add
+	command      string
 	InstanceID   string `json:"InstanceID"`   //             |           | ec2:run |
 	SubnetID     string `json:"SubnetID"`     //             |           | ec2:run |
 	SecGrpID     string `json:"SecGrpID"`     //             |           | ec2:run |
