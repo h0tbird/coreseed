@@ -124,9 +124,9 @@ func (d *Data) Deploy() error {
 
 	// Deploy all the nodes:
 	wg.Add(3)
-	go d.deployMasterNodes(&wg)
-	go d.deployWorkerNodes(&wg)
-	go d.deployEdgeNodes(&wg)
+	go d.deployNodes("master", d.MasterCount, &wg)
+	go d.deployNodes("node", d.NodeCount, &wg)
+	go d.deployNodes("edge", d.EdgeCount, &wg)
 	wg.Wait()
 
 	return nil
@@ -454,32 +454,28 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: deployMasterNodes
+// func: deployNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
+func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("Deploying " + strconv.Itoa(d.MasterCount) + " master nodes")
+		Info("Deploying " + strconv.Itoa(count) + " " + role + " nodes")
 
-	for i := 1; i <= d.MasterCount; i++ {
-
-		// Increment:
+	for i := 1; i <= count; i++ {
 		wgInt.Add(1)
 
 		go func(id int) {
-
-			// Decrement:
 			defer wgInt.Done()
 
 			// Forge the add command:
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
-				"--role", "master",
+				"--role", role,
 				"--id", strconv.Itoa(id))
 
 			// Execute the add command:
@@ -488,92 +484,6 @@ func (d *Data) deployMasterNodes(wg *sync.WaitGroup) {
 				log.WithField("cmd", "ec2:"+d.command).Error(err)
 				os.Exit(1)
 			}
-		}(i)
-	}
-
-	// Wait:
-	wgInt.Wait()
-}
-
-//-----------------------------------------------------------------------------
-// func: deployWorkerNodes
-//-----------------------------------------------------------------------------
-
-func (d *Data) deployWorkerNodes(wg *sync.WaitGroup) {
-
-	// Decrement:
-	defer wg.Done()
-	var wgInt sync.WaitGroup
-
-	log.WithField("cmd", "ec2:"+d.command).
-		Info("Deploying " + strconv.Itoa(d.NodeCount) + " worker nodes")
-
-	for i := 1; i <= d.NodeCount; i++ {
-
-		// Increment:
-		wgInt.Add(1)
-
-		go func(id int) {
-
-			// Decrement:
-			defer wgInt.Done()
-
-			// Forge the add command:
-			cmdAdd := exec.Command("katoctl", "ec2", "add",
-				"--cluster-id", d.ClusterID,
-				"--role", "node",
-				"--id", strconv.Itoa(id))
-
-			// Execute the add command:
-			cmdAdd.Stderr = os.Stderr
-			if err := cmdAdd.Run(); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				os.Exit(1)
-			}
-
-		}(i)
-	}
-
-	// Wait:
-	wgInt.Wait()
-}
-
-//-----------------------------------------------------------------------------
-// func: deployEdgeNodes
-//-----------------------------------------------------------------------------
-
-func (d *Data) deployEdgeNodes(wg *sync.WaitGroup) {
-
-	// Decrement:
-	defer wg.Done()
-	var wgInt sync.WaitGroup
-
-	log.WithField("cmd", "ec2:"+d.command).
-		Info("Deploying " + strconv.Itoa(d.EdgeCount) + " edge nodes")
-
-	for i := 1; i <= d.EdgeCount; i++ {
-
-		// Increment:
-		wgInt.Add(1)
-
-		go func(id int) {
-
-			// Decrement:
-			defer wgInt.Done()
-
-			// Forge the add command:
-			cmdAdd := exec.Command("katoctl", "ec2", "add",
-				"--cluster-id", d.ClusterID,
-				"--role", "edge",
-				"--id", strconv.Itoa(id))
-
-			// Execute the add command:
-			cmdAdd.Stderr = os.Stderr
-			if err := cmdAdd.Run(); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				os.Exit(1)
-			}
-
 		}(i)
 	}
 
