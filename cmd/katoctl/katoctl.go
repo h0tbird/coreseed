@@ -194,8 +194,10 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				ClusterID: *flEc2AddCluserID,
-				Role:      *flEc2AddRole,
-				ID:        *flEc2AddID,
+			},
+			Instance: ec2.Instance{
+				Role: *flEc2AddRole,
+				ID:   *flEc2AddID,
 			},
 		}
 
@@ -210,17 +212,19 @@ func main() {
 
 		ec2 := ec2.Data{
 			State: ec2.State{
-				Region:       *flEc2RunRegion,
-				Zone:         *flEc2RunZone,
+				Region:      *flEc2RunRegion,
+				Zone:        *flEc2RunZone,
+				ImageID:     *flEc2RunImageID,
+				KeyPair:     *flEc2RunKeyPair,
+				SrcDstCheck: *flEc2RunSrcDstCheck,
+			},
+			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
 				SecGrpID:     *flEc2RunSecGrpID,
-				ImageID:      *flEc2RunImageID,
-				KeyPair:      *flEc2RunKeyPair,
 				InstanceType: *flEc2RunInsType,
 				Hostname:     *flEc2RunHostname,
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
-				SrcDstCheck:  *flEc2RunSrcDstCheck,
 			},
 		}
 

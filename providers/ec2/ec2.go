@@ -36,64 +36,69 @@ type svc struct {
 	iam *iam.IAM
 }
 
-// Deployment state data:
+// Per instance data:
+type Instance struct {
+	command      string `json:"Command"`      //  ec2:deploy | ec2:setup | ec2:run | ec2:add
+	InstanceID   string `json:"InstanceID"`   //             |           | ec2:run |
+	SubnetID     string `json:"SubnetID"`     //             |           | ec2:run |
+	SecGrpID     string `json:"SecGrpID"`     //             |           | ec2:run |
+	InstanceType string `json:"InstanceType"` //             |           | ec2:run |
+	Hostname     string `json:"Hostname"`     //             |           | ec2:run |
+	PublicIP     string `json:"PublicIP"`     //             |           | ec2:run |
+	IAMRole      string `json:"IAMRole"`      //             |           | ec2:run |
+	InterfaceID  string `json:"InterfaceID"`  //             |           | ec2:run |
+	Role         string `json:"Role"`         //             |           |         | ec2:add
+	ID           string `json:"ID"`           //             |           |         | ec2:add
+}
+
+// Global state data:
 type State struct {
-	MasterCount      int    `json:"MasterCount"`      //  ec2:deploy |           |       |         |
-	NodeCount        int    `json:"NodeCount"`        //  ec2:deploy |           |       |         |
-	EdgeCount        int    `json:"EdgeCount"`        //  ec2:deploy |           |       |         |
-	MasterType       string `json:"MasterType"`       //  ec2:deploy |           |       |         |
-	NodeType         string `json:"NodeType"`         //  ec2:deploy |           |       |         |
-	EdgeType         string `json:"EdgeType"`         //  ec2:deploy |           |       |         |
-	Channel          string `json:"Channel"`          //  ec2:deploy |           |       |         |
-	EtcdToken        string `json:"EtcdToken"`        //  ec2:deploy |           | udata |         |
-	Ns1ApiKey        string `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |         |
-	CaCert           string `json:"CaCert"`           //  ec2:deploy |           | udata |         |
-	FlannelNetwork   string `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |         |
-	FlannelSubnetLen string `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |         |
-	FlannelSubnetMin string `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |         |
-	FlannelSubnetMax string `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |         |
-	FlannelBackend   string `json:"FlannelBackend"`   //  ec2:deploy |           | udata |         |
-	Domain           string `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |         |
-	ClusterID        string `json:"ClusterID"`        //  ec2:deploy | ec2:setup |       |         |
-	Region           string `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run |
-	Zone             string `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run |
-	command          string `json:"Command"`          //  ec2:deploy | ec2:setup |       | ec2:run |
-	VpcCidrBlock     string `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |         |
-	IntSubnetCidr    string `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |         |
-	ExtSubnetCidr    string `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |         |
-	VpcID            string `json:"VpcID"`            //             | ec2:setup |       |         |
-	MainRouteTableID string `json:"MainRouteTableID"` //             | ec2:setup |       |         |
-	InetGatewayID    string `json:"InetGatewayID"`    //             | ec2:setup |       |         |
-	NatGatewayID     string `json:"NatGatewayID"`     //             | ec2:setup |       |         |
-	RouteTableID     string `json:"RouteTableID"`     //             | ec2:setup |       |         |
-	masterRoleID     string `json:"MasterRoleID"`     //             | ec2:setup |       |         |
-	nodeRoleID       string `json:"NodeRoleID"`       //             | ec2:setup |       |         |
-	edgeRoleID       string `json:"EdgeRoleID"`       //             | ec2:setup |       |         |
-	rexrayPolicyARN  string `json:"RexrayPolicyARN"`  //             | ec2:setup |       |         |
-	MasterSecGrp     string `json:"MasterSecGrp"`     //             | ec2:setup |       |         |
-	NodeSecGrp       string `json:"NodeSecGrp"`       //             | ec2:setup |       |         |
-	EdgeSecGrp       string `json:"EdgeSecGrp"`       //             | ec2:setup |       |         |
-	IntSubnetID      string `json:"IntSubnetID"`      //             | ec2:setup |       |         |
-	ExtSubnetID      string `json:"ExtSubnetID"`      //             | ec2:setup |       |         |
-	AllocationID     string `json:"AllocationID"`     //             | ec2:setup |       | ec2:run |
-	instanceID       string `json:"InstanceID"`       //             |           |       | ec2:run |
-	SubnetID         string `json:"SubnetID"`         //             |           |       | ec2:run |
-	SecGrpID         string `json:"SecGrpID"`         //             |           |       | ec2:run |
-	ImageID          string `json:"ImageID"`          //             |           |       | ec2:run |
-	KeyPair          string `json:"KeyPair"`          //             |           |       | ec2:run |
-	InstanceType     string `json:"InstanceType"`     //             |           |       | ec2:run |
-	Hostname         string `json:"Hostname"`         //             |           |       | ec2:run |
-	PublicIP         string `json:"PublicIP"`         //             |           |       | ec2:run |
-	IAMRole          string `json:"IAMRole"`          //             |           |       | ec2:run |
-	SrcDstCheck      string `json:"SrcDstCheck"`      //             |           |       | ec2:run |
-	interfaceID      string `json:"InterfaceID"`      //             |           |       | ec2:run |
-	Role             string `json:"Role"`             //             |           |       |         | ec2:add
-	ID               string `json:"ID"`               //             |           |       |         | ec2:add
+	MasterCount      int    `json:"MasterCount"`      //  ec2:deploy |           |       |
+	NodeCount        int    `json:"NodeCount"`        //  ec2:deploy |           |       |
+	EdgeCount        int    `json:"EdgeCount"`        //  ec2:deploy |           |       |
+	MasterType       string `json:"MasterType"`       //  ec2:deploy |           |       |
+	NodeType         string `json:"NodeType"`         //  ec2:deploy |           |       |
+	EdgeType         string `json:"EdgeType"`         //  ec2:deploy |           |       |
+	Channel          string `json:"Channel"`          //  ec2:deploy |           |       |
+	EtcdToken        string `json:"EtcdToken"`        //  ec2:deploy |           | udata |
+	Ns1ApiKey        string `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
+	CaCert           string `json:"CaCert"`           //  ec2:deploy |           | udata |
+	FlannelNetwork   string `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
+	FlannelSubnetLen string `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
+	FlannelSubnetMin string `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
+	FlannelSubnetMax string `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
+	FlannelBackend   string `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
+	Domain           string `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
+	ClusterID        string `json:"ClusterID"`        //  ec2:deploy | ec2:setup |       |
+	Region           string `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
+	Zone             string `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
+	VpcCidrBlock     string `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
+	IntSubnetCidr    string `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	ExtSubnetCidr    string `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	VpcID            string `json:"VpcID"`            //             | ec2:setup |       |
+	MainRouteTableID string `json:"MainRouteTableID"` //             | ec2:setup |       |
+	InetGatewayID    string `json:"InetGatewayID"`    //             | ec2:setup |       |
+	NatGatewayID     string `json:"NatGatewayID"`     //             | ec2:setup |       |
+	RouteTableID     string `json:"RouteTableID"`     //             | ec2:setup |       |
+	MasterRoleID     string `json:"MasterRoleID"`     //             | ec2:setup |       |
+	NodeRoleID       string `json:"NodeRoleID"`       //             | ec2:setup |       |
+	EdgeRoleID       string `json:"EdgeRoleID"`       //             | ec2:setup |       |
+	RexrayPolicyARN  string `json:"RexrayPolicyARN"`  //             | ec2:setup |       |
+	MasterSecGrp     string `json:"MasterSecGrp"`     //             | ec2:setup |       |
+	NodeSecGrp       string `json:"NodeSecGrp"`       //             | ec2:setup |       |
+	EdgeSecGrp       string `json:"EdgeSecGrp"`       //             | ec2:setup |       |
+	IntSubnetID      string `json:"IntSubnetID"`      //             | ec2:setup |       |
+	ExtSubnetID      string `json:"ExtSubnetID"`      //             | ec2:setup |       |
+	AllocationID     string `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
+	ImageID          string `json:"ImageID"`          //             |           |       | ec2:run
+	KeyPair          string `json:"KeyPair"`          //             |           |       | ec2:run
+	SrcDstCheck      string `json:"SrcDstCheck"`      //             |           |       | ec2:run
 }
 
 // Service endpoints and deployment state.
 type Data struct {
 	svc
+	Instance
 	State
 }
 
@@ -555,16 +560,16 @@ func (d *Data) runInstance(udata []byte) error {
 	}
 
 	// Store the instance ID:
-	d.instanceID = *runResult.Instances[0].InstanceId
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.instanceID}).
+	d.InstanceID = *runResult.Instances[0].InstanceId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.InstanceID}).
 		Info("New " + d.InstanceType + " EC2 instance requested")
 
 	// Store the interface ID:
-	d.interfaceID = *runResult.Instances[0].
+	d.InterfaceID = *runResult.Instances[0].
 		NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
-	if err := d.tag(d.instanceID, "Name", d.Hostname); err != nil {
+	if err := d.tag(d.InstanceID, "Name", d.Hostname); err != nil {
 		return err
 	}
 
@@ -590,7 +595,7 @@ func (d *Data) modifyInstanceAttribute() error {
 
 	// Forge the attribute modification request:
 	params := &ec2.ModifyInstanceAttributeInput{
-		InstanceId: aws.String(d.instanceID),
+		InstanceId: aws.String(d.InstanceID),
 		SourceDestCheck: &ec2.AttributeBooleanValue{
 			Value: aws.Bool(SrcDstCheck),
 		},
@@ -1020,7 +1025,7 @@ func (d *Data) associateElasticIP() error {
 
 	// Wait until instance is running:
 	if err := d.ec2.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
-		InstanceIds: []*string{aws.String(d.instanceID)},
+		InstanceIds: []*string{aws.String(d.InstanceID)},
 	}); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1031,7 +1036,7 @@ func (d *Data) associateElasticIP() error {
 		AllocationId:       aws.String(d.AllocationID),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
-		NetworkInterfaceId: aws.String(d.interfaceID),
+		NetworkInterfaceId: aws.String(d.InterfaceID),
 	}
 
 	// Send the association request:
@@ -1136,7 +1141,7 @@ func (d *Data) createRexrayPolicy() error {
 	// Check whether the policy exists:
 	for _, v := range listRsp.Policies {
 		if *v.PolicyName == "REX-Ray" {
-			d.rexrayPolicyARN = *listRsp.Policies[0].Arn
+			d.RexrayPolicyARN = *listRsp.Policies[0].Arn
 			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *listRsp.
 				Policies[0].PolicyId}).Info("Using existing REX-Ray security policy")
 			return nil
@@ -1193,7 +1198,7 @@ func (d *Data) createRexrayPolicy() error {
 	}
 
 	// Store the policy ARN:
-	d.rexrayPolicyARN = *policyRsp.Policy.Arn
+	d.RexrayPolicyARN = *policyRsp.Policy.Arn
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *policyRsp.Policy.
 		PolicyId}).Info("Setup REX-Ray security policy")
 
@@ -1208,7 +1213,7 @@ func (d *Data) attachRexrayPolicy() error {
 
 	// Forge the attachment request:
 	params := &iam.AttachRolePolicyInput{
-		PolicyArn: aws.String(d.rexrayPolicyARN),
+		PolicyArn: aws.String(d.RexrayPolicyARN),
 		RoleName:  aws.String("node"),
 	}
 
@@ -1280,13 +1285,13 @@ func (d *Data) createIAMRoles() error {
 
 	// Store security role IDs:
 	if grps["master"]["roleID"] != "" {
-		d.masterRoleID = grps["master"]["roleID"]
+		d.MasterRoleID = grps["master"]["roleID"]
 	}
 	if grps["node"]["roleID"] != "" {
-		d.nodeRoleID = grps["node"]["roleID"]
+		d.NodeRoleID = grps["node"]["roleID"]
 	}
 	if grps["edge"]["roleID"] != "" {
-		d.edgeRoleID = grps["edge"]["roleID"]
+		d.EdgeRoleID = grps["edge"]["roleID"]
 	}
 
 	return nil
