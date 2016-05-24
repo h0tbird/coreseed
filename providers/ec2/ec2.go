@@ -203,7 +203,7 @@ func (d *Data) Setup() error {
 
 	// Connect and authenticate to the API endpoints:
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- Connecting to region " + d.Region)
+		Info("Connecting to region " + d.Region)
 	d.svcEC2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 	d.svcIAM = iam.New(session.New())
 
@@ -602,7 +602,7 @@ func (d *Data) runInstance(udata []byte) error {
 	// Store the instance ID:
 	d.instanceID = *runResult.Instances[0].InstanceId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.instanceID}).
-		Info("- New " + d.InstanceType + " EC2 instance requested")
+		Info("New " + d.InstanceType + " EC2 instance requested")
 
 	// Store the interface ID:
 	d.interfaceID = *runResult.Instances[0].
@@ -615,7 +615,7 @@ func (d *Data) runInstance(udata []byte) error {
 
 	// Pretty-print to stderr:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.Hostname}).
-		Info("- New EC2 instance tagged")
+		Info("New EC2 instance tagged")
 
 	return nil
 }
@@ -797,7 +797,7 @@ func (d *Data) createVpc() error {
 	// Store the VPC ID:
 	d.vpcID = *resp.Vpc.VpcId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.vpcID}).
-		Info("- New EC2 VPC created")
+		Info("New EC2 VPC created")
 
 	// Tag the VPC:
 	if err = d.tag(d.vpcID, "Name", d.Domain); err != nil {
@@ -843,7 +843,7 @@ func (d *Data) retrieveMainRouteTableID() error {
 	d.mainRouteTableID = *resp.RouteTables[0].RouteTableId
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": d.mainRouteTableID}).
-		Info("- New main route table added")
+		Info("New main route table added")
 
 	return nil
 }
@@ -883,7 +883,7 @@ func (d *Data) createSubnets() error {
 		// Locally store the subnet ID:
 		v["SubnetID"] = *resp.Subnet.SubnetId
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["SubnetID"]}).
-			Info("- New " + k + " subnet")
+			Info("New " + k + " subnet")
 
 		// Tag the subnet:
 		if err = d.tag(v["SubnetID"], "Name", k); err != nil {
@@ -920,7 +920,7 @@ func (d *Data) createRouteTable() error {
 	// Store the route table ID:
 	d.routeTableID = *resp.RouteTable.RouteTableId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.routeTableID}).
-		Info("- New route table added")
+		Info("New route table added")
 
 	return nil
 }
@@ -947,7 +947,7 @@ func (d *Data) associateRouteTable() error {
 
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
-		Info("- New route table association")
+		Info("New route table association")
 
 	return nil
 }
@@ -974,7 +974,7 @@ func (d *Data) createInternetGateway() error {
 	d.inetGatewayID = *resp.InternetGateway.InternetGatewayId
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": d.inetGatewayID}).
-		Info("- New internet gateway")
+		Info("New internet gateway")
 
 	return nil
 }
@@ -999,7 +999,7 @@ func (d *Data) attachInternetGateway() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- Internet gateway attached to VPC")
+		Info("Internet gateway attached to VPC")
 
 	return nil
 }
@@ -1025,7 +1025,7 @@ func (d *Data) createInternetGatewayRoute() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- New default route added via internet GW")
+		Info("New default route added via internet GW")
 
 	return nil
 }
@@ -1052,7 +1052,7 @@ func (d *Data) allocateElasticIP() error {
 	// Store the EIP ID:
 	d.allocationID = *resp.AllocationId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.allocationID}).
-		Info("- New elastic IP allocated")
+		Info("New elastic IP allocated")
 
 	return nil
 }
@@ -1088,7 +1088,7 @@ func (d *Data) associateElasticIP() error {
 
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
-		Info("- New elastic IP association")
+		Info("New elastic IP association")
 
 	return nil
 }
@@ -1116,11 +1116,11 @@ func (d *Data) createNatGateway() error {
 	// Store the NAT gateway ID:
 	d.natGatewayID = *resp.NatGateway.NatGatewayId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.natGatewayID}).
-		Info("- New NAT gateway requested")
+		Info("New NAT gateway requested")
 
 	// Wait until the NAT gateway is available:
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- Waiting until NAT gateway is available")
+		Info("Waiting until NAT gateway is available")
 	if err := d.svcEC2.WaitUntilNatGatewayAvailable(&ec2.DescribeNatGatewaysInput{
 		NatGatewayIds: []*string{aws.String(d.natGatewayID)},
 	}); err != nil {
@@ -1152,7 +1152,7 @@ func (d *Data) createNatGatewayRoute() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- New default route added via NAT gateway")
+		Info("New default route added via NAT gateway")
 
 	return nil
 }
@@ -1183,7 +1183,7 @@ func (d *Data) createRexrayPolicy() error {
 		if *v.PolicyName == "REX-Ray" {
 			d.rexrayPolicyARN = *listRsp.Policies[0].Arn
 			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *listRsp.
-				Policies[0].PolicyId}).Info("- Using existing REX-Ray security policy")
+				Policies[0].PolicyId}).Info("Using existing REX-Ray security policy")
 			return nil
 		}
 	}
@@ -1240,7 +1240,7 @@ func (d *Data) createRexrayPolicy() error {
 	// Store the policy ARN:
 	d.rexrayPolicyARN = *policyRsp.Policy.Arn
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *policyRsp.Policy.
-		PolicyId}).Info("- Setup REX-Ray security policy")
+		PolicyId}).Info("Setup REX-Ray security policy")
 
 	return nil
 }
@@ -1265,7 +1265,7 @@ func (d *Data) attachRexrayPolicy() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("- REX-Ray policy attached to node")
+		Info("REX-Ray policy attached to node")
 
 	return nil
 }
@@ -1320,7 +1320,7 @@ func (d *Data) createIAMRoles() error {
 		// Locally store the role ID:
 		v["roleID"] = *resp.Role.RoleId
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["roleID"]}).
-			Info("- New " + k + " IAM role")
+			Info("New " + k + " IAM role")
 	}
 
 	// Store security role IDs:
@@ -1378,7 +1378,7 @@ func (d *Data) createInstanceProfiles() {
 			// Wait until the instance profile exists:
 			log.WithFields(log.Fields{"cmd": "ec2:" + d.command,
 				"id": *resp.InstanceProfile.InstanceProfileId}).
-				Info("- Waiting until " + role + " profile exists")
+				Info("Waiting until " + role + " profile exists")
 			if err := d.svcIAM.WaitUntilInstanceProfileExists(&iam.GetInstanceProfileInput{
 				InstanceProfileName: aws.String(role),
 			}); err != nil {
@@ -1420,7 +1420,7 @@ func (d *Data) addIAMRolesToInstanceProfiles() error {
 
 		// Log the addition request:
 		log.WithField("cmd", "ec2:"+d.command).
-			Info("- New " + v + " IAM role added to profile")
+			Info("New " + v + " IAM role added to profile")
 	}
 
 	return nil
@@ -1460,7 +1460,7 @@ func (d *Data) createSecurityGroups() error {
 		// Locally store the group ID:
 		v["secGrpID"] = *resp.GroupId
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["secGrpID"]}).
-			Info("- New EC2 " + k + " security group")
+			Info("New EC2 " + k + " security group")
 
 		// Tag the group:
 		if err = d.tag(v["secGrpID"], "Name", d.Domain+" "+k); err != nil {
@@ -1511,7 +1511,7 @@ func (d *Data) masterFirewall() error {
 	}
 
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "master"}).
-		Info("- New firewall rules defined")
+		Info("New firewall rules defined")
 
 	return nil
 }
@@ -1571,7 +1571,7 @@ func (d *Data) nodeFirewall() error {
 	}
 
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "node"}).
-		Info("- New firewall rules defined")
+		Info("New firewall rules defined")
 
 	return nil
 }
@@ -1651,7 +1651,7 @@ func (d *Data) edgeFirewall() error {
 	}
 
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "edge"}).
-		Info("- New firewall rules defined")
+		Info("New firewall rules defined")
 
 	return nil
 }
