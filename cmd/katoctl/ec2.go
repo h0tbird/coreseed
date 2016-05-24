@@ -165,6 +165,11 @@ var (
 
 	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
 
+	flEc2AddCluserID = cmdEc2Add.Flag("cluster-id", "Cluster ID").
+				Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
+				OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID").
+				String()
+
 	flEc2AddRole = cmdEc2Add.Flag("role", "New instance role [ master | node | edge ]").
 			Required().PlaceHolder("KATO_EC2_ADD_ROLE").
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").

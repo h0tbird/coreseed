@@ -188,8 +188,9 @@ func main() {
 	case cmdEc2Add.FullCommand():
 
 		ec2 := ec2.Data{
-			Role: *flEc2AddRole,
-			ID:   *flEc2AddID,
+			ClusterID: *flEc2AddCluserID,
+			Role:      *flEc2AddRole,
+			ID:        *flEc2AddID,
 		}
 
 		err := ec2.Add()

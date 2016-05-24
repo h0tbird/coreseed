@@ -143,10 +143,112 @@ func (d *Data) Add() error {
 	d.command = "add"
 
 	// Load data from state file:
-	_, err := katool.LoadState(d.ClusterID)
+	dat, err := katool.LoadState(d.ClusterID)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
+	}
+
+	// Store the values:
+	d.MasterCount = int(dat["MasterCount"].(float64))
+	d.vpcID = dat["VpcID"].(string)
+	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
+	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
+	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
+	d.mainRouteTableID = dat["MainRouteTableID"].(string)
+	d.IntSubnetID = dat["IntSubnetID"].(string)
+	d.ExtSubnetID = dat["ExtSubnetID"].(string)
+	d.inetGatewayID = dat["InetGatewayID"].(string)
+	d.allocationID = dat["AllocationID"].(string)
+	d.natGatewayID = dat["NatGatewayID"].(string)
+	d.routeTableID = dat["RouteTableID"].(string)
+	d.masterSecGrp = dat["MasterSecGrp"].(string)
+	d.nodeSecGrp = dat["NodeSecGrp"].(string)
+	d.edgeSecGrp = dat["EdgeSecGrp"].(string)
+	d.Domain = dat["Domain"].(string)
+	d.Ns1ApiKey = dat["Ns1ApiKey"].(string)
+	d.CaCert = dat["CaCert"].(string)
+	d.EtcdToken = dat["EtcdToken"].(string)
+	d.FlannelNetwork = dat["FlannelNetwork"].(string)
+	d.FlannelSubnetLen = dat["FlannelSubnetLen"].(string)
+	d.FlannelSubnetMin = dat["FlannelSubnetMin"].(string)
+	d.FlannelSubnetMax = dat["FlannelSubnetMax"].(string)
+	d.FlannelBackend = dat["FlannelBackend"].(string)
+	d.Region = dat["Region"].(string)
+	d.Zone = dat["Zone"].(string)
+	d.ImageID = dat["ImageID"].(string)
+	d.MasterType = dat["MasterType"].(string)
+	d.NodeType = dat["NodeType"].(string)
+	d.EdgeType = dat["EdgeType"].(string)
+	d.KeyPair = dat["KeyPair"].(string)
+
+	// Forge the udata command:
+	cmdUdata := exec.Command("katoctl", "udata",
+		"--role", d.Role,
+		"--master-count", strconv.Itoa(d.MasterCount),
+		"--hostid", d.ID,
+		"--domain", d.Domain,
+		"--ns1-api-key", d.Ns1ApiKey,
+		"--ca-cert", d.CaCert,
+		"--etcd-token", d.EtcdToken,
+		"--flannel-network", d.FlannelNetwork,
+		"--flannel-subnet-len", d.FlannelSubnetLen,
+		"--flannel-subnet-min", d.FlannelSubnetMin,
+		"--flannel-subnet-max", d.FlannelSubnetMax,
+		"--flannel-backend", d.FlannelBackend,
+		"--rexray-storage-driver", "ec2",
+		"--gzip-udata")
+
+	// Forge the run command:
+	var cmdRun *exec.Cmd
+
+	switch d.Role {
+	case "master":
+		cmdRun = exec.Command("katoctl", "ec2", "run",
+			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--region", d.Region,
+			"--zone", d.Zone,
+			"--image-id", d.ImageID,
+			"--instance-type", d.MasterType,
+			"--key-pair", d.KeyPair,
+			"--subnet-id", d.IntSubnetID,
+			"--security-group-id", d.masterSecGrp,
+			"--iam-role", d.Role,
+			"--source-dest-check", d.SrcDstCheck,
+			"--public-ip", "false")
+
+	case "node":
+		cmdRun = exec.Command("katoctl", "ec2", "run",
+			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--region", d.Region,
+			"--zone", d.Zone,
+			"--image-id", d.ImageID,
+			"--instance-type", d.NodeType,
+			"--key-pair", d.KeyPair,
+			"--subnet-id", d.ExtSubnetID,
+			"--security-group-id", d.nodeSecGrp,
+			"--iam-role", d.Role,
+			"--source-dest-check", d.SrcDstCheck,
+			"--public-ip", "true")
+
+	case "edge":
+		cmdRun = exec.Command("katoctl", "ec2", "run",
+			"--hostname", d.Role+"-"+d.ID+"."+d.Domain,
+			"--region", d.Region,
+			"--zone", d.Zone,
+			"--image-id", d.ImageID,
+			"--instance-type", d.EdgeType,
+			"--key-pair", d.KeyPair,
+			"--subnet-id", d.ExtSubnetID,
+			"--security-group-id", d.edgeSecGrp,
+			"--iam-role", d.Role,
+			"--source-dest-check", d.SrcDstCheck,
+			"--public-ip", "true")
+	}
+
+	// Execute the pipeline:
+	if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
 	}
 
 	return nil
@@ -269,10 +371,10 @@ func (d *Data) environmentSetup(wg *sync.WaitGroup) {
 	}
 
 	// Store the values:
+	d.vpcID = dat["VpcID"].(string)
 	d.VpcCidrBlock = dat["VpcCidrBlock"].(string)
 	d.IntSubnetCidr = dat["IntSubnetCidr"].(string)
 	d.ExtSubnetCidr = dat["ExtSubnetCidr"].(string)
-	d.vpcID = dat["VpcID"].(string)
 	d.mainRouteTableID = dat["MainRouteTableID"].(string)
 	d.IntSubnetID = dat["IntSubnetID"].(string)
 	d.ExtSubnetID = dat["ExtSubnetID"].(string)
