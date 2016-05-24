@@ -437,7 +437,7 @@ func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
 				"--role", role,
-				"--id", strconv.Itoa(id))
+				"--host-id", strconv.Itoa(id))
 
 			// Execute the add command:
 			cmdAdd.Stderr = os.Stderr
