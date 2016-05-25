@@ -123,13 +123,6 @@ func (d *Data) Deploy() error {
 	go d.retrieveCoreosAmiID(&wg)
 	wg.Wait()
 
-	// Whether or not to source-dest-check:
-	if d.FlannelBackend == "host-gw" {
-		d.SrcDstCheck = "false"
-	} else {
-		d.SrcDstCheck = "true"
-	}
-
 	// Dump state to file:
 	if err := d.dumpState(); err != nil {
 		return err
@@ -159,6 +152,13 @@ func (d *Data) Add() error {
 	if err := d.loadState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
+	}
+
+	// Whether or not to source-dest-check:
+	if d.FlannelBackend == "host-gw" {
+		d.SrcDstCheck = "false"
+	} else {
+		d.SrcDstCheck = "true"
 	}
 
 	// Forge the udata command:
