@@ -48,6 +48,7 @@ type Instance struct {
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
+	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
 	Role         string `json:"Role"`         //          | ec2:add
 	HostID       string `json:"HostID"`       //          | ec2:add
 }
@@ -93,7 +94,6 @@ type State struct {
 	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
 	ImageID          string  `json:"ImageID"`          //             |           |       | ec2:run
 	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
-	SrcDstCheck      string  `json:"SrcDstCheck"`      //             |           |       | ec2:run
 }
 
 // Data struct for EC2 endpoints, instance and state data.

@@ -212,11 +212,10 @@ func main() {
 
 		ec2 := ec2.Data{
 			State: ec2.State{
-				Region:      *flEc2RunRegion,
-				Zone:        *flEc2RunZone,
-				ImageID:     *flEc2RunImageID,
-				KeyPair:     *flEc2RunKeyPair,
-				SrcDstCheck: *flEc2RunSrcDstCheck,
+				Region:  *flEc2RunRegion,
+				Zone:    *flEc2RunZone,
+				ImageID: *flEc2RunImageID,
+				KeyPair: *flEc2RunKeyPair,
 			},
 			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
@@ -225,6 +224,7 @@ func main() {
 				Hostname:     *flEc2RunHostname,
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
+				SrcDstCheck:  *flEc2RunSrcDstCheck,
 			},
 		}
 
