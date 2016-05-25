@@ -140,11 +140,12 @@ func (d *Data) Render() error {
 		log.WithFields(log.Fields{"cmd": "udata", "id": d.Role + "-" + d.HostID}).
 			Info("- Rendering gzipped cloud-config template")
 		w := gzip.NewWriter(os.Stdout)
-		defer w.Close()
 		if err = t.Execute(w, d); err != nil {
 			log.WithField("cmd", "udata").Error(err)
+			_ = w.Close()
 			return err
 		}
+		_ = w.Close()
 	} else {
 		log.WithField("cmd", "udata").Info("- Rendering plain text cloud-config template")
 		if err = t.Execute(os.Stdout, d); err != nil {

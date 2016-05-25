@@ -66,10 +66,12 @@ func EtcdToken(masterCount int) (string, error) {
 
 	// Retrieve the token URL:
 	tokenURL, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
 	if err != nil {
 		return "", err
 	}
+
+	// Call the close method:
+	_ = res.Body.Close()
 
 	// Return the token ID:
 	slice := strings.Split(string(tokenURL), "/")
