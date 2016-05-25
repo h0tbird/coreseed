@@ -110,7 +110,7 @@ type Data struct {
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() error {
 
-	// Set command to deploy:
+	// Set current command:
 	d.command = "deploy"
 
 	// Setup a wait group:
@@ -152,7 +152,7 @@ func (d *Data) Deploy() error {
 // Add a new instance to the cluster.
 func (d *Data) Add() error {
 
-	// Set command to add:
+	// Set current command:
 	d.command = "add"
 
 	// Load state from state file:
@@ -240,7 +240,7 @@ func (d *Data) Add() error {
 // Run uses EC2 API to launch a new instance.
 func (d *Data) Run(udata []byte) error {
 
-	// Set command to run:
+	// Set current command:
 	d.command = "run"
 
 	// Connect and authenticate to the API endpoint:
@@ -342,7 +342,7 @@ func (d *Data) environmentSetup(wg *sync.WaitGroup) {
 		os.Exit(1)
 	}
 
-	// Load state from state file:
+	// Merge state from state file:
 	if err := d.loadState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		os.Exit(1)
