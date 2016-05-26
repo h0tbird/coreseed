@@ -180,6 +180,11 @@ var (
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_HOST_ID").
 			String()
 
+	flEc2AddAmiID = cmdEc2Add.Flag("ami-id", "CoreOS Amazon AMI ID to use.").
+			PlaceHolder("KATO_EC2_ADD_AMI_ID").
+			OverrideDefaultFromEnvar("KATO_EC2_ADD_AMI_ID").
+			String()
+
 	//-------------------------
 	// ec2 run: nested command
 	//-------------------------
@@ -201,10 +206,10 @@ var (
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_ZONE").
 			Short('z').String()
 
-	flEc2RunImageID = cmdEc2Run.Flag("image-id", "EC2 image id.").
-			Required().PlaceHolder("KATO_RUN_EC2_IMAGE_ID").
-			OverrideDefaultFromEnvar("KATO_RUN_EC2_IMAGE_ID").
-			Short('i').String()
+	flEc2RunAmiID = cmdEc2Run.Flag("ami-id", "EC2 AMI ID.").
+			Required().PlaceHolder("KATO_RUN_EC2_AMI_ID").
+			OverrideDefaultFromEnvar("KATO_RUN_EC2_AMI_ID").
+			String()
 
 	flEc2RunInsType = cmdEc2Run.Flag("instance-type", "EC2 instance type.").
 			Required().PlaceHolder("KATO_RUN_EC2_INSTANCE_TYPE").

@@ -49,6 +49,7 @@ type Instance struct {
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
 	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
+	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
 	Role         string `json:"Role"`         //          | ec2:add
 	HostID       string `json:"HostID"`       //          | ec2:add
 }
@@ -92,7 +93,6 @@ type State struct {
 	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
 	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
-	ImageID          string  `json:"ImageID"`          //             |           |       | ec2:run
 	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
 }
 
@@ -154,6 +154,11 @@ func (d *Data) Add() error {
 		return err
 	}
 
+	// Discover CoreOS AMI:
+	if d.AmiID == "" {
+		d.retrieveCoreosAmiID(nil)
+	}
+
 	// Whether or not to source-dest-check:
 	if d.FlannelBackend == "host-gw" {
 		d.SrcDstCheck = "false"
@@ -187,7 +192,7 @@ func (d *Data) Add() error {
 			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
-			"--image-id", d.ImageID,
+			"--ami-id", d.AmiID,
 			"--instance-type", d.MasterType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.IntSubnetID,
@@ -201,7 +206,7 @@ func (d *Data) Add() error {
 			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
-			"--image-id", d.ImageID,
+			"--ami-id", d.AmiID,
 			"--instance-type", d.NodeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.ExtSubnetID,
@@ -215,7 +220,7 @@ func (d *Data) Add() error {
 			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
-			"--image-id", d.ImageID,
+			"--ami-id", d.AmiID,
 			"--instance-type", d.EdgeType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.ExtSubnetID,
@@ -376,7 +381,9 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 
 	// Decrement:
-	defer wg.Done()
+	if wg != nil {
+		defer wg.Done()
+	}
 
 	// Send the request:
 	res, err := http.
@@ -408,9 +415,9 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 
 	// Store the AMI ID:
 	amis := jsonData[d.Region].(map[string]interface{})
-	d.ImageID = amis["hvm"].(string)
+	d.AmiID = amis["hvm"].(string)
 
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.ImageID}).
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.AmiID}).
 		Info("Latest CoreOS " + d.Channel + " AMI located")
 }
 
@@ -437,7 +444,8 @@ func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
 				"--role", role,
-				"--host-id", strconv.Itoa(id))
+				"--host-id", strconv.Itoa(id),
+				"--ami-id", d.AmiID)
 
 			// Execute the add command:
 			cmdAdd.Stderr = os.Stderr
@@ -488,7 +496,7 @@ func (d *Data) runInstance(udata []byte) error {
 
 	// Send the instance request:
 	runResult, err := d.ec2.RunInstances(&ec2.RunInstancesInput{
-		ImageId:           aws.String(d.ImageID),
+		ImageId:           aws.String(d.AmiID),
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
 		KeyName:           aws.String(d.KeyPair),

@@ -198,6 +198,7 @@ func main() {
 			Instance: ec2.Instance{
 				Role:   *flEc2AddRole,
 				HostID: *flEc2AddHostID,
+				AmiID:  *flEc2AddAmiID,
 			},
 		}
 
@@ -214,7 +215,6 @@ func main() {
 			State: ec2.State{
 				Region:  *flEc2RunRegion,
 				Zone:    *flEc2RunZone,
-				ImageID: *flEc2RunImageID,
 				KeyPair: *flEc2RunKeyPair,
 			},
 			Instance: ec2.Instance{
@@ -225,6 +225,7 @@ func main() {
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
 				SrcDstCheck:  *flEc2RunSrcDstCheck,
+				AmiID:        *flEc2RunAmiID,
 			},
 		}
 
