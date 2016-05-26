@@ -124,8 +124,8 @@ func (d *Data) Render() error {
 	switch d.Role {
 	case "master":
 		t, err = t.Parse(templMaster)
-	case "node":
-		t, err = t.Parse(templNode)
+	case "worker":
+		t, err = t.Parse(templWorker)
 	case "edge":
 		t, err = t.Parse(templEdge)
 	}

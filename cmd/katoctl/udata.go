@@ -26,10 +26,10 @@ var (
 			OverrideDefaultFromEnvar("KATO_UDATA_DOMAIN").
 			Short('d').String()
 
-	flUdataRole = cmdUdata.Flag("role", "Choose one of [ master | node | edge ]").
+	flUdataRole = cmdUdata.Flag("role", "Choose one of [ master | worker | edge ]").
 			Required().PlaceHolder("KATO_UDATA_ROLE").
 			OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
-			Short('r').HintOptions("master", "node", "edge").String()
+			Short('r').HintOptions("master", "worker", "edge").String()
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
 				Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").

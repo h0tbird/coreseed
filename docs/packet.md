@@ -29,12 +29,12 @@ case $1 in
 
     done ;;
 
-  "nodes")
+  "workers")
 
     for i in $(seq $2); do
 
       katoctl udata \
-      --role node \
+      --role worker \
       --hostid ${i} \
       --domain cell-1.dc-1.demo.com \
       --ns1-api-key xxx \
@@ -47,7 +47,7 @@ case $1 in
 
       katoctl run-packet \
       --api-key xxx \
-      --hostname node-${i}.cell-1.dc-1 \
+      --hostname worker-${i}.cell-1.dc-1 \
       --project-id xxx \
       --plan baremetal_0 \
       --os coreos_alpha \

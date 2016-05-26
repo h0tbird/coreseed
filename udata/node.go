@@ -1,26 +1,26 @@
 package udata
 
 //---------------------------------------------------------------------------
-// CoreOS node user data:
+// CoreOS worker user data:
 //---------------------------------------------------------------------------
 
-const templNode = `#cloud-config
+const templWorker = `#cloud-config
 
-hostname: "node-{{.HostID}}.{{.Domain}}"
+hostname: "worker-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 node-{{.HostID}}.{{.Domain}} node-{{.HostID}} marathon-lb
-    $private_ipv4 node-{{.HostID}}.int.{{.Domain}} node-{{.HostID}}.int
+    $private_ipv4 worker-{{.HostID}}.{{.Domain}} worker-{{.HostID}} marathon-lb
+    $private_ipv4 worker-{{.HostID}}.int.{{.Domain}} worker-{{.HostID}}.int
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 node-{{.HostID}}.{{.Domain}} node-{{.HostID}} marathon-lb
-    $private_ipv4 node-{{.HostID}}.int.{{.Domain}} node-{{.HostID}}.int
+    $private_ipv4 worker-{{.HostID}}.{{.Domain}} worker-{{.HostID}} marathon-lb
+    $private_ipv4 worker-{{.HostID}}.int.{{.Domain}} worker-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
    content: |
@@ -241,10 +241,10 @@ coreos:
 
  fleet:
   public-ip: "$private_ipv4"
-  metadata: "role=node,id={{.HostID}}"
+  metadata: "role=worker,id={{.HostID}}"
 
  etcd2:
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "node-{{.HostID}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "worker-{{.HostID}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"

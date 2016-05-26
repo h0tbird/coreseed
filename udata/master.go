@@ -243,7 +243,7 @@ write_files:
 
     [X-Fleet]
     Global=true
-    MachineMetadata=role=node
+    MachineMetadata=role=worker
 
  - path: "/etc/fleet/mesos-dns.service"
    content: |
@@ -359,7 +359,7 @@ write_files:
 
     [X-Fleet]
     Global=true
-    MachineMetadata=role=node
+    MachineMetadata=role=worker
 
  - path: "/etc/fleet/cadvisor.service"
    content: |
@@ -433,7 +433,7 @@ write_files:
 
     [X-Fleet]
     Global=true
-    MachineMetadata=role=node
+    MachineMetadata=role=worker
 
  - path: "/etc/fleet/mongodb.service"
    content: |

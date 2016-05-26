@@ -137,10 +137,10 @@ func main() {
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
 				MasterCount:      float64(*flEc2DeployMasterCount),
-				NodeCount:        float64(*flEc2DeployNodeCount),
+				WorkerCount:      float64(*flEc2DeployWorkerCount),
 				EdgeCount:        float64(*flEc2DeployEdgeCount),
 				MasterType:       *flEc2DeployMasterType,
-				NodeType:         *flEc2DeployNodeType,
+				WorkerType:       *flEc2DeployWorkerType,
 				EdgeType:         *flEc2DeployEdgeType,
 				Channel:          *flEc2DeployChannel,
 				EtcdToken:        *flEc2DeployEtcdToken,

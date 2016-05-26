@@ -7,12 +7,12 @@ Vagrant.require_version ">= 1.6.0"
 #------------------------------------------------------------------------------
 
 $master_count   = ENV['KATO_MASTER_COUNT'] || 1
-$node_count     = ENV['KATO_NODE_COUNT'] || 1
+$worker_count   = ENV['KATO_WORKER_COUNT'] || 1
 $edge_count     = ENV['KATO_EDGE_COUNT'] || 0
 $master_cpus    = ENV['KATO_MASTER_CPUS'] || 1
 $master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
-$node_cpus      = ENV['KATO_NODE_CPUS'] || 2
-$node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
+$worker_cpus    = ENV['KATO_WORKER_CPUS'] || 2
+$worker_memory  = ENV['KATO_WORKER_MEMORY'] || 4096
 $edge_cpus      = ENV['KATO_EDGE_CPUS'] || 1
 $edge_memory    = ENV['KATO_EDGE_MEMORY'] || 512
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
@@ -111,21 +111,21 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  #------------------------
-  # Start node_count nodes
-  #------------------------
+  #--------------------------
+  # Start worker_count nodes
+  #--------------------------
 
-  (1..$node_count.to_i).each do |i|
+  (1..$worker_count.to_i).each do |i|
 
-    config.vm.define vm_name = "node-%d" % i do |conf|
+    config.vm.define vm_name = "worker-%d" % i do |conf|
 
-      conf.vm.hostname = "node-%d.%s" % [i, $domain]
+      conf.vm.hostname = "worker-%d.%s" % [i, $domain]
 
       conf.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.name = "node-%d.%s" % [i, $domain]
-        vb.memory = $node_memory
-        vb.cpus = $node_cpus
+        vb.name = "worker-%d.%s" % [i, $domain]
+        vb.memory = $worker_memory
+        vb.cpus = $worker_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
         if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
           vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
@@ -140,15 +140,15 @@ Vagrant.configure("2") do |config|
         config.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
         if $ca_cert
-          cmd = $katoctl + " -c %s > user_data_node-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, $ca_cert, i ]
+          cmd = $katoctl + " -c %s > user_data_worker-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'worker', token, $ca_cert, i ]
         else
-          cmd = $katoctl + " > user_data_node-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'node', token, i ]
+          cmd = $katoctl + " > user_data_worker-%s"
+          system cmd % [$master_count, $ns1_api_key, $domain, i, 'worker', token, i ]
         end
 
-        if File.exist?("user_data_node-%s" % i)
-          conf.vm.provision :file, :source => "user_data_node-%s" % i, :destination => "/tmp/vagrantfile-user-data"
+        if File.exist?("user_data_worker-%s" % i)
+          conf.vm.provision :file, :source => "user_data_worker-%s" % i, :destination => "/tmp/vagrantfile-user-data"
           conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
         end
 

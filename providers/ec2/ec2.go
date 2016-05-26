@@ -57,10 +57,10 @@ type Instance struct {
 // State data.
 type State struct {
 	MasterCount      float64 `json:"MasterCount"`      //  ec2:deploy |           |       |
-	NodeCount        float64 `json:"NodeCount"`        //  ec2:deploy |           |       |
+	WorkerCount      float64 `json:"WorkerCount"`      //  ec2:deploy |           |       |
 	EdgeCount        float64 `json:"EdgeCount"`        //  ec2:deploy |           |       |
 	MasterType       string  `json:"MasterType"`       //  ec2:deploy |           |       |
-	NodeType         string  `json:"NodeType"`         //  ec2:deploy |           |       |
+	WorkerType       string  `json:"WorkerType"`       //  ec2:deploy |           |       |
 	EdgeType         string  `json:"EdgeType"`         //  ec2:deploy |           |       |
 	Channel          string  `json:"Channel"`          //  ec2:deploy |           |       |
 	EtcdToken        string  `json:"EtcdToken"`        //  ec2:deploy |           | udata |
@@ -84,11 +84,11 @@ type State struct {
 	NatGatewayID     string  `json:"NatGatewayID"`     //             | ec2:setup |       |
 	RouteTableID     string  `json:"RouteTableID"`     //             | ec2:setup |       |
 	MasterRoleID     string  `json:"MasterRoleID"`     //             | ec2:setup |       |
-	NodeRoleID       string  `json:"NodeRoleID"`       //             | ec2:setup |       |
+	WorkerRoleID     string  `json:"WorkerRoleID"`     //             | ec2:setup |       |
 	EdgeRoleID       string  `json:"EdgeRoleID"`       //             | ec2:setup |       |
 	RexrayPolicyARN  string  `json:"RexrayPolicyARN"`  //             | ec2:setup |       |
 	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
-	NodeSecGrp       string  `json:"NodeSecGrp"`       //             | ec2:setup |       |
+	WorkerSecGrp     string  `json:"WorkerSecGrp"`     //             | ec2:setup |       |
 	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
 	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
@@ -131,7 +131,7 @@ func (d *Data) Deploy() error {
 	// Deploy all the nodes:
 	wg.Add(3)
 	go d.deployNodes("master", int(d.MasterCount), &wg)
-	go d.deployNodes("node", int(d.NodeCount), &wg)
+	go d.deployNodes("worker", int(d.WorkerCount), &wg)
 	go d.deployNodes("edge", int(d.EdgeCount), &wg)
 	wg.Wait()
 
@@ -201,16 +201,16 @@ func (d *Data) Add() error {
 			"--source-dest-check", d.SrcDstCheck,
 			"--public-ip", "false")
 
-	case "node":
+	case "worker":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
 			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
-			"--instance-type", d.NodeType,
+			"--instance-type", d.WorkerType,
 			"--key-pair", d.KeyPair,
 			"--subnet-id", d.ExtSubnetID,
-			"--security-group-id", d.NodeSecGrp,
+			"--security-group-id", d.WorkerSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
 			"--public-ip", "true")
@@ -681,7 +681,7 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 	}
 
 	// Setup worker nodes firewall:
-	if err := d.nodeFirewall(); err != nil {
+	if err := d.workerFirewall(); err != nil {
 		os.Exit(1)
 	}
 
@@ -1171,7 +1171,7 @@ func (d *Data) attachRexrayPolicy() error {
 	// Forge the attachment request:
 	params := &iam.AttachRolePolicyInput{
 		PolicyArn: aws.String(d.RexrayPolicyARN),
-		RoleName:  aws.String("node"),
+		RoleName:  aws.String("worker"),
 	}
 
 	// Send the attachement request:
@@ -1182,7 +1182,7 @@ func (d *Data) attachRexrayPolicy() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("REX-Ray policy attached to node")
+		Info("REX-Ray policy attached to worker")
 
 	return nil
 }
@@ -1196,7 +1196,7 @@ func (d *Data) createIAMRoles() error {
 	// Map to iterate:
 	grps := map[string]map[string]string{
 		"master": map[string]string{"roleID": ""},
-		"node":   map[string]string{"roleID": ""},
+		"worker": map[string]string{"roleID": ""},
 		"edge":   map[string]string{"roleID": ""},
 	}
 
@@ -1244,8 +1244,8 @@ func (d *Data) createIAMRoles() error {
 	if grps["master"]["roleID"] != "" {
 		d.MasterRoleID = grps["master"]["roleID"]
 	}
-	if grps["node"]["roleID"] != "" {
-		d.NodeRoleID = grps["node"]["roleID"]
+	if grps["worker"]["roleID"] != "" {
+		d.WorkerRoleID = grps["worker"]["roleID"]
 	}
 	if grps["edge"]["roleID"] != "" {
 		d.EdgeRoleID = grps["edge"]["roleID"]
@@ -1264,7 +1264,7 @@ func (d *Data) createInstanceProfiles() {
 	var wg sync.WaitGroup
 
 	// For each instance profile:
-	for _, v := range [3]string{"master", "node", "edge"} {
+	for _, v := range [3]string{"master", "worker", "edge"} {
 
 		// Increment wait group:
 		wg.Add(1)
@@ -1317,7 +1317,7 @@ func (d *Data) createInstanceProfiles() {
 func (d *Data) addIAMRolesToInstanceProfiles() error {
 
 	// For each instance profile:
-	for _, v := range [3]string{"master", "node", "edge"} {
+	for _, v := range [3]string{"master", "worker", "edge"} {
 
 		// Forge the addition request:
 		params := &iam.AddRoleToInstanceProfileInput{
@@ -1353,7 +1353,7 @@ func (d *Data) createSecurityGroups() error {
 	// Map to iterate:
 	grps := map[string]map[string]string{
 		"master": map[string]string{"secGrpID": ""},
-		"node":   map[string]string{"secGrpID": ""},
+		"worker": map[string]string{"secGrpID": ""},
 		"edge":   map[string]string{"secGrpID": ""},
 	}
 
@@ -1388,7 +1388,7 @@ func (d *Data) createSecurityGroups() error {
 
 	// Store security groups IDs:
 	d.MasterSecGrp = grps["master"]["secGrpID"]
-	d.NodeSecGrp = grps["node"]["secGrpID"]
+	d.WorkerSecGrp = grps["worker"]["secGrpID"]
 	d.EdgeSecGrp = grps["edge"]["secGrpID"]
 
 	return nil
@@ -1411,7 +1411,7 @@ func (d *Data) masterFirewall() error {
 						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.NodeSecGrp),
+						GroupId: aws.String(d.WorkerSecGrp),
 					},
 					{
 						GroupId: aws.String(d.EdgeSecGrp),
@@ -1435,14 +1435,14 @@ func (d *Data) masterFirewall() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: nodeFirewall
+// func: workerFirewall
 //-----------------------------------------------------------------------------
 
-func (d *Data) nodeFirewall() error {
+func (d *Data) workerFirewall() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: aws.String(d.NodeSecGrp),
+		GroupId: aws.String(d.WorkerSecGrp),
 		IpPermissions: []*ec2.IpPermission{
 			{
 				IpProtocol: aws.String("-1"),
@@ -1451,7 +1451,7 @@ func (d *Data) nodeFirewall() error {
 						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.NodeSecGrp),
+						GroupId: aws.String(d.WorkerSecGrp),
 					},
 					{
 						GroupId: aws.String(d.EdgeSecGrp),
@@ -1488,7 +1488,7 @@ func (d *Data) nodeFirewall() error {
 		return err
 	}
 
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "node"}).
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "worker"}).
 		Info("New firewall rules defined")
 
 	return nil
@@ -1511,7 +1511,7 @@ func (d *Data) edgeFirewall() error {
 						GroupId: aws.String(d.MasterSecGrp),
 					},
 					{
-						GroupId: aws.String(d.NodeSecGrp),
+						GroupId: aws.String(d.WorkerSecGrp),
 					},
 					{
 						GroupId: aws.String(d.EdgeSecGrp),

@@ -28,10 +28,10 @@ var (
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_COUNT").
 				Short('m').HintOptions("1", "3", "5").Int()
 
-	flEc2DeployNodeCount = cmdEc2Deploy.Flag("node-count", "Number of worker nodes to deploy.").
-				Required().PlaceHolder("KATO_DEPLOY_EC2_NODE_COUNT").
-				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_COUNT").
-				Short('n').Int()
+	flEc2DeployWorkerCount = cmdEc2Deploy.Flag("worker-count", "Number of worker nodes to deploy.").
+				Required().PlaceHolder("KATO_DEPLOY_EC2_WORKER_COUNT").
+				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_WORKER_COUNT").
+				Short('w').Int()
 
 	flEc2DeployEdgeCount = cmdEc2Deploy.Flag("edge-count", "Number of edge nodes to deploy.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_EDGE_COUNT").
@@ -42,8 +42,8 @@ var (
 				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
 				String()
 
-	flEc2DeployNodeType = cmdEc2Deploy.Flag("node-type", "EC2 node instance type.").
-				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_NODE_TYPE").
+	flEc2DeployWorkerType = cmdEc2Deploy.Flag("worker-type", "EC2 worker instance type.").
+				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_WORKER_TYPE").
 				String()
 
 	flEc2DeployEdgeType = cmdEc2Deploy.Flag("edge-type", "EC2 edge instance type.").
@@ -170,10 +170,10 @@ var (
 				OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID").
 				String()
 
-	flEc2AddRole = cmdEc2Add.Flag("role", "New instance role [ master | node | edge ]").
+	flEc2AddRole = cmdEc2Add.Flag("role", "New instance role [ master | worker | edge ]").
 			Required().PlaceHolder("KATO_EC2_ADD_ROLE").
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
-			HintOptions("master", "node", "edge").String()
+			HintOptions("master", "worker", "edge").String()
 
 	flEc2AddHostID = cmdEc2Add.Flag("host-id", "New instance host ID.").
 			Required().PlaceHolder("KATO_EC2_ADD_HOST_ID").
@@ -235,9 +235,9 @@ var (
 				Default("false").OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
 				HintOptions("true", "false", "elastic").String()
 
-	flEc2RunIAMRole = cmdEc2Run.Flag("iam-role", "IAM role [ master | node | edge ]").
+	flEc2RunIAMRole = cmdEc2Run.Flag("iam-role", "IAM role [ master | worker | edge ]").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_IAM_ROLE").
-			HintOptions("master", "node", "edge").String()
+			HintOptions("master", "worker", "edge").String()
 
 	flEc2RunSrcDstCheck = cmdEc2Run.Flag("source-dest-check", " [ true | false ]").
 				Default("true").OverrideDefaultFromEnvar("KATO_RUN_EC2_SOURCE_DEST_CHECK").
