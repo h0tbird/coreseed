@@ -71,6 +71,13 @@ write_files:
     alias drmi='docker rmi $(docker images -qf dangling=true)'
     alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
 
+ - path: "/home/core/.aws/config"
+   owner: "core:core"
+   permissions: "0644"
+   content: |
+    [default]
+    region = {{.Ec2Region}}
+
  - path: "/etc/ssh/sshd_config"
    permissions: "0600"
    content: |
@@ -134,6 +141,15 @@ write_files:
     A=$(fleetctl list-machines -fields=ip -no-legend)
     for i in $A; do ssh -o UserKnownHostsFile=/dev/null \
     -o StrictHostKeyChecking=no $i -C "$*"; done
+
+ - path: "/opt/bin/awscli"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    docker run -it --rm \
+    --volume ${HOME}/.aws:/root/.aws \
+    --volume ${PWD}:/aws \
+    h0tbird/awscli "${@}"
 
 coreos:
 

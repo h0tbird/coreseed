@@ -172,6 +172,7 @@ func (d *Data) Add() error {
 		"--master-count", strconv.Itoa(int(d.MasterCount)),
 		"--hostid", d.HostID,
 		"--domain", d.Domain,
+		"--ec2-region", d.Region,
 		"--ns1-api-key", d.Ns1ApiKey,
 		"--ca-cert", d.CaCert,
 		"--etcd-token", d.EtcdToken,

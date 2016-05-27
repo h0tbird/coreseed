@@ -41,6 +41,7 @@ type Data struct {
 	RexrayStorageDriver string
 	RexrayConfigSnippet string
 	RexrayEndpointIP    string
+	Ec2Region           string
 }
 
 //-----------------------------------------------------------------------------

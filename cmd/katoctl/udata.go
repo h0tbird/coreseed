@@ -79,4 +79,9 @@ var (
 				PlaceHolder("KATO_UDATA_REXRAY_ENDPOINT_IP").
 				OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_ENDPOINT_IP").
 				String()
+
+	flUdataEc2Region = cmdUdata.Flag("ec2-region", "EC2 region.").
+				Default("eu-west-1").PlaceHolder("KATO_UDATA_EC2_REGION").
+				OverrideDefaultFromEnvar("KATO_UDATA_EC2_REGION").
+				String()
 )

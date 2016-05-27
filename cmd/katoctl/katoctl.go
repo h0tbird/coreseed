@@ -81,6 +81,7 @@ func main() {
 			FlannelBackend:      *flUdataFlannelBackend,
 			RexrayStorageDriver: *flUdataRexrayStorageDriver,
 			RexrayEndpointIP:    *flUdataRexrayEndpointIP,
+			Ec2Region:           *flUdataEc2Region,
 		}
 
 		err := udata.Render()
