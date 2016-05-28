@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 
 	// Community:
@@ -86,7 +87,7 @@ type State struct {
 	MasterRoleID     string  `json:"MasterRoleID"`     //             | ec2:setup |       |
 	WorkerRoleID     string  `json:"WorkerRoleID"`     //             | ec2:setup |       |
 	EdgeRoleID       string  `json:"EdgeRoleID"`       //             | ec2:setup |       |
-	RexrayPolicyARN  string  `json:"RexrayPolicyARN"`  //             | ec2:setup |       |
+	RexrayPolicy     string  `json:"RexrayPolicy"`     //             | ec2:setup |       |
 	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
 	WorkerSecGrp     string  `json:"WorkerSecGrp"`     //             | ec2:setup |       |
 	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
@@ -651,9 +652,16 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 	// Create instance profiles:
 	d.createInstanceProfiles()
 
-	// Attach REX-Ray policy to IAM role:
-	if err := d.attachRexrayPolicy(); err != nil {
-		os.Exit(1)
+	// Attach policies to IAM roles:
+	for _, role := range [3]string{"master", "worker", "edge"} {
+		for _, policy := range [2]string{
+			"arn:aws:iam::aws:policy/AmazonS3FullAccess",
+			d.RexrayPolicy,
+		} {
+			if err := d.attachPolicyToRole(policy, role); err != nil {
+				os.Exit(1)
+			}
+		}
 	}
 
 	// Add IAM roles to instance profiles:
@@ -1099,7 +1107,7 @@ func (d *Data) createRexrayPolicy() error {
 	// Check whether the policy exists:
 	for _, v := range listRsp.Policies {
 		if *v.PolicyName == "REX-Ray" {
-			d.RexrayPolicyARN = *listRsp.Policies[0].Arn
+			d.RexrayPolicy = *listRsp.Policies[0].Arn
 			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *listRsp.
 				Policies[0].PolicyId}).Info("Using existing REX-Ray security policy")
 			return nil
@@ -1156,7 +1164,7 @@ func (d *Data) createRexrayPolicy() error {
 	}
 
 	// Store the policy ARN:
-	d.RexrayPolicyARN = *policyRsp.Policy.Arn
+	d.RexrayPolicy = *policyRsp.Policy.Arn
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *policyRsp.Policy.
 		PolicyId}).Info("Setup REX-Ray security policy")
 
@@ -1164,15 +1172,15 @@ func (d *Data) createRexrayPolicy() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: atachRexrayPolicy
+// func: attachPolicyToRole
 //-----------------------------------------------------------------------------
 
-func (d *Data) attachRexrayPolicy() error {
+func (d *Data) attachPolicyToRole(policy, role string) error {
 
 	// Forge the attachment request:
 	params := &iam.AttachRolePolicyInput{
-		PolicyArn: aws.String(d.RexrayPolicyARN),
-		RoleName:  aws.String("worker"),
+		PolicyArn: aws.String(policy),
+		RoleName:  aws.String(role),
 	}
 
 	// Send the attachement request:
@@ -1182,8 +1190,10 @@ func (d *Data) attachRexrayPolicy() error {
 		return err
 	}
 
+	// Log the policy attachment:
+	split := strings.Split(policy, "/")
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("REX-Ray policy attached to worker")
+		Info("Policy " + split[len(split)-1] + " attached to " + role)
 
 	return nil
 }
