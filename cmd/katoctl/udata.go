@@ -39,7 +39,7 @@ var (
 	flUdataCaCert = cmdUdata.Flag("ca-cert", "Path to CA certificate.").
 			PlaceHolder("KATO_UDATA_CA_CERT").
 			OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
-			Short('c').String()
+			Short('c').ExistingFile()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token", "Provide an etcd discovery token.").
 				PlaceHolder("KATO_UDATA_ETCD_TOKEN").

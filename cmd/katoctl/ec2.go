@@ -67,7 +67,7 @@ var (
 	flEc2DeployCaCert = cmdEc2Deploy.Flag("ca-cert", "Path to CA certificate.").
 				PlaceHolder("KATO_DEPLOY_EC2_CA_CET").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CA_CET").
-				Short('c').String()
+				Short('c').ExistingFile()
 
 	flEc2DeployRegion = cmdEc2Deploy.Flag("region", "Amazon EC2 region.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_REGION").
