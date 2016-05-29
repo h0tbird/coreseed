@@ -1,5 +1,7 @@
 language: go
 
+sudo: false
+
 go:
   - 1.6
 
@@ -8,5 +10,5 @@ before_install:
   - go get golang.org/x/tools/cmd/cover
 
 script:
-  - go test -v -covermode=count -coverprofile=coverage.out
+  - go test -v -covermode=count -coverprofile=coverage.out github.com/h0tbird/kato/cmd/katoctl
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
