@@ -1,7 +1,5 @@
 language: go
 
-sudo: false
-
 go:
   - 1.6
 
@@ -12,3 +10,7 @@ before_install:
 script:
   - go test -v -covermode=count -coverprofile=coverage.out github.com/h0tbird/kato/cmd/katoctl
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
+
+env:
+ global:
+   secure: "nLy9iNRrZ8CIdw8+0FJiBhYgVHD1CSjmv9pXRh+px+rbM1SS2BNMUdtfX3gwthz977DsN03hlw7Nn+MIGVupEbia08tABcPrcWFU3lpGXYylZPN2pahSLD8Z0CyxCyl/x7O9+ReH+z6xtj7dGkOJ2RT7l5HdiG3wQrJLolUYbQhCV5ae/Km3U9c6f54kAV+I58iAD1mOwlQWnBeFJvYYA0fs09UqDFXsfMhHqu+lirEafQYFOd1VsYFoYD5mkNR+BBYoofOHll2Q+w2n5CXlZRwzIbt+qGIi57LA7+4eTlSZmUjRjyw6waXVFegUuaix5krGCT0FtNEf8p0y287MkyMz/jSjCmiyLAImJPddCyU6Ct0hFN7G9oJ5XIucSJO5Wg7KKmqXogmByOlBcM16fBGKElE124wpbtIgqSaRpWNG6doKwzWWWejtfxDLxEP9Z+lAATLdGTzZTadi8K2VOFA4xs4hVieJX2HOIFhZf/mCfe4UCvnxGmmDFzOfFwycTQCVNYbRRRfespM2WAlRvtMWF5Tqul76y7z3AHpOpK8HHywzEQA4sWMk67O04FLYWZXyH2Zl0Kt1OBo/e3MyGH25IotavJjiNYA45DdLfO0KpEqoqEpKMo96SaVZfsJyEd2JKUkHqzFuoHCIwbWhsGUyOT8jljmkb4U1hpuDGIc="
