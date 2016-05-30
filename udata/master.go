@@ -476,12 +476,13 @@ write_files:
     ExecStartPre=-/usr/bin/docker kill mongodb
     ExecStartPre=-/usr/bin/docker rm mongodb
     ExecStartPre=-/usr/bin/docker pull mongo:3.2
+    ExecStartPre=-/usr/bin/docker volume create --name pritunl-mongo -d rexray
     ExecStart=/usr/bin/sh -c "docker run \
       --name mongodb \
       --net host \
       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
       --volume /etc/hosts:/etc/hosts:ro \
-      --volume /var/lib/mongo:/data/db:rw \
+      --volume pritunl-mongo:/data/db:rw \
       mongo:3.2 \
       --bind_ip 127.0.0.1"
     ExecStop=/usr/bin/docker stop -t 5 mongodb
