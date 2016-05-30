@@ -53,7 +53,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 |Component|Current Version|Container|
 |---|:---:|:---:|
 |[CoreOS](https://coreos.com)|[alpha](https://coreos.com/releases/)|-|
-|[Mesos](http://mesos.apache.org)|[0.28.0](https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.0)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/mesos-master.svg)](https://hub.docker.com/r/mesosphere/mesos-master/)|
+|[Mesos](http://mesos.apache.org)|[0.28.1](https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/mesos-master.svg)](https://hub.docker.com/r/mesosphere/mesos-master/)|
 |[Mesos-DNS](http://mesosphere.github.io/mesos-dns)|[0.5.2](https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/mesos-dns.svg)](https://hub.docker.com/r/mesosphere/mesos-dns/)|
 |[Marathon](https://mesosphere.github.io/marathon)|[1.1.1](https://github.com/mesosphere/marathon/releases/tag/v1.1.1)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/marathon.svg)](https://hub.docker.com/r/mesosphere/marathon/)|
 |[Marathon-lb](https://github.com/mesosphere/marathon-lb)|[1.2.2](https://github.com/mesosphere/marathon-lb/releases/tag/v1.2.2)|[![Docker Pulls](https://img.shields.io/docker/pulls/mesosphere/marathon-lb.svg)](https://hub.docker.com/r/mesosphere/marathon-lb/)|
