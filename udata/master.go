@@ -150,6 +150,20 @@ write_files:
     --volume ${PWD}:/aws \
     h0tbird/awscli "${@}"
 
+ - path: "/etc/prometheus/prometheus.yml"
+   permissions: "0600"
+   content: |
+    global:
+      scrape_interval: 15s
+      external_labels:
+        monitor: 'codelab-monitor'
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        scrape_interval: 5s
+        target_groups:
+          - targets: ['localhost:9191']
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
@@ -181,6 +195,44 @@ write_files:
       --env JMXDISABLE=true \
       h0tbird/zookeeper:v3.4.8-2"
     ExecStop=/usr/bin/docker stop -t 5 zookeeper
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
+
+ - path: "/etc/fleet/prometheus.service"
+   content: |
+    [Unit]
+    Description=Prometheus Service
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=20
+    TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
+    ExecStartPre=-/usr/bin/docker kill prometheus
+    ExecStartPre=-/usr/bin/docker rm -f prometheus
+    ExecStartPre=-/usr/bin/docker pull prom/prometheus:0.19.2
+    ExecStartPre=-/usr/bin/docker volume create --name prometheus-${KATO_HOST_ID} -d rexray
+    ExecStart=/usr/bin/sh -c "docker run \
+      --net host \
+      --name prometheus \
+      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+      --volume /etc/hosts:/etc/hosts:ro \
+      --volume /etc/prometheus:/etc/prometheus:ro \
+      --volume prometheus-${KATO_HOST_ID}:/prometheus:rw \
+      prom/prometheus:0.19.2 \
+      -config.file=/etc/prometheus/prometheus.yml \
+      -storage.local.path=/prometheus \
+      -web.console.libraries=/etc/prometheus/console_libraries \
+      -web.console.templates=/etc/prometheus/consoles \
+      -web.listen-address=:9191"
+    ExecStop=/usr/bin/docker stop -t 5 prometheus
 
     [Install]
     WantedBy=multi-user.target
