@@ -145,8 +145,8 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-    docker run -it --rm \
-    --volume ${HOME}/.aws:/root/.aws \
+    docker run -i --rm \
+    --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
     h0tbird/awscli "${@}"
 

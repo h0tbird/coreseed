@@ -145,8 +145,8 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-    docker run -it --rm \
-    --volume ${HOME}/.aws:/root/.aws \
+    docker run -i --rm \
+    --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
     h0tbird/awscli "${@}"
 
@@ -296,9 +296,9 @@ write_files:
     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.28.1
     ExecStart=/usr/bin/sh -c "docker run \
       --privileged \
-      --name mesos-node \
       --net host \
       --pid host \
+      --name mesos-node \
       --volume /sys:/sys \
       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
       --volume /etc/hosts:/etc/hosts:ro \
@@ -308,6 +308,7 @@ write_files:
       --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
       --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
       --volume /var/lib/mesos:/var/lib/mesos:rw \
+      --volume /etc/certs:/etc/certs:ro \
       mesosphere/mesos-slave:0.28.1 \
       --ip=$(hostname -i) \
       --containerizers=docker \

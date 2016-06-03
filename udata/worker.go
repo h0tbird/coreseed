@@ -117,6 +117,14 @@ write_files:
 
     done
 
+ - path: "/opt/bin/getcerts"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+
+    [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
+    /opt/bin/awscli s3 cp s3://cell-1.dub.xnood.com/certs.tar.bz2 .
+
  - path: "/opt/bin/etchost"
    permissions: "0755"
    content: |
@@ -145,8 +153,8 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-    docker run -it --rm \
-    --volume ${HOME}/.aws:/root/.aws \
+    docker run -i --rm \
+    --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
     h0tbird/awscli "${@}"
 
@@ -178,6 +186,18 @@ coreos:
      [Service]
      Type=oneshot
      ExecStart=/opt/bin/ns1dns
+
+  - name: "getcerts.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Get certificates from private S3 bucket
+     Requires=docker.service
+     After=docker.service
+
+     [Service]
+     Type=oneshot
+     ExecStart=/opt/bin/getcerts
 
   - name: "etchost.service"
     content: |

@@ -24,9 +24,9 @@ katoctl ec2 deploy \
   --master-count 3 \
   --worker-count 2 \
   --edge-count 1 \
-  --master-type t2.medium \
+  --master-type m3.medium \
   --worker-type m3.large \
-  --edge-type t2.small \
+  --edge-type m3.medium \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
@@ -42,8 +42,9 @@ katoctl ec2 deploy \
   --master-count 1 \
   --worker-count 1 \
   --edge-count 1 \
+  --master-type m3.medium \
   --worker-type m3.large \
-  --edge-type t2.small \
+  --edge-type m3.medium \
   --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
   --domain ${KATO_DEPLOY_EC2_DOMAIN} \
   --region ${KATO_DEPLOY_EC2_REGION} \
