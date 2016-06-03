@@ -123,7 +123,7 @@ write_files:
     #!/bin/bash
 
     [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-    /opt/bin/awscli s3 cp s3://cell-1.dub.xnood.com/certs.tar.bz2 .
+    /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
 
  - path: "/opt/bin/etchost"
    permissions: "0755"
