@@ -87,6 +87,9 @@ Vagrant.configure("2") do |config|
         vb.memory = $master_memory
         vb.cpus = $master_cpus
         vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+        if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
+          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
+        end
       end
 
       ip_pri = "172.17.8.#{i+10}"
