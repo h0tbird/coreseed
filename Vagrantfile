@@ -126,7 +126,7 @@ Vagrant.configure("2") do |config|
           conf.vm.provision "shell", inline: <<-SHELL
             echo "Waiting for available fleet socket..."
             while [ ! -S /run/fleet.sock ]; do sleep 1; done
-            fleetctl start /etc/fleet/*.service
+            sleep 3; fleetctl start /etc/fleet/*.service
           SHELL
         end
 
@@ -160,7 +160,7 @@ Vagrant.configure("2") do |config|
 
       if ARGV[0].eql?('up')
 
-        config.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
+        conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
         if $ca_cert
           cmd = $katoctl + " -c %s > user_data_worker-%s"
