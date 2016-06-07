@@ -1,5 +1,3 @@
-require 'fileutils'
-
 Vagrant.require_version ">= 1.6.0"
 
 #------------------------------------------------------------------------------
@@ -15,7 +13,8 @@ $worker_cpus    = ENV['KATO_WORKER_CPUS'] || 2
 $worker_memory  = ENV['KATO_WORKER_MEMORY'] || 4096
 $edge_cpus      = ENV['KATO_EDGE_CPUS'] || 1
 $edge_memory    = ENV['KATO_EDGE_MEMORY'] || 512
-$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
+$kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-alpha'
+$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
@@ -28,17 +27,30 @@ $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 # Forge the katoctl command:
 #------------------------------------------------------------------------------
 
-$katoctl = "katoctl udata " +
-  "--rexray-storage-driver virtualbox " +
-  "--rexray-endpoint-ip 172.17.8.1 " +
-  "--flannel-backend host-gw " +
-  "--master-count %s " +
-  "--ns1-api-key %s " +
-  "--domain %s " +
-  "--hostid %s " +
-  "--role %s " +
-  "--etcd-token %s " +
-  "--gzip-udata"
+if ARGV[0].eql?('up')
+
+  if !File.file?("katoctl")
+    print "Downloading katoctl...\n"
+    cmd = "wget -q https://github.com/h0tbird/kato/releases/download/%s/katoctl-%s-%s -O katoctl"
+    system cmd % [ $kato_version, `uname`.tr("\n",'').downcase, `uname -m`.tr("\n",'') ]
+    if !system "chmod +x katoctl"
+      print "Ops! Where is katoctl?\n"
+      exit
+    end
+  end
+
+  $katoctl = "./katoctl udata " +
+    "--rexray-storage-driver virtualbox " +
+    "--rexray-endpoint-ip 172.17.8.1 " +
+    "--flannel-backend host-gw " +
+    "--master-count %s " +
+    "--ns1-api-key %s " +
+    "--domain %s " +
+    "--hostid %s " +
+    "--role %s " +
+    "--etcd-token %s " +
+    "--gzip-udata"
+end
 
 #------------------------------------------------------------------------------
 # Generate a new etcd discovery token:
@@ -99,10 +111,10 @@ Vagrant.configure("2") do |config|
 
         if $ca_cert
           cmd = $katoctl + " -c %s > user_data_master-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, $ca_cert, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'master', token, $ca_cert, i ]
         else
           cmd = $katoctl + " > user_data_master-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'master', token, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'master', token, i ]
         end
 
         if File.exist?("user_data_master-%s" % i)
@@ -117,6 +129,7 @@ Vagrant.configure("2") do |config|
             fleetctl start /etc/fleet/*.service
           SHELL
         end
+
       end
     end
   end
@@ -151,10 +164,10 @@ Vagrant.configure("2") do |config|
 
         if $ca_cert
           cmd = $katoctl + " -c %s > user_data_worker-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'worker', token, $ca_cert, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'worker', token, $ca_cert, i ]
         else
           cmd = $katoctl + " > user_data_worker-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'worker', token, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'worker', token, i ]
         end
 
         if File.exist?("user_data_worker-%s" % i)
@@ -191,10 +204,10 @@ Vagrant.configure("2") do |config|
 
         if $ca_cert
           cmd = $katoctl + " -c %s > user_data_edge-%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, $ca_cert, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'edge', token, $ca_cert, i ]
         else
           cmd = $katoctl + " > user_edata_%s"
-          system cmd % [$master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
+          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
         end
 
         if File.exist?("user_edata_%s" % i)
