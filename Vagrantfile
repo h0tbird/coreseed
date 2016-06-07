@@ -107,6 +107,13 @@ Vagrant.configure("2") do |config|
           conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
         end
 
+        if i == 1
+          conf.vm.provision "shell", inline: <<-SHELL
+            echo "Waiting for available fleet socket..."
+            while [ ! -S /run/fleet.sock ]; do sleep 1; done
+            fleetctl start /etc/fleet/*.service
+          SHELL
+        end
       end
     end
   end
