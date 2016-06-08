@@ -70,7 +70,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ##### From the latest release (for *Káto* end users)
 ```bash
-curl -s https://raw.githubusercontent.com/h0tbird/kato/master/install | sh
+curl -s https://raw.githubusercontent.com/h0tbird/kato/master/install | bash
 ```
 
 ##### From the source (for *Káto* developers)
