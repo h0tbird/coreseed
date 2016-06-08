@@ -70,11 +70,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ##### From the latest release (for *Káto* end users)
 ```bash
-VERSION='v0.1.0-alpha'
-UNAME=$(uname | tr '[:upper:]' '[:lower:]')
-ARCH=$(uname -m)
-sudo wget https://github.com/h0tbird/kato/releases/download/${VERSION}/katoctl-${UNAME}-${ARCH} -O /usr/local/bin/katoctl
-sudo chmod +x /usr/local/bin/katoctl
+curl -s https://raw.githubusercontent.com/h0tbird/kato/master/install | sh
 ```
 
 ##### From the source (for *Káto* developers)
