@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Make sure we have curl and jq:
+readonly CMD_CURL=$(type -P curl); [ -z "${CMD_CURL}" ] && { echo "curl is needed"; exit 1; }
+readonly CMD_JQ=$(type -P jq); [ -z "${CMD_JQ}" ] && { echo "jq is needed"; exit 1; }
+
+# Define the github repository URL:
+readonly KATO_URL='https://api.github.com/repos/h0tbird/kato'
+
+# Discover the last katoctl release for our OS/Arch:
+KATOCTL=$(${CMD_CURL} -s ${KATO_URL}/releases | ${CMD_JQ} --raw-output \
+  --arg SUFFIX $(uname | tr '[:upper:]' '[:lower:]')-$(uname -m) \
+  '.[] | .assets[] | .browser_download_url | select(endswith($SUFFIX))')
+
+# Download katoctl:
+sudo ${CMD_CURL} -Lo /usr/local/bin/katoctl ${KATOCTL}
