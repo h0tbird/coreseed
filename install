@@ -3,14 +3,14 @@
 # Make sure the shell is bash:
 [[ ${0} == *"bash"* ]] || { echo "Ops! Pipe me to bash"; exit 1; }
 
-# Make sure we have curl and jq:
+# Make sure you have curl and jq:
 readonly CMD_CURL=$(type -P curl); [ -z "${CMD_CURL}" ] && { echo "Opss! curl is needed"; exit 1; }
 readonly CMD_JQ=$(type -P jq); [ -z "${CMD_JQ}" ] && { echo "Ops! jq is needed"; exit 1; }
 
 # Define the github repository API URL:
 readonly KATO_URL='https://api.github.com/repos/h0tbird/kato'
 
-# Discover the latest katoctl release for our OS/Arch:
+# Discover the latest katoctl release for your OS/Arch:
 KATOCTL=$(${CMD_CURL} -s ${KATO_URL}/releases | ${CMD_JQ} --raw-output \
   --arg SUFFIX $(uname | tr '[:upper:]' '[:lower:]')-$(uname -m) \
   '.[] | .assets[] | .browser_download_url | select(endswith($SUFFIX))')
