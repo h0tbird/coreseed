@@ -182,7 +182,7 @@ coreos:
     content: |
      [Unit]
      Description=Rehash certs with self-signed root CAs
-     Before=etcd2.service
+     Before=docker.service
 
      [Service]
      Type=oneshot
