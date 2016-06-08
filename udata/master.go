@@ -598,6 +598,17 @@ coreos:
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
 
+  - name: "rehashcerts.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Rehash certs with self-signed root CAs
+     Before=etcd2.service
+
+     [Service]
+     Type=oneshot
+     ExecStart=/usr/sbin/update-ca-certificates
+
   - name: "ns1dns.service"
     command: "start"
     content: |
