@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Defensive bash
+set -ue
+
 # Make sure the shell is bash:
 [[ ${0} == *"bash"* ]] || { echo "Ops! Pipe me to bash"; exit 1; }
 
