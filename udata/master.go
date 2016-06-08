@@ -29,12 +29,13 @@ write_files:
 
  - path: "/etc/kato.env"
    content: |
+    KATO_CLUSTER_ID={{.ClusterID}}
     KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
 
- {{if .CaCert}}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
+ {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
     {{.CaCert}}
  {{- end}}
@@ -218,14 +219,14 @@ write_files:
     ExecStartPre=-/usr/bin/docker kill prometheus
     ExecStartPre=-/usr/bin/docker rm -f prometheus
     ExecStartPre=-/usr/bin/docker pull prom/prometheus:0.19.2
-    ExecStartPre=-/usr/bin/docker volume create --name prometheus-${KATO_HOST_ID} -d rexray
+    ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name prometheus \
       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
       --volume /etc/hosts:/etc/hosts:ro \
       --volume /etc/prometheus:/etc/prometheus:ro \
-      --volume prometheus-${KATO_HOST_ID}:/prometheus:rw \
+      --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/prometheus:rw \
       prom/prometheus:0.19.2 \
       -config.file=/etc/prometheus/prometheus.yml \
       -storage.local.path=/prometheus \
@@ -526,16 +527,17 @@ write_files:
     Restart=on-failure
     RestartSec=20
     TimeoutStartSec=0
+    EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mongodb
     ExecStartPre=-/usr/bin/docker rm mongodb
     ExecStartPre=-/usr/bin/docker pull mongo:3.2
-    ExecStartPre=-/usr/bin/docker volume create --name pritunl-mongo -d rexray
+    ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-pritunl-mongo -d rexray
     ExecStart=/usr/bin/sh -c "docker run \
       --name mongodb \
       --net host \
       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
       --volume /etc/hosts:/etc/hosts:ro \
-      --volume pritunl-mongo:/data/db:rw \
+      --volume ${KATO_CLUSTER_ID}-pritunl-mongo:/data/db:rw \
       mongo:3.2 \
       --bind_ip 127.0.0.1"
     ExecStop=/usr/bin/docker stop -t 5 mongodb

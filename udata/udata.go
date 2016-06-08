@@ -25,6 +25,7 @@ import (
 // Data contains variables to be interpolated in templates.
 type Data struct {
 	MasterCount         int
+	ClusterID           string
 	HostID              string
 	Domain              string
 	Role                string

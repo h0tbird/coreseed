@@ -29,12 +29,13 @@ write_files:
 
  - path: "/etc/kato.env"
    content: |
+    KATO_CLUSTER_ID={{.ClusterID}}
     KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
 
- {{if .CaCert}}- path: "/etc/docker/certs.d/internal-registry-sys.marathon:5000/ca.crt"
+ {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
     {{.CaCert}}
  {{- end}}

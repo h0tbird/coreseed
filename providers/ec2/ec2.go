@@ -73,7 +73,7 @@ type State struct {
 	FlannelSubnetMax string  `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
 	FlannelBackend   string  `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
 	Domain           string  `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
-	ClusterID        string  `json:"ClusterID"`        //  ec2:deploy | ec2:setup |       |
+	ClusterID        string  `json:"ClusterID"`        //  ec2:deploy | ec2:setup | udata |
 	Region           string  `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
 	Zone             string  `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
 	VpcCidrBlock     string  `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
@@ -170,6 +170,7 @@ func (d *Data) Add() error {
 	// Forge the udata command:
 	cmdUdata := exec.Command("katoctl", "udata",
 		"--role", d.Role,
+		"--cluster-id", d.ClusterID,
 		"--master-count", strconv.Itoa(int(d.MasterCount)),
 		"--hostid", d.HostID,
 		"--domain", d.Domain,

@@ -16,6 +16,11 @@ var (
 				Default("3").OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
 				HintOptions("1", "3", "5").Int()
 
+	flUdataClusterID = cmdUdata.Flag("cluster-id", "Cluster ID.").
+				Required().PlaceHolder("KATO_UDATA_CLUSTER_ID").
+				OverrideDefaultFromEnvar("KATO_UDATA_CLUSTER_ID").
+				String()
+
 	flUdataHostID = cmdUdata.Flag("hostid", "Must be a number: hostname = <role>-<hostid>").
 			Required().PlaceHolder("KATO_UDATA_HOSTID").
 			OverrideDefaultFromEnvar("KATO_UDATA_HOSTID").
