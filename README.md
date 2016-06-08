@@ -1,15 +1,17 @@
 # The Káto system
 
-[![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Status Widget]][Coverage Status]
+[![Version Widget]][Version] [![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Widget]][Coverage]
 
+[Version]: https://github.com/h0tbird/kato/releases
+[Version Widget]: https://img.shields.io/github/release/h0tbird/kato.svg?maxAge=60
 [License]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [License Widget]: https://img.shields.io/badge/license-APACHE2-1eb0fc.svg
 [GoReportCard]: https://goreportcard.com/report/h0tbird/kato
 [GoReportCard Widget]: https://goreportcard.com/badge/h0tbird/kato
 [Travis]: https://travis-ci.org/h0tbird/kato
 [Travis Widget]: https://travis-ci.org/h0tbird/kato.svg?branch=master
-[Coverage Status]: https://coveralls.io/github/h0tbird/kato?branch=master
-[Coverage Status Widget]: https://coveralls.io/repos/github/h0tbird/kato/badge.svg?branch=master
+[Coverage]: https://coveralls.io/github/h0tbird/kato?branch=master
+[Coverage Widget]: https://coveralls.io/repos/github/h0tbird/kato/badge.svg?branch=master
 
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
@@ -68,7 +70,8 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ##### From the latest release (for *Káto* end users)
 ```bash
-not yet
+marc@desk-1 ~ $ sudo wget https://github.com/h0tbird/kato/releases/download/v0.1.0-alpha/katoctl-linux-x86_64 -O /usr/local/bin/katoctl
+marc@desk-1 ~ $ sudo chmod +x /usr/local/bin/katoctl
 ```
 
 ##### From the source (for *Káto* developers)
