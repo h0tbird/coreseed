@@ -70,15 +70,18 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ##### From the latest release (for *Káto* end users)
 ```bash
-marc@desk-1 ~ $ sudo wget https://github.com/h0tbird/kato/releases/download/v0.1.0-alpha/katoctl-linux-x86_64 -O /usr/local/bin/katoctl
-marc@desk-1 ~ $ sudo chmod +x /usr/local/bin/katoctl
+VERSION='v0.1.0-alpha'
+UNAME=$(uname | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+sudo wget https://github.com/h0tbird/kato/releases/download/${VERSION}/katoctl-${UNAME}-${ARCH} -O /usr/local/bin/katoctl
+sudo chmod +x /usr/local/bin/katoctl
 ```
 
 ##### From the source (for *Káto* developers)
 ```bash
-marc@desk-1 ~ $ go get -u github.com/h0tbird/kato/cmd/katoctl
-marc@desk-1 ~ $ go install github.com/h0tbird/kato/cmd/katoctl
-marc@desk-1 ~ $ eval "$(katoctl --completion-script-${0#-})"
+go get -u github.com/h0tbird/kato/cmd/katoctl
+go install github.com/h0tbird/kato/cmd/katoctl
+eval "$(katoctl --completion-script-${0#-})"
 ```
 
 ## 2. Deploy Káto's infrastructure
