@@ -44,6 +44,9 @@ var app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastruct
 
 func init() {
 
+	// Version and author:
+	app.Version("v0.1.0-beta").Author("Marc Villacorta Morera")
+
 	// Customize the default logger:
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetOutput(os.Stderr)
