@@ -78,7 +78,7 @@ var (
 
 	flEc2DeployChannel = cmdEc2Deploy.Flag("channel",
 		"CoreOS release channel [ stable | beta | alpha ]").
-		Required().PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
+		Default("stable").PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
 		OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CHANNEL").
 		Enum("stable", "beta", "alpha")
 
@@ -107,7 +107,7 @@ var (
 
 	flEc2DeployZone = cmdEc2Deploy.Flag("zone",
 		"Amazon EC2 availability zone.").
-		Required().PlaceHolder("KATO_DEPLOY_EC2_ZONE").
+		Default("a").PlaceHolder("KATO_DEPLOY_EC2_ZONE").
 		OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ZONE").
 		Enum("a", "b", "c", "d")
 
