@@ -44,19 +44,19 @@ var (
 		"Number of master nodes to deploy [ 1 | 3 | 5 ]").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_MASTER_COUNT").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_MASTER_COUNT").
-		Short('m').HintOptions("1", "3", "5").Int()
+		HintOptions("1", "3", "5").Int()
 
 	flEc2DeployWorkerCount = cmdEc2Deploy.Flag("worker-count",
 		"Number of worker nodes to deploy.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_WORKER_COUNT").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_WORKER_COUNT").
-		Short('w').Int()
+		Int()
 
 	flEc2DeployEdgeCount = cmdEc2Deploy.Flag("edge-count",
 		"Number of edge nodes to deploy.").
 		Default("1").PlaceHolder("KATO_EC2_DEPLOY_EDGE_COUNT").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_EDGE_COUNT").
-		Short('e').Int()
+		Int()
 
 	flEc2DeployMasterType = cmdEc2Deploy.Flag("master-type",
 		"EC2 master instance type.").
@@ -85,7 +85,7 @@ var (
 	flEc2DeployEtcdToken = cmdEc2Deploy.Flag("etcd-token",
 		"Etcd bootstrap token [ auto | <token> ]").
 		Default("auto").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ETCD_TOKEN").
-		Short('t').HintOptions("auto").String()
+		HintOptions("auto").String()
 
 	flEc2DeployNs1ApiKey = cmdEc2Deploy.Flag("ns1-api-key",
 		"NS1 private API key.").
@@ -97,13 +97,13 @@ var (
 		"Path to CA certificate.").
 		PlaceHolder("KATO_EC2_DEPLOY_CA_CET").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CA_CET").
-		Short('c').ExistingFile()
+		ExistingFile()
 
 	flEc2DeployRegion = cmdEc2Deploy.Flag("region",
 		"Amazon EC2 region.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_REGION").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_REGION").
-		Short('r').Enum(ec2Regions...)
+		Enum(ec2Regions...)
 
 	flEc2DeployZone = cmdEc2Deploy.Flag("zone",
 		"Amazon EC2 availability zone.").
@@ -115,13 +115,13 @@ var (
 		"Used to identify the VPC.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_DOMAIN").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DOMAIN").
-		Short('d').String()
+		String()
 
 	flEc2DeployKeyPair = cmdEc2Deploy.Flag("key-pair",
 		"EC2 key pair.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_KEY_PAIR").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_KEY_PAIR").
-		Short('k').String()
+		String()
 
 	flEc2DeployVpcCidrBlock = cmdEc2Deploy.Flag("vpc-cidr-block",
 		"IPs to be used by the VPC.").
@@ -186,37 +186,37 @@ var (
 		"Used to identify the VPC..").
 		Required().PlaceHolder("KATO_EC2_SETUP_DOMAIN").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_DOMAIN").
-		Short('t').String()
+		String()
 
 	flEc2SetupRegion = cmdEc2Setup.Flag("region",
 		"EC2 region.").
 		Required().PlaceHolder("KATO_EC2_SETUP_REGION").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_REGION").
-		Short('r').Enum(ec2Regions...)
+		Enum(ec2Regions...)
 
 	flEc2SetupZone = cmdEc2Setup.Flag("zone",
 		"EC2 availability zone.").
 		Default("a").PlaceHolder("KATO_EC2_SETUP_ZONE").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_ZONE").
-		Short('z').Enum("a", "b", "c", "d")
+		Enum("a", "b", "c", "d")
 
 	flEc2SetupVpcCidrBlock = cmdEc2Setup.Flag("vpc-cidr-block",
 		"IPs to be used by the VPC.").
 		Default("10.0.0.0/16").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_VPC_CIDR_BLOCK").
-		Short('c').String()
+		String()
 
 	flEc2SetupIntSubnetCidr = cmdEc2Setup.Flag("internal-subnet-cidr",
 		"CIDR for the internal subnet.").
 		Default("10.0.1.0/24").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_INTERNAL_SUBNET_CIDR").
-		Short('i').String()
+		String()
 
 	flEc2SetupExtSubnetCidr = cmdEc2Setup.Flag("external-subnet-cidr",
 		"CIDR for the external subnet.").
 		Default("10.0.0.0/24").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_EXTERNAL_SUBNET_CIDR").
-		Short('e').String()
+		String()
 
 	//-------------------------
 	// ec2 add: nested command
@@ -258,19 +258,19 @@ var (
 		"For the EC2 dashboard.").
 		PlaceHolder("KATO_EC2_RUN_HOSTNAME").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_HOSTNAME").
-		Short('h').String()
+		String()
 
 	flEc2RunRegion = cmdEc2Run.Flag("region",
 		"EC2 region.").
 		Required().PlaceHolder("KATO_EC2_RUN_REGION").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_REGION").
-		Short('r').Enum(ec2Regions...)
+		Enum(ec2Regions...)
 
 	flEc2RunZone = cmdEc2Run.Flag("zone",
 		"EC2 availability zone.").
 		Default("a").PlaceHolder("KATO_EC2_RUN_ZONE").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_ZONE").
-		Short('z').Enum("a", "b", "c", "d")
+		Enum("a", "b", "c", "d")
 
 	flEc2RunAmiID = cmdEc2Run.Flag("ami-id",
 		"EC2 AMI ID.").
@@ -282,13 +282,13 @@ var (
 		"EC2 instance type.").
 		Required().PlaceHolder("KATO_EC2_RUN_INSTANCE_TYPE").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_INSTANCE_TYPE").
-		Short('t').Enum(ec2Instances...)
+		Enum(ec2Instances...)
 
 	flEc2RunKeyPair = cmdEc2Run.Flag("key-pair",
 		"EC2 key pair.").
 		Required().PlaceHolder("KATO_EC2_RUN_KEY_PAIR").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_KEY_PAIR").
-		Short('k').String()
+		String()
 
 	flEc2RunSubnetID = cmdEc2Run.Flag("subnet-id",
 		"EC2 subnet ID.").

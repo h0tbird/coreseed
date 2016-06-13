@@ -27,65 +27,65 @@ var (
 		"Must be a number: hostname = <role>-<hostid>").
 		Required().PlaceHolder("KATO_UDATA_HOSTID").
 		OverrideDefaultFromEnvar("KATO_UDATA_HOSTID").
-		Short('i').String()
+		String()
 
 	flUdataDomain = cmdUdata.Flag("domain",
 		"Domain name as in (hostname -d)").
 		Required().PlaceHolder("KATO_UDATA_DOMAIN").
 		OverrideDefaultFromEnvar("KATO_UDATA_DOMAIN").
-		Short('d').String()
+		String()
 
 	flUdataRole = cmdUdata.Flag("role",
 		"Choose one of [ master | worker | edge ]").
 		Required().PlaceHolder("KATO_UDATA_ROLE").
 		OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
-		Short('r').Enum("master", "worker", "edge")
+		Enum("master", "worker", "edge")
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key",
 		"NS1 private API key.").
 		Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
 		OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
-		Short('k').String()
+		String()
 
 	flUdataCaCert = cmdUdata.Flag("ca-cert",
 		"Path to CA certificate.").
 		PlaceHolder("KATO_UDATA_CA_CERT").
 		OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
-		Short('c').ExistingFile()
+		ExistingFile()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token",
 		"Provide an etcd discovery token.").
 		PlaceHolder("KATO_UDATA_ETCD_TOKEN").
 		OverrideDefaultFromEnvar("KATO_UDATA_ETCD_TOKEN").
-		Short('e').String()
+		String()
 
 	flUdataGzipUdata = cmdUdata.Flag("gzip-udata",
 		"Enable udata compression.").
 		Default("false").OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
-		Short('g').Bool()
+		Bool()
 
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network",
 		"Flannel entire overlay network.").
 		Default("10.128.0.0/21").
 		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
-		Short('n').String()
+		String()
 
 	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len",
 		"Subnet len to llocate to each host.").
 		Default("27").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
-		Short('s').String()
+		String()
 
 	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min",
 		"Minimum subnet IP addresses.").
 		Default("10.128.0.192").
 		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
-		Short('m').String()
+		String()
 
 	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max",
 		"Maximum subnet IP addresses.").
 		Default("10.128.7.224").
 		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
-		Short('x').String()
+		String()
 
 	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend",
 		"Flannel backend: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").

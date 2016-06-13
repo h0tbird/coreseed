@@ -36,40 +36,39 @@ var (
 		"Packet API key.").
 		Required().PlaceHolder("KATO_PKT_RUN_APIKEY").
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_APIKEY").
-		Short('k').String()
+		String()
 
 	flPktRunHostname = cmdPktRun.Flag("hostname",
 		"Used in the Packet.net dashboard.").
 		Required().PlaceHolder("KATO_PKT_RUN_HOSTNAME").
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_HOSTNAME").
-		Short('h').String()
+		String()
 
 	flPktRunProjectID = cmdPktRun.Flag("project-id",
 		"Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
 		Required().PlaceHolder("KATO_PKT_RUN_PROJECT_ID").
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_PROJECT_ID").
-		Short('i').String()
+		String()
 
 	flPktRunPlan = cmdPktRun.Flag("plan",
 		"One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
 		Required().PlaceHolder("KATO_PKT_RUN_PLAN").
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_PLAN").
-		Short('p').
 		Enum("baremetal_0", "baremetal_1", "baremetal_2", "baremetal_3")
 
 	flPktRunOS = cmdPktRun.Flag("os",
 		"One of [ coreos_stable | coreos_beta | coreos_alpha ]").
 		Default("coreos_stable").OverrideDefaultFromEnvar("KATO_PKT_RUN_OS").
-		Short('o').Enum("coreos_stable", "coreos_beta", "coreos_alpha")
+		Enum("coreos_stable", "coreos_beta", "coreos_alpha")
 
 	flPktRunFacility = cmdPktRun.Flag("facility",
 		"One of [ ewr1 | ams1 ]").
 		Required().PlaceHolder("KATO_PKT_RUN_FACILITY").
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_FACILITY").
-		Short('f').Enum("ewr1", "ams1")
+		Enum("ewr1", "ams1")
 
 	flPktRunBilling = cmdPktRun.Flag("billing",
 		"One of [ hourly | monthly ]").
 		Default("hourly").OverrideDefaultFromEnvar("KATO_PKT_RUN_BILLING").
-		Short('b').Enum("hourly", "monthly")
+		Enum("hourly", "monthly")
 )
