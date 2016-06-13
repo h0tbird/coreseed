@@ -9,12 +9,11 @@ Before you start make sure:
 #### Environment
 Define your environment. If you want to reuse existing EBS volumes you must target the EC2 region and availability zone where your volumes are stored:
 ```bash
-export KATO_DEPLOY_EC2_NS1_API_KEY='<your-ns1-private-key>'
-export KATO_DEPLOY_EC2_DOMAIN='<your-ns1-managed-public-domain>'
-export KATO_DEPLOY_EC2_REGION='<your-ec2-region>'
-export KATO_DEPLOY_EC2_ZONE='<your-ec2-availability-zone>'
-export KATO_DEPLOY_EC2_KEY_PAIR='<your-ec2-ssh-key-name>'
-export KATO_DEPLOY_EC2_COREOS_CHANNEL='<your-coreos-release-channel>'
+export KATO_EC2_DEPLOY_CLUSTER_ID='<cluster-id>'
+export KATO_EC2_DEPLOY_NS1_API_KEY='<ns1-private-key>'
+export KATO_EC2_DEPLOY_DOMAIN='<ns1-managed-public-domain>'
+export KATO_EC2_DEPLOY_REGION='<ec2-region>'
+export KATO_EC2_DEPLOY_KEY_PAIR='<ec2-ssh-key-name>'
 ```
 
 #### For operators
@@ -24,15 +23,10 @@ katoctl ec2 deploy \
   --master-count 3 \
   --worker-count 2 \
   --edge-count 1 \
-  --master-type m3.medium \
-  --worker-type m3.large \
-  --edge-type m3.medium \
-  --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --domain ${KATO_DEPLOY_EC2_DOMAIN} \
-  --region ${KATO_DEPLOY_EC2_REGION} \
-  --zone ${KATO_DEPLOY_EC2_ZONE} \
-  --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
-  --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
+  --ns1-api-key ${KATO_EC2_DEPLOY_NS1_API_KEY} \
+  --domain ${KATO_EC2_DEPLOY_DOMAIN} \
+  --region ${KATO_EC2_DEPLOY_REGION} \
+  --key-pair ${KATO_EC2_DEPLOY_KEY_PAIR}
 ```
 
 #### For developers
@@ -42,15 +36,10 @@ katoctl ec2 deploy \
   --master-count 1 \
   --worker-count 1 \
   --edge-count 1 \
-  --master-type m3.medium \
-  --worker-type m3.large \
-  --edge-type m3.medium \
-  --ns1-api-key ${KATO_DEPLOY_EC2_NS1_API_KEY} \
-  --domain ${KATO_DEPLOY_EC2_DOMAIN} \
-  --region ${KATO_DEPLOY_EC2_REGION} \
-  --zone ${KATO_DEPLOY_EC2_ZONE} \
-  --key-pair ${KATO_DEPLOY_EC2_KEY_PAIR} \
-  --channel ${KATO_DEPLOY_EC2_COREOS_CHANNEL}
+  --ns1-api-key ${KATO_EC2_DEPLOY_NS1_API_KEY} \
+  --domain ${KATO_EC2_DEPLOY_DOMAIN} \
+  --region ${KATO_EC2_DEPLOY_REGION} \
+  --key-pair ${KATO_EC2_DEPLOY_KEY_PAIR}
 ```
 
 #### Wait for it...
