@@ -1,5 +1,4 @@
 *.swp
-katoctl
 cmd/katoctl/katoctl
 user_data_*
 .idea
