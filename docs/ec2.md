@@ -6,40 +6,28 @@ Before you start make sure:
 - You have AWS credentials in `~/.aws/credentials` ([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
 - You have permissions to manage `EC2` and `VPC` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
-#### Environment
-Define your environment. If you want to reuse existing EBS volumes you must target the EC2 region and availability zone where your volumes are stored:
-```bash
-export KATO_EC2_DEPLOY_CLUSTER_ID='<cluster-id>'
-export KATO_EC2_DEPLOY_NS1_API_KEY='<ns1-private-key>'
-export KATO_EC2_DEPLOY_DOMAIN='<ns1-managed-public-domain>'
-export KATO_EC2_DEPLOY_REGION='<ec2-region>'
-export KATO_EC2_DEPLOY_KEY_PAIR='<ec2-ssh-key-name>'
-```
+#### Deploy
 
-#### For operators
-If you are an *operator* you need `the real thing`&trade;
+If you want to reuse existing EBS volumes you must target the EC2 `--region` and `--zone` where your volumes are stored:
+
 ```bash
 katoctl ec2 deploy \
   --master-count 3 \
   --worker-count 2 \
-  --edge-count 1 \
-  --ns1-api-key ${KATO_EC2_DEPLOY_NS1_API_KEY} \
-  --domain ${KATO_EC2_DEPLOY_DOMAIN} \
-  --region ${KATO_EC2_DEPLOY_REGION} \
-  --key-pair ${KATO_EC2_DEPLOY_KEY_PAIR}
+  --cluster-id <unique-cluster-id> \
+  --ns1-api-key <ns1-private-key> \
+  --domain <ns1-managed-public-domain> \
+  --region <ec2-region> \
+  --key-pair <ec2-ssh-key-name>
 ```
 
-#### For developers
-If you are a *developer* you can deploy a lighter version:
+#### Add more workers
+Adding the third worker is as easy as running:
 ```bash
-katoctl ec2 deploy \
-  --master-count 1 \
-  --worker-count 1 \
-  --edge-count 1 \
-  --ns1-api-key ${KATO_EC2_DEPLOY_NS1_API_KEY} \
-  --domain ${KATO_EC2_DEPLOY_DOMAIN} \
-  --region ${KATO_EC2_DEPLOY_REGION} \
-  --key-pair ${KATO_EC2_DEPLOY_KEY_PAIR}
+katoctl ec2 add \
+  --cluster-id <unique-cluster-id> \
+  --role worker \
+  --host-id 3
 ```
 
 #### Wait for it...

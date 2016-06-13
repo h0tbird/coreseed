@@ -54,7 +54,7 @@ var (
 
 	flEc2DeployEdgeCount = cmdEc2Deploy.Flag("edge-count",
 		"Number of edge nodes to deploy.").
-		Required().PlaceHolder("KATO_DEPLOY_EC2_EDGE_COUNT").
+		Default("1").PlaceHolder("KATO_DEPLOY_EC2_EDGE_COUNT").
 		OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_COUNT").
 		Short('e').Int()
 
