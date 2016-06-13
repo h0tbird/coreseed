@@ -150,7 +150,7 @@ func main() {
 				CaCert:           *flEc2DeployCaCert,
 				Domain:           *flEc2DeployDomain,
 				Region:           *flEc2DeployRegion,
-				Zone:             *flEc2DeployRegion + *flEc2DeployZone,
+				Zone:             *flEc2DeployZone,
 				KeyPair:          *flEc2DeployKeyPair,
 				VpcCidrBlock:     *flEc2DeployVpcCidrBlock,
 				IntSubnetCidr:    *flEc2DeployIntSubnetCidr,
@@ -177,7 +177,7 @@ func main() {
 				ClusterID:     *flEc2SetupClusterID,
 				Domain:        *flEc2SetupDomain,
 				Region:        *flEc2SetupRegion,
-				Zone:          *flEc2SetupRegion + *flEc2SetupZone,
+				Zone:          *flEc2SetupZone,
 				VpcCidrBlock:  *flEc2SetupVpcCidrBlock,
 				IntSubnetCidr: *flEc2SetupIntSubnetCidr,
 				ExtSubnetCidr: *flEc2SetupExtSubnetCidr,
@@ -216,7 +216,7 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				Region:  *flEc2RunRegion,
-				Zone:    *flEc2RunRegion + *flEc2RunZone,
+				Zone:    *flEc2RunZone,
 				KeyPair: *flEc2RunKeyPair,
 			},
 			Instance: ec2.Instance{

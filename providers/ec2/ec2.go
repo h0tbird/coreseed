@@ -506,7 +506,7 @@ func (d *Data) runInstance(udata []byte) error {
 		InstanceType:      aws.String(d.InstanceType),
 		NetworkInterfaces: d.forgeNetworkInterfaces(),
 		Placement: &ec2.Placement{
-			AvailabilityZone: aws.String(d.Zone),
+			AvailabilityZone: aws.String(d.Region + d.Zone),
 		},
 		UserData: aws.String(base64.StdEncoding.EncodeToString([]byte(udata))),
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
@@ -796,7 +796,7 @@ func (d *Data) createSubnets() error {
 		params := &ec2.CreateSubnetInput{
 			CidrBlock:        aws.String(v["SubnetCidr"]),
 			VpcId:            aws.String(d.VpcID),
-			AvailabilityZone: aws.String(d.Zone),
+			AvailabilityZone: aws.String(d.Region + d.Zone),
 			DryRun:           aws.Bool(false),
 		}
 

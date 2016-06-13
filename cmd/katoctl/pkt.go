@@ -34,42 +34,42 @@ var (
 
 	flPktRunAPIKey = cmdPktRun.Flag("api-key",
 		"Packet API key.").
-		Required().PlaceHolder("KATO_RUN_PKT_APIKEY").
-		OverrideDefaultFromEnvar("KATO_RUN_PKT_APIKEY").
+		Required().PlaceHolder("KATO_PKT_RUN_APIKEY").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_APIKEY").
 		Short('k').String()
 
 	flPktRunHostname = cmdPktRun.Flag("hostname",
 		"Used in the Packet.net dashboard.").
-		Required().PlaceHolder("KATO_RUN_PKT_HOSTNAME").
-		OverrideDefaultFromEnvar("KATO_RUN_PKT_HOSTNAME").
+		Required().PlaceHolder("KATO_PKT_RUN_HOSTNAME").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_HOSTNAME").
 		Short('h').String()
 
 	flPktRunProjectID = cmdPktRun.Flag("project-id",
 		"Format: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee").
-		Required().PlaceHolder("KATO_RUN_PKT_PROJECT_ID").
-		OverrideDefaultFromEnvar("KATO_RUN_PKT_PROJECT_ID").
+		Required().PlaceHolder("KATO_PKT_RUN_PROJECT_ID").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_PROJECT_ID").
 		Short('i').String()
 
 	flPktRunPlan = cmdPktRun.Flag("plan",
 		"One of [ baremetal_0 | baremetal_1 | baremetal_2 | baremetal_3 ]").
-		Required().PlaceHolder("KATO_RUN_PKT_PLAN").
-		OverrideDefaultFromEnvar("KATO_RUN_PKT_PLAN").
+		Required().PlaceHolder("KATO_PKT_RUN_PLAN").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_PLAN").
 		Short('p').
 		Enum("baremetal_0", "baremetal_1", "baremetal_2", "baremetal_3")
 
 	flPktRunOS = cmdPktRun.Flag("os",
 		"One of [ coreos_stable | coreos_beta | coreos_alpha ]").
-		Default("coreos_stable").OverrideDefaultFromEnvar("KATO_RUN_PKT_OS").
+		Default("coreos_stable").OverrideDefaultFromEnvar("KATO_PKT_RUN_OS").
 		Short('o').Enum("coreos_stable", "coreos_beta", "coreos_alpha")
 
 	flPktRunFacility = cmdPktRun.Flag("facility",
 		"One of [ ewr1 | ams1 ]").
-		Required().PlaceHolder("KATO_RUN_PKT_FACILITY").
-		OverrideDefaultFromEnvar("KATO_RUN_PKT_FACILITY").
+		Required().PlaceHolder("KATO_PKT_RUN_FACILITY").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_FACILITY").
 		Short('f').Enum("ewr1", "ams1")
 
 	flPktRunBilling = cmdPktRun.Flag("billing",
 		"One of [ hourly | monthly ]").
-		Default("hourly").OverrideDefaultFromEnvar("KATO_RUN_PKT_BILLING").
+		Default("hourly").OverrideDefaultFromEnvar("KATO_PKT_RUN_BILLING").
 		Short('b').Enum("hourly", "monthly")
 )
