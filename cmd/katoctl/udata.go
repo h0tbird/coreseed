@@ -34,7 +34,7 @@ var (
 	flUdataRole = cmdUdata.Flag("role", "Choose one of [ master | worker | edge ]").
 			Required().PlaceHolder("KATO_UDATA_ROLE").
 			OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
-			Short('r').HintOptions("master", "worker", "edge").String()
+			Short('r').Enum("master", "worker", "edge")
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key", "NS1 private API key.").
 				Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
@@ -71,14 +71,16 @@ var (
 				Default("10.128.7.224").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
 				Short('x').String()
 
-	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend", "Flannel backend: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-				Default("vxlan").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
-				HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
+	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend",
+		"Flannel backend: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
+		Default("vxlan").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
+		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
-	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver", "REX-Ray storage driver: [ ec2 | virtualbox ]").
-					PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").
-					OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
-					HintOptions("virtualbox", "ec2").String()
+	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver",
+		"REX-Ray storage driver: [ ec2 | virtualbox ]").
+		PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").
+		OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
+		Enum("virtualbox", "ec2")
 
 	flUdataRexrayEndpointIP = cmdUdata.Flag("rexray-endpoint-ip", "REX-Ray endpoint IP address.").
 				PlaceHolder("KATO_UDATA_REXRAY_ENDPOINT_IP").
@@ -88,5 +90,5 @@ var (
 	flUdataEc2Region = cmdUdata.Flag("ec2-region", "EC2 region.").
 				Default("eu-west-1").PlaceHolder("KATO_UDATA_EC2_REGION").
 				OverrideDefaultFromEnvar("KATO_UDATA_EC2_REGION").
-				String()
+				Enum(ec2Regions...)
 )

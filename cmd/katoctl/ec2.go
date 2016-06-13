@@ -6,6 +6,21 @@ package main
 
 var (
 
+	//------------------------------------
+	// List of EC2 instances and regions:
+	//------------------------------------
+
+	ec2Instances = []string{
+		"c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c3.large", "c3.xlarge", "cc2.8xlarge",
+		"cg1.4xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge", "d2.xlarge", "g2.2xlarge",
+		"g2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge",
+		"i2.xlarge", "m3.2xlarge", "m3.large", "m3.medium", "m3.xlarge", "r3.2xlarge",
+		"r3.4xlarge", "r3.8xlarge", "r3.large", "r3.xlarge", "x1.32xlarge"}
+
+	ec2Regions = []string{
+		"us-east-1", "us-west-1", "us-west-2", "eu-west-1", "eu-central-1", "ap-northeast-1",
+		"ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "sa-east-1"}
+
 	//------------------------
 	// ec2: top level command
 	//------------------------
@@ -39,21 +54,21 @@ var (
 				Short('e').Int()
 
 	flEc2DeployMasterType = cmdEc2Deploy.Flag("master-type", "EC2 master instance type.").
-				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
-				String()
+				Default("m3.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_MASTER_TYPE").
+				Enum(ec2Instances...)
 
 	flEc2DeployWorkerType = cmdEc2Deploy.Flag("worker-type", "EC2 worker instance type.").
-				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_WORKER_TYPE").
-				String()
+				Default("m3.large").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_WORKER_TYPE").
+				Enum(ec2Instances...)
 
 	flEc2DeployEdgeType = cmdEc2Deploy.Flag("edge-type", "EC2 edge instance type.").
-				Default("t2.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
-				String()
+				Default("m3.medium").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_EDGE_TYPE").
+				Enum(ec2Instances...)
 
 	flEc2DeployChannel = cmdEc2Deploy.Flag("channel", "CoreOS release channel [ stable | beta | alpha ]").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_CHANNEL").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_CHANNEL").
-				HintOptions("stable", "beta", "alpha").String()
+				Enum("stable", "beta", "alpha")
 
 	flEc2DeployEtcdToken = cmdEc2Deploy.Flag("etcd-token", "Etcd bootstrap token [ auto | <token> ]").
 				Default("auto").OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ETCD_TOKEN").
@@ -72,12 +87,12 @@ var (
 	flEc2DeployRegion = cmdEc2Deploy.Flag("region", "Amazon EC2 region.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_REGION").
 				OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_REGION").
-				Short('r').String()
+				Short('r').Enum(ec2Regions...)
 
 	flEc2DeployZone = cmdEc2Deploy.Flag("zone", "Amazon EC2 availability zone.").
 			Required().PlaceHolder("KATO_DEPLOY_EC2_ZONE").
 			OverrideDefaultFromEnvar("KATO_DEPLOY_EC2_ZONE").
-			String()
+			Enum("a", "b", "c", "d")
 
 	flEc2DeployDomain = cmdEc2Deploy.Flag("domain", "Used to identify the VPC.").
 				Required().PlaceHolder("KATO_DEPLOY_EC2_DOMAIN").
@@ -117,9 +132,10 @@ var (
 					Default("10.128.7.224").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_SUBNET_MAX").
 					String()
 
-	flEc2DeployFlannelBackend = cmdEc2Deploy.Flag("flannel-backend", "Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-					Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
-					HintOptions("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc").String()
+	flEc2DeployFlannelBackend = cmdEc2Deploy.Flag("flannel-backend",
+		"Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
+		Default("vxlan").OverrideDefaultFromEnvar("KATO_DEPLOY_FLANNEL_BACKEND").
+		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
 	//---------------------------
 	// ec2 setup: nested command
@@ -140,12 +156,12 @@ var (
 	flEc2SetupRegion = cmdEc2Setup.Flag("region", "EC2 region.").
 				Required().PlaceHolder("KATO_SETUP_EC2_REGION").
 				OverrideDefaultFromEnvar("KATO_SETUP_EC2_REGION").
-				Short('r').String()
+				Short('r').Enum(ec2Regions...)
 
 	flEc2SetupZone = cmdEc2Setup.Flag("zone", "EC2 availability zone.").
 			Required().PlaceHolder("KATO_SETUP_EC2_ZONE").
 			OverrideDefaultFromEnvar("KATO_SETUP_EC2_ZONE").
-			Short('z').String()
+			Short('z').Enum("a", "b", "c", "d")
 
 	flEc2SetupVpcCidrBlock = cmdEc2Setup.Flag("vpc-cidr-block", "IPs to be used by the VPC.").
 				Default("10.0.0.0/16").OverrideDefaultFromEnvar("KATO_SETUP_EC2_VPC_CIDR_BLOCK").
@@ -173,7 +189,7 @@ var (
 	flEc2AddRole = cmdEc2Add.Flag("role", "New instance role [ master | worker | edge ]").
 			Required().PlaceHolder("KATO_EC2_ADD_ROLE").
 			OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
-			HintOptions("master", "worker", "edge").String()
+			Enum("master", "worker", "edge")
 
 	flEc2AddHostID = cmdEc2Add.Flag("host-id", "New instance host ID.").
 			Required().PlaceHolder("KATO_EC2_ADD_HOST_ID").
@@ -199,12 +215,12 @@ var (
 	flEc2RunRegion = cmdEc2Run.Flag("region", "EC2 region.").
 			Required().PlaceHolder("KATO_RUN_EC2_REGION").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_REGION").
-			Short('r').String()
+			Short('r').Enum(ec2Regions...)
 
 	flEc2RunZone = cmdEc2Run.Flag("zone", "EC2 availability zone.").
 			Required().PlaceHolder("KATO_RUN_EC2_ZONE").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_ZONE").
-			Short('z').String()
+			Short('z').Enum("a", "b", "c", "d")
 
 	flEc2RunAmiID = cmdEc2Run.Flag("ami-id", "EC2 AMI ID.").
 			Required().PlaceHolder("KATO_RUN_EC2_AMI_ID").
@@ -214,7 +230,7 @@ var (
 	flEc2RunInsType = cmdEc2Run.Flag("instance-type", "EC2 instance type.").
 			Required().PlaceHolder("KATO_RUN_EC2_INSTANCE_TYPE").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_INSTANCE_TYPE").
-			Short('t').String()
+			Short('t').Enum(ec2Instances...)
 
 	flEc2RunKeyPair = cmdEc2Run.Flag("key-pair", "EC2 key pair.").
 			Required().PlaceHolder("KATO_RUN_EC2_KEY_PAIR").
@@ -233,13 +249,13 @@ var (
 
 	flEc2RunPublicIP = cmdEc2Run.Flag("public-ip", "Allocate a public IP [ true | false | elastic ]").
 				Default("false").OverrideDefaultFromEnvar("KATO_RUN_EC2_PUBLIC_IP").
-				HintOptions("true", "false", "elastic").String()
+				Enum("true", "false", "elastic")
 
 	flEc2RunIAMRole = cmdEc2Run.Flag("iam-role", "IAM role [ master | worker | edge ]").
 			OverrideDefaultFromEnvar("KATO_RUN_EC2_IAM_ROLE").
-			HintOptions("master", "worker", "edge").String()
+			Enum("master", "worker", "edge")
 
 	flEc2RunSrcDstCheck = cmdEc2Run.Flag("source-dest-check", " [ true | false ]").
 				Default("true").OverrideDefaultFromEnvar("KATO_RUN_EC2_SOURCE_DEST_CHECK").
-				HintOptions("true", "false").String()
+				Enum("true", "false")
 )
