@@ -13,6 +13,7 @@ import (
 	// Local:
 	"github.com/h0tbird/kato/providers/cloud/ec2"
 	"github.com/h0tbird/kato/providers/cloud/pkt"
+	"github.com/h0tbird/kato/providers/dns/ns1"
 	"github.com/h0tbird/kato/udata"
 
 	// Community:
@@ -239,6 +240,21 @@ func main() {
 		udata, err := readUdata()
 		checkError(err)
 		err = ec2.Run(udata)
+		checkError(err)
+
+	//----------------------
+	// katoctl ns1 zone add
+	//----------------------
+
+	case cmdNs1ZoneAdd.FullCommand():
+
+		ns1 := ns1.Data{
+			APIKey: *flNs1APIKey,
+			Link:   *flNs1ZoneAddLink,
+			Zones:  *arNs1ZoneAddName,
+		}
+
+		err := ns1.AddZones()
 		checkError(err)
 	}
 }
