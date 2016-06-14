@@ -1,6 +1,20 @@
 package main
 
 //-----------------------------------------------------------------------------
+// Package factored import statement:
+//-----------------------------------------------------------------------------
+
+import (
+
+	// Stdlib:
+	"fmt"
+	"regexp"
+
+	// Community:
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+//-----------------------------------------------------------------------------
 // 'katoctl ec2' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -34,11 +48,10 @@ var (
 	cmdEc2Deploy = cmdEc2.Command("deploy",
 		"Deploy Kato's infrastructure on Amazon EC2.")
 
-	flEc2DeployClusterID = cmdEc2Deploy.Flag("cluster-id",
+	flEc2DeployClusterID = ClusterID(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID").
-		String()
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"))
 
 	flEc2DeployMasterCount = cmdEc2Deploy.Flag("master-count",
 		"Number of master nodes to deploy [ 1 | 3 | 5 ]").
@@ -176,11 +189,10 @@ var (
 	cmdEc2Setup = cmdEc2.Command("setup",
 		"Setup an EC2 VPC and all the related components.")
 
-	flEc2SetupClusterID = cmdEc2Setup.Flag("cluster-id",
+	flEc2SetupClusterID = ClusterID(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_SETUP_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID").
-		String()
+		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"))
 
 	flEc2SetupDomain = cmdEc2Setup.Flag("domain",
 		"Used to identify the VPC..").
@@ -224,11 +236,10 @@ var (
 
 	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
 
-	flEc2AddCluserID = cmdEc2Add.Flag("cluster-id",
+	flEc2AddCluserID = ClusterID(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID").
-		String()
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"))
 
 	flEc2AddRole = cmdEc2Add.Flag("role",
 		"New instance role [ master | worker | edge ]").
@@ -317,3 +328,29 @@ var (
 		Default("true").OverrideDefaultFromEnvar("KATO_EC2_RUN_SOURCE_DEST_CHECK").
 		Enum("true", "false")
 )
+
+//-----------------------------------------------------------------------------
+// Cluster ID custom parser:
+//-----------------------------------------------------------------------------
+
+type ClusterIDValue string
+
+func (id *ClusterIDValue) Set(value string) error {
+
+	if match, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", value); !match {
+		return fmt.Errorf("--cluster-id must match ^[a-zA-Z0-9_-]+$")
+	}
+
+	id = (*ClusterIDValue)(&value)
+	return nil
+}
+
+func (id *ClusterIDValue) String() string {
+	return string(*id)
+}
+
+func ClusterID(s kingpin.Settings) (target *string) {
+	target = new(string)
+	s.SetValue((*ClusterIDValue)(target))
+	return
+}
