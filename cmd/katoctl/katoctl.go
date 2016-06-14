@@ -11,8 +11,8 @@ import (
 	"os"
 
 	// Local:
-	"github.com/h0tbird/kato/providers/ec2"
-	"github.com/h0tbird/kato/providers/pkt"
+	"github.com/h0tbird/kato/providers/cloud/ec2"
+	"github.com/h0tbird/kato/providers/cloud/pkt"
 	"github.com/h0tbird/kato/udata"
 
 	// Community:
