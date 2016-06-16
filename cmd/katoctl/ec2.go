@@ -48,10 +48,10 @@ var (
 	cmdEc2Deploy = cmdEc2.Command("deploy",
 		"Deploy Kato's infrastructure on Amazon EC2.")
 
-	flEc2DeployClusterID = ClusterID(cmdEc2Deploy.Flag("cluster-id",
+	flEc2DeployClusterID = RegexpMatch(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"))
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
 
 	flEc2DeployMasterCount = cmdEc2Deploy.Flag("master-count",
 		"Number of master nodes to deploy [ 1 | 3 | 5 ]").
@@ -189,10 +189,10 @@ var (
 	cmdEc2Setup = cmdEc2.Command("setup",
 		"Setup an EC2 VPC and all the related components.")
 
-	flEc2SetupClusterID = ClusterID(cmdEc2Setup.Flag("cluster-id",
+	flEc2SetupClusterID = RegexpMatch(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_SETUP_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"))
+		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
 
 	flEc2SetupDomain = cmdEc2Setup.Flag("domain",
 		"Used to identify the VPC..").
@@ -236,10 +236,10 @@ var (
 
 	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
 
-	flEc2AddCluserID = ClusterID(cmdEc2Add.Flag("cluster-id",
+	flEc2AddCluserID = RegexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"))
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
 
 	flEc2AddRole = cmdEc2Add.Flag("role",
 		"New instance role [ master | worker | edge ]").
@@ -330,27 +330,31 @@ var (
 )
 
 //-----------------------------------------------------------------------------
-// Cluster ID custom parser:
+// Regular expression custom parser:
 //-----------------------------------------------------------------------------
 
-type ClusterIDValue string
+type RegexpMatchValue struct {
+	value  string
+	regexp string
+}
 
-func (id *ClusterIDValue) Set(value string) error {
+func (id *RegexpMatchValue) Set(value string) error {
 
-	if match, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", value); !match {
-		return fmt.Errorf("--cluster-id must match ^[a-zA-Z0-9_-]+$")
+	if match, _ := regexp.MatchString(id.regexp, value); !match {
+		return fmt.Errorf("Must match " + id.regexp)
 	}
 
-	id = (*ClusterIDValue)(&value)
+	id.value = value
 	return nil
 }
 
-func (id *ClusterIDValue) String() string {
-	return string(*id)
+func (id *RegexpMatchValue) String() string {
+	return id.value
 }
 
-func ClusterID(s kingpin.Settings) (target *string) {
-	target = new(string)
-	s.SetValue((*ClusterIDValue)(target))
-	return
+func RegexpMatch(s kingpin.Settings, regexp string) *string {
+	target := &RegexpMatchValue{}
+	target.regexp = regexp
+	s.SetValue(target)
+	return &target.value
 }
