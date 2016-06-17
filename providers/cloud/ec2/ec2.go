@@ -246,10 +246,16 @@ func (d *Data) Add() error {
 //-----------------------------------------------------------------------------
 
 // Run uses EC2 API to launch a new instance.
-func (d *Data) Run(udata []byte) error {
+func (d *Data) Run() error {
 
 	// Set current command:
 	d.command = "run"
+
+	// Read udata from stdin:
+	udata, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
 
 	// Connect and authenticate to the API endpoint:
 	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))

@@ -7,7 +7,6 @@ package main
 import (
 
 	// Stdlib:
-	"io/ioutil"
 	"os"
 
 	// Local:
@@ -120,9 +119,7 @@ func main() {
 			Billing:   *flPktRunBilling,
 		}
 
-		udata, err := readUdata()
-		checkError(err)
-		err = pkt.Run(udata)
+		err := pkt.Run()
 		checkError(err)
 
 	//--------------------
@@ -227,9 +224,7 @@ func main() {
 			},
 		}
 
-		udata, err := readUdata()
-		checkError(err)
-		err = ec2.Run(udata)
+		err := ec2.Run()
 		checkError(err)
 
 	//----------------------
@@ -247,17 +242,6 @@ func main() {
 		err := ns1.AddZones()
 		checkError(err)
 	}
-}
-
-//--------------------------------------------------------------------------
-// func: readUdata
-//--------------------------------------------------------------------------
-
-func readUdata() ([]byte, error) {
-
-	// Read data from stdin:
-	udata, err := ioutil.ReadAll(os.Stdin)
-	return udata, err
 }
 
 //---------------------------------------------------------------------------

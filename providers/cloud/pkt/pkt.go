@@ -8,6 +8,8 @@ import (
 
 	// Stdlib:
 	"fmt"
+	"io/ioutil"
+	"os"
 
 	// Community:
 	"github.com/packethost/packngo"
@@ -51,7 +53,13 @@ func (d *Data) Setup() error {
 //--------------------------------------------------------------------------
 
 // Run uses Packet.net API to launch a new server.
-func (d *Data) Run(udata []byte) error {
+func (d *Data) Run() error {
+
+	// Read udata from stdin:
+	udata, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
 
 	// Connect and authenticate to the API endpoint:
 	client := packngo.NewClient("", d.APIKey, nil)
