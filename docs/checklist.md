@@ -20,11 +20,8 @@ curl -sX POST http://master.mesos:5050/master/teardown -d 'frameworkId=aaaaaaaa-
 
 ###### **PROBLEM:** *Containers on one worker are unable to ping containers on other workers.*
 
-This is most likely to be a *docker*-*fleet* communication problem. Was *fleet* up and running at the time *docker* started?
-Run this command to check the IP address assigned by *fleet* to the *docker0* bridge:
+This is most likely to be a *docker*-*fleet* communication problem. Was *fleet* up and running at the time *docker* started? Run the command below to check whether the IP address assigned by *fleet* to the *docker0* bridge is within the range managed by *fleet* and restart *docker* otherwise:
 
 ```
 loopssh ip r | grep docker0
 ```
-
-Restart *docker* if the IP address is not within the range managed by *fleet*.
