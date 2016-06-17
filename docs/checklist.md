@@ -13,11 +13,6 @@ loopssh df -h /
 loopssh cat /etc/os-release | grep VERSION=
 ```
 
-###### **CHECK:** *CoreOS version.*
-```
-loopssh cat /etc/os-release | grep VERSION=
-```
-
 ###### **CHECK:** *Summary of running containers (not realtime).*
 ```
 for i in $(etcdctl ls /docker/images); do etcdctl get $i; done | sort | uniq -c | sort -n
@@ -35,7 +30,9 @@ This is not really an error, you can:
 Try to teardown the unexpected framework ID:
 
 ```
-curl -sX POST http://master.mesos:5050/master/teardown -d 'frameworkId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffff'
+curl \
+  -sX POST http://master.mesos:5050/master/teardown \
+  -d 'frameworkId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffff'
 ```
 
 ###### **PROBLEM:** *Containers on one worker are unable to ping containers on the other workers.*
