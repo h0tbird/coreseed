@@ -90,10 +90,10 @@ eval "$(katoctl --completion-script-${0#-})"
 
 |:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|:x:|
 |---|---|---|---|---|---|
-|[Vagrant](https://github.com/h0tbird/kato/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/kato/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/kato/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
+|[Vagrant](https://github.com/h0tbird/kato/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/kato/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/kato/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
 
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<ns1-managed-public-domain>
