@@ -17,10 +17,10 @@ export KATO_EDGE_COUNT=0
 ```
 
 #### Everyone
-Export your *NS1* private API key and your managed public domain:
+Export your *NS1* private API key (optional) and your managed public domain:
 ```bash
-export KATO_NS1_API_KEY='<your-ns1-api-key>'
-export KATO_DOMAIN='<your-ns1-managed-public-domain>'
+export KATO_NS1_API_KEY='<ns1-api-key>'
+export KATO_DOMAIN='<ns1-managed-public-domain>'
 ```
 
 Find below other options and its default values:
@@ -31,14 +31,16 @@ export KATO_EDGE_COUNT=0
 export KATO_MASTER_CPUS=1
 export KATO_MASTER_MEMORY=1024
 export KATO_WORKER_CPUS=2
-export KATO_WORKER_MEMORY=2048
+export KATO_WORKER_MEMORY=4096
 export KATO_EDGE_CPUS=1
 export KATO_EDGE_MEMORY=512
-export KATO_COREOS_CHANNEL=alpha
+export KATO_VERSION=v0.1.0-alpha
+export KATO_COREOS_CHANNEL=stable
 export KATO_COREOS_VERSION=current
 export KATO_NS1_API_KEY=x
 export KATO_DOMAIN=cell-1.dc-1.demo.lan
 export KATO_CA_CERT=''
+export KATO_CODE_PATH=~/git/
 ```
 
 #### Start and connect
