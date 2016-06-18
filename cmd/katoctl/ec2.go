@@ -48,7 +48,7 @@ var (
 	cmdEc2Deploy = cmdEc2.Command("deploy",
 		"Deploy Kato's infrastructure on Amazon EC2.")
 
-	flEc2DeployClusterID = RegexpMatch(cmdEc2Deploy.Flag("cluster-id",
+	flEc2DeployClusterID = regexpMatch(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
@@ -189,7 +189,7 @@ var (
 	cmdEc2Setup = cmdEc2.Command("setup",
 		"Setup an EC2 VPC and all the related components.")
 
-	flEc2SetupClusterID = RegexpMatch(cmdEc2Setup.Flag("cluster-id",
+	flEc2SetupClusterID = regexpMatch(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_SETUP_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
@@ -236,7 +236,7 @@ var (
 
 	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
 
-	flEc2AddCluserID = RegexpMatch(cmdEc2Add.Flag("cluster-id",
+	flEc2AddCluserID = regexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
@@ -333,12 +333,12 @@ var (
 // Regular expression custom parser:
 //-----------------------------------------------------------------------------
 
-type RegexpMatchValue struct {
+type regexpMatchValue struct {
 	value  string
 	regexp string
 }
 
-func (id *RegexpMatchValue) Set(value string) error {
+func (id *regexpMatchValue) Set(value string) error {
 
 	if match, _ := regexp.MatchString(id.regexp, value); !match {
 		return fmt.Errorf("Must match " + id.regexp)
@@ -348,12 +348,12 @@ func (id *RegexpMatchValue) Set(value string) error {
 	return nil
 }
 
-func (id *RegexpMatchValue) String() string {
+func (id *regexpMatchValue) String() string {
 	return id.value
 }
 
-func RegexpMatch(s kingpin.Settings, regexp string) *string {
-	target := &RegexpMatchValue{}
+func regexpMatch(s kingpin.Settings, regexp string) *string {
+	target := &regexpMatchValue{}
 	target.regexp = regexp
 	s.SetValue(target)
 	return &target.value
