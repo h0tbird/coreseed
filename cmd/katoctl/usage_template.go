@@ -1,6 +1,6 @@
 package main
 
-var UsageTemplate = `{{define "FormatCommand"}}\
+var usageTemplate = `{{define "FormatCommand"}}\
 {{if .FlagSummary}} {{.FlagSummary}}{{end}}\
 {{range .Args}} {{if not .Required}}[{{end}}<{{.Name}}>{{if .Value|IsCumulative}}...{{end}}{{if not .Required}}]{{end}}{{end}}\
 {{end}}\

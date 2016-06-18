@@ -36,7 +36,7 @@ func init() {
 
 	// Customize kingpin:
 	app.Version("v0.1.0-beta").Author("Marc Villacorta Morera")
-	app.UsageTemplate(UsageTemplate)
+	app.UsageTemplate(usageTemplate)
 	app.HelpFlag.Short('h')
 
 	// Customize the default logger:
