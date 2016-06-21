@@ -31,5 +31,23 @@ var (
 		"Links the added zone to the link zone.").String()
 
 	arNs1ZoneAddName = cmdNs1ZoneAdd.Arg("fqdn",
-		"List of zones to publish").Strings()
+		"List of zones to publish").Required().Strings()
+
+	//----------------------------
+	// ns1 record: nested command
+	//----------------------------
+
+	cmdNs1Record = cmdNs1.Command("record", "Manage NS1 records.")
+
+	//--------------------------------
+	// ns1 record add: nested command
+	//--------------------------------
+
+	cmdNs1RecordAdd = cmdNs1Record.Command("add", "Adds records to NS1 zones.")
+
+	flNs1RecordAddZone = cmdNs1RecordAdd.Flag("zone",
+		"DNS zone where records are added.").Required().String()
+
+	arNs1RecordAddName = cmdNs1RecordAdd.Arg("record",
+		"List of records to publish").Required().Strings()
 )

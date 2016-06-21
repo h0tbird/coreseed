@@ -241,6 +241,21 @@ func main() {
 
 		err := ns1.AddZones()
 		checkError(err)
+
+	//------------------------
+	// katoctl ns1 record add
+	//------------------------
+
+	case cmdNs1RecordAdd.FullCommand():
+
+		ns1 := ns1.Data{
+			APIKey:  *flNs1APIKey,
+			Zone:    *flNs1RecordAddZone,
+			Records: *arNs1RecordAddName,
+		}
+
+		err := ns1.AddRecords()
+		checkError(err)
 	}
 }
 
