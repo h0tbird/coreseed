@@ -6,9 +6,10 @@ package ns1
 
 import (
 
-	// Community:
+	// Stdlib:
 	"strings"
 
+	// Community:
 	log "github.com/Sirupsen/logrus"
 	"github.com/bobtfish/go-nsone-api"
 )
