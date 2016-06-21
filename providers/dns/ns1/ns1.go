@@ -100,23 +100,35 @@ Record:
 
 		// New record handler:
 		s := strings.Split(e, ":")
-		r := nsone.NewRecord(d.Zone, s[2]+"."+d.Zone, s[1])
-		r.Answers = make([]nsone.Answer, 1)
-		r.Answers[0] = nsone.NewAnswer()
-		r.Answers[0].Answer = []string{s[0]}
+		r1 := nsone.NewRecord(d.Zone, s[2]+"."+d.Zone, s[1])
+		r1.Answers = make([]nsone.Answer, 1)
+		r1.Answers[0] = nsone.NewAnswer()
+		r1.Answers[0].Answer = []string{s[0]}
 
-		// Continue if already exists:
-		if _, err := api.GetRecord(d.Zone, s[2]+"."+d.Zone, s[1]); err == nil {
+		// Attempt to retrieve an existing record:
+		r2, err := api.GetRecord(d.Zone, s[2]+"."+d.Zone, s[1])
+		if err != nil {
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Error(err)
+			return err
+		}
+
+		// Compare and continue:
+		if r1.Domain == r2.Domain {
 			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
 				Info("Using existing DNS record")
 			continue Record
 		}
 
 		// Send the new record request:
-		err := api.CreateRecord(r)
+		err = api.CreateRecord(r1)
 		if err != nil {
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Error(err)
 			return err
 		}
+
+		// Log record creation:
+		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
+			Info("New DNS record created")
 	}
 
 	return nil
