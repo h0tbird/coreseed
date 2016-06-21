@@ -49,5 +49,6 @@ var (
 		"DNS zone where records are added.").Required().String()
 
 	arNs1RecordAddName = cmdNs1RecordAdd.Arg("record",
-		"List of records to publish").Required().Strings()
+		"List of ip:type:dns records.").
+		Required().Strings()
 )

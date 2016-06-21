@@ -7,7 +7,9 @@ package main
 import (
 
 	// Stdlib:
+	"fmt"
 	"os"
+	"regexp"
 
 	// Local:
 	"github.com/h0tbird/kato/providers/cloud/ec2"
@@ -257,6 +259,37 @@ func main() {
 		err := ns1.AddRecords()
 		checkError(err)
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Regular expression custom parser:
+//-----------------------------------------------------------------------------
+
+type regexpMatchValue struct {
+	value  string
+	regexp string
+}
+
+func (id *regexpMatchValue) Set(value string) error {
+
+	if match, _ := regexp.MatchString(id.regexp, value); !match {
+		log.WithField("value", value).Error("Value must match: " + id.regexp)
+		return fmt.Errorf("Must match " + id.regexp)
+	}
+
+	id.value = value
+	return nil
+}
+
+func (id *regexpMatchValue) String() string {
+	return id.value
+}
+
+func regexpMatch(s kingpin.Settings, regexp string) *string {
+	target := &regexpMatchValue{}
+	target.regexp = regexp
+	s.SetValue(target)
+	return &target.value
 }
 
 //---------------------------------------------------------------------------

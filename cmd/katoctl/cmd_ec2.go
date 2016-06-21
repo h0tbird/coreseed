@@ -1,20 +1,6 @@
 package main
 
 //-----------------------------------------------------------------------------
-// Package factored import statement:
-//-----------------------------------------------------------------------------
-
-import (
-
-	// Stdlib:
-	"fmt"
-	"regexp"
-
-	// Community:
-	"gopkg.in/alecthomas/kingpin.v2"
-)
-
-//-----------------------------------------------------------------------------
 // 'katoctl ec2' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -328,33 +314,3 @@ var (
 		Default("true").OverrideDefaultFromEnvar("KATO_EC2_RUN_SOURCE_DEST_CHECK").
 		Enum("true", "false")
 )
-
-//-----------------------------------------------------------------------------
-// Regular expression custom parser:
-//-----------------------------------------------------------------------------
-
-type regexpMatchValue struct {
-	value  string
-	regexp string
-}
-
-func (id *regexpMatchValue) Set(value string) error {
-
-	if match, _ := regexp.MatchString(id.regexp, value); !match {
-		return fmt.Errorf("Must match " + id.regexp)
-	}
-
-	id.value = value
-	return nil
-}
-
-func (id *regexpMatchValue) String() string {
-	return id.value
-}
-
-func regexpMatch(s kingpin.Settings, regexp string) *string {
-	target := &regexpMatchValue{}
-	target.regexp = regexp
-	s.SetValue(target)
-	return &target.value
-}
