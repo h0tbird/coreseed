@@ -35,7 +35,7 @@ Subcommands:
 
 #### Deploy
 
-If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored:
+If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
 
 ```bash
 katoctl ec2 deploy \
@@ -49,7 +49,7 @@ katoctl ec2 deploy \
 ```
 
 #### Add more workers
-Adding a third worker is as easy as running:
+The state file is read by `katoctl ec2 add`, adding a third worker is as easy as running:
 ```bash
 katoctl ec2 add \
   --cluster-id <unique-cluster-id> \
