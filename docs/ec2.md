@@ -10,7 +10,7 @@ Before you start make sure:
 
 *Káto* can be deployed on *EC2* via the `katoctl ec2` provider.
 
-´´´
+```
 usage: katoctl ec2 <command> [<args> ...]
 
 This is the Káto EC2 provider.
@@ -31,7 +31,7 @@ Subcommands:
 
   ec2 run
     Starts a CoreOS instance on Amazon EC2.
-´´´
+```
 
 #### Deploy
 
