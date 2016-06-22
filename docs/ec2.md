@@ -6,9 +6,36 @@ Before you start make sure:
 - You have AWS credentials in `~/.aws/credentials` ([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
 - You have permissions to manage `EC2` and `VPC` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
+#### The EC2 provider
+
+*Káto* can be deployed on *EC2* via the `katoctl ec2` provider.
+
+´´´
+usage: katoctl ec2 <command> [<args> ...]
+
+This is the Káto EC2 provider.
+
+Flags:
+  -h, --help     Show context-sensitive help (also try --help-long and --help-man).
+      --version  Show application version.
+
+Subcommands:
+  ec2 deploy
+    Deploy Káto's infrastructure on Amazon EC2.
+
+  ec2 setup
+    Setup IAM, VPC and EC2 components.
+
+  ec2 add
+    Adds a new instance to a Káto cluster on EC2.
+
+  ec2 run
+    Starts a CoreOS instance on Amazon EC2.
+´´´
+
 #### Deploy
 
-If you want to reuse existing EBS volumes you must target the EC2 `--region` and `--zone` where your volumes are stored:
+If you want to reuse existing *EBS* volumes you must target the *EC2* `--region` and `--zone` where your volumes are stored:
 
 ```bash
 katoctl ec2 deploy \
@@ -22,7 +49,7 @@ katoctl ec2 deploy \
 ```
 
 #### Add more workers
-Adding the third worker is as easy as running:
+Adding a third worker is as easy as running:
 ```bash
 katoctl ec2 add \
   --cluster-id <unique-cluster-id> \

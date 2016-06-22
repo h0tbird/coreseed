@@ -25,14 +25,14 @@ var (
 	// ec2: top level command
 	//------------------------
 
-	cmdEc2 = app.Command("ec2", "Kato's EC2 provider.")
+	cmdEc2 = app.Command("ec2", "This is the Káto EC2 provider.")
 
 	//----------------------------
 	// ec2 deploy: nested command
 	//----------------------------
 
 	cmdEc2Deploy = cmdEc2.Command("deploy",
-		"Deploy Kato's infrastructure on Amazon EC2.")
+		"Deploy Káto's infrastructure on Amazon EC2.")
 
 	flEc2DeployClusterID = regexpMatch(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
@@ -173,7 +173,7 @@ var (
 	//---------------------------
 
 	cmdEc2Setup = cmdEc2.Command("setup",
-		"Setup an EC2 VPC and all the related components.")
+		"Setup IAM, VPC and EC2 components.")
 
 	flEc2SetupClusterID = regexpMatch(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
@@ -220,7 +220,7 @@ var (
 	// ec2 add: nested command
 	//-------------------------
 
-	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to Káto.")
+	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to a Káto cluster on EC2.")
 
 	flEc2AddCluserID = regexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
