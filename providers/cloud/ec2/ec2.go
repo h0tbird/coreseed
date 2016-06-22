@@ -118,8 +118,9 @@ func (d *Data) Deploy() error {
 	var wg sync.WaitGroup
 
 	// Setup the environment (I):
-	wg.Add(3)
+	wg.Add(4)
 	go d.environmentSetup(&wg)
+	go d.createDNSZones(&wg)
 	go d.retrieveEtcdToken(&wg)
 	go d.retrieveCoreosAmiID(&wg)
 	wg.Wait()
@@ -325,6 +326,49 @@ func (d *Data) Setup() error {
 	}
 
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: createDNSZones
+//-----------------------------------------------------------------------------
+
+func (d *Data) createDNSZones(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
+
+	// Return if no API key is provided:
+	if d.Ns1ApiKey == "" {
+		return
+	}
+
+	// Forge the zone command:
+	cmdZoneSetup := exec.Command("katoctl", "ns1",
+		"--api-key", d.Ns1ApiKey,
+		"zone", "add",
+		"int."+d.Domain,
+		"ext."+d.Domain)
+
+	// Execute the zone command:
+	cmdZoneSetup.Stderr = os.Stderr
+	if err := cmdZoneSetup.Run(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		os.Exit(1)
+	}
+
+	// Forge the linked zone command:
+	cmdLinkedZoneSetup := exec.Command("katoctl", "ns1",
+		"--api-key", d.Ns1ApiKey,
+		"zone", "add",
+		"--link", "int."+d.Domain,
+		d.Domain)
+
+	// Execute the linked zone command:
+	cmdLinkedZoneSetup.Stderr = os.Stderr
+	if err := cmdLinkedZoneSetup.Run(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		os.Exit(1)
+	}
 }
 
 //-----------------------------------------------------------------------------
