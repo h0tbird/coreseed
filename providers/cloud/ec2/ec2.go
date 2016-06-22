@@ -119,7 +119,7 @@ func (d *Data) Deploy() error {
 
 	// Setup the environment (I):
 	wg.Add(4)
-	go d.environmentSetup(&wg)
+	go d.setupEnvironment(&wg)
 	go d.createDNSZones(&wg)
 	go d.retrieveEtcdToken(&wg)
 	go d.retrieveCoreosAmiID(&wg)
@@ -156,7 +156,7 @@ func (d *Data) Add() error {
 		return err
 	}
 
-	// Discover CoreOS AMI:
+	// Discover CoreOS AMI (for standalone runs):
 	if d.AmiID == "" {
 		d.retrieveCoreosAmiID(nil)
 	}
@@ -372,10 +372,10 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: environmentSetup
+// func: setupEnvironment
 //-----------------------------------------------------------------------------
 
-func (d *Data) environmentSetup(wg *sync.WaitGroup) {
+func (d *Data) setupEnvironment(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -736,17 +736,17 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 	}
 
 	// Setup master nodes firewall:
-	if err := d.masterFirewall(); err != nil {
+	if err := d.firewallMaster(); err != nil {
 		os.Exit(1)
 	}
 
 	// Setup worker nodes firewall:
-	if err := d.workerFirewall(); err != nil {
+	if err := d.firewallWorker(); err != nil {
 		os.Exit(1)
 	}
 
 	// Setup edge nodes firewall:
-	if err := d.edgeFirewall(); err != nil {
+	if err := d.firewallEdge(); err != nil {
 		os.Exit(1)
 	}
 }
@@ -1457,10 +1457,10 @@ func (d *Data) createSecurityGroups() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: masterFirewall
+// func: firewallMaster
 //-----------------------------------------------------------------------------
 
-func (d *Data) masterFirewall() error {
+func (d *Data) firewallMaster() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
@@ -1497,10 +1497,10 @@ func (d *Data) masterFirewall() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: workerFirewall
+// func: firewallWorker
 //-----------------------------------------------------------------------------
 
-func (d *Data) workerFirewall() error {
+func (d *Data) firewallWorker() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
@@ -1557,10 +1557,10 @@ func (d *Data) workerFirewall() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: edgeFirewall
+// func: firewallEdge
 //-----------------------------------------------------------------------------
 
-func (d *Data) edgeFirewall() error {
+func (d *Data) firewallEdge() error {
 
 	// Forge the rule request:
 	params := &ec2.AuthorizeSecurityGroupIngressInput{
