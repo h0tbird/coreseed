@@ -117,19 +117,19 @@ func (d *Data) Deploy() error {
 	// Setup a wait group:
 	var wg sync.WaitGroup
 
-	// Setup the environment:
+	// Setup the environment (I):
 	wg.Add(3)
 	go d.environmentSetup(&wg)
 	go d.retrieveEtcdToken(&wg)
 	go d.retrieveCoreosAmiID(&wg)
 	wg.Wait()
 
-	// Dump state to file:
+	// Dump state to file (II):
 	if err := d.dumpState(); err != nil {
 		return err
 	}
 
-	// Deploy all the nodes:
+	// Deploy all the nodes (III):
 	wg.Add(3)
 	go d.deployNodes("master", int(d.MasterCount), &wg)
 	go d.deployNodes("worker", int(d.WorkerCount), &wg)
