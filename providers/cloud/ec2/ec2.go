@@ -314,7 +314,7 @@ func (d *Data) Setup() error {
 
 	// Setup a wait group:
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(4)
 
 	// Setup VPC, IAM and EC2:
 	go d.setupVPCNetwork(&wg)
