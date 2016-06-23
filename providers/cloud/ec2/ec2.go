@@ -23,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/h0tbird/kato/katool"
 	"github.com/imdario/mergo"
@@ -36,6 +37,7 @@ import (
 type svc struct {
 	ec2 *ec2.EC2
 	iam *iam.IAM
+	elb *elb.ELB
 }
 
 // Instance data.
@@ -297,11 +299,13 @@ func (d *Data) Setup() error {
 	// Set current command:
 	d.command = "setup"
 
-	// Connect and authenticate to the API endpoints:
 	log.WithField("cmd", "ec2:"+d.command).
 		Info("Connecting to region " + d.Region)
+
+	// Connect and authenticate to the API endpoints:
 	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-	d.svc.iam = iam.New(session.New())
+	d.iam = iam.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
 	if err := d.createVpc(); err != nil {
@@ -316,6 +320,7 @@ func (d *Data) Setup() error {
 	go d.setupVPCNetwork(&wg)
 	go d.setupIAMSecurity(&wg)
 	go d.setupEC2Firewall(&wg)
+	go d.setupEC2LoadBalancer(&wg)
 
 	// Wait to proceed:
 	wg.Wait()
@@ -752,6 +757,16 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
+// func: setupEC2LoadBalancer
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupEC2LoadBalancer(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
+}
+
+//-----------------------------------------------------------------------------
 // func: createVpc
 //-----------------------------------------------------------------------------
 
@@ -1149,7 +1164,7 @@ func (d *Data) createRexrayPolicy() error {
 	}
 
 	// Send the listing request:
-	listRsp, err := d.svc.iam.ListPolicies(listPrms)
+	listRsp, err := d.iam.ListPolicies(listPrms)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1208,7 +1223,7 @@ func (d *Data) createRexrayPolicy() error {
 	}
 
 	// Send the policy request:
-	policyRsp, err := d.svc.iam.CreatePolicy(policyPrms)
+	policyRsp, err := d.iam.CreatePolicy(policyPrms)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1235,7 +1250,7 @@ func (d *Data) attachPolicyToRole(policy, role string) error {
 	}
 
 	// Send the attachement request:
-	_, err := d.svc.iam.AttachRolePolicy(params)
+	_, err := d.iam.AttachRolePolicy(params)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
@@ -1285,7 +1300,7 @@ func (d *Data) createIAMRoles() error {
 		}
 
 		// Send the role request:
-		resp, err := d.svc.iam.CreateRole(params)
+		resp, err := d.iam.CreateRole(params)
 		if err != nil {
 			if reqErr, ok := err.(awserr.RequestFailure); ok {
 				if reqErr.StatusCode() == 409 {
@@ -1343,7 +1358,7 @@ func (d *Data) createInstanceProfiles() {
 			}
 
 			// Send the profile request:
-			resp, err := d.svc.iam.CreateInstanceProfile(params)
+			resp, err := d.iam.CreateInstanceProfile(params)
 			if err != nil {
 				if reqErr, ok := err.(awserr.RequestFailure); ok {
 					if reqErr.StatusCode() == 409 {
@@ -1358,7 +1373,7 @@ func (d *Data) createInstanceProfiles() {
 			log.WithFields(log.Fields{"cmd": "ec2:" + d.command,
 				"id": *resp.InstanceProfile.InstanceProfileId}).
 				Info("Waiting until " + role + " profile exists")
-			if err := d.svc.iam.WaitUntilInstanceProfileExists(
+			if err := d.iam.WaitUntilInstanceProfileExists(
 				&iam.GetInstanceProfileInput{
 					InstanceProfileName: aws.String(role),
 				}); err != nil {
@@ -1388,7 +1403,7 @@ func (d *Data) addIAMRolesToInstanceProfiles() error {
 		}
 
 		// Send the addition request:
-		if _, err := d.svc.iam.AddRoleToInstanceProfile(params); err != nil {
+		if _, err := d.iam.AddRoleToInstanceProfile(params); err != nil {
 			if reqErr, ok := err.(awserr.RequestFailure); ok {
 				if reqErr.StatusCode() == 409 {
 					continue
