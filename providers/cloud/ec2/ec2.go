@@ -132,6 +132,9 @@ func (d *Data) Deploy() error {
 		return err
 	}
 
+	// DBG break:
+	os.Exit(0)
+
 	// Deploy all the nodes (III):
 	wg.Add(3)
 	go d.deployNodes("master", int(d.MasterCount), &wg)
@@ -314,15 +317,17 @@ func (d *Data) Setup() error {
 
 	// Setup a wait group:
 	var wg sync.WaitGroup
-	wg.Add(4)
 
-	// Setup VPC, IAM and EC2:
+	// Setup VPC and IAM:
+	wg.Add(2)
 	go d.setupVPCNetwork(&wg)
 	go d.setupIAMSecurity(&wg)
-	go d.setupEC2Firewall(&wg)
-	go d.setupEC2LoadBalancer(&wg)
+	wg.Wait()
 
-	// Wait to proceed:
+	// Setup the EC2 and ELB:
+	wg.Add(2)
+	go d.setupEC2Firewall(&wg)
+	go d.setupEC2Balancer(&wg)
 	wg.Wait()
 
 	// Dump state to file:
@@ -674,16 +679,17 @@ func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
 	if err := d.allocateElasticIP(); err != nil {
 		os.Exit(1)
 	}
+	/*
+		// Create a NAT gateway:
+		if err := d.createNatGateway(); err != nil {
+			os.Exit(1)
+		}
 
-	// Create a NAT gateway:
-	if err := d.createNatGateway(); err != nil {
-		os.Exit(1)
-	}
-
-	// Create a default route via NAT GW (int):
-	if err := d.createNatGatewayRoute(); err != nil {
-		os.Exit(1)
-	}
+		// Create a default route via NAT GW (int):
+		if err := d.createNatGatewayRoute(); err != nil {
+			os.Exit(1)
+		}
+	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -757,13 +763,53 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupEC2LoadBalancer
+// func: setupEC2Balancer
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupEC2LoadBalancer(wg *sync.WaitGroup) {
+func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
+
+	// Forge the ELB creation request:
+	params := &elb.CreateLoadBalancerInput{
+		Listeners: []*elb.Listener{
+			{
+				InstancePort:     aws.Int64(80),
+				LoadBalancerPort: aws.Int64(80),
+				Protocol:         aws.String("TCP"),
+				InstanceProtocol: aws.String("TCP"),
+			},
+			{
+				InstancePort:     aws.Int64(443),
+				LoadBalancerPort: aws.Int64(443),
+				Protocol:         aws.String("TCP"),
+				InstanceProtocol: aws.String("TCP"),
+			},
+		},
+		LoadBalancerName: aws.String(d.ClusterID),
+		SecurityGroups: []*string{
+			aws.String(""),
+		},
+		Subnets: []*string{
+			aws.String(d.ExtSubnetID),
+		},
+		Tags: []*elb.Tag{
+			{
+				Key:   aws.String("Name"),
+				Value: aws.String(d.ClusterID),
+			},
+		},
+	}
+
+	// Send the ELB creation request:
+	resp, err := d.elb.CreateLoadBalancer(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		os.Exit(1)
+	}
+
+	log.Info(resp)
 }
 
 //-----------------------------------------------------------------------------
