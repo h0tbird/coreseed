@@ -95,6 +95,7 @@ type State struct {
 	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
 	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
+	DNSName          string  `json:"DNSName"`          //             | ec2:setup |       |
 	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
 	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
 }
@@ -809,7 +810,11 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 		os.Exit(1)
 	}
 
-	log.Info(resp)
+	// Store the ELB DNS name:
+	d.DNSName = *resp.DNSName
+	log.WithFields(log.Fields{
+		"cmd": "ec2:" + d.command, "id": d.DNSName}).
+		Info("New ELB DNS name created")
 }
 
 //-----------------------------------------------------------------------------
