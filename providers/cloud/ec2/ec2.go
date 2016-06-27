@@ -1168,7 +1168,7 @@ func (d *Data) registerWithELB() error {
 	}
 
 	// Log this action:
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.InstanceID}).
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.ELBName}).
 		Info("Instance registered with ELB")
 
 	return nil
