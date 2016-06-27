@@ -221,7 +221,7 @@ func (d *Data) Add() error {
 			"--security-group-id", d.WorkerSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "false",
+			"--public-ip", "true",
 			"--elb-name", d.ClusterID)
 
 	case "edge":
@@ -264,8 +264,9 @@ func (d *Data) Run() error {
 		return err
 	}
 
-	// Connect and authenticate to the API endpoint:
+	// Connect and authenticate to the API endpoints:
 	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata); err != nil {
@@ -1149,7 +1150,27 @@ func (d *Data) associateElasticIP() error {
 
 func (d *Data) registerWithELB() error {
 
-	log.WithField("cmd", "ec2:"+d.command).Info("Register to ELB")
+	// Forge the register request:
+	params := &elb.RegisterInstancesWithLoadBalancerInput{
+		Instances: []*elb.Instance{
+			{
+				InstanceId: aws.String(d.InstanceID),
+			},
+		},
+		LoadBalancerName: aws.String(d.ELBName),
+	}
+
+	// Send the register request:
+	_, err := d.elb.RegisterInstancesWithLoadBalancer(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Log this action:
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.InstanceID}).
+		Info("Instance registered with ELB")
+
 	return nil
 }
 
