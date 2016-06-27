@@ -223,6 +223,7 @@ func main() {
 				IAMRole:      *flEc2RunIAMRole,
 				SrcDstCheck:  *flEc2RunSrcDstCheck,
 				AmiID:        *flEc2RunAmiID,
+				ELBName:      *flEc2RunELBName,
 			},
 		}
 

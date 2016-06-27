@@ -51,6 +51,7 @@ type Instance struct {
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
+	ELBName      string `json:"ELBName"`      //  ec2:run |
 	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
 	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
 	Role         string `json:"Role"`         //          | ec2:add
@@ -95,6 +96,7 @@ type State struct {
 	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
 	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
+	DNSName          string  `json:"DNSName"`          //             | ec2:setup |       |
 	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
 	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
 }
@@ -219,7 +221,8 @@ func (d *Data) Add() error {
 			"--security-group-id", d.WorkerSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "true")
+			"--public-ip", "true",
+			"--elb-name", d.ClusterID)
 
 	case "edge":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
@@ -257,11 +260,13 @@ func (d *Data) Run() error {
 	// Read udata from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
-	// Connect and authenticate to the API endpoint:
+	// Connect and authenticate to the API endpoints:
 	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata); err != nil {
@@ -273,6 +278,7 @@ func (d *Data) Run() error {
 		return err
 	}
 
+	// Setup an elastic IP:
 	if d.PublicIP == "elastic" {
 
 		// Allocate an elastic IP address:
@@ -282,6 +288,13 @@ func (d *Data) Run() error {
 
 		// Associate the elastic IP:
 		if err := d.associateElasticIP(); err != nil {
+			return err
+		}
+	}
+
+	// Register with ELB:
+	if d.ELBName != "" {
+		if err := d.registerWithELB(); err != nil {
 			return err
 		}
 	}
@@ -314,15 +327,17 @@ func (d *Data) Setup() error {
 
 	// Setup a wait group:
 	var wg sync.WaitGroup
-	wg.Add(4)
 
-	// Setup VPC, IAM and EC2:
+	// Setup VPC and IAM:
+	wg.Add(2)
 	go d.setupVPCNetwork(&wg)
 	go d.setupIAMSecurity(&wg)
-	go d.setupEC2Firewall(&wg)
-	go d.setupEC2LoadBalancer(&wg)
+	wg.Wait()
 
-	// Wait to proceed:
+	// Setup the EC2 and ELB:
+	wg.Add(2)
+	go d.setupEC2Firewall(&wg)
+	go d.setupEC2Balancer(&wg)
 	wg.Wait()
 
 	// Dump state to file:
@@ -757,13 +772,57 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupEC2LoadBalancer
+// func: setupEC2Balancer
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupEC2LoadBalancer(wg *sync.WaitGroup) {
+func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
+
+	// Forge the ELB creation request:
+	params := &elb.CreateLoadBalancerInput{
+		Listeners: []*elb.Listener{
+			{
+				InstancePort:     aws.Int64(80),
+				LoadBalancerPort: aws.Int64(80),
+				Protocol:         aws.String("TCP"),
+				InstanceProtocol: aws.String("TCP"),
+			},
+			{
+				InstancePort:     aws.Int64(443),
+				LoadBalancerPort: aws.Int64(443),
+				Protocol:         aws.String("TCP"),
+				InstanceProtocol: aws.String("TCP"),
+			},
+		},
+		LoadBalancerName: aws.String(d.ClusterID),
+		SecurityGroups: []*string{
+			aws.String(""),
+		},
+		Subnets: []*string{
+			aws.String(d.ExtSubnetID),
+		},
+		Tags: []*elb.Tag{
+			{
+				Key:   aws.String("Name"),
+				Value: aws.String(d.ClusterID),
+			},
+		},
+	}
+
+	// Send the ELB creation request:
+	resp, err := d.elb.CreateLoadBalancer(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		os.Exit(1)
+	}
+
+	// Store the ELB DNS name:
+	d.DNSName = *resp.DNSName
+	log.WithFields(log.Fields{
+		"cmd": "ec2:" + d.command, "id": d.DNSName}).
+		Info("New ELB DNS name created")
 }
 
 //-----------------------------------------------------------------------------
@@ -1081,6 +1140,36 @@ func (d *Data) associateElasticIP() error {
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
 		Info("New elastic IP association")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: registerWithELB
+//-----------------------------------------------------------------------------
+
+func (d *Data) registerWithELB() error {
+
+	// Forge the register request:
+	params := &elb.RegisterInstancesWithLoadBalancerInput{
+		Instances: []*elb.Instance{
+			{
+				InstanceId: aws.String(d.InstanceID),
+			},
+		},
+		LoadBalancerName: aws.String(d.ELBName),
+	}
+
+	// Send the register request:
+	_, err := d.elb.RegisterInstancesWithLoadBalancer(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Log this action:
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.InstanceID}).
+		Info("Instance registered with ELB")
 
 	return nil
 }

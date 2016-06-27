@@ -313,4 +313,9 @@ var (
 		" [ true | false ]").
 		Default("true").OverrideDefaultFromEnvar("KATO_EC2_RUN_SOURCE_DEST_CHECK").
 		Enum("true", "false")
+
+	flEc2RunELBName = cmdEc2Run.Flag("elb-name",
+		"Register with existing ELB by name").
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_ELB_NAME").
+		String()
 )
