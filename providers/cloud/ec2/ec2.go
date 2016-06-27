@@ -51,6 +51,7 @@ type Instance struct {
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
+	ELBName      string `json:"ELBName"`      //  ec2:run |
 	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
 	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
 	Role         string `json:"Role"`         //          | ec2:add
@@ -132,9 +133,6 @@ func (d *Data) Deploy() error {
 	if err := d.dumpState(); err != nil {
 		return err
 	}
-
-	// DBG break:
-	os.Exit(0)
 
 	// Deploy all the nodes (III):
 	wg.Add(3)
@@ -223,7 +221,8 @@ func (d *Data) Add() error {
 			"--security-group-id", d.WorkerSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "true")
+			"--public-ip", "false",
+			"--elb-name", d.ClusterID)
 
 	case "edge":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
@@ -261,6 +260,7 @@ func (d *Data) Run() error {
 	// Read udata from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
@@ -277,6 +277,7 @@ func (d *Data) Run() error {
 		return err
 	}
 
+	// Setup an elastic IP:
 	if d.PublicIP == "elastic" {
 
 		// Allocate an elastic IP address:
@@ -286,6 +287,13 @@ func (d *Data) Run() error {
 
 		// Associate the elastic IP:
 		if err := d.associateElasticIP(); err != nil {
+			return err
+		}
+	}
+
+	// Register with ELB:
+	if d.ELBName != "" {
+		if err := d.registerWithELB(); err != nil {
 			return err
 		}
 	}
@@ -680,17 +688,16 @@ func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
 	if err := d.allocateElasticIP(); err != nil {
 		os.Exit(1)
 	}
-	/*
-		// Create a NAT gateway:
-		if err := d.createNatGateway(); err != nil {
-			os.Exit(1)
-		}
 
-		// Create a default route via NAT GW (int):
-		if err := d.createNatGatewayRoute(); err != nil {
-			os.Exit(1)
-		}
-	*/
+	// Create a NAT gateway:
+	if err := d.createNatGateway(); err != nil {
+		os.Exit(1)
+	}
+
+	// Create a default route via NAT GW (int):
+	if err := d.createNatGatewayRoute(); err != nil {
+		os.Exit(1)
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1133,6 +1140,16 @@ func (d *Data) associateElasticIP() error {
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
 		Info("New elastic IP association")
 
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: registerWithELB
+//-----------------------------------------------------------------------------
+
+func (d *Data) registerWithELB() error {
+
+	log.WithField("cmd", "ec2:"+d.command).Info("Register to ELB")
 	return nil
 }
 
