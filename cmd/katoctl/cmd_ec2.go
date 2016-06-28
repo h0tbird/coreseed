@@ -37,7 +37,7 @@ var (
 	flEc2DeployClusterID = regexpMatch(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
 	flEc2DeployMasterCount = cmdEc2Deploy.Flag("master-count",
 		"Number of master nodes to deploy [ 1 | 3 | 5 ]").
@@ -178,7 +178,7 @@ var (
 	flEc2SetupClusterID = regexpMatch(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_SETUP_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
+		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
 	flEc2SetupDomain = cmdEc2Setup.Flag("domain",
 		"Used to identify the VPC..").
@@ -225,7 +225,7 @@ var (
 	flEc2AddCluserID = regexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9_-]+$")
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
 	flEc2AddRole = cmdEc2Add.Flag("role",
 		"New instance role [ master | worker | edge ]").
@@ -314,8 +314,7 @@ var (
 		Default("true").OverrideDefaultFromEnvar("KATO_EC2_RUN_SOURCE_DEST_CHECK").
 		Enum("true", "false")
 
-	flEc2RunELBName = cmdEc2Run.Flag("elb-name",
+	flEc2RunELBName = regexpMatch(cmdEc2Run.Flag("elb-name",
 		"Register with existing ELB by name").
-		OverrideDefaultFromEnvar("KATO_EC2_RUN_ELB_NAME").
-		String()
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_ELB_NAME"), "^[a-zA-Z0-9-]+$")
 )

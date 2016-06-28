@@ -7,7 +7,6 @@ package main
 import (
 
 	// Stdlib:
-	"fmt"
 	"os"
 	"regexp"
 
@@ -274,8 +273,7 @@ type regexpMatchValue struct {
 func (id *regexpMatchValue) Set(value string) error {
 
 	if match, _ := regexp.MatchString(id.regexp, value); !match {
-		log.WithField("value", value).Error("Value must match: " + id.regexp)
-		return fmt.Errorf("Must match " + id.regexp)
+		log.WithField("value", value).Fatal("Value must match: " + id.regexp)
 	}
 
 	id.value = value
