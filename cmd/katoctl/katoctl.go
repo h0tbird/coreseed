@@ -216,7 +216,7 @@ func main() {
 				SrcDstCheck:  *flEc2RunSrcDstCheck,
 				AmiID:        *flEc2RunAmiID,
 				ELBName:      *flEc2RunELBName,
-				InstanceIP:   *flEc2RunIPAddress,
+				PrivateIP:    *flEc2RunPrivateIP,
 			},
 		}
 

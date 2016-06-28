@@ -43,12 +43,12 @@ type svc struct {
 // Instance data.
 type Instance struct {
 	InstanceID   string `json:"InstanceID"`   //  ec2:run |
-	InstanceIP   string `json:"InstanceIP"`   //  ec2:run |
 	SubnetID     string `json:"SubnetID"`     //  ec2:run |
 	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
 	InstanceType string `json:"InstanceType"` //  ec2:run |
 	Hostname     string `json:"Hostname"`     //  ec2:run |
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
+	PrivateIP    string `json:"PrivateIP"`    //  ec2:run |
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
 	ELBName      string `json:"ELBName"`      //  ec2:run |
@@ -538,8 +538,8 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 	}
 
 	// Private IP address:
-	if d.InstanceIP != "" {
-		iface.PrivateIpAddress = aws.String(d.InstanceIP)
+	if d.PrivateIP != "" {
+		iface.PrivateIpAddress = aws.String(d.PrivateIP)
 	}
 
 	// Public IP address:

@@ -318,7 +318,7 @@ var (
 		"Register with existing ELB by name").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_ELB_NAME"), "^[a-zA-Z0-9-]+$")
 
-	flEc2RunIPAddress = cmdEc2Run.Flag("ip-address",
+	flEc2RunPrivateIP = cmdEc2Run.Flag("private-ip",
 		"The private IP address of the network interface.").
-		OverrideDefaultFromEnvar("KATO_EC2_RUN_IP_ADDRESS").String()
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_PRIVATE_IP").String()
 )
