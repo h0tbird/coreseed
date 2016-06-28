@@ -362,8 +362,7 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 	// Execute the zone command:
 	cmdZoneSetup.Stderr = os.Stderr
 	if err := cmdZoneSetup.Run(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Forge the linked zone command:
@@ -376,8 +375,7 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 	// Execute the linked zone command:
 	cmdLinkedZoneSetup.Stderr = os.Stderr
 	if err := cmdLinkedZoneSetup.Run(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
 
@@ -390,10 +388,11 @@ func (d *Data) setupEnvironment(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
-	// Forge the setup command:
+	// Log this action:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.Domain}).
 		Info("Setup the EC2 environment")
 
+	// Forge the setup command:
 	cmdSetup := exec.Command("katoctl", "ec2", "setup",
 		"--cluster-id", d.ClusterID,
 		"--domain", d.Domain,
@@ -406,14 +405,12 @@ func (d *Data) setupEnvironment(wg *sync.WaitGroup) {
 	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
 	if err := cmdSetup.Run(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Merge state from state file:
 	if err := d.loadState(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
 
@@ -429,8 +426,7 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 
 	if d.EtcdToken == "auto" {
 		if d.EtcdToken, err = katool.EtcdToken(int(d.MasterCount)); err != nil {
-			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			os.Exit(1)
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
 			Info("New etcd bootstrap token requested")
@@ -452,34 +448,31 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 	res, err := http.
 		Get("https://coreos.com/dist/aws/aws-" + d.Channel + ".json")
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Retrieve the data:
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Close the handler:
 	if err = res.Body.Close(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Decode JSON into Go values:
 	var jsonData map[string]interface{}
 	if err := json.Unmarshal(data, &jsonData); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Store the AMI ID:
 	amis := jsonData[d.Region].(map[string]interface{})
 	d.AmiID = amis["hvm"].(string)
 
+	// Log this action:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.AmiID}).
 		Info("Latest CoreOS " + d.Channel + " AMI located")
 }
@@ -513,8 +506,7 @@ func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 			// Execute the add command:
 			cmdAdd.Stderr = os.Stderr
 			if err := cmdAdd.Run(); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				os.Exit(1)
+				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 			}
 		}(i)
 	}
@@ -804,8 +796,7 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 	// Send the ELB creation request:
 	resp, err := d.elb.CreateLoadBalancer(params)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Store the ELB DNS name:
@@ -1444,8 +1435,7 @@ func (d *Data) createInstanceProfiles() {
 						return
 					}
 				}
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				os.Exit(1)
+				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 			}
 
 			// Wait until the instance profile exists:
@@ -1456,8 +1446,7 @@ func (d *Data) createInstanceProfiles() {
 				&iam.GetInstanceProfileInput{
 					InstanceProfileName: aws.String(role),
 				}); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				os.Exit(1)
+				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 			}
 		}(v)
 	}
