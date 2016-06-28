@@ -43,6 +43,7 @@ type svc struct {
 // Instance data.
 type Instance struct {
 	InstanceID   string `json:"InstanceID"`   //  ec2:run |
+	InstanceIP   string `json:"InstanceIP"`   //  ec2:run |
 	SubnetID     string `json:"SubnetID"`     //  ec2:run |
 	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
 	InstanceType string `json:"InstanceType"` //  ec2:run |
@@ -525,8 +526,10 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 	var networkInterfaces []*ec2.InstanceNetworkInterfaceSpecification
 	var securityGroupIds []*string
 
+	// Append to security group array:
 	securityGroupIds = append(securityGroupIds, aws.String(d.SecGrpID))
 
+	// Forge the interface data type:
 	iface := ec2.InstanceNetworkInterfaceSpecification{
 		DeleteOnTermination: aws.Bool(true),
 		DeviceIndex:         aws.Int64(int64(0)),
@@ -534,10 +537,17 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 		SubnetId:            aws.String(d.SubnetID),
 	}
 
+	// Private IP address:
+	if d.InstanceIP != "" {
+		iface.PrivateIpAddress = aws.String(d.InstanceIP)
+	}
+
+	// Public IP address:
 	if d.PublicIP == "true" {
 		iface.AssociatePublicIpAddress = aws.Bool(true)
 	}
 
+	// Append to the interfaces array:
 	networkInterfaces = append(networkInterfaces, &iface)
 
 	return networkInterfaces
@@ -549,8 +559,8 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 
 func (d *Data) runInstance(udata []byte) error {
 
-	// Send the instance request:
-	runResult, err := d.ec2.RunInstances(&ec2.RunInstancesInput{
+	// Forge the instance request:
+	params := &ec2.RunInstancesInput{
 		ImageId:           aws.String(d.AmiID),
 		MinCount:          aws.Int64(1),
 		MaxCount:          aws.Int64(1),
@@ -564,20 +574,22 @@ func (d *Data) runInstance(udata []byte) error {
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
 			Name: aws.String(d.IAMRole),
 		},
-	})
+	}
 
+	// Send the instance request:
+	resp, err := d.ec2.RunInstances(params)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
 	// Store the instance ID:
-	d.InstanceID = *runResult.Instances[0].InstanceId
+	d.InstanceID = *resp.Instances[0].InstanceId
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.InstanceID}).
 		Info("New " + d.InstanceType + " EC2 instance requested")
 
 	// Store the interface ID:
-	d.InterfaceID = *runResult.Instances[0].
+	d.InterfaceID = *resp.Instances[0].
 		NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
