@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"encoding/json"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -100,4 +101,35 @@ func LoadState(clusterID string) (map[string]interface{}, error) {
 	}
 
 	return dat, nil
+}
+
+//-----------------------------------------------------------------------------
+// func: OffsetIP
+//-----------------------------------------------------------------------------
+
+// OffsetIP takes a CIDR and an offset and returns the IP address at the offset
+// position starting at the beginning of the CIDR's subnet:
+func OffsetIP(cidr string, offset int) string {
+
+	// Parse the CIDR:
+	ip1, ipnet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return ""
+	}
+
+	// Compute the IP:
+	ip2 := ip1.Mask(ipnet.Mask)
+	a := int(ipToI32(ip2[len(ip2)-4:]))
+
+	// Return:
+	return i32ToIP(int32(a + offset)).String()
+}
+
+func ipToI32(ip net.IP) int32 {
+	ip = ip.To4()
+	return int32(ip[0])<<24 | int32(ip[1])<<16 | int32(ip[2])<<8 | int32(ip[3])
+}
+
+func i32ToIP(a int32) net.IP {
+	return net.IPv4(byte(a>>24), byte(a>>16), byte(a>>8), byte(a))
 }

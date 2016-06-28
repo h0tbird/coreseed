@@ -194,6 +194,7 @@ func (d *Data) Add() {
 
 	switch d.Role {
 	case "master":
+		i, _ := strconv.Atoi(d.HostID)
 		cmdRun = exec.Command("katoctl", "ec2", "run",
 			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
@@ -205,7 +206,8 @@ func (d *Data) Add() {
 			"--security-group-id", d.MasterSecGrp,
 			"--iam-role", d.Role,
 			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "false")
+			"--public-ip", "false",
+			"--private-ip", katool.OffsetIP(d.IntSubnetCidr, 10+i))
 
 	case "worker":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
