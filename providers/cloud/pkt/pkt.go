@@ -7,11 +7,11 @@ package pkt
 import (
 
 	// Stdlib:
-	"fmt"
 	"io/ioutil"
 	"os"
 
 	// Community:
+	log "github.com/Sirupsen/logrus"
 	"github.com/packethost/packngo"
 )
 
@@ -21,6 +21,7 @@ import (
 
 // Data contains variables used by Packet.net API.
 type Data struct {
+	command   string
 	APIKey    string
 	HostName  string
 	ProjectID string
@@ -35,8 +36,7 @@ type Data struct {
 //--------------------------------------------------------------------------
 
 // Deploy Kato's infrastructure on Packet.net
-func (d *Data) Deploy() error {
-	return nil
+func (d *Data) Deploy() {
 }
 
 //--------------------------------------------------------------------------
@@ -44,8 +44,7 @@ func (d *Data) Deploy() error {
 //--------------------------------------------------------------------------
 
 // Setup a Packet.net project to be used by katoctl.
-func (d *Data) Setup() error {
-	return nil
+func (d *Data) Setup() {
 }
 
 //--------------------------------------------------------------------------
@@ -53,12 +52,15 @@ func (d *Data) Setup() error {
 //--------------------------------------------------------------------------
 
 // Run uses Packet.net API to launch a new server.
-func (d *Data) Run() error {
+func (d *Data) Run() {
+
+	// Set current command:
+	d.command = "run"
 
 	// Read udata from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		return err
+		log.WithField("cmd", "pkt:"+d.command).Fatal(err)
 	}
 
 	// Connect and authenticate to the API endpoint:
@@ -78,10 +80,9 @@ func (d *Data) Run() error {
 	// Send the request:
 	newDevice, _, err := client.Devices.Create(createRequest)
 	if err != nil {
-		return err
+		log.WithField("cmd", "pkt:"+d.command).Fatal(err)
 	}
 
 	// Pretty-print the response data:
-	fmt.Println(newDevice)
-	return nil
+	log.WithField("cmd", "pkt:"+d.command).Info(newDevice)
 }

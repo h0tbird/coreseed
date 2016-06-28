@@ -42,7 +42,6 @@ type svc struct {
 
 // Instance data.
 type Instance struct {
-	command      string
 	InstanceID   string `json:"InstanceID"`   //  ec2:run |
 	SubnetID     string `json:"SubnetID"`     //  ec2:run |
 	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
@@ -103,6 +102,7 @@ type State struct {
 
 // Data struct for EC2 endpoints, instance and state data.
 type Data struct {
+	command string
 	svc
 	Instance
 	State
@@ -113,7 +113,7 @@ type Data struct {
 //-----------------------------------------------------------------------------
 
 // Deploy Kato's infrastructure on Amazon EC2.
-func (d *Data) Deploy() error {
+func (d *Data) Deploy() {
 
 	// Set current command:
 	d.command = "deploy"
@@ -131,7 +131,7 @@ func (d *Data) Deploy() error {
 
 	// Dump state to file (II):
 	if err := d.dumpState(); err != nil {
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Deploy all the nodes (III):
@@ -140,8 +140,6 @@ func (d *Data) Deploy() error {
 	go d.deployNodes("worker", int(d.WorkerCount), &wg)
 	go d.deployNodes("edge", int(d.EdgeCount), &wg)
 	wg.Wait()
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -149,15 +147,14 @@ func (d *Data) Deploy() error {
 //-----------------------------------------------------------------------------
 
 // Add a new instance to the cluster.
-func (d *Data) Add() error {
+func (d *Data) Add() {
 
 	// Set current command:
 	d.command = "add"
 
 	// Load state from state file:
 	if err := d.loadState(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Discover CoreOS AMI (for standalone runs):
@@ -241,10 +238,8 @@ func (d *Data) Add() error {
 
 	// Execute the pipeline:
 	if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -252,7 +247,7 @@ func (d *Data) Add() error {
 //-----------------------------------------------------------------------------
 
 // Run uses EC2 API to launch a new instance.
-func (d *Data) Run() error {
+func (d *Data) Run() {
 
 	// Set current command:
 	d.command = "run"
@@ -260,8 +255,7 @@ func (d *Data) Run() error {
 	// Read udata from stdin:
 	udata, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Connect and authenticate to the API endpoints:
@@ -270,12 +264,12 @@ func (d *Data) Run() error {
 
 	// Run the EC2 instance:
 	if err := d.runInstance(udata); err != nil {
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Modify instance attributes:
 	if err := d.modifyInstanceAttribute(); err != nil {
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Setup an elastic IP:
@@ -283,23 +277,21 @@ func (d *Data) Run() error {
 
 		// Allocate an elastic IP address:
 		if err := d.allocateElasticIP(); err != nil {
-			return err
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 
 		// Associate the elastic IP:
 		if err := d.associateElasticIP(); err != nil {
-			return err
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 	}
 
 	// Register with ELB:
 	if d.ELBName != "" {
 		if err := d.registerWithELB(); err != nil {
-			return err
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -307,7 +299,7 @@ func (d *Data) Run() error {
 //-----------------------------------------------------------------------------
 
 // Setup VPC, IAM and EC2 components.
-func (d *Data) Setup() error {
+func (d *Data) Setup() {
 
 	// Set current command:
 	d.command = "setup"
@@ -322,7 +314,7 @@ func (d *Data) Setup() error {
 
 	// Create the VPC:
 	if err := d.createVpc(); err != nil {
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Setup a wait group:
@@ -342,10 +334,8 @@ func (d *Data) Setup() error {
 
 	// Dump state to file:
 	if err := d.dumpState(); err != nil {
-		return err
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------

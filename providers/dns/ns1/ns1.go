@@ -33,7 +33,7 @@ type Data struct {
 //-----------------------------------------------------------------------------
 
 // AddZones adds one or more zones to NS1.
-func (d *Data) AddZones() error {
+func (d *Data) AddZones() {
 
 	// Set the current command:
 	d.command = "zone:add"
@@ -44,7 +44,7 @@ func (d *Data) AddZones() error {
 	// Retrieve the current zone list:
 	zones, err := api.GetZones()
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 Zone:
@@ -70,16 +70,13 @@ Zone:
 
 		// Send the new zone request:
 		if err := api.CreateZone(z); err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Error(err)
-			return err
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
 		}
 
 		// Log zone creation:
 		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
 			Info("New DNS zone created")
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -87,7 +84,7 @@ Zone:
 //-----------------------------------------------------------------------------
 
 // AddRecords adds one or more records to an NS1 zone.
-func (d *Data) AddRecords() error {
+func (d *Data) AddRecords() {
 
 	// Set the current command:
 	d.command = "record:add"
@@ -109,8 +106,7 @@ Record:
 		// Attempt to retrieve an existing record:
 		r2, err := api.GetRecord(d.Zone, s[2]+"."+d.Zone, s[1])
 		if err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Error(err)
-			return err
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
 		}
 
 		// Compare and continue:
@@ -123,14 +119,11 @@ Record:
 		// Send the new record request:
 		err = api.CreateRecord(r1)
 		if err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Error(err)
-			return err
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
 		}
 
 		// Log record creation:
 		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
 			Info("New DNS record created")
 	}
-
-	return nil
 }

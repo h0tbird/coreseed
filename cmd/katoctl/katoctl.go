@@ -81,8 +81,7 @@ func main() {
 			Ec2Region:           *flUdataEc2Region,
 		}
 
-		err := udata.Render()
-		checkError(err)
+		udata.Render()
 
 	//--------------------
 	// katoctl pkt deploy
@@ -91,8 +90,7 @@ func main() {
 	case cmdPktDeploy.FullCommand():
 
 		pkt := pkt.Data{}
-		err := pkt.Deploy()
-		checkError(err)
+		pkt.Deploy()
 
 	//-------------------
 	// katoctl pkt setup
@@ -101,8 +99,7 @@ func main() {
 	case cmdPktSetup.FullCommand():
 
 		pkt := pkt.Data{}
-		err := pkt.Setup()
-		checkError(err)
+		pkt.Setup()
 
 	//-----------------
 	// katoctl pkt run
@@ -120,8 +117,7 @@ func main() {
 			Billing:   *flPktRunBilling,
 		}
 
-		err := pkt.Run()
-		checkError(err)
+		pkt.Run()
 
 	//--------------------
 	// katoctl ec2 deploy
@@ -157,8 +153,7 @@ func main() {
 			},
 		}
 
-		err := ec2.Deploy()
-		checkError(err)
+		ec2.Deploy()
 
 	//-------------------
 	// katoctl ec2 setup
@@ -178,8 +173,7 @@ func main() {
 			},
 		}
 
-		err := ec2.Setup()
-		checkError(err)
+		ec2.Setup()
 
 	//-----------------
 	// katoctl ec2 add
@@ -198,8 +192,7 @@ func main() {
 			},
 		}
 
-		err := ec2.Add()
-		checkError(err)
+		ec2.Add()
 
 	//-----------------
 	// katoctl ec2 run
@@ -226,8 +219,7 @@ func main() {
 			},
 		}
 
-		err := ec2.Run()
-		checkError(err)
+		ec2.Run()
 
 	//----------------------
 	// katoctl ns1 zone add
@@ -241,8 +233,7 @@ func main() {
 			Zones:  *arNs1ZoneAddName,
 		}
 
-		err := ns1.AddZones()
-		checkError(err)
+		ns1.AddZones()
 
 	//------------------------
 	// katoctl ns1 record add
@@ -256,8 +247,7 @@ func main() {
 			Records: *arNs1RecordAddName,
 		}
 
-		err := ns1.AddRecords()
-		checkError(err)
+		ns1.AddRecords()
 	}
 }
 
@@ -289,14 +279,4 @@ func regexpMatch(s kingpin.Settings, regexp string) *string {
 	target.regexp = regexp
 	s.SetValue(target)
 	return &target.value
-}
-
-//---------------------------------------------------------------------------
-// func: checkError
-//---------------------------------------------------------------------------
-
-func checkError(err error) {
-	if err != nil {
-		os.Exit(1)
-	}
 }

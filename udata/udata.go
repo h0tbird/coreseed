@@ -105,13 +105,11 @@ func (d *Data) rexraySnippet() {
 
 // Render takes a Data structure and outputs valid CoreOS cloud-config
 // in YAML format to stdout.
-func (d *Data) Render() error {
-
-	var err error
+func (d *Data) Render() {
 
 	// Read the CA certificate:
-	if err = d.caCert(); err != nil {
-		return err
+	if err := d.caCert(); err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
 	}
 
 	// Forge the Zookeeper URL:
@@ -122,6 +120,7 @@ func (d *Data) Render() error {
 
 	// Role-based parsing:
 	t := template.New("udata")
+	var err error
 
 	switch d.Role {
 	case "master":
@@ -133,8 +132,7 @@ func (d *Data) Render() error {
 	}
 
 	if err != nil {
-		log.WithField("cmd", "udata").Error(err)
-		return err
+		log.WithField("cmd", "udata").Fatal(err)
 	}
 
 	// Apply parsed template to data object:
@@ -143,19 +141,14 @@ func (d *Data) Render() error {
 			Info("Rendering gzipped cloud-config template")
 		w := gzip.NewWriter(os.Stdout)
 		if err = t.Execute(w, d); err != nil {
-			log.WithField("cmd", "udata").Error(err)
 			_ = w.Close()
-			return err
+			log.WithField("cmd", "udata").Fatal(err)
 		}
 		_ = w.Close()
 	} else {
 		log.WithField("cmd", "udata").Info("Rendering plain text cloud-config template")
 		if err = t.Execute(os.Stdout, d); err != nil {
-			log.WithField("cmd", "udata").Error(err)
-			return err
+			log.WithField("cmd", "udata").Fatal(err)
 		}
 	}
-
-	// Return on success:
-	return nil
 }
