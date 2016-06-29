@@ -650,52 +650,52 @@ func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
 
 	// Retrieve the main route table ID:
 	if err := d.retrieveMainRouteTableID(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create the external and internal subnets:
 	if err := d.createSubnets(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create a route table (ext):
 	if err := d.createRouteTable(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Associate the route table to the external subnet:
 	if err := d.associateRouteTable(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create the internet gateway:
 	if err := d.createInternetGateway(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Attach internet gateway to VPC:
 	if err := d.attachInternetGateway(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create a default route via internet GW (ext):
 	if err := d.createInternetGatewayRoute(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Allocate a new elastic IP:
 	if err := d.allocateElasticIP(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create a NAT gateway:
 	if err := d.createNatGateway(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create a default route via NAT GW (int):
 	if err := d.createNatGatewayRoute(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
 
@@ -710,12 +710,12 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 
 	// Create REX-Ray policy:
 	if err := d.createRexrayPolicy(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create IAM roles:
 	if err := d.createIAMRoles(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create instance profiles:
@@ -728,7 +728,7 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 			d.RexrayPolicy,
 		} {
 			if err := d.attachPolicyToRole(policy, role); err != nil {
-				os.Exit(1)
+				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 			}
 		}
 	}
@@ -750,32 +750,32 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 
 	// Create master security group:
 	if err := d.createSecurityGroup("master", &d.MasterSecGrp); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create worker security group:
 	if err := d.createSecurityGroup("worker", &d.WorkerSecGrp); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Create edge security group:
 	if err := d.createSecurityGroup("edge", &d.EdgeSecGrp); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Setup master nodes firewall:
 	if err := d.firewallMaster(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Setup worker nodes firewall:
 	if err := d.firewallWorker(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Setup edge nodes firewall:
 	if err := d.firewallEdge(); err != nil {
-		os.Exit(1)
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
 
