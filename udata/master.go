@@ -490,7 +490,7 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill dnsmasq
     ExecStartPre=-/usr/bin/docker rm -f dnsmasq
-    ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.5
+    ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
     ExecStartPre=/usr/bin/sh -c " \
       etcdctl member list 2>1 | awk -F [/:] '{print $9}' | tr '\n' ',' > /tmp/ns && \
       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
@@ -499,7 +499,7 @@ write_files:
       --net host \
       --volume /etc/resolv.conf:/etc/resolv.conf:rw \
       --volume /etc/hosts:/etc/hosts:ro \
-      janeczku/go-dnsmasq:release-1.0.5 \
+      janeczku/go-dnsmasq:release-1.0.6 \
       --listen $(hostname -i) \
       --nameservers $(cat /tmp/ns) \
       --hostsfile /etc/hosts \
