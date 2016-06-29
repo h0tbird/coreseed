@@ -455,7 +455,7 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill cadvisor
     ExecStartPre=-/usr/bin/docker rm -f cadvisor
-    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.22.0
+    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.23.2
     ExecStart=/usr/bin/sh -c "docker run \
       --net host \
       --name cadvisor \
@@ -465,7 +465,7 @@ write_files:
       --volume /var/lib/docker/:/var/lib/docker:ro \
       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
       --volume /etc/hosts:/etc/hosts:ro \
-      google/cadvisor:v0.22.0 \
+      google/cadvisor:v0.23.2 \
       --listen_ip $(hostname -i) \
       --logtostderr \
       --port=4194"
