@@ -93,6 +93,7 @@ type State struct {
 	RexrayPolicy     string  `json:"RexrayPolicy"`     //             | ec2:setup |       |
 	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
 	WorkerSecGrp     string  `json:"WorkerSecGrp"`     //             | ec2:setup |       |
+	ELBSecGrp        string  `json:"ELBSecGrp"`        //             | ec2:setup |       |
 	EdgeSecGrp       string  `json:"EdgeSecGrp"`       //             | ec2:setup |       |
 	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
@@ -307,6 +308,7 @@ func (d *Data) Setup() {
 	// Set current command:
 	d.command = "setup"
 
+	// Log this acction:
 	log.WithField("cmd", "ec2:"+d.command).
 		Info("Connecting to region " + d.Region)
 
@@ -316,7 +318,7 @@ func (d *Data) Setup() {
 	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 
 	// Create the VPC:
-	if err := d.createVpc(); err != nil {
+	if err := d.createVPC(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
@@ -746,8 +748,18 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
-	// Create EC2 security groups:
-	if err := d.createSecurityGroups(); err != nil {
+	// Create master security group:
+	if err := d.createSecurityGroup("master", &d.MasterSecGrp); err != nil {
+		os.Exit(1)
+	}
+
+	// Create worker security group:
+	if err := d.createSecurityGroup("worker", &d.WorkerSecGrp); err != nil {
+		os.Exit(1)
+	}
+
+	// Create edge security group:
+	if err := d.createSecurityGroup("edge", &d.EdgeSecGrp); err != nil {
 		os.Exit(1)
 	}
 
@@ -776,6 +788,28 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
+	// Create the ELB security group:
+	if err := d.createSecurityGroup("elb", &d.ELBSecGrp); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Create the ELB:
+	if err := d.createELB(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Setup the ELB firewall:
+	if err := d.firewallELB(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: createELB
+//-----------------------------------------------------------------------------
+
+func (d *Data) createELB() error {
+
 	// Forge the ELB creation request:
 	params := &elb.CreateLoadBalancerInput{
 		Listeners: []*elb.Listener{
@@ -794,7 +828,7 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 		},
 		LoadBalancerName: aws.String(d.ClusterID),
 		SecurityGroups: []*string{
-			aws.String(""),
+			aws.String(d.ELBSecGrp),
 		},
 		Subnets: []*string{
 			aws.String(d.ExtSubnetID),
@@ -810,7 +844,8 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 	// Send the ELB creation request:
 	resp, err := d.elb.CreateLoadBalancer(params)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
 	}
 
 	// Store the ELB DNS name:
@@ -818,13 +853,15 @@ func (d *Data) setupEC2Balancer(wg *sync.WaitGroup) {
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": d.DNSName}).
 		Info("New ELB DNS name created")
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------
-// func: createVpc
+// func: createVPC
 //-----------------------------------------------------------------------------
 
-func (d *Data) createVpc() error {
+func (d *Data) createVPC() error {
 
 	// Forge the VPC request:
 	params := &ec2.CreateVpcInput{
@@ -1504,51 +1541,35 @@ func (d *Data) addIAMRolesToInstanceProfiles() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: createSecurityGroups
+// func: createSecurityGroup
 //-----------------------------------------------------------------------------
 
-func (d *Data) createSecurityGroups() error {
+func (d *Data) createSecurityGroup(name string, id *string) error {
 
-	// Map to iterate:
-	grps := map[string]map[string]string{
-		"master": map[string]string{"secGrpID": ""},
-		"worker": map[string]string{"secGrpID": ""},
-		"edge":   map[string]string{"secGrpID": ""},
+	// Forge the group request:
+	params := &ec2.CreateSecurityGroupInput{
+		Description: aws.String(d.Domain + " " + name),
+		GroupName:   aws.String(name),
+		DryRun:      aws.Bool(false),
+		VpcId:       aws.String(d.VpcID),
 	}
 
-	// For each security group:
-	for k, v := range grps {
-
-		// Forge the group request:
-		params := &ec2.CreateSecurityGroupInput{
-			Description: aws.String(d.Domain + " " + k),
-			GroupName:   aws.String(k),
-			DryRun:      aws.Bool(false),
-			VpcId:       aws.String(d.VpcID),
-		}
-
-		// Send the group request:
-		resp, err := d.ec2.CreateSecurityGroup(params)
-		if err != nil {
-			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			return err
-		}
-
-		// Locally store the group ID:
-		v["secGrpID"] = *resp.GroupId
-		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["secGrpID"]}).
-			Info("New EC2 " + k + " security group")
-
-		// Tag the group:
-		if err = d.tag(v["secGrpID"], "Name", d.Domain+" "+k); err != nil {
-			return err
-		}
+	// Send the group request:
+	resp, err := d.ec2.CreateSecurityGroup(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
 	}
 
-	// Store security groups IDs:
-	d.MasterSecGrp = grps["master"]["secGrpID"]
-	d.WorkerSecGrp = grps["worker"]["secGrpID"]
-	d.EdgeSecGrp = grps["edge"]["secGrpID"]
+	// Locally store the group ID:
+	*id = *resp.GroupId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *id}).
+		Info("New EC2 " + name + " security group")
+
+	// Tag the group:
+	if err = d.tag(*id, "Name", d.Domain+" "+name); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -1728,6 +1749,55 @@ func (d *Data) firewallEdge() error {
 	}
 
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "edge"}).
+		Info("New firewall rules defined")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: firewallELB
+//-----------------------------------------------------------------------------
+
+func (d *Data) firewallELB() error {
+
+	// Forge the rule request:
+	params := &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: aws.String(d.ELBSecGrp),
+		IpPermissions: []*ec2.IpPermission{
+			{
+				IpProtocol: aws.String("-1"),
+			},
+			{
+				FromPort:   aws.Int64(80),
+				ToPort:     aws.Int64(80),
+				IpProtocol: aws.String("tcp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
+			{
+				FromPort:   aws.Int64(443),
+				ToPort:     aws.Int64(443),
+				IpProtocol: aws.String("tcp"),
+				IpRanges: []*ec2.IpRange{
+					{
+						CidrIp: aws.String("0.0.0.0/0"),
+					},
+				},
+			},
+		},
+	}
+
+	// Send the rule request:
+	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "elb"}).
 		Info("New firewall rules defined")
 
 	return nil
