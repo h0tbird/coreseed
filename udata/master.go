@@ -169,7 +169,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill zookeeper
@@ -208,7 +208,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill prometheus
@@ -246,7 +246,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-master
@@ -284,7 +284,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-node
@@ -330,7 +330,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mesos-dns
@@ -374,7 +374,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill marathon
@@ -411,7 +411,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill marathon-lb
     ExecStartPre=-/usr/bin/docker rm marathon-lb
@@ -446,7 +446,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill cadvisor
     ExecStartPre=-/usr/bin/docker rm -f cadvisor
@@ -481,7 +481,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill dnsmasq
     ExecStartPre=-/usr/bin/docker rm -f dnsmasq
@@ -520,7 +520,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill mongodb
@@ -553,7 +553,7 @@ write_files:
 
     [Service]
     Restart=on-failure
-    RestartSec=20
+    RestartSec=10
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill pritunl
     ExecStartPre=-/usr/bin/docker rm pritunl
