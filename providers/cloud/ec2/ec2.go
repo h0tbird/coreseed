@@ -172,7 +172,7 @@ func (d *Data) Add() {
 	}
 
 	// Forge the udata command:
-	cmdUdata := exec.Command("katoctl", "udata",
+	args := []string{"udata",
 		"--role", d.Role,
 		"--cluster-id", d.ClusterID,
 		"--master-count", strconv.Itoa(int(d.MasterCount)),
@@ -180,7 +180,6 @@ func (d *Data) Add() {
 		"--domain", d.Domain,
 		"--ec2-region", d.Region,
 		"--ns1-api-key", d.Ns1ApiKey,
-		"--ca-cert", d.CaCert,
 		"--etcd-token", d.EtcdToken,
 		"--flannel-network", d.FlannelNetwork,
 		"--flannel-subnet-len", d.FlannelSubnetLen,
@@ -188,7 +187,16 @@ func (d *Data) Add() {
 		"--flannel-subnet-max", d.FlannelSubnetMax,
 		"--flannel-backend", d.FlannelBackend,
 		"--rexray-storage-driver", "ec2",
-		"--gzip-udata")
+		"--gzip-udata",
+	}
+
+	// Append the certificate only if it is present:
+	if d.CaCert != "" {
+		args = append(args, "--ca-cert", d.CaCert)
+	}
+
+	// Run the command:
+	cmdUdata := exec.Command("katoctl", args...)
 
 	// Forge the run command:
 	var cmdRun *exec.Cmd
