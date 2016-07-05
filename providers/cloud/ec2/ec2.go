@@ -171,7 +171,7 @@ func (d *Data) Add() {
 		d.SrcDstCheck = "true"
 	}
 
-	// Forge the udata command:
+	// Udata arguments bundle:
 	args := []string{"udata",
 		"--role", d.Role,
 		"--cluster-id", d.ClusterID,
@@ -190,12 +190,12 @@ func (d *Data) Add() {
 		"--gzip-udata",
 	}
 
-	// Append the certificate only if it is present:
+	// Append the --ca-cert flag if cert is present:
 	if d.CaCert != "" {
 		args = append(args, "--ca-cert", d.CaCert)
 	}
 
-	// Run the command:
+	// Forge the udata command:
 	cmdUdata := exec.Command("katoctl", args...)
 
 	// Forge the run command:

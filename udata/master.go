@@ -203,8 +203,8 @@ write_files:
    content: |
     [Unit]
     Description=Prometheus Service
-    After=docker.service
-    Requires=docker.service
+    After=docker.service rexray.service
+    Requires=docker.service rexray.service
 
     [Service]
     Restart=on-failure
@@ -515,8 +515,8 @@ write_files:
    content: |
     [Unit]
     Description=MongoDB
-    After=docker.service
-    Requires=docker.service
+    After=docker.service rexray.service
+    Requires=docker.service rexray.service
 
     [Service]
     Restart=on-failure
