@@ -164,7 +164,7 @@ coreos:
   - name: "fleet.service"
     command: "start"
 
-  - name: flanneld.service
+  - name: "flanneld.service"
     command: "start"
     drop-ins:
      - name: 50-network-config.conf
@@ -227,7 +227,7 @@ coreos:
      OnBootSec=2min
      OnUnitActiveSec=5min
 
-  - name: docker-gc.service
+  - name: "docker-gc.service"
     command: start
     content: |
      [Unit]
@@ -249,7 +249,7 @@ coreos:
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
        for i in $$(comm -23 images.local images.running); do docker rmi $$i; done; true'
 
-  - name: docker-gc.timer
+  - name: "docker-gc.timer"
     command: start
     content: |
      [Unit]

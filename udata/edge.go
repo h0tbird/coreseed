@@ -156,7 +156,7 @@ coreos:
   - name: "fleet.service"
     command: "start"
 
-  - name: flanneld.service
+  - name: "flanneld.service"
     command: "start"
     drop-ins:
      - name: 50-network-config.conf
