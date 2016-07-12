@@ -176,6 +176,12 @@ write_files:
         - files:
           - /etc/prometheus/targets/etcd.yml
 
+     - job_name: 'node'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/nodes.yml
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
@@ -820,6 +826,27 @@ write_files:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      labels:
+        role: worker
+
+ - path: "/etc/confd/conf.d/prom-node.toml"
+   content: |
+    [template]
+    src = "prom-node.tmpl"
+    dest = "/etc/prometheus/targets/node.yml"
+    keys = [
+      "/hosts/master",
+      "/hosts/worker",
+    ]
+
+ - path: "/etc/confd/templates/prom-node.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      labels:
+        role: master
+    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
