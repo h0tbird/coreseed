@@ -182,6 +182,12 @@ write_files:
         - files:
           - /etc/prometheus/targets/node.yml
 
+     - job_name: 'mesos'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/mesos.yml
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
@@ -847,6 +853,27 @@ write_files:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      labels:
+        role: worker
+
+ - path: "/etc/confd/conf.d/prom-mesos.toml"
+   content: |
+    [template]
+    src = "prom-mesos.tmpl"
+    dest = "/etc/prometheus/targets/mesos.yml"
+    keys = [
+      "/hosts/master",
+      "/hosts/worker",
+    ]
+
+ - path: "/etc/confd/templates/prom-mesos.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+      labels:
+        role: master
+    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9104{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
