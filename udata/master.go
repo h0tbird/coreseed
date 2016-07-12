@@ -164,7 +164,7 @@ write_files:
         - files:
           - /etc/prometheus/targets/prometheus.yml
 
-     - job_name: 'cAdvisor'
+     - job_name: 'cadvisor'
        scrape_interval: 10s
        file_sd_configs:
         - files:
@@ -187,6 +187,12 @@ write_files:
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/mesos.yml
+
+     - job_name: 'haproxy'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/haproxy.yml
 
  - path: "/etc/fleet/zookeeper.service"
    content: |
@@ -874,6 +880,20 @@ write_files:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+      labels:
+        role: worker
+
+ - path: "/etc/confd/conf.d/prom-haproxy.toml"
+   content: |
+    [template]
+    src = "prom-haproxy.tmpl"
+    dest = "/etc/prometheus/targets/haproxy.yml"
+    keys = [ "/hosts/worker" ]
+
+ - path: "/etc/confd/templates/prom-haproxy.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9102{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
