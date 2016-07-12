@@ -150,15 +150,20 @@ write_files:
    permissions: "0600"
    content: |
     global:
-      scrape_interval: 15s
-      external_labels:
-        monitor: 'codelab-monitor'
+     scrape_interval: 1m
+     scrape_timeout: 10s
+     evaluation_interval: 10s
+
+    rule_files:
+     - /etc/prometheus/prometheus.rules
 
     scrape_configs:
-      - job_name: 'prometheus'
-        scrape_interval: 5s
-        target_groups:
-          - targets: ['localhost:9191']
+     - job_name: 'prometheus'
+       scrape_interval: 10s
+       scheme: http
+       file_sd_configs:
+        - names:
+         - /etc/prometheus/targets/prometheus.yml
 
  - path: "/etc/fleet/zookeeper.service"
    content: |
@@ -737,9 +742,7 @@ write_files:
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name confd \
-      --volume /etc:/host/etc \
-      --volume /run:/host/run \
-      --volume /etc/confd:/etc/confd \
+      --volume /etc:/etc:rw \
       katosys/confd:v0.11.0-2 \
       -node 127.0.0.1:2379 \
       -watch"
@@ -751,6 +754,18 @@ write_files:
     [X-Fleet]
     Global=true
     MachineMetadata=role=master
+
+ - path: "/etc/confd/conf.d/prom-prometheus.toml"
+   content: |
+    [template]
+    src = "prom-prometheus.tmpl"
+    dest = "/etc/prometheus/targets/prometheus.yml"
+    keys = [ "/hosts" ]
+
+ - path: "/etc/confd/templates/prom-prometheus.tmpl"
+   content: |
+    - targets:{{range gets "/hosts/*"}}
+      - {{base .Key}}:9191{{end}}
 
 coreos:
 
