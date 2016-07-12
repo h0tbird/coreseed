@@ -143,6 +143,8 @@ write_files:
     --volume ${PWD}:/aws \
     h0tbird/awscli "${@}"
 
+ - path: "/etc/prometheus/targets/prometheus.yml"
+
  - path: "/etc/prometheus/prometheus.yml"
    permissions: "0600"
    content: |
@@ -158,9 +160,9 @@ write_files:
 
      - job_name: 'prometheus'
        scrape_interval: 10s
-       scheme: http
        file_sd_configs:
-        - names: ['/etc/prometheus/targets/prometheus.yml']
+        - files:
+          - /etc/prometheus/targets/prometheus.yml
 
  - path: "/etc/fleet/zookeeper.service"
    content: |
@@ -763,6 +765,27 @@ write_files:
    content: |
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9191{{"{{"}}end{{"}}"}}
+
+ - path: "/etc/confd/conf.d/prom-cadvisor.toml"
+   content: |
+    [template]
+    src = "prom-cadvisor.tmpl"
+    dest = "/etc/prometheus/targets/cadvisor.yml"
+    keys = [
+      "/hosts/master",
+      "/hosts/worker",
+    ]
+
+ - path: "/etc/confd/templates/prom-cadvisor.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      labels:
+        group: masters
+    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      labels:
+        group: workers
 
 coreos:
 
