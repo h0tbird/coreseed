@@ -164,6 +164,12 @@ write_files:
         - files:
           - /etc/prometheus/targets/prometheus.yml
 
+     - job_name: 'cAdvisor'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/cadvisor.yml
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
