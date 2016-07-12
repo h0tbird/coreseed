@@ -588,11 +588,11 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill haproxy-exporter
     ExecStartPre=-/usr/bin/docker rm -f haproxy-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/prometheus-exporters
+    ExecStartPre=-/usr/bin/docker pull katosys/exporters
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name haproxy-exporter \
-      katosys/prometheus-exporters haproxy_exporter \
+      katosys/exporters haproxy_exporter \
       -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
       -web.listen-address :9102"
     ExecStop=/usr/bin/docker stop -t 5 haproxy-exporter
@@ -617,11 +617,11 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill mesos-exporter
     ExecStartPre=-/usr/bin/docker rm -f mesos-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/prometheus-exporters
+    ExecStartPre=-/usr/bin/docker pull katosys/exporters
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name mesos-exporter \
-      katosys/prometheus-exporters mesos_exporter \
+      katosys/exporters mesos_exporter \
       -master http://$(hostname):5050 \
       -addr :9104"
     ExecStop=/usr/bin/docker stop -t 5 mesos-exporter
@@ -646,11 +646,11 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill mesos-exporter
     ExecStartPre=-/usr/bin/docker rm -f mesos-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/prometheus-exporters
+    ExecStartPre=-/usr/bin/docker pull katosys/exporters
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name mesos-exporter \
-      katosys/prometheus-exporters mesos_exporter \
+      katosys/exporters mesos_exporter \
       -slave http://$(hostname):5051 \
       -addr :9104"
     ExecStop=/usr/bin/docker stop -t 5 mesos-exporter
@@ -676,11 +676,11 @@ write_files:
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill node-exporter
     ExecStartPre=-/usr/bin/docker rm -f node-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/prometheus-exporters
+    ExecStartPre=-/usr/bin/docker pull katosys/exporters
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name node-exporter \
-      katosys/prometheus-exporters node_exporter \
+      katosys/exporters node_exporter \
       -web.listen-address :9101"
     ExecStop=/usr/bin/docker stop -t 5 node-exporter
 
@@ -704,11 +704,11 @@ write_files:
     EnvironmentFile=/etc/kato.env
     ExecStartPre=-/usr/bin/docker kill zookeeper-exporter
     ExecStartPre=-/usr/bin/docker rm -f zookeeper-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/prometheus-exporters
+    ExecStartPre=-/usr/bin/docker pull katosys/exporters
     ExecStart=/usr/bin/sh -c "docker run --rm \
       --net host \
       --name zookeeper-exporter \
-      katosys/prometheus-exporters zookeeper_exporter \
+      katosys/exporters zookeeper_exporter \
       -web.listen-address :9103 \
       $(echo ${KATO_ZK} | tr , ' ')"
     ExecStop=/usr/bin/docker stop -t 5 zookeeper-exporter
