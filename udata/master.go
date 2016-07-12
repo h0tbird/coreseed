@@ -720,6 +720,38 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
+ - path: "/etc/fleet/confd.service"
+   content: |
+    [Unit]
+    Description=Confd lightweight configuration management tool
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=on-failure
+    RestartSec=10
+    TimeoutStartSec=0
+    ExecStartPre=-/usr/bin/docker kill confd
+    ExecStartPre=-/usr/bin/docker rm -f confd
+    ExecStartPre=-/usr/bin/docker pull katosys/confd:v0.11.0-2
+    ExecStart=/usr/bin/sh -c "docker run --rm \
+      --net host \
+      --name confd \
+      --volume /etc:/host/etc \
+      --volume /run:/host/run \
+      --volume /etc/confd:/etc/confd \
+      katosys/confd:v0.11.0-2 \
+      -node 127.0.0.1:2379 \
+      -watch"
+    ExecStop=/usr/bin/docker stop -t 5 confd
+
+    [Install]
+    WantedBy=multi-user.target
+
+    [X-Fleet]
+    Global=true
+    MachineMetadata=role=master
+
 coreos:
 
  units:
