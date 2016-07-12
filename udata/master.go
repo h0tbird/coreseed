@@ -180,7 +180,7 @@ write_files:
        scrape_interval: 10s
        file_sd_configs:
         - files:
-          - /etc/prometheus/targets/nodes.yml
+          - /etc/prometheus/targets/node.yml
 
  - path: "/etc/fleet/zookeeper.service"
    content: |
