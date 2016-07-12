@@ -170,6 +170,12 @@ write_files:
         - files:
           - /etc/prometheus/targets/cadvisor.yml
 
+     - job_name: 'etcd'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/etcd.yml
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
@@ -213,8 +219,9 @@ write_files:
    content: |
     [Unit]
     Description=Prometheus Service
-    After=docker.service rexray.service
+    After=docker.service rexray.service confd.service
     Requires=docker.service rexray.service
+    Wants=confd.service
 
     [Service]
     Restart=on-failure
@@ -771,6 +778,8 @@ write_files:
    content: |
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9191{{"{{"}}end{{"}}"}}
+      labels:
+        role: master
 
  - path: "/etc/confd/conf.d/prom-cadvisor.toml"
    content: |
@@ -787,11 +796,32 @@ write_files:
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
-        group: masters
+        role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
-        group: workers
+        role: worker
+
+ - path: "/etc/confd/conf.d/prom-etcd.toml"
+   content: |
+    [template]
+    src = "prom-etcd.tmpl"
+    dest = "/etc/prometheus/targets/etcd.yml"
+    keys = [
+      "/hosts/master",
+      "/hosts/worker",
+    ]
+
+ - path: "/etc/confd/templates/prom-etcd.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      labels:
+        role: master
+    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      labels:
+        role: worker
 
 coreos:
 
