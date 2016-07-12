@@ -125,15 +125,12 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-
+    source /etc/kato.env
     PUSH+=$(echo $(hostname -i) $(hostname -f) $(hostname -s))$'\n'
     PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
-    etcdctl set /hosts/$(hostname -f) "${PUSH}"
-
-    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname -f) | sort); do
-      PULL+=$(etcdctl get ${i})$'\n'
-    done
-
+    etcdctl set /hosts/${KATO_ROLE}/$(hostname -f) "${PUSH}"
+    KEYS=$(etcdctl ls --recursive /hosts | grep $(hostname -d) | grep -v $(hostname -f) | sort)
+    for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
     cat /etc/.hosts > /etc/hosts
     echo "${PULL}" >> /etc/hosts
 

@@ -117,15 +117,12 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-
+    source /etc/kato.env
     PUSH+=$(echo $(hostname -i) $(hostname -f) $(hostname -s))$'\n'
     PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
-    etcdctl set /hosts/$(hostname -f) "${PUSH}"
-
-    for i in $(etcdctl ls /hosts 2>/dev/null | grep -v $(hostname -f) | sort); do
-      PULL+=$(etcdctl get ${i})$'\n'
-    done
-
+    etcdctl set /hosts/${KATO_ROLE}/$(hostname -f) "${PUSH}"
+    KEYS=$(etcdctl ls --recursive /hosts | grep $(hostname -d) | grep -v $(hostname -f) | sort)
+    for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
     cat /etc/.hosts > /etc/hosts
     echo "${PULL}" >> /etc/hosts
 
@@ -158,12 +155,12 @@ write_files:
      - /etc/prometheus/prometheus.rules
 
     scrape_configs:
+
      - job_name: 'prometheus'
        scrape_interval: 10s
        scheme: http
        file_sd_configs:
-        - names:
-         - /etc/prometheus/targets/prometheus.yml
+        - names: ['/etc/prometheus/targets/prometheus.yml']
 
  - path: "/etc/fleet/zookeeper.service"
    content: |
@@ -728,7 +725,7 @@ write_files:
  - path: "/etc/fleet/confd.service"
    content: |
     [Unit]
-    Description=Confd lightweight configuration management tool
+    Description=Lightweight configuration management tool
     After=docker.service
     Requires=docker.service
 
@@ -760,12 +757,12 @@ write_files:
     [template]
     src = "prom-prometheus.tmpl"
     dest = "/etc/prometheus/targets/prometheus.yml"
-    keys = [ "/hosts" ]
+    keys = [ "/hosts/master" ]
 
  - path: "/etc/confd/templates/prom-prometheus.tmpl"
    content: |
-    - targets:{{range gets "/hosts/*"}}
-      - {{base .Key}}:9191{{end}}
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9191{{"{{"}}end{{"}}"}}
 
 coreos:
 
