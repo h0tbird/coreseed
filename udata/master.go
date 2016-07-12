@@ -194,6 +194,12 @@ write_files:
         - files:
           - /etc/prometheus/targets/haproxy.yml
 
+     - job_name: 'zookeeper'
+       scrape_interval: 10s
+       file_sd_configs:
+        - files:
+          - /etc/prometheus/targets/zookeeper.yml
+
  - path: "/etc/fleet/zookeeper.service"
    content: |
     [Unit]
@@ -896,6 +902,20 @@ write_files:
       - {{"{{"}}base .Key{{"}}"}}:9102{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+
+ - path: "/etc/confd/conf.d/prom-zookeeper.toml"
+   content: |
+    [template]
+    src = "prom-zookeeper.tmpl"
+    dest = "/etc/prometheus/targets/zookeeper.yml"
+    keys = [ "/hosts/master" ]
+
+ - path: "/etc/confd/templates/prom-zookeeper.tmpl"
+   content: |
+    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9103{{"{{"}}end{{"}}"}}
+      labels:
+        role: master
 
 coreos:
 
