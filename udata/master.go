@@ -200,37 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/pritunl.service"
-   content: |
-    [Unit]
-    Description=Pritunl
-    After=docker.service mongodb.service
-    Requires=docker.service mongodb.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill pritunl
-    ExecStartPre=-/usr/bin/docker rm pritunl
-    ExecStartPre=-/usr/bin/docker pull h0tbird/pritunl:v1.21.954.48-3
-    ExecStart=/usr/bin/sh -c "docker run \
-      --privileged \
-      --name pritunl \
-      --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-      h0tbird/pritunl:v1.21.954.48-3"
-    ExecStop=/usr/bin/docker stop -t 5 pritunl
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=edge
-
  - path: "/etc/fleet/haproxy-exporter.service"
    content: |
     [Unit]

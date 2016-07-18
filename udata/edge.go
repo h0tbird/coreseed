@@ -250,6 +250,34 @@ coreos:
      [Install]
      WantedBy=multi-user.target
 
+  - name: "pritunl.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Pritunl
+     After=docker.service mongodb.service
+     Requires=docker.service mongodb.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull h0tbird/pritunl:v1.21.954.48-3
+     ExecStart=/usr/bin/sh -c "docker run \
+       --privileged \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
+       h0tbird/pritunl:v1.21.954.48-3"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
   - name: "update-ca-certificates.service"
     drop-ins:
      - name: 50-rehash-certs.conf
