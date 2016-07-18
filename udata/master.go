@@ -200,39 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/mongodb.service"
-   content: |
-    [Unit]
-    Description=MongoDB
-    After=docker.service rexray.service
-    Requires=docker.service rexray.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill mongodb
-    ExecStartPre=-/usr/bin/docker rm mongodb
-    ExecStartPre=-/usr/bin/docker pull mongo:3.2
-    ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-pritunl-mongo -d rexray
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name mongodb \
-      --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --volume ${KATO_CLUSTER_ID}-pritunl-mongo:/data/db:rw \
-      mongo:3.2 \
-      --bind_ip 127.0.0.1"
-    ExecStop=/usr/bin/docker stop -t 5 mongodb
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=edge
-
  - path: "/etc/fleet/pritunl.service"
    content: |
     [Unit]
