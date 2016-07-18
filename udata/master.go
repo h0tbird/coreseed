@@ -200,35 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/mesos-master-exporter.service"
-   content: |
-    [Unit]
-    Description=Prometheus mesos master exporter
-    After=docker.service mesos-master.service
-    Requires=docker.service mesos-master.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill mesos-exporter
-    ExecStartPre=-/usr/bin/docker rm -f mesos-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name mesos-exporter \
-      katosys/exporters:v0.1.0-1 mesos_exporter \
-      -master http://$(hostname):5050 \
-      -addr :9104"
-    ExecStop=/usr/bin/docker stop -t 5 mesos-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/mesos-agent-exporter.service"
    content: |
     [Unit]
@@ -805,6 +776,32 @@ coreos:
      [Timer]
      OnBootSec=2min
      OnUnitActiveSec=5min
+
+  - name: "mesos-master-exporter.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus mesos master exporter
+     After=docker.service mesos-master.service
+     Requires=docker.service mesos-master.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       katosys/exporters:v0.1.0-1 mesos_exporter \
+       -master http://$(hostname):5050 \
+       -addr :9104"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
 
  flannel:
   interface: $private_ipv4
