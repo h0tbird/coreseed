@@ -110,9 +110,8 @@ marc@desk-1 ~ $ ssh -A core@edge-1.ext.<ns1-managed-public-domain>
 core@edge-1 ~ $ ssh -A master-1
 ```
 
-Use `fleetctl` to start all the service units while you check the status on the first terminal. Wait for *Zookeeper* to become active and running before starting all the remaining units:
+Use `fleetctl` to start all the service units while you check the status on the first terminal:
 ```bash
-core@master-1 ~ $ fleetctl start /etc/fleet/zookeeper.service
 core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 ```
 
