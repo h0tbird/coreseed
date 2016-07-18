@@ -42,7 +42,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 # Overview
 
-[CoreOS](https://coreos.com/) is the foundation on which *Káto* is built. It provides the fundamental components used to assemble container-based distributed systems: [etcd](https://github.com/coreos/etcd) is used for consensus and discovery, [fleet](https://github.com/coreos/etcd) is a distributed init system, [flannel](https://github.com/coreos/flannel) is used for virtual networking and [rkt](https://github.com/coreos/rkt) and [docker](https://github.com/docker/docker) are container engines.
+[CoreOS](https://coreos.com/) is the foundation on which *Káto* is built. It provides the fundamental components used to assemble container-based distributed systems: [etcd](https://github.com/coreos/etcd) is used for consensus and discovery, [flannel](https://github.com/coreos/flannel) is used for virtual networking and [rkt](https://github.com/coreos/rkt) and [docker](https://github.com/docker/docker) are container engines.
 
 All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apache/mesos) cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in *Mesos* parlance) which can run on top in order to utilise the exposed compute resources.
 
@@ -98,21 +98,6 @@ Once you have deployed the infrastructure, run sanity checks to evaluate whether
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<ns1-managed-public-domain>
 core@edge-1 ~ $ etcdctl cluster-health
-core@edge-1 ~ $ fleetctl list-machines
-core@edge-1 ~ $ watch "fleetctl list-units"
-```
-
-## 4. Start the stack
-Open a second terminal to `edge-1` (bastion host) and jump to `master-1` from there (don't forget to enable forwarding of the authentication agent `ssh -A`). If you are using *Vagrant* you can ssh directly to `master-1` instead:
-
-```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<ns1-managed-public-domain>
-core@edge-1 ~ $ ssh -A master-1
-```
-
-Use `fleetctl` to start all the service units while you check the status on the first terminal:
-```bash
-core@master-1 ~ $ fleetctl start /etc/fleet/*.service
 ```
 
 ## 5. Setup pritunl
