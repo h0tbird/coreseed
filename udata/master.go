@@ -200,76 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/marathon-lb.service"
-   content: |
-    [Unit]
-    Description=marathon-lb
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill marathon-lb
-    ExecStartPre=-/usr/bin/docker rm marathon-lb
-    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.3.0
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name marathon-lb \
-      --net host \
-      --privileged \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --env PORTS=9090,9091 \
-      mesosphere/marathon-lb:v1.3.0 sse \
-      --marathon http://marathon:8080 \
-      --health-check \
-      --group external \
-      --group internal"
-    ExecStop=/usr/bin/docker stop -t 5 marathon-lb
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=worker
-
- - path: "/etc/fleet/cadvisor.service"
-   content: |
-    [Unit]
-    Description=cAdvisor Service
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill cadvisor
-    ExecStartPre=-/usr/bin/docker rm -f cadvisor
-    ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.23.2
-    ExecStart=/usr/bin/sh -c "docker run \
-      --net host \
-      --name cadvisor \
-      --volume /:/rootfs:ro \
-      --volume /var/run:/var/run:rw \
-      --volume /sys:/sys:ro \
-      --volume /var/lib/docker/:/var/lib/docker:ro \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      google/cadvisor:v0.23.2 \
-      --listen_ip $(hostname -i) \
-      --logtostderr \
-      --port=4194"
-    ExecStop=/usr/bin/docker stop -t 5 cadvisor
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-
  - path: "/etc/fleet/mongodb.service"
    content: |
     [Unit]
@@ -887,6 +817,39 @@ coreos:
        -web.console.libraries=/etc/prometheus/console_libraries \
        -web.console.templates=/etc/prometheus/consoles \
        -web.listen-address=:9191"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "cadvisor.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=cAdvisor service
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.23.2
+     ExecStart=/usr/bin/sh -c "docker run \
+       --net host \
+       --name %p \
+       --volume /:/rootfs:ro \
+       --volume /var/run:/var/run:rw \
+       --volume /sys:/sys:ro \
+       --volume /var/lib/docker/:/var/lib/docker:ro \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       google/cadvisor:v0.23.2 \
+       --listen_ip $(hostname -i) \
+       --logtostderr \
+       --port=4194"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
