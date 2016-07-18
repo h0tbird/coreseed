@@ -200,35 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/mesos-agent-exporter.service"
-   content: |
-    [Unit]
-    Description=Prometheus mesos agent exporter
-    After=docker.service mesos-agent.service
-    Requires=docker.service mesos-agent.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill mesos-exporter
-    ExecStartPre=-/usr/bin/docker rm -f mesos-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name mesos-exporter \
-      katosys/exporters:v0.1.0-1 mesos_exporter \
-      -slave http://$(hostname):5051 \
-      -addr :9104"
-    ExecStop=/usr/bin/docker stop -t 5 mesos-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=worker
-
  - path: "/etc/fleet/node-exporter.service"
    content: |
 
