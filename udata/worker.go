@@ -514,6 +514,31 @@ coreos:
      [Install]
      WantedBy=multi-user.target
 
+  - name: "node-exporter.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus node exporter
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       katosys/exporters:v0.1.0-1 node_exporter \
+       -web.listen-address :9101"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
  flannel:
   interface: $private_ipv4
 

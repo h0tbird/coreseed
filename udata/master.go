@@ -200,34 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/node-exporter.service"
-   content: |
-
-    [Unit]
-    Description=Prometheus node exporter
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill node-exporter
-    ExecStartPre=-/usr/bin/docker rm -f node-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name node-exporter \
-      katosys/exporters:v0.1.0-1 node_exporter \
-      -web.listen-address :9101"
-    ExecStop=/usr/bin/docker stop -t 5 node-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-
  - path: "/etc/fleet/zookeeper-exporter.service"
    content: |
     [Unit]
@@ -769,6 +741,31 @@ coreos:
        katosys/exporters:v0.1.0-1 mesos_exporter \
        -master http://$(hostname):5050 \
        -addr :9104"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "node-exporter.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus node exporter
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       katosys/exporters:v0.1.0-1 node_exporter \
+       -web.listen-address :9101"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
