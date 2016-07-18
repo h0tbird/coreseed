@@ -239,50 +239,6 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/mesos-dns.service"
-   content: |
-    [Unit]
-    Description=Mesos DNS
-    After=docker.service zookeeper.service mesos-master.service
-    Requires=docker.service zookeeper.service mesos-master.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill mesos-dns
-    ExecStartPre=-/usr/bin/docker rm mesos-dns
-    ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name mesos-dns \
-      --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --env MDNS_ZK=zk://${KATO_ZK}/mesos \
-      --env MDNS_REFRESHSECONDS=45 \
-      --env MDNS_LISTENER=$(hostname -i) \
-      --env MDNS_HTTPON=false \
-      --env MDNS_TTL=45 \
-      --env MDNS_RESOLVERS=8.8.8.8 \
-      --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
-      --env MDNS_IPSOURCE=netinfo \
-      h0tbird/mesos-dns:v0.5.2-1"
-    ExecStartPost=/usr/bin/sh -c ' \
-      echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
-      echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
-    ExecStop=/usr/bin/sh -c ' \
-      echo search $(hostname -d) > /etc/resolv.conf && \
-      echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-    ExecStop=/usr/bin/docker stop -t 5 mesos-dns
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/marathon.service"
    content: |
     [Unit]
@@ -866,7 +822,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker rm %p
      ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.1
      ExecStartPre=/usr/bin/echo ruok | ncat $(hostname -i) 2181 | grep -q imok
-     ExecStart=/usr/bin/sh -c 'docker run \
+     ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --name %p \
        --net host \
@@ -878,7 +834,48 @@ coreos:
        --zk=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/master \
        --log_dir=/var/log/mesos \
-       --quorum=$(($KATO_MASTER_COUNT/2 + 1))'
+       --quorum=$(($KATO_MASTER_COUNT/2 + 1))"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "mesos-dns.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mesos DNS
+     After=docker.service zookeeper.service mesos-master.service
+     Requires=docker.service zookeeper.service mesos-master.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --env MDNS_ZK=zk://${KATO_ZK}/mesos \
+       --env MDNS_REFRESHSECONDS=45 \
+       --env MDNS_LISTENER=$(hostname -i) \
+       --env MDNS_HTTPON=false \
+       --env MDNS_TTL=45 \
+       --env MDNS_RESOLVERS=8.8.8.8 \
+       --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
+       --env MDNS_IPSOURCE=netinfo \
+       h0tbird/mesos-dns:v0.5.2-1"
+     ExecStartPost=/usr/bin/sh -c ' \
+       echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
+       echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
+     ExecStop=/usr/bin/sh -c ' \
+       echo search $(hostname -d) > /etc/resolv.conf && \
+       echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
