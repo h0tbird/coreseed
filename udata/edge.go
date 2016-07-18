@@ -325,10 +325,6 @@ coreos:
  flannel:
   interface: $private_ipv4
 
- fleet:
-  public-ip: "$private_ipv4"
-  metadata: "role=edge,id={{.HostID}}"
-
  etcd2:
  {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "edge-{{.HostID}}"
   initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"{{end}}
