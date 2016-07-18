@@ -200,36 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/zookeeper-exporter.service"
-   content: |
-    [Unit]
-    Description=Prometheus zookeeper exporter
-    After=docker.service zookeeper.service
-    Requires=docker.service zookeeper.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill zookeeper-exporter
-    ExecStartPre=-/usr/bin/docker rm -f zookeeper-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name zookeeper-exporter \
-      katosys/exporters:v0.1.0-1 zookeeper_exporter \
-      -web.listen-address :9103 \
-      $(echo ${KATO_ZK} | tr , ' ')"
-    ExecStop=/usr/bin/docker stop -t 5 zookeeper-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/confd/conf.d/prom-prometheus.toml"
    content: |
     [template]
@@ -766,6 +736,33 @@ coreos:
        --name %p \
        katosys/exporters:v0.1.0-1 node_exporter \
        -web.listen-address :9101"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "zookeeper-exporter.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus zookeeper exporter
+     After=docker.service zookeeper.service
+     Requires=docker.service zookeeper.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       katosys/exporters:v0.1.0-1 zookeeper_exporter \
+       -web.listen-address :9103 \
+       $(echo ${KATO_ZK} | tr , ' ')"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
