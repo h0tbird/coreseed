@@ -239,43 +239,6 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/marathon.service"
-   content: |
-    [Unit]
-    Description=Marathon
-    After=docker.service zookeeper.service mesos-master.service
-    Requires=docker.service zookeeper.service mesos-master.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill marathon
-    ExecStartPre=-/usr/bin/docker rm marathon
-    ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.1.1
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name marathon \
-      --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --env LIBPROCESS_IP=$(hostname -i) \
-      --env LIBPROCESS_PORT=9090 \
-      mesosphere/marathon:v1.1.1 \
-      --http_address $(hostname -i) \
-      --master zk://${KATO_ZK}/mesos \
-      --zk zk://${KATO_ZK}/marathon \
-      --task_launch_timeout 240000 \
-      --checkpoint"
-    ExecStop=/usr/bin/docker stop -t 5 marathon
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/marathon-lb.service"
    content: |
     [Unit]
@@ -876,6 +839,40 @@ coreos:
      ExecStop=/usr/bin/sh -c ' \
        echo search $(hostname -d) > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "marathon.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Marathon
+     After=docker.service zookeeper.service mesos-master.service
+     Requires=docker.service zookeeper.service mesos-master.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.1.1
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --env LIBPROCESS_IP=$(hostname -i) \
+       --env LIBPROCESS_PORT=9090 \
+       mesosphere/marathon:v1.1.1 \
+       --http_address $(hostname -i) \
+       --master zk://${KATO_ZK}/mesos \
+       --zk zk://${KATO_ZK}/marathon \
+       --task_launch_timeout 240000 \
+       --checkpoint"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
