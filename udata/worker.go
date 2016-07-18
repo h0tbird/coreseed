@@ -275,6 +275,7 @@ coreos:
        --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
        --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
        --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
+       --volume /lib64/libgpg-error.so.0:/lib/x86_64-linux-gnu/libgpg-error.so.0:ro \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/certs:/etc/certs:ro \
        mesosphere/mesos-slave:0.28.1 \
