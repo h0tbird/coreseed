@@ -200,45 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/zookeeper.service"
-   content: |
-    [Unit]
-    Description=Zookeeper
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill zookeeper
-    ExecStartPre=-/usr/bin/docker rm zookeeper
-    ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-2
-    ExecStart=/usr/bin/sh -c "docker run \
-      --net host \
-      --name zookeeper \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --env ZK_SERVER_ID=${KATO_HOST_ID} \
-      --env ZK_TICK_TIME=2000 \
-      --env ZK_INIT_LIMIT=5 \
-      --env ZK_SYNC_LIMIT=2 \
-      --env ZK_SERVERS=$${KATO_ZK//:2181/} \
-      --env ZK_DATA_DIR=/var/lib/zookeeper \
-      --env ZK_CLIENT_PORT=2181 \
-      --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
-      --env JMXDISABLE=true \
-      h0tbird/zookeeper:v3.4.8-2"
-    ExecStop=/usr/bin/docker stop -t 5 zookeeper
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/prometheus.service"
    content: |
     [Unit]
@@ -935,6 +896,82 @@ coreos:
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
 
+  - name: "format-ephemeral.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Formats the ephemeral drive
+     After=dev-xvdb.device
+     Requires=dev-xvdb.device
+
+     [Service]
+     Type=oneshot
+     RemainAfterExit=yes
+     ExecStart=/usr/sbin/wipefs -f /dev/xvdb
+     ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb
+
+  - name: "var-lib-docker.mount"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mount ephemeral to /var/lib/docker
+     After=format-ephemeral.service
+     Requires=format-ephemeral.service
+
+     [Mount]
+     What=/dev/xvdb
+     Where=/var/lib/docker
+     Type=ext4
+
+  - name: "docker.service"
+    drop-ins:
+     - name: "10-wait-docker.conf"
+       content: |
+        [Unit]
+        After=var-lib-docker.mount
+        Requires=var-lib-docker.mount
+
+     - name: "20-docker-opts.conf"
+       content: |
+        [Service]
+        Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
+
+  - name: "zookeeper.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Zookeeper
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-2
+     ExecStart=/usr/bin/sh -c 'docker run \
+       --net host \
+       --name %p \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --env ZK_SERVER_ID=${KATO_HOST_ID} \
+       --env ZK_TICK_TIME=2000 \
+       --env ZK_INIT_LIMIT=5 \
+       --env ZK_SYNC_LIMIT=2 \
+       --env ZK_SERVERS=$${KATO_ZK//:2181/} \
+       --env ZK_DATA_DIR=/var/lib/zookeeper \
+       --env ZK_CLIENT_PORT=2181 \
+       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
+       --env JMXDISABLE=true \
+       h0tbird/zookeeper:v3.4.8-2'
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
   - name: "update-ca-certificates.service"
     drop-ins:
      - name: 50-rehash-certs.conf
@@ -998,46 +1035,6 @@ coreos:
 
      [Install]
      WantedBy=docker.service
-
-  - name: "format-ephemeral.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Formats the ephemeral drive
-     After=dev-xvdb.device
-     Requires=dev-xvdb.device
-
-     [Service]
-     Type=oneshot
-     RemainAfterExit=yes
-     ExecStart=/usr/sbin/wipefs -f /dev/xvdb
-     ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb
-
-  - name: "var-lib-docker.mount"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Mount ephemeral to /var/lib/docker
-     Requires=format-ephemeral.service
-     After=format-ephemeral.service
-
-     [Mount]
-     What=/dev/xvdb
-     Where=/var/lib/docker
-     Type=ext4
-
-  - name: "docker.service"
-    drop-ins:
-     - name: "50-docker-opts.conf"
-       content: |
-        [Service]
-        Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
-
-     - name: "10-wait-docker.conf"
-       content: |
-        [Unit]
-        After=var-lib-docker.mount
-        Requires=var-lib-docker.mount
 
  flannel:
   interface: $private_ipv4
