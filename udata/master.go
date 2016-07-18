@@ -200,45 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/prometheus.service"
-   content: |
-    [Unit]
-    Description=Prometheus Service
-    After=docker.service rexray.service confd.service
-    Requires=docker.service rexray.service
-    Wants=confd.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill prometheus
-    ExecStartPre=-/usr/bin/docker rm -f prometheus
-    ExecStartPre=-/usr/bin/docker pull prom/prometheus:0.20.0
-    ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
-    ExecStart=/usr/bin/sh -c "docker run \
-      --net host \
-      --name prometheus \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --volume /etc/prometheus:/etc/prometheus:ro \
-      --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/prometheus:rw \
-      prom/prometheus:0.20.0 \
-      -config.file=/etc/prometheus/prometheus.yml \
-      -storage.local.path=/prometheus \
-      -web.console.libraries=/etc/prometheus/console_libraries \
-      -web.console.templates=/etc/prometheus/consoles \
-      -web.listen-address=:9191"
-    ExecStop=/usr/bin/docker stop -t 5 prometheus
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/marathon-lb.service"
    content: |
     [Unit]
@@ -510,36 +471,6 @@ write_files:
       -web.listen-address :9103 \
       $(echo ${KATO_ZK} | tr , ' ')"
     ExecStop=/usr/bin/docker stop -t 5 zookeeper-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
- - path: "/etc/fleet/confd.service"
-   content: |
-    [Unit]
-    Description=Lightweight configuration management tool
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill confd
-    ExecStartPre=-/usr/bin/docker rm -f confd
-    ExecStartPre=-/usr/bin/docker pull katosys/confd:v0.11.0-2
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name confd \
-      --volume /etc:/etc:rw \
-      katosys/confd:v0.11.0-2 \
-      -node 127.0.0.1:2379 \
-      -watch"
-    ExecStop=/usr/bin/docker stop -t 5 confd
 
     [Install]
     WantedBy=multi-user.target
@@ -878,6 +809,89 @@ coreos:
      [Install]
      WantedBy=multi-user.target
 
+  - name: "confd.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Lightweight configuration management tool
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/confd:v0.11.0-2
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       --volume /etc:/etc:rw \
+       katosys/confd:v0.11.0-2 \
+       -node 127.0.0.1:2379 \
+       -watch"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "rexray.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=REX-Ray volume plugin
+     Before=docker.service
+
+     [Service]
+     EnvironmentFile=/etc/rexray/rexray.env
+     ExecStartPre=-/bin/bash -c '\
+       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.3.3/rexray-Linux-x86_64-0.3.3.tar.gz; \
+       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
+       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
+     ExecStart=/opt/bin/rexray start -f
+     ExecReload=/bin/kill -HUP $MAINPID
+     KillMode=process
+
+     [Install]
+     WantedBy=docker.service
+
+  - name: "prometheus.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus service
+     After=docker.service rexray.service confd.service
+     Requires=docker.service rexray.service
+     Wants=confd.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull prom/prometheus:0.20.0
+     ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
+     ExecStart=/usr/bin/sh -c "docker run \
+       --net host \
+       --name %p \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --volume /etc/prometheus:/etc/prometheus:ro \
+       --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/prometheus:rw \
+       prom/prometheus:0.20.0 \
+       -config.file=/etc/prometheus/prometheus.yml \
+       -storage.local.path=/prometheus \
+       -web.console.libraries=/etc/prometheus/console_libraries \
+       -web.console.templates=/etc/prometheus/consoles \
+       -web.listen-address=:9191"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
   - name: "update-ca-certificates.service"
     drop-ins:
      - name: 50-rehash-certs.conf
@@ -921,26 +935,6 @@ coreos:
      [Timer]
      OnBootSec=2min
      OnUnitActiveSec=5min
-
-  - name: "rexray.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=REX-Ray volume plugin
-     Before=docker.service
-
-     [Service]
-     EnvironmentFile=/etc/rexray/rexray.env
-     ExecStartPre=-/bin/bash -c '\
-       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.3.3/rexray-Linux-x86_64-0.3.3.tar.gz; \
-       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
-     ExecStart=/opt/bin/rexray start -f
-     ExecReload=/bin/kill -HUP $MAINPID
-     KillMode=process
-
-     [Install]
-     WantedBy=docker.service
 
  flannel:
   interface: $private_ipv4
