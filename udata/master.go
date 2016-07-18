@@ -239,43 +239,6 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/mesos-master.service"
-   content: |
-    [Unit]
-    Description=Mesos Master
-    After=docker.service zookeeper.service
-    Requires=docker.service zookeeper.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill mesos-master
-    ExecStartPre=-/usr/bin/docker rm mesos-master
-    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.1
-    ExecStart=/usr/bin/sh -c "docker run \
-      --privileged \
-      --name mesos-master \
-      --net host \
-      --volume /var/lib/mesos:/var/lib/mesos:rw \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      mesosphere/mesos-master:0.28.1 \
-      --ip=$(hostname -i) \
-      --zk=zk://${KATO_ZK}/mesos \
-      --work_dir=/var/lib/mesos/master \
-      --log_dir=/var/log/mesos \
-      --quorum=$(($KATO_MASTER_COUNT/2 + 1))"
-    ExecStop=/usr/bin/docker stop -t 5 mesos-master
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=master
-
  - path: "/etc/fleet/mesos-node.service"
    content: |
     [Unit]
@@ -967,6 +930,41 @@ coreos:
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
        --env JMXDISABLE=true \
        h0tbird/zookeeper:v3.4.8-2'
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
+  - name: "mesos-master.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mesos Master
+     After=docker.service zookeeper.service
+     Requires=docker.service zookeeper.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.1
+     ExecStartPre=/usr/bin/echo ruok | ncat $(hostname -i) 2181 | grep -q imok
+     ExecStart=/usr/bin/sh -c 'docker run \
+       --privileged \
+       --name %p \
+       --net host \
+       --volume /var/lib/mesos:/var/lib/mesos:rw \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       mesosphere/mesos-master:0.28.1 \
+       --ip=$(hostname -i) \
+       --zk=zk://${KATO_ZK}/mesos \
+       --work_dir=/var/lib/mesos/master \
+       --log_dir=/var/log/mesos \
+       --quorum=$(($KATO_MASTER_COUNT/2 + 1))'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
