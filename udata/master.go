@@ -200,35 +200,6 @@ write_files:
         - files:
           - /etc/prometheus/targets/zookeeper.yml
 
- - path: "/etc/fleet/haproxy-exporter.service"
-   content: |
-    [Unit]
-    Description=Prometheus haproxy exporter
-    After=docker.service marathon-lb.service
-    Requires=docker.service marathon-lb.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill haproxy-exporter
-    ExecStartPre=-/usr/bin/docker rm -f haproxy-exporter
-    ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
-    ExecStart=/usr/bin/sh -c "docker run --rm \
-      --net host \
-      --name haproxy-exporter \
-      katosys/exporters:v0.1.0-1 haproxy_exporter \
-      -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
-      -web.listen-address :9102"
-    ExecStop=/usr/bin/docker stop -t 5 haproxy-exporter
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=worker
-
  - path: "/etc/fleet/mesos-master-exporter.service"
    content: |
     [Unit]

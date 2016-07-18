@@ -462,6 +462,32 @@ coreos:
      [Install]
      WantedBy=docker.service
 
+  - name: "haproxy-exporter.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Prometheus haproxy exporter
+     After=docker.service marathon-lb.service
+     Requires=docker.service marathon-lb.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStart=/usr/bin/sh -c "docker run --rm \
+       --net host \
+       --name %p \
+       katosys/exporters:v0.1.0-1 haproxy_exporter \
+       -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
+       -web.listen-address :9102"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
  flannel:
   interface: $private_ipv4
 
