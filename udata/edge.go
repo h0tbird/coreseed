@@ -161,6 +161,65 @@ coreos:
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
 
+  - name: "format-ephemeral.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Formats the ephemeral drive
+     After=dev-xvdb.device
+     Requires=dev-xvdb.device
+
+     [Service]
+     Type=oneshot
+     RemainAfterExit=yes
+     ExecStart=/usr/sbin/wipefs -f /dev/xvdb
+     ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb
+
+  - name: "var-lib-docker.mount"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mount ephemeral to /var/lib/docker
+     Requires=format-ephemeral.service
+     After=format-ephemeral.service
+
+     [Mount]
+     What=/dev/xvdb
+     Where=/var/lib/docker
+     Type=ext4
+
+  - name: "docker.service"
+    drop-ins:
+     - name: "10-wait-docker.conf"
+       content: |
+        [Unit]
+        After=var-lib-docker.mount
+        Requires=var-lib-docker.mount
+     - name: "20-docker-opts.conf"
+       content: |
+        [Service]
+        Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
+
+  - name: "rexray.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=REX-Ray volume plugin
+     Before=docker.service
+
+     [Service]
+     EnvironmentFile=/etc/rexray/rexray.env
+     ExecStartPre=-/bin/bash -c '\
+       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.3.3/rexray-Linux-x86_64-0.3.3.tar.gz; \
+       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
+       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
+     ExecStart=/opt/bin/rexray start -f
+     ExecReload=/bin/kill -HUP $MAINPID
+     KillMode=process
+
+     [Install]
+     WantedBy=docker.service
+
   - name: "mongodb.service"
     command: "start"
     content: |
@@ -234,66 +293,6 @@ coreos:
      [Timer]
      OnBootSec=2min
      OnUnitActiveSec=5min
-
-  - name: "rexray.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=REX-Ray volume plugin
-     Before=docker.service
-
-     [Service]
-     EnvironmentFile=/etc/rexray/rexray.env
-     ExecStartPre=-/bin/bash -c '\
-       REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.3.3/rexray-Linux-x86_64-0.3.3.tar.gz; \
-       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
-     ExecStart=/opt/bin/rexray start -f
-     ExecReload=/bin/kill -HUP $MAINPID
-     KillMode=process
-
-     [Install]
-     WantedBy=docker.service
-
-  - name: "format-ephemeral.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Formats the ephemeral drive
-     After=dev-xvdb.device
-     Requires=dev-xvdb.device
-
-     [Service]
-     Type=oneshot
-     RemainAfterExit=yes
-     ExecStart=/usr/sbin/wipefs -f /dev/xvdb
-     ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb
-
-  - name: "var-lib-docker.mount"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Mount ephemeral to /var/lib/docker
-     Requires=format-ephemeral.service
-     After=format-ephemeral.service
-
-     [Mount]
-     What=/dev/xvdb
-     Where=/var/lib/docker
-     Type=ext4
-
-  - name: "docker.service"
-    drop-ins:
-     - name: "50-docker-opts.conf"
-       content: |
-        [Service]
-        Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
-
-     - name: "10-wait-docker.conf"
-       content: |
-        [Unit]
-        After=var-lib-docker.mount
-        Requires=var-lib-docker.mount
 
  flannel:
   interface: $private_ipv4
