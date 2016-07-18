@@ -158,9 +158,6 @@ coreos:
   - name: "etcd2.service"
     command: "start"
 
-  - name: "fleet.service"
-    command: "start"
-
   - name: "flanneld.service"
     command: "start"
     drop-ins:
