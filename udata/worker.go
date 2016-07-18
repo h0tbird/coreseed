@@ -209,6 +209,42 @@ coreos:
         [Service]
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'
 
+  - name: "go-dnsmasq.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Lightweight caching DNS proxy
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
+     ExecStartPre=/usr/bin/sh -c " \
+       etcdctl member list 2>1 | awk -F [/:] '{print $9}' | tr '\n' ',' > /tmp/ns && \
+       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:rw \
+       --volume /etc/hosts:/etc/hosts:ro \
+       janeczku/go-dnsmasq:release-1.0.6 \
+       --listen $(hostname -i) \
+       --nameservers $(cat /tmp/ns) \
+       --hostsfile /etc/hosts \
+       --hostsfile-poll 60 \
+       --default-resolver \
+       --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
+       --append-search-domains"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
   - name: "update-ca-certificates.service"
     drop-ins:
      - name: 50-rehash-certs.conf

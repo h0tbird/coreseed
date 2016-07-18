@@ -243,8 +243,8 @@ write_files:
    content: |
     [Unit]
     Description=Mesos Node
-    After=docker.service dnsmasq.service
-    Wants=dnsmasq.service
+    After=docker.service go-dnsmasq.service
+    Wants=go-dnsmasq.service
     Requires=docker.service
 
     [Service]
@@ -436,45 +436,6 @@ write_files:
 
     [X-Fleet]
     Global=true
-
- - path: "/etc/fleet/dnsmasq.service"
-   content: |
-    [Unit]
-    Description=Lightweight caching DNS proxy
-    After=docker.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    ExecStartPre=-/usr/bin/docker kill dnsmasq
-    ExecStartPre=-/usr/bin/docker rm -f dnsmasq
-    ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
-    ExecStartPre=/usr/bin/sh -c " \
-      etcdctl member list 2>1 | awk -F [/:] '{print $9}' | tr '\n' ',' > /tmp/ns && \
-      awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
-    ExecStart=/usr/bin/sh -c "docker run \
-      --name dnsmasq \
-      --net host \
-      --volume /etc/resolv.conf:/etc/resolv.conf:rw \
-      --volume /etc/hosts:/etc/hosts:ro \
-      janeczku/go-dnsmasq:release-1.0.6 \
-      --listen $(hostname -i) \
-      --nameservers $(cat /tmp/ns) \
-      --hostsfile /etc/hosts \
-      --hostsfile-poll 60 \
-      --default-resolver \
-      --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
-      --append-search-domains"
-    ExecStop=/usr/bin/docker stop -t 5 dnsmasq
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=worker
 
  - path: "/etc/fleet/mongodb.service"
    content: |
