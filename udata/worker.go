@@ -245,6 +245,50 @@ coreos:
      [Install]
      WantedBy=multi-user.target
 
+  - name: "mesos-agent.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mesos agent
+     After=docker.service go-dnsmasq.service
+     Wants=go-dnsmasq.service
+     Requires=docker.service
+
+     [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.28.1
+     ExecStart=/usr/bin/sh -c "docker run \
+       --privileged \
+       --net host \
+       --pid host \
+       --name %p \
+       --volume /sys:/sys \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --volume /usr/bin/docker:/usr/bin/docker:ro \
+       --volume /var/run/docker.sock:/var/run/docker.sock:rw \
+       --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
+       --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
+       --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
+       --volume /var/lib/mesos:/var/lib/mesos:rw \
+       --volume /etc/certs:/etc/certs:ro \
+       mesosphere/mesos-slave:0.28.1 \
+       --ip=$(hostname -i) \
+       --containerizers=docker \
+       --executor_registration_timeout=2mins \
+       --master=zk://${KATO_ZK}/mesos \
+       --work_dir=/var/lib/mesos/node \
+       --log_dir=/var/log/mesos/node"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target
+
   - name: "update-ca-certificates.service"
     drop-ins:
      - name: 50-rehash-certs.conf

@@ -239,53 +239,6 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/mesos-node.service"
-   content: |
-    [Unit]
-    Description=Mesos Node
-    After=docker.service go-dnsmasq.service
-    Wants=go-dnsmasq.service
-    Requires=docker.service
-
-    [Service]
-    Restart=on-failure
-    RestartSec=10
-    TimeoutStartSec=0
-    EnvironmentFile=/etc/kato.env
-    ExecStartPre=-/usr/bin/docker kill mesos-node
-    ExecStartPre=-/usr/bin/docker rm mesos-node
-    ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.28.1
-    ExecStart=/usr/bin/sh -c "docker run \
-      --privileged \
-      --net host \
-      --pid host \
-      --name mesos-node \
-      --volume /sys:/sys \
-      --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-      --volume /etc/hosts:/etc/hosts:ro \
-      --volume /usr/bin/docker:/usr/bin/docker:ro \
-      --volume /var/run/docker.sock:/var/run/docker.sock:rw \
-      --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
-      --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
-      --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
-      --volume /var/lib/mesos:/var/lib/mesos:rw \
-      --volume /etc/certs:/etc/certs:ro \
-      mesosphere/mesos-slave:0.28.1 \
-      --ip=$(hostname -i) \
-      --containerizers=docker \
-      --executor_registration_timeout=2mins \
-      --master=zk://${KATO_ZK}/mesos \
-      --work_dir=/var/lib/mesos/node \
-      --log_dir=/var/log/mesos/node"
-    ExecStop=/usr/bin/docker stop -t 5 mesos-node
-
-    [Install]
-    WantedBy=multi-user.target
-
-    [X-Fleet]
-    Global=true
-    MachineMetadata=role=worker
-
  - path: "/etc/fleet/mesos-dns.service"
    content: |
     [Unit]
@@ -559,12 +512,12 @@ write_files:
     Global=true
     MachineMetadata=role=master
 
- - path: "/etc/fleet/mesos-node-exporter.service"
+ - path: "/etc/fleet/mesos-agent-exporter.service"
    content: |
     [Unit]
-    Description=Prometheus mesos node exporter
-    After=docker.service mesos-node.service
-    Requires=docker.service mesos-node.service
+    Description=Prometheus mesos agent exporter
+    After=docker.service mesos-agent.service
+    Requires=docker.service mesos-agent.service
 
     [Service]
     Restart=on-failure
