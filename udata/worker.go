@@ -459,6 +459,9 @@ coreos:
      Before=docker.service
 
      [Service]
+     Restart=on-failure
+     RestartSec=10
+     TimeoutStartSec=0
      EnvironmentFile=/etc/rexray/rexray.env
      ExecStartPre=-/bin/bash -c '\
        REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.3.3/rexray-Linux-x86_64-0.3.3.tar.gz; \
