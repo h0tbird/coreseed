@@ -142,7 +142,7 @@ write_files:
     docker run -i --rm \
     --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
-    h0tbird/awscli "${@}"
+    katosys/awscli:v1.10.47-1 "${@}"
 
  - path: "/etc/prometheus/targets/prometheus.yml"
 
