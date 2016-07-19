@@ -643,17 +643,6 @@ coreos:
      [Install]
      WantedBy=multi-user.target
 
-  - name: "update-ca-certificates.service"
-    drop-ins:
-     - name: 50-rehash-certs.conf
-       content: |
-        [Unit]
-        ConditionPathIsSymbolicLink=
-
-        [Service]
-        ExecStart=
-        ExecStart=/usr/sbin/update-ca-certificates
-
   - name: "ns1dns.service"
     command: "start"
     content: |

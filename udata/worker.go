@@ -113,13 +113,25 @@ write_files:
 
     done
 
- - path: "/opt/bin/getcerts"
+ {{if .CaCert}}- path: "/opt/bin/getcerts"
    permissions: "0755"
    content: |
     #!/bin/bash
-
     [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-    /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+ {{- end}}
+
+ {{if .CaCert}}- path: "/opt/bin/custom-ca"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    source /etc/kato.env
+    [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
+      ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
+      NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
+      [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
+    }
+ {{- end}}
 
  - path: "/opt/bin/etchost"
    permissions: "0755"
@@ -165,6 +177,17 @@ coreos:
        content: |
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
+
+  - name: "custom-ca.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Re-hash SSL certificates
+     Before=docker.service
+
+     [Service]
+     Type=oneshot
+     ExecStart=/opt/bin/custom-ca
 
   - name: "format-ephemeral.service"
     command: "start"
@@ -351,17 +374,6 @@ coreos:
 
      [Install]
      WantedBy=multi-user.target
-
-  - name: "update-ca-certificates.service"
-    drop-ins:
-     - name: 50-rehash-certs.conf
-       content: |
-        [Unit]
-        ConditionPathIsSymbolicLink=
-
-        [Service]
-        ExecStart=
-        ExecStart=/usr/sbin/update-ca-certificates
 
   - name: "ns1dns.service"
     command: "start"
