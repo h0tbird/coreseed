@@ -150,9 +150,10 @@ write_files:
    permissions: "0755"
    content: |
     #!/bin/bash
-    A=$(fleetctl list-machines -fields=ip -no-legend)
-    for i in $A; do ssh -o UserKnownHostsFile=/dev/null \
-    -o StrictHostKeyChecking=no $i -C "$*"; done
+    G=$(tput setaf 2); N=$(tput sgr0)
+    A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
+    for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
+    -o StrictHostKeyChecking=no $i -C "${@:2}" 2> /dev/null; done
 
  - path: "/opt/bin/awscli"
    permissions: "0755"
