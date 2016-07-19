@@ -762,8 +762,8 @@ coreos:
   interface: $private_ipv4
 
  etcd2:
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "master-{{.HostID}}"
-  initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
+  name: "master-{{.HostID}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial-cluster: "master-1=http://master-1:2380,master-2=http://master-2:2380,master-3=http://master-3:2380"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   initial-advertise-peer-urls: "http://$private_ipv4:2380"
