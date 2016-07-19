@@ -440,13 +440,13 @@ coreos:
        etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{"{{"}}.Image{{"}}"}}" | sort -u)"; \
        for i in $$(etcdctl ls /docker/images); do etcdctl get $$i; done | sort -u > images.running; \
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
-       for i in $$(comm -23 images.local images.running); do docker rmi $$i; done; true'
+       for i in $$(comm -23 images.local images.running | grep -v katosys); do docker rmi $$i; done; true'
 
   - name: "docker-gc.timer"
     command: start
     content: |
      [Unit]
-     Description=Run docker-gc.service every 30 minutes
+     Description=Run docker-gc.service every 60 minutes
 
      [Timer]
      OnBootSec=1min
