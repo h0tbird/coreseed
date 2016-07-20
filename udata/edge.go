@@ -34,6 +34,7 @@ write_files:
     KATO_ROLE={{.Role}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
+    KATO_UNITS='etcd2 flanneld docker rexray mongodb pritunl'
 
  {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
@@ -143,6 +144,14 @@ write_files:
     --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
     katosys/awscli:v1.10.47-1 "${@}"
+
+ - path: "/opt/bin/katostat"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    source /etc/kato.env
+    systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_UNITS} | \
+    awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
 
 coreos:
 
