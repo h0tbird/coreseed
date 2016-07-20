@@ -98,6 +98,7 @@ Once you have deployed the infrastructure, run sanity checks to evaluate whether
 ```bash
 marc@desk-1 ~ $ ssh -A core@edge-1.ext.<managed-public-domain>
 core@edge-1 ~ $ etcdctl cluster-health
+core@edge-1 ~ $ for i in edge master worker; do loopssh master katostat; done
 ```
 
 ## 4. Setup pritunl
