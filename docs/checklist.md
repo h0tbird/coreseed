@@ -55,5 +55,5 @@ curl \
 This is most likely to be a *docker*-*fleet* communication problem. Was *fleet* up and running at the time *docker* started? Run the command below to check whether the IP address assigned by *fleet* to the *docker0* bridge is within the range managed by *fleet*, restart *docker* otherwise:
 
 ```
-loopssh ip r | grep docker0
+loopssh worker ip r | grep docker0
 ```

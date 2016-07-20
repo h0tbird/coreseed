@@ -8,7 +8,7 @@ Before you start make sure:
 
 #### The EC2 provider
 
-*Káto* can be deployed on *EC2* via the `katoctl ec2` provider. The `deploy` subcommand will call other commands and subcommands such as `setup` and `add` in order to orchestrate the deployment. Find below the output of `katoctl ec2 --help`:
+*Káto* can be deployed on *EC2* via the `katoctl ec2` provider. The `deploy` subcommand will recursively call other `katoctl` subcommands such as `ec2 setup` and `ec2 add` in order to orchestrate the deployment. Find below the output of `katoctl ec2 --help` for your reference:
 
 ```
 usage: katoctl ec2 <command> [<args> ...]
@@ -35,7 +35,7 @@ Subcommands:
 
 #### Deploy
 
-If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
+If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During the deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
 
 ```bash
 katoctl ec2 deploy \

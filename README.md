@@ -46,7 +46,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apache/mesos) cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in *Mesos* parlance) which can run on top in order to utilise the exposed compute resources.
 
-[Marathon](https://github.com/mesosphere/marathon) is one of such frameworks. It is a cluster-wide init and control system for long-running applications. Other frameworks like [Jenkins](https://github.com/jenkinsci/mesos-plugin) and [Elasticsearch ](https://github.com/mesos/elasticsearch) might share the same cluster resources.
+[Marathon](https://github.com/mesosphere/marathon) is one of such frameworks. It is a cluster-wide init and control system for long-running applications. Other frameworks like [Jenkins](https://github.com/jenkinsci/mesos-plugin) and [Elasticsearch ](https://github.com/mesos/elasticsearch) might coexist and share the same cluster resources.
 
 [REX-Ray](http://rexray.readthedocs.io/en/stable/) delivers persistent storage access for container runtimes, such as *Docker* and *Mesos*, and provides an easy interface for enabling advanced storage functionality across common storage, virtualization and cloud platforms.
 
@@ -73,7 +73,7 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 curl -s https://raw.githubusercontent.com/h0tbird/kato/master/install | bash
 ```
 
-##### From the source (for *Káto* developers)
+##### From the source code (for *Káto* developers)
 ```bash
 go get -u github.com/h0tbird/kato/cmd/katoctl
 go install github.com/h0tbird/kato/cmd/katoctl
@@ -96,11 +96,11 @@ eval "$(katoctl --completion-script-${0#-})"
 Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
 
 ```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<ns1-managed-public-domain>
+marc@desk-1 ~ $ ssh -A core@edge-1.ext.<managed-public-domain>
 core@edge-1 ~ $ etcdctl cluster-health
 ```
 
 ## 4. Setup pritunl
 *Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private networks.
-Access your *Pritunl* WebGUI at `http://edge-1.ext.<ns1-managed-public-domain>`
+Access your *Pritunl* WebGUI at `http://edge-1.ext.<managed-public-domain>`
 Make sure you setup udp port `18443` for VPN connections.

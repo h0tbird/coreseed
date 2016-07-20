@@ -20,7 +20,7 @@ export KATO_EDGE_COUNT=0
 Export your *NS1* private API key (optional) and your managed public domain:
 ```bash
 export KATO_NS1_API_KEY='<ns1-api-key>'
-export KATO_DOMAIN='<ns1-managed-public-domain>'
+export KATO_DOMAIN='<managed-public-domain>'
 ```
 
 Find below other options and its default values:
@@ -52,7 +52,7 @@ ssh-add ~/.vagrant.d/insecure_private_key
 vagrant ssh master-1
 ```
 
-Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist before you start the *Káto's* stack.
+Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist.
 
 #### Manage /etc/hosts
 
