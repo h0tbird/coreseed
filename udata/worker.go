@@ -56,16 +56,18 @@ write_files:
  - path: "/home/core/.bashrc"
    owner: "core:core"
    content: |
-    [[ $- != *i* ]] && return
-    alias ls='ls -hF --color=auto --group-directories-first'
+    [[ $- = *i* ]] && {
+      alias ls='ls -hF --color=auto --group-directories-first'
+      alias grep='grep --color=auto'
+    } || shopt -s expand_aliases
     alias l='ls -l'
     alias ll='ls -la'
-    alias grep='grep --color=auto'
     alias dim='docker images'
     alias dps='docker ps'
     alias drm='docker rm -v $(docker ps -qaf status=exited)'
     alias drmi='docker rmi $(docker images -qf dangling=true)'
     alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
+    export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin'
 
  - path: "/home/core/.aws/config"
    owner: "core:core"
