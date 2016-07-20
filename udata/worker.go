@@ -250,7 +250,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -287,7 +287,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -331,7 +331,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -363,7 +363,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -471,7 +471,7 @@ coreos:
      Before=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/rexray/rexray.env
@@ -495,7 +495,7 @@ coreos:
      Requires=docker.service marathon-lb.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -521,7 +521,7 @@ coreos:
      Requires=docker.service mesos-agent.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -547,7 +547,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p

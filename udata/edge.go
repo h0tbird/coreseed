@@ -217,7 +217,7 @@ coreos:
      Before=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/rexray/rexray.env
@@ -241,7 +241,7 @@ coreos:
      Requires=docker.service rexray.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -271,7 +271,7 @@ coreos:
      Requires=docker.service mongodb.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p

@@ -402,7 +402,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -438,7 +438,7 @@ coreos:
      Requires=docker.service zookeeper.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -473,7 +473,7 @@ coreos:
      Requires=docker.service zookeeper.service mesos-master.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -514,7 +514,7 @@ coreos:
      Requires=docker.service zookeeper.service mesos-master.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -548,7 +548,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -574,7 +574,7 @@ coreos:
      Before=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/rexray/rexray.env
@@ -599,7 +599,7 @@ coreos:
      Wants=confd.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
@@ -634,7 +634,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -700,7 +700,7 @@ coreos:
      Requires=docker.service mesos-master.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -726,7 +726,7 @@ coreos:
      Requires=docker.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
@@ -751,7 +751,7 @@ coreos:
      Requires=docker.service zookeeper.service
 
      [Service]
-     Restart=on-failure
+     Restart=always
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
