@@ -125,7 +125,7 @@ func (d *Data) Deploy() {
 
 	// Setup the environment (I):
 	wg.Add(4)
-	go d.setupEnvironment(&wg)
+	go d.setupEC2(&wg)
 	go d.createDNSZones(&wg)
 	go d.retrieveEtcdToken(&wg)
 	go d.retrieveCoreosAmiID(&wg)
@@ -393,10 +393,10 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: setupEnvironment
+// func: setupEC2
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupEnvironment(wg *sync.WaitGroup) {
+func (d *Data) setupEC2(wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
