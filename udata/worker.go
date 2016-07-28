@@ -6,21 +6,21 @@ package udata
 
 const templWorker = `#cloud-config
 
-hostname: "worker-{{.HostID}}.{{.Domain}}"
+hostname: "{{.Role}}-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 worker-{{.HostID}}.{{.Domain}} worker-{{.HostID}} marathon-lb
-    $private_ipv4 worker-{{.HostID}}.int.{{.Domain}} worker-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 worker-{{.HostID}}.{{.Domain}} worker-{{.HostID}} marathon-lb
-    $private_ipv4 worker-{{.HostID}}.int.{{.Domain}} worker-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
    content: |

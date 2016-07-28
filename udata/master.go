@@ -6,21 +6,21 @@ package udata
 
 const templMaster = `#cloud-config
 
-hostname: "master-{{.HostID}}.{{.Domain}}"
+hostname: "{{.Role}}-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 master-{{.HostID}}.{{.Domain}} master-{{.HostID}}
-    $private_ipv4 master-{{.HostID}}.int.{{.Domain}} master-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 master-{{.HostID}}.{{.Domain}} master-{{.HostID}}
-    $private_ipv4 master-{{.HostID}}.int.{{.Domain}} master-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
    content: |

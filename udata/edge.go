@@ -6,21 +6,21 @@ package udata
 
 const templEdge = `#cloud-config
 
-hostname: "edge-{{.HostID}}.{{.Domain}}"
+hostname: "{{.Role}}-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 edge-{{.HostID}}.{{.Domain}} edge-{{.HostID}}
-    $private_ipv4 edge-{{.HostID}}.int.{{.Domain}} edge-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 edge-{{.HostID}}.{{.Domain}} edge-{{.HostID}}
-    $private_ipv4 edge-{{.HostID}}.int.{{.Domain}} edge-{{.HostID}}.int
+    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
    content: |
