@@ -116,26 +116,6 @@ write_files:
 
     done
 
- {{if .CaCert}}- path: "/opt/bin/getcerts"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
- {{- end}}
-
- {{if .CaCert}}- path: "/opt/bin/custom-ca"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    source /etc/kato.env
-    [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
-      ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
-      NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
-      [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
-    }
- {{- end}}
-
  - path: "/opt/bin/etchost"
    permissions: "0755"
    content: |
@@ -174,6 +154,26 @@ write_files:
     source /etc/kato.env
     systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_UNITS} | \
     awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
+
+ {{if .CaCert}}- path: "/opt/bin/getcerts"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
+    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+ {{- end}}
+
+ {{if .CaCert}}- path: "/opt/bin/custom-ca"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    source /etc/kato.env
+    [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
+      ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
+      NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
+      [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
+    }
+ {{- end}}
 
 coreos:
 
