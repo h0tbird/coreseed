@@ -233,8 +233,14 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
 		Enum("master", "worker", "edge")
 
+	flEc2AddHostName = cmdEc2Add.Flag("host-name",
+		"hostname = <host-name>-<host-id>").
+		Required().PlaceHolder("KATO_EC2_ADD_HOST_NAME").
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_HOST_NAME").
+		String()
+
 	flEc2AddHostID = cmdEc2Add.Flag("host-id",
-		"New instance host ID.").
+		"hostname = <host-name>-<host-id>").
 		Required().PlaceHolder("KATO_EC2_ADD_HOST_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_HOST_ID").
 		String()
@@ -251,10 +257,10 @@ var (
 
 	cmdEc2Run = cmdEc2.Command("run", "Starts a CoreOS instance on Amazon EC2.")
 
-	flEc2RunHostname = cmdEc2Run.Flag("hostname",
+	flEc2RunHostName = cmdEc2Run.Flag("host-name",
 		"For the EC2 dashboard.").
-		PlaceHolder("KATO_EC2_RUN_HOSTNAME").
-		OverrideDefaultFromEnvar("KATO_EC2_RUN_HOSTNAME").
+		PlaceHolder("KATO_EC2_RUN_HOST_NAME").
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_HOST_NAME").
 		String()
 
 	flEc2RunRegion = cmdEc2Run.Flag("region",

@@ -6,21 +6,21 @@ package udata
 
 const templMaster = `#cloud-config
 
-hostname: "{{.Role}}-{{.HostID}}.{{.Domain}}"
+hostname: "{{.HostName}}-{{.HostID}}.{{.Domain}}"
 
 write_files:
 
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
-    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}} {{.HostName}}-{{.HostID}}.int
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.Role}}-{{.HostID}}.{{.Domain}} {{.Role}}-{{.HostID}} marathon-lb
-    $private_ipv4 {{.Role}}-{{.HostID}}.int.{{.Domain}} {{.Role}}-{{.HostID}}.int
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}} {{.HostName}}-{{.HostID}}.int
 
  - path: "/etc/resolv.conf"
    content: |
@@ -32,6 +32,7 @@ write_files:
     KATO_CLUSTER_ID={{.ClusterID}}
     KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLE={{.Role}}
+    KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
     KATO_UNITS='etcd2 flanneld docker zookeeper rexray mesos-master mesos-dns marathon confd prometheus cadvisor mesos-master-exporter node-exporter zookeeper-exporter'

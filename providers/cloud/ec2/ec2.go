@@ -46,7 +46,6 @@ type Instance struct {
 	SubnetID     string `json:"SubnetID"`     //  ec2:run |
 	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
 	InstanceType string `json:"InstanceType"` //  ec2:run |
-	Hostname     string `json:"Hostname"`     //  ec2:run |
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
 	PrivateIP    string `json:"PrivateIP"`    //  ec2:run |
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
@@ -54,8 +53,9 @@ type Instance struct {
 	ELBName      string `json:"ELBName"`      //  ec2:run |
 	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
 	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
-	Role         string `json:"Role"`         //          | ec2:add
+	HostName     string `json:"HostName"`     //  ec2:run | ec2:add
 	HostID       string `json:"HostID"`       //          | ec2:add
+	Role         string `json:"Role"`         //          | ec2:add
 }
 
 // State data.
@@ -176,6 +176,7 @@ func (d *Data) Add() {
 		"--role", d.Role,
 		"--cluster-id", d.ClusterID,
 		"--master-count", strconv.Itoa(int(d.MasterCount)),
+		"--host-name", d.HostName,
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
 		"--ec2-region", d.Region,
@@ -205,7 +206,7 @@ func (d *Data) Add() {
 	case "master":
 		i, _ := strconv.Atoi(d.HostID)
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
+			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -220,7 +221,7 @@ func (d *Data) Add() {
 
 	case "worker":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
+			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -235,7 +236,7 @@ func (d *Data) Add() {
 
 	case "edge":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--hostname", d.Role+"-"+d.HostID+"."+d.Domain,
+			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -513,6 +514,7 @@ func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
 				"--role", role,
+				"--host-name", role,
 				"--host-id", strconv.Itoa(id),
 				"--ami-id", d.AmiID)
 
@@ -605,12 +607,12 @@ func (d *Data) runInstance(udata []byte) error {
 		NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
-	if err := d.tag(d.InstanceID, "Name", d.Hostname); err != nil {
+	if err := d.tag(d.InstanceID, "Name", d.HostName); err != nil {
 		return err
 	}
 
 	// Pretty-print to stderr:
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.Hostname}).
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.HostName}).
 		Info("New EC2 instance tagged")
 
 	return nil

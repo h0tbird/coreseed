@@ -29,7 +29,7 @@ for i in $(seq 3); do
 
   katoctl pkt run \
   --api-key ${API_KEY} \
-  --hostname master-${i}.cell-1.ewr \
+  --host-name master-${i}.cell-1.ewr \
   --project-id ${PROJECT_ID} \
   --plan baremetal_0 \
   --os ${COREOS_CHANNEL} \
@@ -56,7 +56,7 @@ for i in $(seq 2); do
 
   katoctl pkt run \
   --api-key ${API_KEY} \
-  --hostname worker-${i}.cell-1.ewr \
+  --host-name worker-${i}.cell-1.ewr \
   --project-id ${PROJECT_ID} \
   --plan baremetal_0 \
   --os ${COREOS_CHANNEL} \
@@ -84,7 +84,7 @@ for i in $(seq 1); do
 
   katoctl pkt run \
   --api-key ${API_KEY} \
-  --hostname edge-${i}.cell-1.ewr \
+  --host-name edge-${i}.cell-1.ewr \
   --project-id ${PROJECT_ID} \
   --plan baremetal_0 \
   --os ${COREOS_CHANNEL} \

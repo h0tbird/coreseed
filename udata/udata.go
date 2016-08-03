@@ -26,6 +26,7 @@ import (
 type Data struct {
 	MasterCount         int
 	ClusterID           string
+	HostName            string
 	HostID              string
 	Domain              string
 	Role                string

@@ -64,6 +64,7 @@ func main() {
 		udata := udata.Data{
 			MasterCount:         *flUdataMasterCount,
 			ClusterID:           *flUdataClusterID,
+			HostName:            *flUdataHostName,
 			HostID:              *flUdataHostID,
 			Domain:              *flUdataDomain,
 			Role:                *flUdataRole,
@@ -109,7 +110,7 @@ func main() {
 
 		pkt := pkt.Data{
 			APIKey:    *flPktRunAPIKey,
-			HostName:  *flPktRunHostname,
+			HostName:  *flPktRunHostName,
 			ProjectID: *flPktRunProjectID,
 			Plan:      *flPktRunPlan,
 			OS:        *flPktRunOS,
@@ -186,9 +187,10 @@ func main() {
 				ClusterID: *flEc2AddCluserID,
 			},
 			Instance: ec2.Instance{
-				Role:   *flEc2AddRole,
-				HostID: *flEc2AddHostID,
-				AmiID:  *flEc2AddAmiID,
+				Role:     *flEc2AddRole,
+				HostName: *flEc2AddHostName,
+				HostID:   *flEc2AddHostID,
+				AmiID:    *flEc2AddAmiID,
 			},
 		}
 
@@ -210,7 +212,7 @@ func main() {
 				SubnetID:     *flEc2RunSubnetID,
 				SecGrpID:     *flEc2RunSecGrpID,
 				InstanceType: *flEc2RunInsType,
-				Hostname:     *flEc2RunHostname,
+				HostName:     *flEc2RunHostName,
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
 				SrcDstCheck:  *flEc2RunSrcDstCheck,

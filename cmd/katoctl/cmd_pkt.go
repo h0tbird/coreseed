@@ -38,10 +38,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_PKT_RUN_APIKEY").
 		String()
 
-	flPktRunHostname = cmdPktRun.Flag("hostname",
+	flPktRunHostName = cmdPktRun.Flag("host-name",
 		"Used in the Packet.net dashboard.").
-		Required().PlaceHolder("KATO_PKT_RUN_HOSTNAME").
-		OverrideDefaultFromEnvar("KATO_PKT_RUN_HOSTNAME").
+		Required().PlaceHolder("KATO_PKT_RUN_HOST_NAME").
+		OverrideDefaultFromEnvar("KATO_PKT_RUN_HOST_NAME").
 		String()
 
 	flPktRunProjectID = cmdPktRun.Flag("project-id",
