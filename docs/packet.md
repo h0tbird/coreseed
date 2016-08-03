@@ -21,7 +21,7 @@ for i in $(seq 3); do
   --role master \
   --cluster-id ${CLUSTER_ID} \
   --master-count 3 \
-  --hostid ${i} \
+  --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
   --ns1-api-key ${NS1_API_KEY} \
@@ -48,7 +48,7 @@ for i in $(seq 2); do
   --role worker \
   --cluster-id ${CLUSTER_ID} \
   --master-count 3 \
-  --hostid ${i} \
+  --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
   --ns1-api-key ${NS1_API_KEY} \
@@ -75,7 +75,7 @@ for i in $(seq 1); do
   --role edge \
   --cluster-id ${CLUSTER_ID} \
   --master-count 3 \
-  --hostid ${i} \
+  --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
   --ns1-api-key ${NS1_API_KEY} \

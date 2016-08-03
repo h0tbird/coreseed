@@ -23,10 +23,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_CLUSTER_ID").
 		String()
 
-	flUdataHostID = cmdUdata.Flag("hostid",
-		"Must be a number: hostname = <role>-<hostid>").
-		Required().PlaceHolder("KATO_UDATA_HOSTID").
-		OverrideDefaultFromEnvar("KATO_UDATA_HOSTID").
+	flUdataHostID = cmdUdata.Flag("host-id",
+		"Must be a number: hostname = <role>-<host-id>").
+		Required().PlaceHolder("KATO_UDATA_HOST_ID").
+		OverrideDefaultFromEnvar("KATO_UDATA_HOST_ID").
 		String()
 
 	flUdataDomain = cmdUdata.Flag("domain",
