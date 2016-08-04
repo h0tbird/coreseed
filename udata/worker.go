@@ -31,7 +31,6 @@ write_files:
    content: |
     KATO_CLUSTER_ID={{.ClusterID}}
     KATO_MASTER_COUNT={{.MasterCount}}
-    KATO_ROLE={{.Role}}
     KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
@@ -123,10 +122,11 @@ write_files:
    content: |
     #!/bin/bash
     source /etc/kato.env
-    PUSH+=$(echo $(hostname -i) $(hostname -f) $(hostname -s))$'\n'
-    PUSH+=$(echo $(hostname -i) $(hostname -s).int.$(hostname -d) $(hostname -s).int)
-    etcdctl set /hosts/${KATO_ROLE}/$(hostname -f) "${PUSH}"
-    KEYS=$(etcdctl ls --recursive /hosts | grep $(hostname -d) | grep -v $(hostname -f) | sort)
+    PUSH=$(sed 's/ marathon-lb//' /etc/.hosts | grep -v localhost)
+    for i in $(echo ${KATO_ROLES}); do
+    etcdctl set /hosts/${i}/$(hostname -f) "${PUSH}"; done
+    KEYS=$(etcdctl ls --recursive /hosts | grep $(hostname -d) | \
+    grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
     for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
     cat /etc/.hosts > /etc/hosts
     echo "${PULL}" >> /etc/hosts
