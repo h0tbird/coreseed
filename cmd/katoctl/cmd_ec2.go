@@ -220,7 +220,8 @@ var (
 	// ec2 add: nested command
 	//-------------------------
 
-	cmdEc2Add = cmdEc2.Command("add", "Adds a new instance to a Káto cluster on EC2.")
+	cmdEc2Add = cmdEc2.Command("add",
+		"Adds a new instance to an existing Káto cluster on EC2.")
 
 	flEc2AddCluserID = regexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
@@ -232,6 +233,12 @@ var (
 		Required().PlaceHolder("KATO_EC2_ADD_ROLE").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
 		Enum("master", "worker", "edge")
+
+	flEc2AddRoles = cmdEc2Add.Flag("roles",
+		"Comma separated list of roles [ quorum | master | worker | border ]").
+		Required().PlaceHolder("KATO_EC2_ADD_ROLES").
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLES").
+		String()
 
 	flEc2AddHostName = cmdEc2Add.Flag("host-name",
 		"hostname = <host-name>-<host-id>").

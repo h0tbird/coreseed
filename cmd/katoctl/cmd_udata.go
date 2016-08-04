@@ -41,6 +41,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_DOMAIN").
 		String()
 
+	flUdataRoles = cmdUdata.Flag("roles",
+		"Comma separated list of roles [ quorum | master | worker | border ]").
+		Required().PlaceHolder("KATO_UDATA_ROLES").
+		OverrideDefaultFromEnvar("KATO_UDATA_ROLES").
+		String()
+
 	flUdataRole = cmdUdata.Flag("role",
 		"Choose one of [ master | worker | edge ]").
 		Required().PlaceHolder("KATO_UDATA_ROLE").

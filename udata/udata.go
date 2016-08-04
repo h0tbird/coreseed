@@ -30,6 +30,8 @@ type Data struct {
 	HostID              string
 	Domain              string
 	Role                string
+	Roles               []string
+	Aliases             []string
 	Ns1ApiKey           string
 	CaCert              string
 	EtcdToken           string
@@ -101,6 +103,24 @@ func (d *Data) rexraySnippet() {
 }
 
 //-----------------------------------------------------------------------------
+// func: forgeAliases
+//-----------------------------------------------------------------------------
+
+func (d *Data) forgeAliases() {
+
+	// Return if exists:
+	for _, i := range d.Roles {
+		if i == d.HostName {
+			d.Aliases = d.Roles
+			return
+		}
+	}
+
+	// Prepend HostName if missing:
+	d.Aliases = append(strings.Fields(d.HostName), d.Roles...)
+}
+
+//-----------------------------------------------------------------------------
 // func: Render
 //-----------------------------------------------------------------------------
 
@@ -113,11 +133,9 @@ func (d *Data) Render() {
 		log.WithField("cmd", "udata").Fatal(err)
 	}
 
-	// Forge the Zookeeper URL:
-	d.forgeZookeeperURL()
-
-	// REX-Ray configuration snippet:
-	d.rexraySnippet()
+	d.forgeZookeeperURL() // Forge the Zookeeper URL.
+	d.rexraySnippet()     // REX-Ray configuration snippet.
+	d.forgeAliases()      // Forge the aliases array.
 
 	// Role-based parsing:
 	t := template.New("udata")

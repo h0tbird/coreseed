@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"os"
 	"regexp"
+	"strings"
 
 	// Local:
 	"github.com/h0tbird/kato/providers/cloud/ec2"
@@ -67,6 +68,7 @@ func main() {
 			HostName:            *flUdataHostName,
 			HostID:              *flUdataHostID,
 			Domain:              *flUdataDomain,
+			Roles:               strings.Split(*flUdataRoles, ","),
 			Role:                *flUdataRole,
 			Ns1ApiKey:           *flUdataNs1Apikey,
 			CaCert:              *flUdataCaCert,
@@ -188,6 +190,7 @@ func main() {
 			},
 			Instance: ec2.Instance{
 				Role:     *flEc2AddRole,
+				Roles:    *flEc2AddRoles,
 				HostName: *flEc2AddHostName,
 				HostID:   *flEc2AddHostID,
 				AmiID:    *flEc2AddAmiID,

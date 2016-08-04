@@ -56,6 +56,7 @@ type Instance struct {
 	HostName     string `json:"HostName"`     //  ec2:run | ec2:add
 	HostID       string `json:"HostID"`       //          | ec2:add
 	Role         string `json:"Role"`         //          | ec2:add
+	Roles        string `json:"Roles"`        //          | ec2:add
 }
 
 // State data.
@@ -138,9 +139,9 @@ func (d *Data) Deploy() {
 
 	// Deploy all the nodes (III):
 	wg.Add(3)
-	go d.deployNodes("master", int(d.MasterCount), &wg)
-	go d.deployNodes("worker", int(d.WorkerCount), &wg)
-	go d.deployNodes("edge", int(d.EdgeCount), &wg)
+	go d.deployNodes("master", "master", "quorum,master", int(d.MasterCount), &wg)
+	go d.deployNodes("worker", "worker", "worker", int(d.WorkerCount), &wg)
+	go d.deployNodes("edge", "edge", "border", int(d.EdgeCount), &wg)
 	wg.Wait()
 }
 
@@ -174,6 +175,7 @@ func (d *Data) Add() {
 	// Udata arguments bundle:
 	args := []string{"udata",
 		"--role", d.Role,
+		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
 		"--master-count", strconv.Itoa(int(d.MasterCount)),
 		"--host-name", d.HostName,
@@ -495,7 +497,7 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 // func: deployNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
+func (d *Data) deployNodes(hostname, role, roles string, count int, wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -514,7 +516,8 @@ func (d *Data) deployNodes(role string, count int, wg *sync.WaitGroup) {
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
 				"--role", role,
-				"--host-name", role,
+				"--roles", roles,
+				"--host-name", hostname,
 				"--host-id", strconv.Itoa(id),
 				"--ami-id", d.AmiID)
 

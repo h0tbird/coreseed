@@ -13,14 +13,14 @@ write_files:
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}} {{.HostName}}-{{.HostID}}.int
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb
+    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}}{{range .Aliases}} {{.}}-{{$.HostID}}.int{{end}}
 
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}} {{.HostName}}-{{.HostID}}.int
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb
+    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}}{{range .Aliases}} {{.}}-{{$.HostID}}.int{{end}}
 
  - path: "/etc/resolv.conf"
    content: |
@@ -32,6 +32,7 @@ write_files:
     KATO_CLUSTER_ID={{.ClusterID}}
     KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLE={{.Role}}
+    KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
