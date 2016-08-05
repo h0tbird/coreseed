@@ -35,7 +35,7 @@ write_files:
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
-    KATO_SYSTEMD_UNITS='etcd2 flanneld docker rexray mongodb pritunl'
+    KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
 
  {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |

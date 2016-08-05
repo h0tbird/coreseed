@@ -32,6 +32,7 @@ type Data struct {
 	Role                string
 	Roles               []string
 	Aliases             []string
+	SystemdUnits        []string
 	Ns1ApiKey           string
 	CaCert              string
 	EtcdToken           string
@@ -123,6 +124,46 @@ func (d *Data) hostnameAliases() {
 
 func (d *Data) systemdUnits() {
 
+	units := []string{}
+
+	// Agregate units of all roles:
+	for _, i := range d.Roles {
+		switch i {
+		case "quorum":
+			units = append(units,
+				"etcd2", "docker", "zookeeper", "rexray", "cadvisor", "node-exporter",
+				"zookeeper-exporter")
+		case "master":
+			units = append(units,
+				"etcd2", "flanneld", "docker", "rexray", "mesos-master", "mesos-dns",
+				"marathon", "confd", "prometheus", "cadvisor", "mesos-master-exporter",
+				"node-exporter")
+		case "worker":
+			units = append(units,
+				"etcd2", "flanneld", "docker", "rexray", "go-dnsmasq", "mesos-agent",
+				"marathon-lb", "cadvisor", "mesos-agent-exporter", "node-exporter",
+				"haproxy-exporter")
+		case "border":
+			units = append(units,
+				"etcd2", "flanneld", "docker", "rexray", "mongodb", "pritunl")
+		default:
+			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
+		}
+	}
+
+	// Delete duplicated units:
+	for _, unit := range units {
+		if !func(str string, list []string) bool {
+			for _, v := range list {
+				if v == str {
+					return true
+				}
+			}
+			return false
+		}(unit, d.SystemdUnits) {
+			d.SystemdUnits = append(d.SystemdUnits, unit)
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
