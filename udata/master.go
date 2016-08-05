@@ -35,7 +35,7 @@ write_files:
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
-    KATO_UNITS='etcd2 flanneld docker zookeeper rexray mesos-master mesos-dns marathon confd prometheus cadvisor mesos-master-exporter node-exporter zookeeper-exporter'
+    KATO_SYSTEMD_UNITS='etcd2 flanneld docker zookeeper rexray mesos-master mesos-dns marathon confd prometheus cadvisor mesos-master-exporter node-exporter zookeeper-exporter'
 
  {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
@@ -154,7 +154,7 @@ write_files:
    content: |
     #!/bin/bash
     source /etc/kato.env
-    systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_UNITS} | \
+    systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
     awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
 
  {{if .CaCert}}- path: "/opt/bin/getcerts"

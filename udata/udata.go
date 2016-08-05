@@ -49,10 +49,10 @@ type Data struct {
 }
 
 //-----------------------------------------------------------------------------
-// func: caCert
+// func: caCertificate
 //-----------------------------------------------------------------------------
 
-func (d *Data) caCert() {
+func (d *Data) caCertificate() {
 
 	if d.CaCert != "" {
 
@@ -67,10 +67,10 @@ func (d *Data) caCert() {
 }
 
 //-----------------------------------------------------------------------------
-// func: forgeZookeeperURL
+// func: zookeeperURL
 //-----------------------------------------------------------------------------
 
-func (d *Data) forgeZookeeperURL() {
+func (d *Data) zookeeperURL() {
 
 	for i := 1; i <= d.MasterCount; i++ {
 		d.ZkServers = d.ZkServers + "master-" + strconv.Itoa(i) + ":2181"
@@ -100,10 +100,10 @@ func (d *Data) rexraySnippet() {
 }
 
 //-----------------------------------------------------------------------------
-// func: forgeAliases
+// func: hostnameAliases
 //-----------------------------------------------------------------------------
 
-func (d *Data) forgeAliases() {
+func (d *Data) hostnameAliases() {
 
 	// Return if exists:
 	for _, i := range d.Roles {
@@ -118,6 +118,14 @@ func (d *Data) forgeAliases() {
 }
 
 //-----------------------------------------------------------------------------
+// func: systemdUnits
+//-----------------------------------------------------------------------------
+
+func (d *Data) systemdUnits() {
+
+}
+
+//-----------------------------------------------------------------------------
 // func: Render
 //-----------------------------------------------------------------------------
 
@@ -125,10 +133,11 @@ func (d *Data) forgeAliases() {
 // in YAML format to stdout.
 func (d *Data) Render() {
 
-	d.caCert()            // Retrieve the CA certificate.
-	d.forgeZookeeperURL() // Forge the Zookeeper URL.
-	d.rexraySnippet()     // REX-Ray configuration snippet.
-	d.forgeAliases()      // Forge the aliases array.
+	d.caCertificate()   // Retrieve the CA certificate.
+	d.zookeeperURL()    // Forge the Zookeeper URL.
+	d.rexraySnippet()   // REX-Ray configuration snippet.
+	d.hostnameAliases() // Hostname aliases array.
+	d.systemdUnits()    // Systemd units array.
 
 	// Role-based parsing:
 	t := template.New("udata")
