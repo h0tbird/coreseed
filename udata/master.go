@@ -30,7 +30,7 @@ write_files:
  - path: "/etc/kato.env"
    content: |
     KATO_CLUSTER_ID={{.ClusterID}}
-    KATO_MASTER_COUNT={{.MasterCount}}
+    KATO_QUORUM_COUNT={{.QuorumCount}}
     KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
@@ -480,7 +480,7 @@ coreos:
        --zk=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/master \
        --log_dir=/var/log/mesos \
-       --quorum=$(($KATO_MASTER_COUNT/2 + 1))"
+       --quorum=$(($KATO_QUORUM_COUNT/2 + 1))"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]

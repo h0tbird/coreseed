@@ -63,7 +63,7 @@ func main() {
 	case cmdUdata.FullCommand():
 
 		udata := udata.Data{
-			MasterCount:         *flUdataMasterCount,
+			QuorumCount:         *flUdataQuorumCount,
 			ClusterID:           *flUdataClusterID,
 			HostName:            *flUdataHostName,
 			HostID:              *flUdataHostID,

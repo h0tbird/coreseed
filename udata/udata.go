@@ -24,7 +24,7 @@ import (
 
 // Data contains variables to be interpolated in templates.
 type Data struct {
-	MasterCount         int
+	QuorumCount         int
 	ClusterID           string
 	HostName            string
 	HostID              string
@@ -73,9 +73,9 @@ func (d *Data) caCertificate() {
 
 func (d *Data) zookeeperURL() {
 
-	for i := 1; i <= d.MasterCount; i++ {
-		d.ZkServers = d.ZkServers + "master-" + strconv.Itoa(i) + ":2181"
-		if i != d.MasterCount {
+	for i := 1; i <= d.QuorumCount; i++ {
+		d.ZkServers = d.ZkServers + "quorum-" + strconv.Itoa(i) + ":2181"
+		if i != d.QuorumCount {
 			d.ZkServers = d.ZkServers + ","
 		}
 	}
