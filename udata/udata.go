@@ -52,21 +52,18 @@ type Data struct {
 // func: caCert
 //-----------------------------------------------------------------------------
 
-func (d *Data) caCert() error {
+func (d *Data) caCert() {
 
 	if d.CaCert != "" {
 
 		data, err := ioutil.ReadFile(d.CaCert)
 		if err != nil {
-			log.WithField("cmd", "udata").Error(err)
-			return err
+			log.WithField("cmd", "udata").Fatal(err)
 		}
 
 		d.CaCert = strings.TrimSpace(strings.
 			Replace(string(data), "\n", "\n    ", -1))
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -128,11 +125,7 @@ func (d *Data) forgeAliases() {
 // in YAML format to stdout.
 func (d *Data) Render() {
 
-	// Read the CA certificate:
-	if err := d.caCert(); err != nil {
-		log.WithField("cmd", "udata").Fatal(err)
-	}
-
+	d.caCert()            // Retrieve the CA certificate.
 	d.forgeZookeeperURL() // Forge the Zookeeper URL.
 	d.rexraySnippet()     // REX-Ray configuration snippet.
 	d.forgeAliases()      // Forge the aliases array.
