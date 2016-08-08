@@ -8,7 +8,6 @@ import (
 
 	// Stdlib:
 	"compress/gzip"
-	//"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -22,6 +21,17 @@ import (
 //-----------------------------------------------------------------------------
 // Typedefs:
 //-----------------------------------------------------------------------------
+
+type filter struct {
+	anyOf  []string
+	noneOf []string
+	allOf  []string
+}
+
+type frag struct {
+	filter
+	data string
+}
 
 // Data contains variables to be interpolated in templates.
 type Data struct {
@@ -50,6 +60,31 @@ type Data struct {
 	Roles               []string
 	Aliases             []string
 	SystemdUnits        []string
+	frags               []frag
+}
+
+//-----------------------------------------------------------------------------
+// func: anyOf
+//-----------------------------------------------------------------------------
+
+func (f *frag) anyOf(tags []string) bool {
+	return true
+}
+
+//-----------------------------------------------------------------------------
+// func: noneOf
+//-----------------------------------------------------------------------------
+
+func (f *frag) noneOf(tags []string) bool {
+	return true
+}
+
+//-----------------------------------------------------------------------------
+// func: allOf
+//-----------------------------------------------------------------------------
+
+func (f *frag) allOf(tags []string) bool {
+	return true
 }
 
 //-----------------------------------------------------------------------------
@@ -75,7 +110,6 @@ func (d *Data) caCertificate() {
 //-----------------------------------------------------------------------------
 
 func (d *Data) zookeeperURL() {
-
 	for i := 1; i <= d.QuorumCount; i++ {
 		d.ZkServers = d.ZkServers + "quorum-" + strconv.Itoa(i) + ":2181"
 		if i != d.QuorumCount {
@@ -175,12 +209,19 @@ func (d *Data) systemdUnits() {
 
 func (d *Data) composeTemplate() {
 
-	// Tags used to filter fragments:
-	// tags := append(d.Roles, d.IaasProvider)
+	// Tags used to filter template fragments:
+	tags := append(d.Roles, d.IaasProvider)
 
-	// d.template = "hello"
-	// fmt.Println(tags)
-	// os.Exit(0)
+	// Apply the filter:
+	for _, frag := range d.frags {
+		if frag.anyOf(tags) {
+			if frag.noneOf(tags) {
+				if frag.allOf(tags) {
+					d.template += frag.data
+				}
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -196,6 +237,7 @@ func (d *Data) Render() {
 	d.rexraySnippet()   // REX-Ray configuration snippet.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
+	d.loadFragments()   // Load the fragments array.
 	d.composeTemplate() // Compose the template.
 
 	// Role-based parsing:
