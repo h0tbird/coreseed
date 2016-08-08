@@ -398,6 +398,8 @@ coreos:
 
      [Service]
      Type=oneshot
+     Restart=on-failure
+     RestartSec=10
      ExecStart=/opt/bin/ns1dns
 
   - name: "getcerts.service"
