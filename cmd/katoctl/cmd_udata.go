@@ -121,4 +121,10 @@ var (
 		Default("eu-west-1").PlaceHolder("KATO_UDATA_EC2_REGION").
 		OverrideDefaultFromEnvar("KATO_UDATA_EC2_REGION").
 		Enum(ec2Regions...)
+
+	flUdataIaasProvider = cmdUdata.Flag("iaas-provider",
+		"IaaS provider [ vbox | ec2 | pkt ]").
+		Required().PlaceHolder("KATO_UDATA_IAAS_PROVIDER").
+		OverrideDefaultFromEnvar("KATO_UDATA_IAAS_PROVIDER").
+		Enum("vbox", "ec2", "pkt")
 )

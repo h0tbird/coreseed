@@ -177,6 +177,7 @@ func (d *Data) Add() {
 		"--role", d.Role,
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
+		"--iaas-provider", "ec2",
 		"--quorum-count", strconv.Itoa(int(d.MasterCount)),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,

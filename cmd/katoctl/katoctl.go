@@ -82,6 +82,7 @@ func main() {
 			RexrayStorageDriver: *flUdataRexrayStorageDriver,
 			RexrayEndpointIP:    *flUdataRexrayEndpointIP,
 			Ec2Region:           *flUdataEc2Region,
+			IaasProvider:        *flUdataIaasProvider,
 		}
 
 		udata.Render()

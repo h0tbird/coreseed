@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"compress/gzip"
+	//"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -25,19 +26,16 @@ import (
 // Data contains variables to be interpolated in templates.
 type Data struct {
 	QuorumCount         int
+	GzipUdata           bool
 	ClusterID           string
 	HostName            string
 	HostID              string
 	Domain              string
 	Role                string
-	Roles               []string
-	Aliases             []string
-	SystemdUnits        []string
 	Ns1ApiKey           string
 	CaCert              string
 	EtcdToken           string
 	ZkServers           string
-	GzipUdata           bool
 	FlannelNetwork      string
 	FlannelSubnetLen    string
 	FlannelSubnetMin    string
@@ -47,6 +45,11 @@ type Data struct {
 	RexrayConfigSnippet string
 	RexrayEndpointIP    string
 	Ec2Region           string
+	IaasProvider        string
+	template            string
+	Roles               []string
+	Aliases             []string
+	SystemdUnits        []string
 }
 
 //-----------------------------------------------------------------------------
@@ -167,6 +170,20 @@ func (d *Data) systemdUnits() {
 }
 
 //-----------------------------------------------------------------------------
+// func: composeTemplate
+//-----------------------------------------------------------------------------
+
+func (d *Data) composeTemplate() {
+
+	// Tags used to filter fragments:
+	// tags := append(d.Roles, d.IaasProvider)
+
+	// d.template = "hello"
+	// fmt.Println(tags)
+	// os.Exit(0)
+}
+
+//-----------------------------------------------------------------------------
 // func: Render
 //-----------------------------------------------------------------------------
 
@@ -179,6 +196,7 @@ func (d *Data) Render() {
 	d.rexraySnippet()   // REX-Ray configuration snippet.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
+	d.composeTemplate() // Compose the template.
 
 	// Role-based parsing:
 	t := template.New("udata")
