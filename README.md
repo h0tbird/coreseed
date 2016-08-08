@@ -93,15 +93,15 @@ eval "$(katoctl --completion-script-${0#-})"
 |[Vagrant](https://github.com/h0tbird/kato/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/kato/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/kato/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `edge-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `border-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
 
 ```bash
-marc@desk-1 ~ $ ssh -A core@edge-1.ext.<managed-public-domain>
-core@edge-1 ~ $ etcdctl cluster-health
-core@edge-1 ~ $ for i in edge master worker; do loopssh ${i} katostat; done
+marc@desk-1 ~ $ ssh -A core@border-1.ext.<managed-public-domain>
+core@border-1 ~ $ etcdctl cluster-health
+core@border-1 ~ $ for i in border master worker; do loopssh ${i} katostat; done
 ```
 
 ## 4. Setup pritunl
 *Pritunl* is an *OpenVPN* server that provides secure access to *Káto*'s private networks.
-Access your *Pritunl* WebGUI at `http://edge-1.ext.<managed-public-domain>`
+Access your *Pritunl* WebGUI at `http://border-1.ext.<managed-public-domain>`
 Make sure you setup udp port `18443` for VPN connections.

@@ -94,7 +94,7 @@ write_files:
    content: |
     #!/bin/bash
 
-    readonly HOST="$(hostname -s)"
+    source /etc/kato.env
     readonly DOMAIN="$(hostname -d)"
     readonly APIURL='https://api.nsone.net/v1'
     readonly APIKEY='{{.Ns1ApiKey}}'
@@ -102,19 +102,19 @@ write_files:
     readonly IP_PRI="$(hostname -i)"
     declare -A IP=(['ext']="${IP_PUB}" ['int']="${IP_PRI}")
 
-    for i in ext int; do
+    for ROLE in ${KATO_ROLES}; do
+      for i in ext int; do
+        curl -sX GET -H "X-NSONE-Key: ${APIKEY}" \
+        ${APIURL}/zones/${i}.${DOMAIN}/${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}/A | \
+        grep -q 'record not found' && METHOD='PUT' || METHOD='POST'
 
-      curl -sX GET -H "X-NSONE-Key: ${APIKEY}" \
-      ${APIURL}/zones/${i}.${DOMAIN}/${HOST}.${i}.${DOMAIN}/A | \
-      grep -q 'record not found' && METHOD='PUT' || METHOD='POST'
-
-      curl -sX ${METHOD} -H "X-NSONE-Key: ${APIKEY}" \
-      ${APIURL}/zones/${i}.${DOMAIN}/${HOST}.${i}.${DOMAIN}/A -d "{
-        \"zone\":\"${i}.${DOMAIN}\",
-        \"domain\":\"${HOST}.${i}.${DOMAIN}\",
-        \"type\":\"A\",
-        \"answers\":[{\"answer\":[\"${IP[${i}]}\"]}]}"
-
+        curl -sX ${METHOD} -H "X-NSONE-Key: ${APIKEY}" \
+        ${APIURL}/zones/${i}.${DOMAIN}/${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}/A -d "{
+          \"zone\":\"${i}.${DOMAIN}\",
+          \"domain\":\"${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}\",
+          \"type\":\"A\",
+          \"answers\":[{\"answer\":[\"${IP[${i}]}\"]}]}"
+      done
     done
 
  - path: "/opt/bin/etchost"
