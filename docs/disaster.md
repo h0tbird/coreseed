@@ -1,6 +1,6 @@
 ## Master destroy & restore
 
-Let's destroy one master and recreate it from scratch. I have 1 `edge`, 3 `master` and 2 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `edge` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. This is the status of the cluster before I destroy the `master-1` node:
+Let's destroy one master and recreate it from scratch. I have 1 `border`, 3 `master` and 2 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. This is the status of the cluster before I destroy the `master-1` node:
 
 #### Pre-storm etcd status
 

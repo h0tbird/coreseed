@@ -5,7 +5,7 @@ If you are an *operator* you need `the real thing`&trade;
 ```bash
 export KATO_MASTER_COUNT=3
 export KATO_WORKER_COUNT=2
-export KATO_EDGE_COUNT=1
+export KATO_BORDER_COUNT=1
 ```
 
 #### For developers
@@ -13,7 +13,7 @@ If you are a *developer* you can deploy a lighter version:
 ```bash
 export KATO_MASTER_COUNT=1
 export KATO_WORKER_COUNT=1
-export KATO_EDGE_COUNT=0
+export KATO_BORDER_COUNT=0
 ```
 
 #### Everyone
@@ -27,13 +27,13 @@ Find below other options and its default values:
 ```bash
 export KATO_MASTER_COUNT=1
 export KATO_WORKER_COUNT=1
-export KATO_EDGE_COUNT=0
+export KATO_BORDER_COUNT=0
 export KATO_MASTER_CPUS=1
 export KATO_MASTER_MEMORY=1024
 export KATO_WORKER_CPUS=2
 export KATO_WORKER_MEMORY=4096
-export KATO_EDGE_CPUS=1
-export KATO_EDGE_MEMORY=512
+export KATO_BORDER_CPUS=1
+export KATO_BORDER_MEMORY=512
 export KATO_VERSION=v0.1.0-alpha
 export KATO_COREOS_CHANNEL=stable
 export KATO_COREOS_VERSION=current

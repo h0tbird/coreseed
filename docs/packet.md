@@ -65,14 +65,14 @@ for i in $(seq 2); do
 
 done
 
-#-----------------------
-# Deploy one edge node:
-#-----------------------
+#-------------------------
+# Deploy one border node:
+#-------------------------
 
 for i in $(seq 1); do
 
   katoctl udata \
-  --role edge \
+  --role border \
   --cluster-id ${CLUSTER_ID} \
   --master-count 3 \
   --host-id ${i} \
@@ -84,7 +84,7 @@ for i in $(seq 1); do
 
   katoctl pkt run \
   --api-key ${API_KEY} \
-  --host-name edge-${i}.cell-1.ewr \
+  --host-name border-${i}.cell-1.ewr \
   --project-id ${PROJECT_ID} \
   --plan baremetal_0 \
   --os ${COREOS_CHANNEL} \

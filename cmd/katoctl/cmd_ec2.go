@@ -51,10 +51,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_WORKER_COUNT").
 		Int()
 
-	flEc2DeployEdgeCount = cmdEc2Deploy.Flag("edge-count",
-		"Number of edge nodes to deploy.").
-		Default("1").PlaceHolder("KATO_EC2_DEPLOY_EDGE_COUNT").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_EDGE_COUNT").
+	flEc2DeployBorderCount = cmdEc2Deploy.Flag("border-count",
+		"Number of border nodes to deploy.").
+		Default("1").PlaceHolder("KATO_EC2_DEPLOY_BORDER_COUNT").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_BORDER_COUNT").
 		Int()
 
 	flEc2DeployMasterType = cmdEc2Deploy.Flag("master-type",
@@ -69,10 +69,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_WORKER_TYPE").
 		Enum(ec2Instances...)
 
-	flEc2DeployEdgeType = cmdEc2Deploy.Flag("edge-type",
-		"EC2 edge instance type.").
+	flEc2DeployBorderType = cmdEc2Deploy.Flag("border-type",
+		"EC2 border instance type.").
 		Default("m3.medium").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_EDGE_TYPE").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_BORDER_TYPE").
 		Enum(ec2Instances...)
 
 	flEc2DeployChannel = cmdEc2Deploy.Flag("channel",
@@ -229,10 +229,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
 	flEc2AddRole = cmdEc2Add.Flag("role",
-		"New instance role [ master | worker | edge ]").
+		"New instance role [ master | worker | border ]").
 		Required().PlaceHolder("KATO_EC2_ADD_ROLE").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
-		Enum("master", "worker", "edge")
+		Enum("master", "worker", "border")
 
 	flEc2AddRoles = cmdEc2Add.Flag("roles",
 		"Comma separated list of roles [ quorum | master | worker | border ]").
@@ -318,9 +318,9 @@ var (
 		Enum("true", "false", "elastic")
 
 	flEc2RunIAMRole = cmdEc2Run.Flag("iam-role",
-		"IAM role [ master | worker | edge ]").
+		"IAM role [ master | worker | border ]").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_IAM_ROLE").
-		Enum("master", "worker", "edge")
+		Enum("master", "worker", "border")
 
 	flEc2RunSrcDstCheck = cmdEc2Run.Flag("source-dest-check",
 		" [ true | false ]").
