@@ -461,7 +461,7 @@ write_files:`,
       labels:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9105{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -696,7 +696,8 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
-			anyOf: []string{"master"},
+			anyOf:  []string{"master"},
+			noneOf: []string{"worker"},
 		},
 		data: `
   - name: "mesos-dns.service"
@@ -723,6 +724,55 @@ coreos:
        --env MDNS_ZK=zk://${KATO_ZK}/mesos \
        --env MDNS_REFRESHSECONDS=45 \
        --env MDNS_LISTENER=$(hostname -i) \
+       --env MDNS_HTTPON=false \
+       --env MDNS_TTL=45 \
+       --env MDNS_RESOLVERS=8.8.8.8 \
+       --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
+       --env MDNS_IPSOURCE=netinfo \
+       h0tbird/mesos-dns:v0.5.2-1"
+     ExecStartPost=/usr/bin/sh -c ' \
+       echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
+       echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
+     ExecStop=/usr/bin/sh -c ' \
+       echo search $(hostname -d) > /etc/resolv.conf && \
+       echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"master"},
+			allOf: []string{"worker"},
+		},
+		data: `
+  - name: "mesos-dns.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mesos DNS
+     After=docker.service zookeeper.service mesos-master.service go-dnsmasq.service
+     Requires=docker.service zookeeper.service mesos-master.service go-dnsmasq.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --env MDNS_ZK=zk://${KATO_ZK}/mesos \
+       --env MDNS_REFRESHSECONDS=45 \
+       --env MDNS_LISTENER=$(hostname -i) \
+       --env MDNS_PORT=54 \
        --env MDNS_HTTPON=false \
        --env MDNS_TTL=45 \
        --env MDNS_RESOLVERS=8.8.8.8 \
@@ -1143,7 +1193,8 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
-			anyOf: []string{"worker"},
+			anyOf:  []string{"worker"},
+			noneOf: []string{"master"},
 		},
 		data: `
   - name: "go-dnsmasq.service"
@@ -1163,6 +1214,49 @@ coreos:
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
        etcdctl member list 2>1 | awk -F [/:] '{print $9}' | tr '\n' ',' > /tmp/ns && \
+       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /etc/resolv.conf:/etc/resolv.conf:rw \
+       --volume /etc/hosts:/etc/hosts:ro \
+       janeczku/go-dnsmasq:release-1.0.6 \
+       --listen $(hostname -i) \
+       --nameservers $(cat /tmp/ns) \
+       --hostsfile /etc/hosts \
+       --hostsfile-poll 60 \
+       --default-resolver \
+       --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
+       --append-search-domains"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"worker"},
+			allOf: []string{"master"},
+		},
+		data: `
+  - name: "go-dnsmasq.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Lightweight caching DNS proxy
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
+     ExecStartPre=/usr/bin/sh -c " \
+       etcdctl member list 2>1 | awk -F [/:] '{print $9\":54\"}' | tr '\n' ',' > /tmp/ns && \
        awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
@@ -1392,7 +1486,7 @@ coreos:
        --name %p \
        katosys/exporters:v0.1.0-1 mesos_exporter \
        -slave http://$(hostname):5051 \
-       -addr :9104"
+       -addr :9105"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
