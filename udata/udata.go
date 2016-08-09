@@ -28,7 +28,7 @@ type filter struct {
 	allOf  []string
 }
 
-type frag struct {
+type fragment struct {
 	filter
 	data string
 }
@@ -60,22 +60,36 @@ type Data struct {
 	Roles               []string
 	Aliases             []string
 	SystemdUnits        []string
-	frags               []frag
+	frags               []fragment
 }
 
 //-----------------------------------------------------------------------------
 // func: anyOf
 //-----------------------------------------------------------------------------
 
-func (f *frag) anyOf(tags []string) bool {
-	return true
+func (f *fragment) anyOf(tags []string) bool {
+	for _, tag := range tags {
+		for _, filter := range f.filter.anyOf {
+			if tag == filter {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 //-----------------------------------------------------------------------------
 // func: noneOf
 //-----------------------------------------------------------------------------
 
-func (f *frag) noneOf(tags []string) bool {
+func (f *fragment) noneOf(tags []string) bool {
+	for _, tag := range tags {
+		for _, filter := range f.filter.noneOf {
+			if tag == filter {
+				return false
+			}
+		}
+	}
 	return true
 }
 
@@ -83,7 +97,19 @@ func (f *frag) noneOf(tags []string) bool {
 // func: allOf
 //-----------------------------------------------------------------------------
 
-func (f *frag) allOf(tags []string) bool {
+func (f *fragment) allOf(tags []string) bool {
+	for _, filter := range f.filter.allOf {
+		present := false
+		for _, tag := range tags {
+			if tag == filter {
+				present = true
+				break
+			}
+		}
+		if !present {
+			return false
+		}
+	}
 	return true
 }
 
