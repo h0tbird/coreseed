@@ -88,6 +88,7 @@ type State struct {
 	InetGatewayID    string  `json:"InetGatewayID"`    //             | ec2:setup |       |
 	NatGatewayID     string  `json:"NatGatewayID"`     //             | ec2:setup |       |
 	RouteTableID     string  `json:"RouteTableID"`     //             | ec2:setup |       |
+	QuorumRoleID     string  `json:"QuorumRoleID"`     //             | ec2:setup |       |
 	MasterRoleID     string  `json:"MasterRoleID"`     //             | ec2:setup |       |
 	WorkerRoleID     string  `json:"WorkerRoleID"`     //             | ec2:setup |       |
 	BorderRoleID     string  `json:"BorderRoleID"`     //             | ec2:setup |       |
@@ -1407,6 +1408,7 @@ func (d *Data) createIAMRoles() error {
 
 	// Map to iterate:
 	grps := map[string]map[string]string{
+		"quorum": map[string]string{"roleID": ""},
 		"master": map[string]string{"roleID": ""},
 		"worker": map[string]string{"roleID": ""},
 		"border": map[string]string{"roleID": ""},
@@ -1453,6 +1455,9 @@ func (d *Data) createIAMRoles() error {
 	}
 
 	// Store security role IDs:
+	if grps["quorum"]["roleID"] != "" {
+		d.QuorumRoleID = grps["quorum"]["roleID"]
+	}
 	if grps["master"]["roleID"] != "" {
 		d.MasterRoleID = grps["master"]["roleID"]
 	}
