@@ -14,7 +14,7 @@ var (
 
 	flUdataQuorumCount = cmdUdata.Flag("quorum-count",
 		"Number of quorum nodes [ 1 | 3 | 5 ]").
-		Default("3").OverrideDefaultFromEnvar("KATO_UDATA_QUORUM_COUNT").
+		Required().OverrideDefaultFromEnvar("KATO_UDATA_QUORUM_COUNT").
 		HintOptions("1", "3", "5").Int()
 
 	flUdataClusterID = cmdUdata.Flag("cluster-id",
@@ -46,12 +46,6 @@ var (
 		Required().PlaceHolder("KATO_UDATA_ROLES").
 		OverrideDefaultFromEnvar("KATO_UDATA_ROLES").
 		String()
-
-	flUdataRole = cmdUdata.Flag("role",
-		"Choose one of [ master | worker | edge ]").
-		Required().PlaceHolder("KATO_UDATA_ROLE").
-		OverrideDefaultFromEnvar("KATO_UDATA_ROLE").
-		Enum("master", "worker", "edge")
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key",
 		"NS1 private API key.").

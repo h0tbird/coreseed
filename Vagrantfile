@@ -4,15 +4,10 @@ Vagrant.require_version ">= 1.6.0"
 # Variables:
 #------------------------------------------------------------------------------
 
-$master_count   = ENV['KATO_MASTER_COUNT'] || 1
-$worker_count   = ENV['KATO_WORKER_COUNT'] || 1
-$edge_count     = ENV['KATO_EDGE_COUNT'] || 0
-$master_cpus    = ENV['KATO_MASTER_CPUS'] || 1
-$master_memory  = ENV['KATO_MASTER_MEMORY'] || 1024
-$worker_cpus    = ENV['KATO_WORKER_CPUS'] || 2
-$worker_memory  = ENV['KATO_WORKER_MEMORY'] || 4096
-$edge_cpus      = ENV['KATO_EDGE_CPUS'] || 1
-$edge_memory    = ENV['KATO_EDGE_MEMORY'] || 512
+$cluster_id     = ENV['KATO_CLUSTER_ID'] || 'cell-1-demo'
+$quorum_count   = ENV['KATO_QUORUM_COUNT'] || 1
+$node_cpus      = ENV['KATO_NODE_CPUS'] || 2
+$node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-alpha'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
@@ -43,13 +38,15 @@ if ARGV[0].eql?('up')
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
     "--flannel-backend host-gw " +
-    "--master-count %s " +
+    "--iaas-provider vbox " +
+    "--quorum-count %s " +
+    "--host-name %s " +
+    "--cluster-id %s " +
     "--ns1-api-key %s " +
     "--domain %s " +
-    "--hostid %s " +
-    "--role %s " +
-    "--etcd-token %s " +
-    "--gzip-udata"
+    "--host-id %s " +
+    "--roles %s " +
+    "--etcd-token %s"
 end
 
 #------------------------------------------------------------------------------
@@ -58,7 +55,7 @@ end
 
 if $discovery_url && ARGV[0].eql?('up')
   require 'open-uri'
-  token = open($discovery_url % $master_count).read.split("/")[-1]
+  token = open($discovery_url % $quorum_count).read.split("/")[-1]
 end
 
 #------------------------------------------------------------------------------
@@ -83,139 +80,45 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  #----------------------------
-  # Start master_count masters
-  #----------------------------
+  #-----------------------
+  # Start the all-in-one:
+  #-----------------------
 
-  (1..$master_count.to_i).each do |i|
+  config.vm.define vm_name = "kato-1" do |conf|
 
-    config.vm.define vm_name = "master-%d" % i do |conf|
+    conf.vm.hostname = "kato-1.%s" % $domain
 
-      conf.vm.hostname = "master-%d.%s" % [i, $domain]
-
-      conf.vm.provider :virtualbox do |vb|
-        vb.gui = false
-        vb.name = "master-%d.%s" % [i, $domain]
-        vb.memory = $master_memory
-        vb.cpus = $master_cpus
-        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
-        if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
-          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
-        end
-      end
-
-      ip_pri = "172.17.8.#{i+10}"
-      conf.vm.network :private_network, ip: ip_pri
-
-      if ARGV[0].eql?('up')
-
-        if $ca_cert
-          cmd = $katoctl + " -c %s > user_data_master-%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'master', token, $ca_cert, i ]
-        else
-          cmd = $katoctl + " > user_data_master-%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'master', token, i ]
-        end
-
-        if File.exist?("user_data_master-%s" % i)
-          conf.vm.provision :file, :source => "user_data_master-%s" % i, :destination => "/tmp/vagrantfile-user-data"
-          conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-        end
-
-        if i == 1
-          conf.vm.provision "shell", inline: <<-SHELL
-            echo "Waiting for available fleet socket..."
-            while [ ! -S /run/fleet.sock ]; do sleep 1; done
-            sleep 3; fleetctl start /etc/fleet/*.service
-          SHELL
-        end
-
+    conf.vm.provider :virtualbox do |vb|
+      vb.gui = false
+      vb.name = "kato-1.%s" % $domain
+      vb.memory = $node_memory
+      vb.cpus = $node_cpus
+      vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+      if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
+        vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
       end
     end
-  end
 
-  #--------------------------
-  # Start worker_count nodes
-  #--------------------------
+    ip_pri = "172.17.8.11"
+    conf.vm.network :private_network, ip: ip_pri
 
-  (1..$worker_count.to_i).each do |i|
+    if ARGV[0].eql?('up')
 
-    config.vm.define vm_name = "worker-%d" % i do |conf|
+      conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
-      conf.vm.hostname = "worker-%d.%s" % [i, $domain]
-
-      conf.vm.provider :virtualbox do |vb|
-        vb.gui = false
-        vb.name = "worker-%d.%s" % [i, $domain]
-        vb.memory = $worker_memory
-        vb.cpus = $worker_cpus
-        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
-        if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
-          vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
-        end
+      if $ca_cert
+        cmd = $katoctl + " -c %s > user_data_kato-1"
+        system cmd % [ $quorum_count, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token, $ca_cert ]
+      else
+        cmd = $katoctl + " > user_data_kato-1"
+        system cmd % [ $quorum_count, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token ]
       end
 
-      ip_pri = "172.17.8.#{i+20}"
-      conf.vm.network :private_network, ip: ip_pri
-
-      if ARGV[0].eql?('up')
-
-        conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
-
-        if $ca_cert
-          cmd = $katoctl + " -c %s > user_data_worker-%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'worker', token, $ca_cert, i ]
-        else
-          cmd = $katoctl + " > user_data_worker-%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'worker', token, i ]
-        end
-
-        if File.exist?("user_data_worker-%s" % i)
-          conf.vm.provision :file, :source => "user_data_worker-%s" % i, :destination => "/tmp/vagrantfile-user-data"
-          conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-        end
-
-      end
-    end
-  end
-
-  #------------------------
-  # Start edge_count edges
-  #------------------------
-
-  (1..$edge_count.to_i).each do |i|
-
-    config.vm.define vm_name = "edge-%d" % i do |conf|
-
-      conf.vm.hostname = "edge-%d.%s" % [i, $domain]
-
-      conf.vm.provider :virtualbox do |vb|
-        vb.gui = false
-        vb.name = "edge-%d.%s" % [i, $domain]
-        vb.memory = $edge_memory
-        vb.cpus = $edge_cpus
-        vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+      if File.exist?("user_data_kato-1")
+        conf.vm.provision :file, :source => "user_data_kato-1", :destination => "/tmp/vagrantfile-user-data"
+        conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
       end
 
-      ip_pri = "172.17.8.#{i+30}"
-      conf.vm.network :private_network, ip: ip_pri
-
-      if ARGV[0].eql?('up')
-
-        if $ca_cert
-          cmd = $katoctl + " -c %s > user_data_edge-%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'edge', token, $ca_cert, i ]
-        else
-          cmd = $katoctl + " > user_edata_%s"
-          system cmd % [ $master_count, $ns1_api_key, $domain, i, 'edge', token, i ]
-        end
-
-        if File.exist?("user_edata_%s" % i)
-          conf.vm.provision :file, :source => "user_edata_%s" % i, :destination => "/tmp/vagrantfile-user-data"
-          conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-        end
-
-      end
     end
   end
 end

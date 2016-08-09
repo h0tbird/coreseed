@@ -13,7 +13,7 @@ func (d *Data) loadFragments() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `#cloud-config
-hostname: "{{.HostName}}-{{.HostID}}.{{.Domain}}
+hostname: "{{.HostName}}-{{.HostID}}.{{.Domain}}"
 write_files:`,
 	})
 
@@ -73,10 +73,10 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- {{if .CaCert}}- path: "/etc/ssl/certs/{{.ClusterID}}.pem"
-   content: |
-    {{.CaCert}}
- {{- end}}`,
+{{if .CaCert}} - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+	 content: |
+	  {{.CaCert}}
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -92,10 +92,10 @@ write_files:`,
     rexray:
      storageDrivers:
      - {{.RexrayStorageDriver}}
-     virtualbox:
-      endpoint: http://` + d.RexrayEndpointIP + `:18083
-      volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-      controllerName: SATA
+    virtualbox:
+     endpoint: http://` + d.RexrayEndpointIP + `:18083
+     volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+     controllerName: SATA
 {{- end}}`,
 	})
 
@@ -112,8 +112,8 @@ write_files:`,
     rexray:
      storageDrivers:
      - {{.RexrayStorageDriver}}
-     aws:
-      rexrayTag: kato
+    aws:
+     rexrayTag: kato
 {{- end}}`,
 	})
 
@@ -273,13 +273,13 @@ write_files:`,
 			anyOf: []string{"worker"},
 		},
 		data: `
- {{if .CaCert}}- path: "/opt/bin/getcerts"
+{{if .CaCert}} - path: "/opt/bin/getcerts"
    permissions: "0755"
    content: |
     #!/bin/bash
     [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
     [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
- {{- end}}`,
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -287,7 +287,7 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- {{if .CaCert}}- path: "/opt/bin/custom-ca"
+{{if .CaCert}} - path: "/opt/bin/custom-ca"
    permissions: "0755"
    content: |
     #!/bin/bash
@@ -297,7 +297,7 @@ write_files:`,
       NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
       [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
     }
- {{- end}}`,
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -524,7 +524,7 @@ coreos:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-  - name: "custom-ca.service"
+{{if .CaCert}}  - name: "custom-ca.service"
     command: "start"
     content: |
      [Unit]
@@ -533,7 +533,8 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/custom-ca`,
+     ExecStart=/opt/bin/custom-ca
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1276,7 +1277,7 @@ coreos:
 			anyOf: []string{"worker"},
 		},
 		data: `
-  - name: "getcerts.service"
+{{if .CaCert}}  - name: "getcerts.service"
     command: "start"
     content: |
      [Unit]
@@ -1286,7 +1287,8 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/getcerts`,
+     ExecStart=/opt/bin/getcerts
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{

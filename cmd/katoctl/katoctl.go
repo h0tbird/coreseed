@@ -69,7 +69,6 @@ func main() {
 			HostID:              *flUdataHostID,
 			Domain:              *flUdataDomain,
 			Roles:               strings.Split(*flUdataRoles, ","),
-			Role:                *flUdataRole,
 			Ns1ApiKey:           *flUdataNs1Apikey,
 			CaCert:              *flUdataCaCert,
 			EtcdToken:           *flUdataEtcdToken,

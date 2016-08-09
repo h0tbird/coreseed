@@ -41,7 +41,6 @@ type Data struct {
 	HostName            string
 	HostID              string
 	Domain              string
-	Role                string
 	Ns1ApiKey           string
 	CaCert              string
 	EtcdToken           string
@@ -145,25 +144,6 @@ func (d *Data) zookeeperURL() {
 }
 
 //-----------------------------------------------------------------------------
-// func: rexraySnippet
-//-----------------------------------------------------------------------------
-
-func (d *Data) rexraySnippet() {
-
-	switch d.RexrayStorageDriver {
-
-	case "virtualbox":
-		d.RexrayConfigSnippet = `virtualbox:
-      endpoint: http://` + d.RexrayEndpointIP + `:18083
-      volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-      controllerName: SATA`
-	case "ec2":
-		d.RexrayConfigSnippet = `aws:
-      rexrayTag: kato`
-	}
-}
-
-//-----------------------------------------------------------------------------
 // func: hostnameAliases
 //-----------------------------------------------------------------------------
 
@@ -260,32 +240,21 @@ func (d *Data) Render() {
 
 	d.caCertificate()   // Retrieve the CA certificate.
 	d.zookeeperURL()    // Forge the Zookeeper URL.
-	d.rexraySnippet()   // REX-Ray configuration snippet.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
 	d.loadFragments()   // Load the fragments array.
 	d.composeTemplate() // Compose the template.
 
-	// Role-based parsing:
+	// Template parsing:
 	t := template.New("udata")
-	var err error
-
-	switch d.Role {
-	case "master":
-		t, err = t.Parse(templMaster)
-	case "worker":
-		t, err = t.Parse(templWorker)
-	case "edge":
-		t, err = t.Parse(templEdge)
-	}
-
+	t, err := t.Parse(d.template)
 	if err != nil {
 		log.WithField("cmd", "udata").Fatal(err)
 	}
 
 	// Apply parsed template to data object:
 	if d.GzipUdata {
-		log.WithFields(log.Fields{"cmd": "udata", "id": d.Role + "-" + d.HostID}).
+		log.WithFields(log.Fields{"cmd": "udata", "id": d.HostName + "-" + d.HostID}).
 			Info("Rendering gzipped cloud-config template")
 		w := gzip.NewWriter(os.Stdout)
 		if err = t.Execute(w, d); err != nil {
