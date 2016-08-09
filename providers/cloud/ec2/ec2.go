@@ -737,7 +737,7 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 	d.createInstanceProfiles()
 
 	// Attach policies to IAM roles:
-	for _, role := range [3]string{"master", "worker", "border"} {
+	for _, role := range [4]string{"quorum", "master", "worker", "border"} {
 		for _, policy := range [2]string{
 			"arn:aws:iam::aws:policy/AmazonS3FullAccess",
 			d.RexrayPolicy,
@@ -1481,7 +1481,7 @@ func (d *Data) createInstanceProfiles() {
 	var wg sync.WaitGroup
 
 	// For each instance profile:
-	for _, v := range [3]string{"master", "worker", "border"} {
+	for _, v := range [4]string{"quorum", "master", "worker", "border"} {
 
 		// Increment wait group:
 		wg.Add(1)
@@ -1532,7 +1532,7 @@ func (d *Data) createInstanceProfiles() {
 func (d *Data) addIAMRolesToInstanceProfiles() error {
 
 	// For each instance profile:
-	for _, v := range [3]string{"master", "worker", "border"} {
+	for _, v := range [4]string{"quorum", "master", "worker", "border"} {
 
 		// Forge the addition request:
 		params := &iam.AddRoleToInstanceProfileInput{
