@@ -56,7 +56,6 @@ type Instance struct {
 	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
 	HostName     string `json:"HostName"`     //  ec2:run | ec2:add
 	HostID       string `json:"HostID"`       //          | ec2:add
-	Role         string `json:"Role"`         //          | ec2:add
 	Roles        string `json:"Roles"`        //          | ec2:add
 }
 
@@ -143,9 +142,9 @@ func (d *Data) Deploy() {
 
 	// Deploy all the nodes (III):
 	wg.Add(3)
-	go d.deployNodes("master", "master", "quorum,master", int(d.MasterCount), &wg)
-	go d.deployNodes("worker", "worker", "worker", int(d.WorkerCount), &wg)
-	go d.deployNodes("border", "border", "border", int(d.BorderCount), &wg)
+	go d.deployNodes("master", "quorum,master", int(d.MasterCount), &wg)
+	go d.deployNodes("worker", "worker", int(d.WorkerCount), &wg)
+	go d.deployNodes("border", "border", int(d.BorderCount), &wg)
 	wg.Wait()
 }
 
@@ -176,8 +175,16 @@ func (d *Data) Add() {
 		d.SrcDstCheck = "true"
 	}
 
+	// Whether or not to setup a public IP:
+	var publicIP string
+	if strings.Contains(d.Roles, "border") {
+		publicIP = "true"
+	} else {
+		publicIP = "false"
+	}
+
 	// Udata arguments bundle:
-	args := []string{"udata",
+	argsUdata := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
 		"--quorum-count", strconv.Itoa(int(d.MasterCount)),
@@ -199,61 +206,38 @@ func (d *Data) Add() {
 
 	// Append the --ca-cert flag if cert is present:
 	if d.CaCert != "" {
-		args = append(args, "--ca-cert", d.CaCert)
+		argsUdata = append(argsUdata, "--ca-cert", d.CaCert)
 	}
 
-	// Forge the udata command:
-	cmdUdata := exec.Command("katoctl", args...)
+	// Ec2 run arguments bundle:
+	argsRun := []string{"ec2", "run",
+		"--tag-name", d.HostName + "-" + d.HostID + "." + d.Domain,
+		"--region", d.Region,
+		"--zone", d.Zone,
+		"--ami-id", d.AmiID,
+		"--instance-type", "m3.medium",
+		"--key-pair", d.KeyPair,
+		"--subnet-id", d.ExtSubnetID,
+		"--security-group-id", d.WorkerSecGrp,
+		"--iam-role", "master",
+		"--source-dest-check", d.SrcDstCheck,
+		"--public-ip", publicIP,
+	}
 
-	// Forge the run command:
-	var cmdRun *exec.Cmd
-
-	switch d.Role {
-	case "master":
+	// Append the --private-ip if master:
+	if strings.Contains(d.Roles, "master") {
 		i, _ := strconv.Atoi(d.HostID)
-		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
-			"--region", d.Region,
-			"--zone", d.Zone,
-			"--ami-id", d.AmiID,
-			"--instance-type", d.MasterType,
-			"--key-pair", d.KeyPair,
-			"--subnet-id", d.IntSubnetID,
-			"--security-group-id", d.MasterSecGrp,
-			"--iam-role", d.Role,
-			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "false",
-			"--private-ip", katool.OffsetIP(d.IntSubnetCidr, 10+i))
-
-	case "worker":
-		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
-			"--region", d.Region,
-			"--zone", d.Zone,
-			"--ami-id", d.AmiID,
-			"--instance-type", d.WorkerType,
-			"--key-pair", d.KeyPair,
-			"--subnet-id", d.ExtSubnetID,
-			"--security-group-id", d.WorkerSecGrp,
-			"--iam-role", d.Role,
-			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "true",
-			"--elb-name", d.ClusterID)
-
-	case "border":
-		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
-			"--region", d.Region,
-			"--zone", d.Zone,
-			"--ami-id", d.AmiID,
-			"--instance-type", d.BorderType,
-			"--key-pair", d.KeyPair,
-			"--subnet-id", d.ExtSubnetID,
-			"--security-group-id", d.BorderSecGrp,
-			"--iam-role", d.Role,
-			"--source-dest-check", d.SrcDstCheck,
-			"--public-ip", "true")
+		argsRun = append(argsRun, "--private-ip", katool.OffsetIP(d.IntSubnetCidr, 10+i))
 	}
+
+	// Append the --elb-name if worker:
+	if strings.Contains(d.Roles, "worker") {
+		argsRun = append(argsRun, "--elb-name", d.ClusterID)
+	}
+
+	// Forge the commands:
+	cmdUdata := exec.Command("katoctl", argsUdata...)
+	cmdRun := exec.Command("katoctl", argsRun...)
 
 	// Execute the pipeline:
 	if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
@@ -501,14 +485,14 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 // func: deployNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployNodes(hostname, role, roles string, count int, wg *sync.WaitGroup) {
+func (d *Data) deployNodes(hostname, roles string, count int, wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("Deploying " + strconv.Itoa(count) + " " + role + " nodes")
+		Info("Deploying " + strconv.Itoa(count) + " " + hostname + " nodes")
 
 	for i := 1; i <= count; i++ {
 		wgInt.Add(1)
@@ -519,7 +503,6 @@ func (d *Data) deployNodes(hostname, role, roles string, count int, wg *sync.Wai
 			// Forge the add command:
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
-				"--role", role,
 				"--roles", roles,
 				"--host-name", hostname,
 				"--host-id", strconv.Itoa(id),

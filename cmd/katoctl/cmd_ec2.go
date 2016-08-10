@@ -232,12 +232,6 @@ var (
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
-	flEc2AddRole = cmdEc2Add.Flag("role",
-		"New instance role [ master | worker | border ]").
-		Required().PlaceHolder("KATO_EC2_ADD_ROLE").
-		OverrideDefaultFromEnvar("KATO_EC2_ADD_ROLE").
-		Enum("master", "worker", "border")
-
 	flEc2AddRoles = cmdEc2Add.Flag("roles",
 		"Comma separated list of roles [ quorum | master | worker | border ]").
 		Required().PlaceHolder("KATO_EC2_ADD_ROLES").
