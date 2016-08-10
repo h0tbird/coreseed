@@ -153,6 +153,7 @@ func main() {
 				FlannelSubnetMin: *flEc2DeployFlannelSubnetMin,
 				FlannelSubnetMax: *flEc2DeployFlannelSubnetMax,
 				FlannelBackend:   *flEc2DeployFlannelBackend,
+				Quadruplets:      *arEc2DeployQuadruplet,
 			},
 		}
 

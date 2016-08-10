@@ -61,48 +61,49 @@ type Instance struct {
 
 // State data.
 type State struct {
-	MasterCount      float64 `json:"MasterCount"`      //  ec2:deploy |           |       |
-	WorkerCount      float64 `json:"WorkerCount"`      //  ec2:deploy |           |       |
-	BorderCount      float64 `json:"BorderCount"`      //  ec2:deploy |           |       |
-	MasterType       string  `json:"MasterType"`       //  ec2:deploy |           |       |
-	WorkerType       string  `json:"WorkerType"`       //  ec2:deploy |           |       |
-	BorderType       string  `json:"BorderType"`       //  ec2:deploy |           |       |
-	Channel          string  `json:"Channel"`          //  ec2:deploy |           |       |
-	EtcdToken        string  `json:"EtcdToken"`        //  ec2:deploy |           | udata |
-	Ns1ApiKey        string  `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
-	CaCert           string  `json:"CaCert"`           //  ec2:deploy |           | udata |
-	FlannelNetwork   string  `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
-	FlannelSubnetLen string  `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
-	FlannelSubnetMin string  `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
-	FlannelSubnetMax string  `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
-	FlannelBackend   string  `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
-	Domain           string  `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
-	ClusterID        string  `json:"ClusterID"`        //  ec2:deploy | ec2:setup | udata |
-	Region           string  `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
-	Zone             string  `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
-	VpcCidrBlock     string  `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
-	IntSubnetCidr    string  `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	ExtSubnetCidr    string  `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	VpcID            string  `json:"VpcID"`            //             | ec2:setup |       |
-	MainRouteTableID string  `json:"MainRouteTableID"` //             | ec2:setup |       |
-	InetGatewayID    string  `json:"InetGatewayID"`    //             | ec2:setup |       |
-	NatGatewayID     string  `json:"NatGatewayID"`     //             | ec2:setup |       |
-	RouteTableID     string  `json:"RouteTableID"`     //             | ec2:setup |       |
-	QuorumRoleID     string  `json:"QuorumRoleID"`     //             | ec2:setup |       |
-	MasterRoleID     string  `json:"MasterRoleID"`     //             | ec2:setup |       |
-	WorkerRoleID     string  `json:"WorkerRoleID"`     //             | ec2:setup |       |
-	BorderRoleID     string  `json:"BorderRoleID"`     //             | ec2:setup |       |
-	RexrayPolicy     string  `json:"RexrayPolicy"`     //             | ec2:setup |       |
-	QuorumSecGrp     string  `json:"QuorumSecGrp"`     //             | ec2:setup |       |
-	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
-	WorkerSecGrp     string  `json:"WorkerSecGrp"`     //             | ec2:setup |       |
-	ELBSecGrp        string  `json:"ELBSecGrp"`        //             | ec2:setup |       |
-	BorderSecGrp     string  `json:"BorderSecGrp"`     //             | ec2:setup |       |
-	IntSubnetID      string  `json:"IntSubnetID"`      //             | ec2:setup |       |
-	ExtSubnetID      string  `json:"ExtSubnetID"`      //             | ec2:setup |       |
-	DNSName          string  `json:"DNSName"`          //             | ec2:setup |       |
-	AllocationID     string  `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
-	KeyPair          string  `json:"KeyPair"`          //             |           |       | ec2:run
+	MasterCount      float64  `json:"MasterCount"`      //  ec2:deploy |           |       |
+	WorkerCount      float64  `json:"WorkerCount"`      //  ec2:deploy |           |       |
+	BorderCount      float64  `json:"BorderCount"`      //  ec2:deploy |           |       |
+	MasterType       string   `json:"MasterType"`       //  ec2:deploy |           |       |
+	WorkerType       string   `json:"WorkerType"`       //  ec2:deploy |           |       |
+	BorderType       string   `json:"BorderType"`       //  ec2:deploy |           |       |
+	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
+	Quadruplets      []string `json:"Quadruplets"`      //  ec2:deploy |           |       |
+	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
+	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
+	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
+	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
+	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
+	FlannelSubnetMin string   `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
+	FlannelSubnetMax string   `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
+	FlannelBackend   string   `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
+	Domain           string   `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
+	ClusterID        string   `json:"ClusterID"`        //  ec2:deploy | ec2:setup | udata |
+	Region           string   `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
+	Zone             string   `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
+	VpcCidrBlock     string   `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
+	IntSubnetCidr    string   `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	ExtSubnetCidr    string   `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
+	VpcID            string   `json:"VpcID"`            //             | ec2:setup |       |
+	MainRouteTableID string   `json:"MainRouteTableID"` //             | ec2:setup |       |
+	InetGatewayID    string   `json:"InetGatewayID"`    //             | ec2:setup |       |
+	NatGatewayID     string   `json:"NatGatewayID"`     //             | ec2:setup |       |
+	RouteTableID     string   `json:"RouteTableID"`     //             | ec2:setup |       |
+	QuorumRoleID     string   `json:"QuorumRoleID"`     //             | ec2:setup |       |
+	MasterRoleID     string   `json:"MasterRoleID"`     //             | ec2:setup |       |
+	WorkerRoleID     string   `json:"WorkerRoleID"`     //             | ec2:setup |       |
+	BorderRoleID     string   `json:"BorderRoleID"`     //             | ec2:setup |       |
+	RexrayPolicy     string   `json:"RexrayPolicy"`     //             | ec2:setup |       |
+	QuorumSecGrp     string   `json:"QuorumSecGrp"`     //             | ec2:setup |       |
+	MasterSecGrp     string   `json:"MasterSecGrp"`     //             | ec2:setup |       |
+	WorkerSecGrp     string   `json:"WorkerSecGrp"`     //             | ec2:setup |       |
+	ELBSecGrp        string   `json:"ELBSecGrp"`        //             | ec2:setup |       |
+	BorderSecGrp     string   `json:"BorderSecGrp"`     //             | ec2:setup |       |
+	IntSubnetID      string   `json:"IntSubnetID"`      //             | ec2:setup |       |
+	ExtSubnetID      string   `json:"ExtSubnetID"`      //             | ec2:setup |       |
+	DNSName          string   `json:"DNSName"`          //             | ec2:setup |       |
+	AllocationID     string   `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
+	KeyPair          string   `json:"KeyPair"`          //             |           |       | ec2:run
 }
 
 // Data struct for EC2 endpoints, instance and state data.
