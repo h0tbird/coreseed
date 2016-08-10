@@ -93,6 +93,7 @@ type State struct {
 	WorkerRoleID     string  `json:"WorkerRoleID"`     //             | ec2:setup |       |
 	BorderRoleID     string  `json:"BorderRoleID"`     //             | ec2:setup |       |
 	RexrayPolicy     string  `json:"RexrayPolicy"`     //             | ec2:setup |       |
+	QuorumSecGrp     string  `json:"QuorumSecGrp"`     //             | ec2:setup |       |
 	MasterSecGrp     string  `json:"MasterSecGrp"`     //             | ec2:setup |       |
 	WorkerSecGrp     string  `json:"WorkerSecGrp"`     //             | ec2:setup |       |
 	ELBSecGrp        string  `json:"ELBSecGrp"`        //             | ec2:setup |       |
@@ -763,6 +764,11 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
+	// Create quorum security group:
+	if err := d.createSecurityGroup("quorum", &d.QuorumSecGrp); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
 	// Create master security group:
 	if err := d.createSecurityGroup("master", &d.MasterSecGrp); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
@@ -775,6 +781,11 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 
 	// Create border security group:
 	if err := d.createSecurityGroup("border", &d.BorderSecGrp); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Setup quorum nodes firewall:
+	if err := d.firewallQuorum(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
@@ -1594,6 +1605,49 @@ func (d *Data) createSecurityGroup(name string, id *string) error {
 }
 
 //-----------------------------------------------------------------------------
+// func: firewallQuorum
+//-----------------------------------------------------------------------------
+
+func (d *Data) firewallQuorum() error {
+
+	// Forge the rule request:
+	params := &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: aws.String(d.QuorumSecGrp),
+		IpPermissions: []*ec2.IpPermission{
+			{
+				IpProtocol: aws.String("-1"),
+				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.QuorumSecGrp),
+					},
+					{
+						GroupId: aws.String(d.MasterSecGrp),
+					},
+					{
+						GroupId: aws.String(d.WorkerSecGrp),
+					},
+					{
+						GroupId: aws.String(d.BorderSecGrp),
+					},
+				},
+			},
+		},
+	}
+
+	// Send the rule request:
+	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
+	if err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "quorum"}).
+		Info("New firewall rules defined")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
 // func: firewallMaster
 //-----------------------------------------------------------------------------
 
@@ -1606,6 +1660,9 @@ func (d *Data) firewallMaster() error {
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.QuorumSecGrp),
+					},
 					{
 						GroupId: aws.String(d.MasterSecGrp),
 					},
@@ -1646,6 +1703,9 @@ func (d *Data) firewallWorker() error {
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.QuorumSecGrp),
+					},
 					{
 						GroupId: aws.String(d.MasterSecGrp),
 					},
@@ -1706,6 +1766,9 @@ func (d *Data) firewallBorder() error {
 			{
 				IpProtocol: aws.String("-1"),
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: aws.String(d.QuorumSecGrp),
+					},
 					{
 						GroupId: aws.String(d.MasterSecGrp),
 					},
