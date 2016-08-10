@@ -51,6 +51,7 @@ type Instance struct {
 	IAMRole      string `json:"IAMRole"`      //  ec2:run |
 	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
 	ELBName      string `json:"ELBName"`      //  ec2:run |
+	TagName      string `json:"TagName"`      //  ec2:run |
 	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
 	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
 	HostName     string `json:"HostName"`     //  ec2:run | ec2:add
@@ -211,7 +212,7 @@ func (d *Data) Add() {
 	case "master":
 		i, _ := strconv.Atoi(d.HostID)
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
+			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -226,7 +227,7 @@ func (d *Data) Add() {
 
 	case "worker":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
+			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -241,7 +242,7 @@ func (d *Data) Add() {
 
 	case "border":
 		cmdRun = exec.Command("katoctl", "ec2", "run",
-			"--host-name", d.HostName+"-"+d.HostID+"."+d.Domain,
+			"--tag-name", d.HostName+"-"+d.HostID+"."+d.Domain,
 			"--region", d.Region,
 			"--zone", d.Zone,
 			"--ami-id", d.AmiID,
@@ -613,12 +614,12 @@ func (d *Data) runInstance(udata []byte) error {
 		NetworkInterfaces[0].NetworkInterfaceId
 
 	// Tag the instance:
-	if err := d.tag(d.InstanceID, "Name", d.HostName); err != nil {
+	if err := d.tag(d.InstanceID, "Name", d.TagName); err != nil {
 		return err
 	}
 
 	// Pretty-print to stderr:
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.HostName}).
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.TagName}).
 		Info("New EC2 instance tagged")
 
 	return nil

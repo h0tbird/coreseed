@@ -216,7 +216,7 @@ func main() {
 				SubnetID:     *flEc2RunSubnetID,
 				SecGrpID:     *flEc2RunSecGrpID,
 				InstanceType: *flEc2RunInsType,
-				HostName:     *flEc2RunHostName,
+				TagName:      *flEc2RunTagName,
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
 				SrcDstCheck:  *flEc2RunSrcDstCheck,

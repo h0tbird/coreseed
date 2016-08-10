@@ -268,10 +268,10 @@ var (
 
 	cmdEc2Run = cmdEc2.Command("run", "Starts a CoreOS instance on Amazon EC2.")
 
-	flEc2RunHostName = cmdEc2Run.Flag("host-name",
-		"For the EC2 dashboard.").
-		PlaceHolder("KATO_EC2_RUN_HOST_NAME").
-		OverrideDefaultFromEnvar("KATO_EC2_RUN_HOST_NAME").
+	flEc2RunTagName = cmdEc2Run.Flag("tag-name",
+		"Tag name for the EC2 dashboard.").
+		PlaceHolder("KATO_EC2_RUN_TAG_NAME").
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_TAG_NAME").
 		String()
 
 	flEc2RunRegion = cmdEc2Run.Flag("region",
