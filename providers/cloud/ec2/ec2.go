@@ -177,10 +177,8 @@ func (d *Data) Add() {
 
 	// Udata arguments bundle:
 	args := []string{"udata",
-		"--role", d.Role,
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
-		"--iaas-provider", "ec2",
 		"--quorum-count", strconv.Itoa(int(d.MasterCount)),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,
@@ -194,6 +192,7 @@ func (d *Data) Add() {
 		"--flannel-subnet-max", d.FlannelSubnetMax,
 		"--flannel-backend", d.FlannelBackend,
 		"--rexray-storage-driver", "ec2",
+		"--iaas-provider", "ec2",
 		"--gzip-udata",
 	}
 
