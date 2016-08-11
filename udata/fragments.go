@@ -74,8 +74,8 @@ write_files:`,
 		},
 		data: `
 {{if .CaCert}} - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
-	 content: |
-	  {{.CaCert}}
+   content: |
+    {{.CaCert}}
 {{end}}`,
 	})
 
