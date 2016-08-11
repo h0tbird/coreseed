@@ -135,7 +135,7 @@ var (
 
 	flEc2DeployFlannelBackend = cmdEc2Deploy.Flag("flannel-backend",
 		"Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-		Default("vxlan").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_BACKEND").
+		Default("host-gw").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_BACKEND").
 		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
 	arEc2DeployQuadruplet = cmdEc2Deploy.Arg("quadruplet",

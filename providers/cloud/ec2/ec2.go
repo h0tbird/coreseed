@@ -174,14 +174,6 @@ func (d *Data) Add() {
 		d.SrcDstCheck = "true"
 	}
 
-	// Whether or not to setup a public IP:
-	var publicIP string
-	if strings.Contains(d.Roles, "border") {
-		publicIP = "true"
-	} else {
-		publicIP = "false"
-	}
-
 	// Security group IDs:
 	var securityGroupIDs []string
 	for _, role := range strings.Split(d.Roles, ",") {
@@ -235,7 +227,7 @@ func (d *Data) Add() {
 		"--security-group-ids", strings.Join(securityGroupIDs, ","),
 		"--iam-role", "master",
 		"--source-dest-check", d.SrcDstCheck,
-		"--public-ip", publicIP,
+		"--public-ip", "true",
 	}
 
 	// Append the --private-ip if master:
