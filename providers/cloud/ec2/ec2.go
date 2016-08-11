@@ -229,7 +229,7 @@ func (d *Data) Add() {
 		"--region", d.Region,
 		"--zone", d.Zone,
 		"--ami-id", d.AmiID,
-		"--instance-type", "m3.medium",
+		"--instance-type", d.InstanceType,
 		"--key-pair", d.KeyPair,
 		"--subnet-id", d.ExtSubnetID,
 		"--security-group-ids", strings.Join(securityGroupIDs, ","),
