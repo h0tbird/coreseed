@@ -61,14 +61,9 @@ type Instance struct {
 
 // State data.
 type State struct {
-	MasterCount      float64  `json:"MasterCount"`      //  ec2:deploy |           |       |
-	WorkerCount      float64  `json:"WorkerCount"`      //  ec2:deploy |           |       |
-	BorderCount      float64  `json:"BorderCount"`      //  ec2:deploy |           |       |
-	MasterType       string   `json:"MasterType"`       //  ec2:deploy |           |       |
-	WorkerType       string   `json:"WorkerType"`       //  ec2:deploy |           |       |
-	BorderType       string   `json:"BorderType"`       //  ec2:deploy |           |       |
+	QuorumCount      float64  `json:"QuorumCount"`      //  ec2:deploy |           |       |
 	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
-	Quadruplets      []string `json:"Quadruplets"`      //  ec2:deploy |           |       |
+	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
 	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
@@ -141,10 +136,14 @@ func (d *Data) Deploy() {
 	}
 
 	// Deploy all the nodes (III):
-	wg.Add(3)
-	go d.deployNodes("master", "quorum,master", int(d.MasterCount), &wg)
-	go d.deployNodes("worker", "worker", int(d.WorkerCount), &wg)
-	go d.deployNodes("border", "border", int(d.BorderCount), &wg)
+	for _, q := range d.Quadruplets {
+		wg.Add(1)
+		s := strings.Split(q, ":")
+		i, _ := strconv.Atoi(s[0])
+		go d.deployNodes(i, s[1], s[2], s[3], &wg)
+	}
+
+	// Wait for the nodes:
 	wg.Wait()
 }
 
@@ -187,7 +186,7 @@ func (d *Data) Add() {
 	argsUdata := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
-		"--quorum-count", strconv.Itoa(int(d.MasterCount)),
+		"--quorum-count", strconv.Itoa(int(d.QuorumCount)),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
@@ -227,7 +226,7 @@ func (d *Data) Add() {
 	// Append the --private-ip if master:
 	if strings.Contains(d.Roles, "master") {
 		i, _ := strconv.Atoi(d.HostID)
-		argsRun = append(argsRun, "--private-ip", katool.OffsetIP(d.IntSubnetCidr, 10+i))
+		argsRun = append(argsRun, "--private-ip", katool.OffsetIP(d.ExtSubnetCidr, 10+i))
 	}
 
 	// Append the --elb-name if worker:
@@ -429,7 +428,7 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 	var err error
 
 	if d.EtcdToken == "auto" {
-		if d.EtcdToken, err = katool.EtcdToken(int(d.MasterCount)); err != nil {
+		if d.EtcdToken, err = katool.EtcdToken(int(d.QuorumCount)); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
@@ -485,7 +484,7 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 // func: deployNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployNodes(hostname, roles string, count int, wg *sync.WaitGroup) {
+func (d *Data) deployNodes(count int, itype, hostname, roles string, wg *sync.WaitGroup) {
 
 	// Decrement:
 	defer wg.Done()
@@ -506,7 +505,8 @@ func (d *Data) deployNodes(hostname, roles string, count int, wg *sync.WaitGroup
 				"--roles", roles,
 				"--host-name", hostname,
 				"--host-id", strconv.Itoa(id),
-				"--ami-id", d.AmiID)
+				"--ami-id", d.AmiID,
+				"--instance-type", itype)
 
 			// Execute the add command:
 			cmdAdd.Stderr = os.Stderr

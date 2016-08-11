@@ -39,41 +39,11 @@ var (
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
-	flEc2DeployMasterCount = cmdEc2Deploy.Flag("master-count",
-		"Number of master nodes to deploy [ 1 | 3 | 5 ]").
-		Required().PlaceHolder("KATO_EC2_DEPLOY_MASTER_COUNT").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_MASTER_COUNT").
+	flEc2DeployQuorumCount = cmdEc2Deploy.Flag("quorum-count",
+		"Number of quorum nodes in the cluster [ 1 | 3 | 5 ]").
+		Required().PlaceHolder("KATO_EC2_DEPLOY_QUORUM_COUNT").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_QUORUM_COUNT").
 		HintOptions("1", "3", "5").Int()
-
-	flEc2DeployWorkerCount = cmdEc2Deploy.Flag("worker-count",
-		"Number of worker nodes to deploy.").
-		Required().PlaceHolder("KATO_EC2_DEPLOY_WORKER_COUNT").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_WORKER_COUNT").
-		Int()
-
-	flEc2DeployBorderCount = cmdEc2Deploy.Flag("border-count",
-		"Number of border nodes to deploy.").
-		Default("1").PlaceHolder("KATO_EC2_DEPLOY_BORDER_COUNT").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_BORDER_COUNT").
-		Int()
-
-	flEc2DeployMasterType = cmdEc2Deploy.Flag("master-type",
-		"EC2 master instance type.").
-		Default("m3.medium").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_MASTER_TYPE").
-		Enum(ec2Instances...)
-
-	flEc2DeployWorkerType = cmdEc2Deploy.Flag("worker-type",
-		"EC2 worker instance type.").
-		Default("m3.large").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_WORKER_TYPE").
-		Enum(ec2Instances...)
-
-	flEc2DeployBorderType = cmdEc2Deploy.Flag("border-type",
-		"EC2 border instance type.").
-		Default("m3.medium").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_BORDER_TYPE").
-		Enum(ec2Instances...)
 
 	flEc2DeployChannel = cmdEc2Deploy.Flag("channel",
 		"CoreOS release channel [ stable | beta | alpha ]").
@@ -256,6 +226,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_AMI_ID").
 		String()
 
+	flEc2AddInsanceType = cmdEc2Add.Flag("instance-type",
+		"EC2 instance type.").
+		Required().PlaceHolder("KATO_EC2_ADD_INSTANCE_TYPE").
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_INSTANCE_TYPE").
+		Enum(ec2Instances...)
+
 	//-------------------------
 	// ec2 run: nested command
 	//-------------------------
@@ -286,7 +262,7 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_AMI_ID").
 		String()
 
-	flEc2RunInsType = cmdEc2Run.Flag("instance-type",
+	flEc2RunInstanceType = cmdEc2Run.Flag("instance-type",
 		"EC2 instance type.").
 		Required().PlaceHolder("KATO_EC2_RUN_INSTANCE_TYPE").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_INSTANCE_TYPE").

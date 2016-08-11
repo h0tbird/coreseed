@@ -131,12 +131,7 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
-				MasterCount:      float64(*flEc2DeployMasterCount),
-				WorkerCount:      float64(*flEc2DeployWorkerCount),
-				BorderCount:      float64(*flEc2DeployBorderCount),
-				MasterType:       *flEc2DeployMasterType,
-				WorkerType:       *flEc2DeployWorkerType,
-				BorderType:       *flEc2DeployBorderType,
+				QuorumCount:      float64(*flEc2DeployQuorumCount),
 				Channel:          *flEc2DeployChannel,
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
@@ -190,10 +185,11 @@ func main() {
 				ClusterID: *flEc2AddCluserID,
 			},
 			Instance: ec2.Instance{
-				Roles:    *flEc2AddRoles,
-				HostName: *flEc2AddHostName,
-				HostID:   *flEc2AddHostID,
-				AmiID:    *flEc2AddAmiID,
+				Roles:        *flEc2AddRoles,
+				HostName:     *flEc2AddHostName,
+				HostID:       *flEc2AddHostID,
+				AmiID:        *flEc2AddAmiID,
+				InstanceType: *flEc2AddInsanceType,
 			},
 		}
 
@@ -214,7 +210,7 @@ func main() {
 			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
 				SecGrpID:     *flEc2RunSecGrpID,
-				InstanceType: *flEc2RunInsType,
+				InstanceType: *flEc2RunInstanceType,
 				TagName:      *flEc2RunTagName,
 				PublicIP:     *flEc2RunPublicIP,
 				IAMRole:      *flEc2RunIAMRole,
