@@ -280,10 +280,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_SUBNET_ID").
 		String()
 
-	flEc2RunSecGrpID = cmdEc2Run.Flag("security-group-id",
-		"EC2 security group ID.").
-		Required().PlaceHolder("KATO_EC2_RUN_SECURITY_GROUP_ID").
-		OverrideDefaultFromEnvar("KATO_EC2_RUN_SECURITY_GROUP_ID").
+	flEc2RunSecGrpIDs = cmdEc2Run.Flag("security-group-ids",
+		"EC2 security group IDs.").
+		Required().PlaceHolder("KATO_EC2_RUN_SECURITY_GROUP_IDS").
+		OverrideDefaultFromEnvar("KATO_EC2_RUN_SECURITY_GROUP_IDS").
 		String()
 
 	flEc2RunPublicIP = cmdEc2Run.Flag("public-ip",

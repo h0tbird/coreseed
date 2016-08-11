@@ -44,7 +44,7 @@ type svc struct {
 type Instance struct {
 	InstanceID   string `json:"InstanceID"`   //  ec2:run |
 	SubnetID     string `json:"SubnetID"`     //  ec2:run |
-	SecGrpID     string `json:"SecGrpID"`     //  ec2:run |
+	SecGrpIDs    string `json:"SecGrpIDs"`    //  ec2:run |
 	InstanceType string `json:"InstanceType"` //  ec2:run |
 	PublicIP     string `json:"PublicIP"`     //  ec2:run |
 	PrivateIP    string `json:"PrivateIP"`    //  ec2:run |
@@ -92,8 +92,8 @@ type State struct {
 	QuorumSecGrp     string   `json:"QuorumSecGrp"`     //             | ec2:setup |       |
 	MasterSecGrp     string   `json:"MasterSecGrp"`     //             | ec2:setup |       |
 	WorkerSecGrp     string   `json:"WorkerSecGrp"`     //             | ec2:setup |       |
-	ELBSecGrp        string   `json:"ELBSecGrp"`        //             | ec2:setup |       |
 	BorderSecGrp     string   `json:"BorderSecGrp"`     //             | ec2:setup |       |
+	ELBSecGrp        string   `json:"ELBSecGrp"`        //             | ec2:setup |       |
 	IntSubnetID      string   `json:"IntSubnetID"`      //             | ec2:setup |       |
 	ExtSubnetID      string   `json:"ExtSubnetID"`      //             | ec2:setup |       |
 	DNSName          string   `json:"DNSName"`          //             | ec2:setup |       |
@@ -182,6 +182,21 @@ func (d *Data) Add() {
 		publicIP = "false"
 	}
 
+	// Security group IDs:
+	var securityGroupIDs []string
+	for _, role := range strings.Split(d.Roles, ",") {
+		switch role {
+		case "quorum":
+			securityGroupIDs = append(securityGroupIDs, d.QuorumSecGrp)
+		case "master":
+			securityGroupIDs = append(securityGroupIDs, d.MasterSecGrp)
+		case "worker":
+			securityGroupIDs = append(securityGroupIDs, d.WorkerSecGrp)
+		case "border":
+			securityGroupIDs = append(securityGroupIDs, d.BorderSecGrp)
+		}
+	}
+
 	// Udata arguments bundle:
 	argsUdata := []string{"udata",
 		"--roles", d.Roles,
@@ -217,7 +232,7 @@ func (d *Data) Add() {
 		"--instance-type", "m3.medium",
 		"--key-pair", d.KeyPair,
 		"--subnet-id", d.ExtSubnetID,
-		"--security-group-id", d.WorkerSecGrp,
+		"--security-group-ids", strings.Join(securityGroupIDs, ","),
 		"--iam-role", "master",
 		"--source-dest-check", d.SrcDstCheck,
 		"--public-ip", publicIP,
@@ -531,7 +546,9 @@ func (d *Data) forgeNetworkInterfaces() []*ec2.
 	var securityGroupIds []*string
 
 	// Append to security group array:
-	securityGroupIds = append(securityGroupIds, aws.String(d.SecGrpID))
+	for _, grp := range strings.Split(d.SecGrpIDs, ",") {
+		securityGroupIds = append(securityGroupIds, aws.String(grp))
+	}
 
 	// Forge the interface data type:
 	iface := ec2.InstanceNetworkInterfaceSpecification{

@@ -209,7 +209,7 @@ func main() {
 			},
 			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
-				SecGrpID:     *flEc2RunSecGrpID,
+				SecGrpIDs:    *flEc2RunSecGrpIDs,
 				InstanceType: *flEc2RunInstanceType,
 				TagName:      *flEc2RunTagName,
 				PublicIP:     *flEc2RunPublicIP,
