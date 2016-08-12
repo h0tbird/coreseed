@@ -824,6 +824,7 @@ coreos:
        --master zk://${KATO_ZK}/mesos \
        --zk zk://${KATO_ZK}/marathon \
        --task_launch_timeout 240000 \
+       --hostname master-${KATO_HOST_ID}.$(hostname -d) \
        --checkpoint"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
@@ -1316,6 +1317,7 @@ coreos:
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/certs:/etc/certs:ro \
        mesosphere/mesos-slave:0.28.1 \
+       --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
        --containerizers=docker \
        --executor_registration_timeout=2mins \
