@@ -131,7 +131,6 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
-				QuorumCount:      float64(*flEc2DeployQuorumCount),
 				Channel:          *flEc2DeployChannel,
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,

@@ -42,12 +42,6 @@ var (
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
-	flEc2DeployQuorumCount = cmdEc2Deploy.Flag("quorum-count",
-		"Number of quorum nodes in the cluster [ 1 | 3 | 5 ]").
-		Required().PlaceHolder("KATO_EC2_DEPLOY_QUORUM_COUNT").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_QUORUM_COUNT").
-		HintOptions("1", "3", "5").Int()
-
 	flEc2DeployChannel = cmdEc2Deploy.Flag("channel",
 		"CoreOS release channel [ stable | beta | alpha ]").
 		Default("stable").PlaceHolder("KATO_EC2_DEPLOY_CHANNEL").

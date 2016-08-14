@@ -61,7 +61,7 @@ type Instance struct {
 
 // State data.
 type State struct {
-	QuorumCount      float64  `json:"QuorumCount"`      //  ec2:deploy |           |       |
+	QuorumCount      int      `json:"QuorumCount"`      //  ec2:deploy |           |       |
 	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
 	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
@@ -434,6 +434,16 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 	defer wg.Done()
 	var err error
 
+	// Get the QuorumCount:
+	for _, q := range d.Quadruplets {
+		if strings.Contains(q, "quorum") {
+			s := strings.Split(q, ":")
+			d.QuorumCount, _ = strconv.Atoi(s[0])
+			break
+		}
+	}
+
+	// Request the token:
 	if d.EtcdToken == "auto" {
 		if d.EtcdToken, err = katool.EtcdToken(int(d.QuorumCount)); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
