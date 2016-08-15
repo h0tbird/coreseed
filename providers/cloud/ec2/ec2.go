@@ -193,7 +193,7 @@ func (d *Data) Add() {
 	argsUdata := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
-		"--quorum-count", strconv.Itoa(int(d.QuorumCount)),
+		"--quorum-count", strconv.Itoa(d.QuorumCount),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
@@ -445,7 +445,7 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 
 	// Request the token:
 	if d.EtcdToken == "auto" {
-		if d.EtcdToken, err = katool.EtcdToken(int(d.QuorumCount)); err != nil {
+		if d.EtcdToken, err = katool.EtcdToken(d.QuorumCount); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
@@ -1929,14 +1929,21 @@ func (d *Data) dumpState() error {
 
 func (d *Data) loadState() error {
 
-	// Load data from state file:
-	dat, err := katool.LoadState(d.ClusterID)
+	// Load raw data from state file:
+	raw, err := katool.LoadState(d.ClusterID)
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
-	// Map loaded data to current state:
+	// Decode the loaded JSON data:
+	dat := State{}
+	if err := json.Unmarshal(raw, &dat); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Merge the decoded data into the current state:
 	if err := mergo.Map(&d.State, dat); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err

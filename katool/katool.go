@@ -7,7 +7,6 @@ package katool
 import (
 
 	// Stdlib:
-	"encoding/json"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -56,11 +55,11 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) error {
 // func: EtcdToken
 //-----------------------------------------------------------------------------
 
-// EtcdToken takes masterCount and returns a valid etcd bootstrap token:
-func EtcdToken(masterCount int) (string, error) {
+// EtcdToken takes quorumCount and returns a valid etcd bootstrap token:
+func EtcdToken(quorumCount int) (string, error) {
 
 	// Request an etcd bootstrap token:
-	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(masterCount))
+	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
 		return "", err
 	}
@@ -85,7 +84,7 @@ func EtcdToken(masterCount int) (string, error) {
 
 // LoadState reads the current ClusterID state file and decodes its content
 // into a data structure:
-func LoadState(clusterID string) (map[string]interface{}, error) {
+func LoadState(clusterID string) ([]byte, error) {
 
 	// Load data from state file:
 	stateFile := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
@@ -94,13 +93,7 @@ func LoadState(clusterID string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	// Decode the loaded JSON data:
-	var dat map[string]interface{}
-	if err := json.Unmarshal(raw, &dat); err != nil {
-		return nil, err
-	}
-
-	return dat, nil
+	return raw, nil
 }
 
 //-----------------------------------------------------------------------------
