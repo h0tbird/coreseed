@@ -8,7 +8,9 @@ import (
 
 	// Stdlib:
 	"os"
+	"path"
 	"regexp"
+	"runtime"
 	"strings"
 
 	// Local:
@@ -45,6 +47,7 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
 	log.SetOutput(os.Stderr)
 	log.SetLevel(log.InfoLevel)
+	log.AddHook(contextHook{})
 }
 
 //----------------------------------------------------------------------------
@@ -253,6 +256,35 @@ func main() {
 }
 
 //-----------------------------------------------------------------------------
+// Log filename and line number:
+//-----------------------------------------------------------------------------
+
+type contextHook struct{}
+
+func (hook contextHook) Levels() []log.Level {
+	levels := []log.Level{log.ErrorLevel}
+	return levels
+}
+
+func (hook contextHook) Fire(entry *log.Entry) error {
+	pc := make([]uintptr, 3, 3)
+	cnt := runtime.Callers(6, pc)
+
+	for i := 0; i < cnt; i++ {
+		fu := runtime.FuncForPC(pc[i] - 1)
+		name := fu.Name()
+		if !strings.Contains(name, "github.com/Sirupsen/logrus") {
+			file, line := fu.FileLine(pc[i] - 1)
+			entry.Data["file"] = path.Base(file)
+			entry.Data["func"] = path.Base(name)
+			entry.Data["line"] = line
+			break
+		}
+	}
+	return nil
+}
+
+//-----------------------------------------------------------------------------
 // Regular expression custom parser:
 //-----------------------------------------------------------------------------
 
@@ -280,4 +312,29 @@ func regexpMatch(s kingpin.Settings, regexp string) *string {
 	target.regexp = regexp
 	s.SetValue(target)
 	return &target.value
+}
+
+//-----------------------------------------------------------------------------
+// Quadruplets custom parser:
+//-----------------------------------------------------------------------------
+
+type quadList []string
+
+func (q *quadList) Set(value string) error {
+	*q = append(*q, value)
+	return nil
+}
+
+func (q *quadList) String() string {
+	return ""
+}
+
+func (q *quadList) IsCumulative() bool {
+	return true
+}
+
+func quadruplets(s kingpin.Settings) (target *[]string) {
+	target = new([]string)
+	s.SetValue((*quadList)(target))
+	return
 }

@@ -135,9 +135,9 @@ var (
 		Default("host-gw").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_BACKEND").
 		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
-	arEc2DeployQuadruplet = cmdEc2Deploy.Arg("quadruplet",
+	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
-		Required().Strings()
+		Required())
 
 	//---------------------------
 	// ec2 setup: nested command
