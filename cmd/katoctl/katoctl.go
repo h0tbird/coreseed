@@ -262,7 +262,7 @@ func main() {
 type contextHook struct{}
 
 func (hook contextHook) Levels() []log.Level {
-	levels := []log.Level{log.ErrorLevel}
+	levels := []log.Level{log.ErrorLevel, log.FatalLevel}
 	return levels
 }
 
