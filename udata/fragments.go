@@ -1370,6 +1370,43 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+{{if .SysdigAccessKey}}  - name: "sysdig-agent.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Sysdig Cloud Agent
+     Requires=docker.service
+     After=docker.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=/usr/bin/docker pull sysdig/agent
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --privileged \
+       --net host \
+       --pid host \
+       --env ACCESS_KEY={{.SysdigAccessKey}} \
+       --env TAGS=name:${KATO_HOST_NAME} \
+       --volume /var/run/docker.sock:/host/var/run/docker.sock \
+       --volume /dev:/host/dev \
+       --volume /proc:/host/proc:ro \
+       --volume /boot:/host/boot:ro \
+       sysdig/agent"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+{{end}}`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
 			anyOf: []string{"worker"},
 		},
 		data: `

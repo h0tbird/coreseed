@@ -55,6 +55,7 @@ type Data struct {
 	RexrayEndpointIP    string
 	Ec2Region           string
 	IaasProvider        string
+	SysdigAccessKey     string
 	template            string
 	Roles               []string
 	Aliases             []string

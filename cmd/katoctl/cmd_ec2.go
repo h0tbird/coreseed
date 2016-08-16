@@ -59,6 +59,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_NS1_API_KEY").
 		String()
 
+	flEc2DeploySysdigAccessKey = cmdEc2Deploy.Flag("sysdig-access-key",
+		"SysDig secret access key").
+		PlaceHolder("KATO_EC2_DEPLOY_SYSDIG_ACCESS_KEY").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SYSDIG_ACCESS_KEY").
+		String()
+
 	flEc2DeployCaCert = cmdEc2Deploy.Flag("ca-cert",
 		"Path to CA certificate.").
 		PlaceHolder("KATO_EC2_DEPLOY_CA_CET").

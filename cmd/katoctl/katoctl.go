@@ -85,6 +85,7 @@ func main() {
 			RexrayEndpointIP:    *flUdataRexrayEndpointIP,
 			Ec2Region:           *flUdataEc2Region,
 			IaasProvider:        *flUdataIaasProvider,
+			SysdigAccessKey:     *flUdataSysdigAccessKey,
 		}
 
 		udata.Render()
@@ -137,6 +138,7 @@ func main() {
 				Channel:          *flEc2DeployChannel,
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
+				SysdigAccessKey:  *flEc2DeploySysdigAccessKey,
 				CaCert:           *flEc2DeployCaCert,
 				Domain:           *flEc2DeployDomain,
 				Region:           *flEc2DeployRegion,

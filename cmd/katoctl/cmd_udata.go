@@ -121,4 +121,10 @@ var (
 		Required().PlaceHolder("KATO_UDATA_IAAS_PROVIDER").
 		OverrideDefaultFromEnvar("KATO_UDATA_IAAS_PROVIDER").
 		Enum("vbox", "ec2", "pkt")
+
+	flUdataSysdigAccessKey = cmdUdata.Flag("sysdig-access-key",
+		"SysDig secret access key").
+		PlaceHolder("KATO_UDATA_SYSDIG_ACCESS_KEY").
+		OverrideDefaultFromEnvar("KATO_UDATA_SYSDIG_ACCESS_KEY").
+		String()
 )

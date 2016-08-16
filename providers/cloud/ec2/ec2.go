@@ -66,6 +66,7 @@ type State struct {
 	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
+	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
 	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
@@ -199,6 +200,7 @@ func (d *Data) Add() {
 		"--domain", d.Domain,
 		"--ec2-region", d.Region,
 		"--ns1-api-key", d.Ns1ApiKey,
+		"--sysdig-access-key", d.SysdigAccessKey,
 		"--etcd-token", d.EtcdToken,
 		"--flannel-network", d.FlannelNetwork,
 		"--flannel-subnet-len", d.FlannelSubnetLen,
