@@ -1249,7 +1249,7 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service ns1dns.service
+     After=docker.service etchost.service
      Requires=docker.service
 
      [Service]
@@ -1262,7 +1262,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(seq $KATO_MASTER_COUNT); do \
-       dig @dns1.p01.nsone.net +short master-$${i}.$(hostname -d); done \
+       etcdctl get /hosts/master/master-$${i}.$(hostname -d) | awk '{print $1}'; done \
        | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
