@@ -1256,13 +1256,12 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
-       { for i in $(seq $KATO_MASTER_COUNT); do \
-       etcdctl get /hosts/master/master-$${i}.$(hostname -d) | awk '{print $1}'; done \
+       { for i in $(etcdctl ls /hosts/master); do \
+       etcdctl get $${i} | awk '{print $1}'; done \
        | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
@@ -1305,8 +1304,8 @@ coreos:
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
-       { for i in $(seq $KATO_MASTER_COUNT); do \
-       etcdctl get /hosts/master/master-$${i}.$(hostname -d) | awk '{print $1\":54\"}'; done \
+       { for i in $(etcdctl ls /hosts/master); do \
+       etcdctl get $${i} | awk '{print $1\":54\"}'; done \
        | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
