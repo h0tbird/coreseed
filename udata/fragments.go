@@ -593,6 +593,8 @@ coreos:
         Requires=var-lib-docker.mount
      - name: "20-docker-opts.conf"
        content: |
+        [Unit]
+        After=flanneld.service
         [Service]
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
@@ -608,6 +610,8 @@ coreos:
      - name: "20-docker-opts.conf"
        content: |
         [Service]
+        [Unit]
+        After=flanneld.service
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
 
@@ -656,6 +660,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"quorum", "master"},
 		},
 		data: `
   - name: "mesos-master.service"
@@ -697,6 +702,48 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf:  []string{"master"},
+			noneOf: []string{"quorum"},
+		},
+		data: `
+  - name: "mesos-master.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Mesos Master
+     After=docker.service
+     Requires=docker.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.1
+     ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
+     ExecStart=/usr/bin/sh -c "docker run \
+       --privileged \
+       --name %p \
+       --net host \
+       --volume /var/lib/mesos:/var/lib/mesos:rw \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       mesosphere/mesos-master:0.28.1 \
+       --ip=$(hostname -i) \
+       --zk=zk://${KATO_ZK}/mesos \
+       --work_dir=/var/lib/mesos/master \
+       --log_dir=/var/log/mesos \
+       --quorum=$(($KATO_QUORUM_COUNT/2 + 1))"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=multi-user.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf:  []string{"master"},
 			noneOf: []string{"worker"},
 		},
 		data: `
@@ -705,8 +752,8 @@ coreos:
     content: |
      [Unit]
      Description=Mesos DNS
-     After=docker.service zookeeper.service mesos-master.service
-     Requires=docker.service zookeeper.service mesos-master.service
+     After=docker.service mesos-master.service
+     Requires=docker.service mesos-master.service
 
      [Service]
      Restart=always
@@ -753,8 +800,8 @@ coreos:
     content: |
      [Unit]
      Description=Mesos DNS
-     After=docker.service zookeeper.service mesos-master.service go-dnsmasq.service
-     Requires=docker.service zookeeper.service mesos-master.service go-dnsmasq.service
+     After=docker.service mesos-master.service go-dnsmasq.service
+     Requires=docker.service mesos-master.service go-dnsmasq.service
 
      [Service]
      Restart=always
@@ -801,8 +848,8 @@ coreos:
     content: |
      [Unit]
      Description=Marathon
-     After=docker.service zookeeper.service mesos-master.service
-     Requires=docker.service zookeeper.service mesos-master.service
+     After=docker.service mesos-master.service
+     Requires=docker.service mesos-master.service
 
      [Service]
      Restart=always
