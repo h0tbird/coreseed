@@ -1261,9 +1261,9 @@ coreos:
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
-       for i in $(seq ${KATO_MASTER_COUNT}); do \
-       dig @dns1.p01.nsone.net +short master-${i}.$(hostname -d); done \
-       | tr '\n' ',' > /tmp/ns && echo 8.8.8.8 >> /tmp/ns"
+       { for i in $(seq $KATO_MASTER_COUNT); do \
+       dig @dns1.p01.nsone.net +short master-$${i}.$(hostname -d); done \
+       | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
