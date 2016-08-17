@@ -17,6 +17,11 @@ var (
 		Required().OverrideDefaultFromEnvar("KATO_UDATA_QUORUM_COUNT").
 		HintOptions("1", "3", "5").Int()
 
+	flUdataMasterCount = cmdUdata.Flag("master-count",
+		"Number of master nodes").
+		Required().OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
+		Int()
+
 	flUdataClusterID = cmdUdata.Flag("cluster-id",
 		"Cluster ID.").
 		Required().PlaceHolder("KATO_UDATA_CLUSTER_ID").

@@ -25,8 +25,7 @@ write_files:`,
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb
-    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}}{{range .Aliases}} {{.}}-{{$.HostID}}.int{{end}}`,
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -37,8 +36,7 @@ write_files:`,
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb
-    $private_ipv4 {{.HostName}}-{{.HostID}}.int.{{.Domain}}{{range .Aliases}} {{.}}-{{$.HostID}}.int{{end}}`,
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -61,6 +59,7 @@ write_files:`,
    content: |
     KATO_CLUSTER_ID={{.ClusterID}}
     KATO_QUORUM_COUNT={{.QuorumCount}}
+    KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
@@ -1250,19 +1249,21 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service
+     After=docker.service ns1dns.service
      Requires=docker.service
 
      [Service]
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
-       etcdctl member list 2>1 | awk -F [/:] '{print $9}' | tr '\n' ',' > /tmp/ns && \
-       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
+       for i in $(seq ${KATO_MASTER_COUNT}); do \
+       dig @dns1.p01.nsone.net +short master-${i}.$(hostname -d); done \
+       | tr '\n' ',' > /tmp/ns && echo 8.8.8.8 >> /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \

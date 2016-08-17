@@ -67,6 +67,7 @@ func main() {
 
 		udata := udata.Data{
 			QuorumCount:         *flUdataQuorumCount,
+			MasterCount:         *flUdataMasterCount,
 			ClusterID:           *flUdataClusterID,
 			HostName:            *flUdataHostName,
 			HostID:              *flUdataHostID,

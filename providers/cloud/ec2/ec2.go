@@ -62,6 +62,7 @@ type Instance struct {
 // State data.
 type State struct {
 	QuorumCount      int      `json:"QuorumCount"`      //  ec2:deploy |           |       |
+	MasterCount      int      `json:"MasterCount"`      //  ec2:deploy |           |       |
 	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
 	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
@@ -117,11 +118,10 @@ type Data struct {
 // Deploy Kato's infrastructure on Amazon EC2.
 func (d *Data) Deploy() {
 
-	// Set current command:
+	// Initializations:
 	d.command = "deploy"
-
-	// Setup a wait group:
 	var wg sync.WaitGroup
+	d.countNodes()
 
 	// Setup the environment (I):
 	wg.Add(4)
@@ -195,6 +195,7 @@ func (d *Data) Add() {
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
 		"--quorum-count", strconv.Itoa(d.QuorumCount),
+		"--master-count", strconv.Itoa(d.MasterCount),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
@@ -427,14 +428,10 @@ func (d *Data) setupEC2(wg *sync.WaitGroup) {
 }
 
 //-----------------------------------------------------------------------------
-// func: retrieveEtcdToken
+// func: countNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
-
-	// Decrement:
-	defer wg.Done()
-	var err error
+func (d *Data) countNodes() {
 
 	// Get the QuorumCount:
 	for _, q := range d.Quadruplets {
@@ -444,6 +441,26 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 			break
 		}
 	}
+
+	// Get the MasterCount:
+	for _, q := range d.Quadruplets {
+		if strings.Contains(q, "master") {
+			s := strings.Split(q, ":")
+			d.MasterCount, _ = strconv.Atoi(s[0])
+			break
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: retrieveEtcdToken
+//-----------------------------------------------------------------------------
+
+func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
+
+	// Decrement:
+	defer wg.Done()
+	var err error
 
 	// Request the token:
 	if d.EtcdToken == "auto" {
