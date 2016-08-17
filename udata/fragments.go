@@ -1294,7 +1294,7 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service
+     After=docker.service etchost.service
      Requires=docker.service
 
      [Service]
@@ -1305,8 +1305,9 @@ coreos:
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
      ExecStartPre=/usr/bin/sh -c " \
-       etcdctl member list 2>1 | awk -F [/:] '{print $9\":54\"}' | tr '\n' ',' > /tmp/ns && \
-       awk '/^nameserver/ {print $2; exit}' /run/systemd/resolve/resolv.conf >> /tmp/ns"
+       { for i in $(seq $KATO_MASTER_COUNT); do \
+       etcdctl get /hosts/master/master-$${i}.$(hostname -d) | awk '{print $1}'; done \
+       | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
