@@ -1044,7 +1044,6 @@ coreos:
 		},
 		data: `
   - name: "etchost.service"
-    command: "start"
     content: |
      [Unit]
      Description=Stores IP and hostname in etcd
@@ -1068,7 +1067,7 @@ coreos:
      Description=Run etchost.service every 5 minutes
 
      [Timer]
-     OnBootSec=2min
+     OnBootSec=10s
      OnUnitActiveSec=5min`,
 	})
 
