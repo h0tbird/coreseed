@@ -177,20 +177,21 @@ func (d *Data) systemdUnits() {
 		case "quorum":
 			units = append(units,
 				"etcd2", "docker", "zookeeper", "rexray", "cadvisor", "node-exporter",
-				"zookeeper-exporter")
+				"zookeeper-exporter", "etchost.timer")
 		case "master":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "mesos-master", "mesos-dns",
 				"marathon", "confd", "prometheus", "cadvisor", "mesos-master-exporter",
-				"node-exporter")
+				"node-exporter", "etchost.timer")
 		case "worker":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "go-dnsmasq", "mesos-agent",
 				"marathon-lb", "cadvisor", "mesos-agent-exporter", "node-exporter",
-				"haproxy-exporter")
+				"haproxy-exporter", "etchost.timer")
 		case "border":
 			units = append(units,
-				"etcd2", "flanneld", "docker", "rexray", "mongodb", "pritunl")
+				"etcd2", "flanneld", "docker", "rexray", "mongodb", "pritunl",
+				"etchost.timer")
 		default:
 			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
 		}

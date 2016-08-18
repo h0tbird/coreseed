@@ -1248,8 +1248,9 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service etchost.service
+     After=docker.service etchost.timer
      Requires=docker.service
+     Wants=etchost.timer
 
      [Service]
      Restart=always
@@ -1292,8 +1293,9 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service etchost.service
+     After=docker.service etchost.timer
      Requires=docker.service
+     Wants=etchost.timer
 
      [Service]
      Restart=always
