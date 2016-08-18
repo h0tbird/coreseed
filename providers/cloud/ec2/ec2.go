@@ -61,9 +61,10 @@ type Instance struct {
 
 // State data.
 type State struct {
+	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
+	StubZones        []string `json:"StubZones"`        //  ec2:deploy |           |       |
 	QuorumCount      int      `json:"QuorumCount"`      //  ec2:deploy |           |       |
 	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
-	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
@@ -211,6 +212,11 @@ func (d *Data) Add() {
 	// Append the --ca-cert flag if cert is present:
 	if d.CaCert != "" {
 		argsUdata = append(argsUdata, "--ca-cert", d.CaCert)
+	}
+
+	// Append --stub-zone flags if present:
+	for _, z := range d.StubZones {
+		argsUdata = append(argsUdata, "--stub-zone", z)
 	}
 
 	// Ec2 run arguments bundle:

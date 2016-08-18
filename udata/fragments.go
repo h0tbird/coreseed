@@ -1274,6 +1274,8 @@ coreos:
        --hostsfile /etc/hosts \
        --hostsfile-poll 60 \
        --default-resolver \
+       {{range .StubZones}}--stubzones {{.}} \
+       {{end -}}
        --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
        --append-search-domains"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1320,6 +1322,8 @@ coreos:
        --hostsfile /etc/hosts \
        --hostsfile-poll 60 \
        --default-resolver \
+       {{range .StubZones}}--stubzones {{.}} \
+       {{end -}}
        --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
        --append-search-domains"
      ExecStop=/usr/bin/docker stop -t 5 %p

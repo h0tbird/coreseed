@@ -127,4 +127,10 @@ var (
 		PlaceHolder("KATO_UDATA_SYSDIG_ACCESS_KEY").
 		OverrideDefaultFromEnvar("KATO_UDATA_SYSDIG_ACCESS_KEY").
 		String()
+
+	flUdataStubZones = cmdUdata.Flag("stub-zone",
+		"Use different nameservers for given domains.").
+		PlaceHolder("KATO_UDATA_STUB_ZONE").
+		OverrideDefaultFromEnvar("KATO_UDATA_STUB_ZONE").
+		Strings()
 )

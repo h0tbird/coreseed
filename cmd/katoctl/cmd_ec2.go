@@ -141,6 +141,12 @@ var (
 		Default("host-gw").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_BACKEND").
 		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
+	flEc2DeployStubZones = cmdEc2Deploy.Flag("stub-zone",
+		"Use different nameservers for given domains.").
+		PlaceHolder("KATO_EC2_DEPLOY_STUB_ZONE").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_STUB_ZONE").
+		Strings()
+
 	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
 		Required())

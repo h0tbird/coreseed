@@ -86,6 +86,7 @@ func main() {
 			Ec2Region:           *flUdataEc2Region,
 			IaasProvider:        *flUdataIaasProvider,
 			SysdigAccessKey:     *flUdataSysdigAccessKey,
+			StubZones:           *flUdataStubZones,
 		}
 
 		udata.Render()
@@ -152,6 +153,7 @@ func main() {
 				FlannelSubnetMin: *flEc2DeployFlannelSubnetMin,
 				FlannelSubnetMax: *flEc2DeployFlannelSubnetMax,
 				FlannelBackend:   *flEc2DeployFlannelBackend,
+				StubZones:        *flEc2DeployStubZones,
 				Quadruplets:      *arEc2DeployQuadruplet,
 			},
 		}

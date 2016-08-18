@@ -60,6 +60,7 @@ type Data struct {
 	Roles               []string
 	Aliases             []string
 	SystemdUnits        []string
+	StubZones           []string
 	frags               []fragment
 }
 
