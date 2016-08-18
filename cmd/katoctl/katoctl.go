@@ -86,6 +86,7 @@ func main() {
 			Ec2Region:           *flUdataEc2Region,
 			IaasProvider:        *flUdataIaasProvider,
 			SysdigAccessKey:     *flUdataSysdigAccessKey,
+			DatadogAPIKey:       *flUdataDatadogAPIKey,
 			StubZones:           *flUdataStubZones,
 		}
 
@@ -140,6 +141,7 @@ func main() {
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
 				SysdigAccessKey:  *flEc2DeploySysdigAccessKey,
+				DatadogAPIKey:    *flEc2DeployDatadogAPIKey,
 				CaCert:           *flEc2DeployCaCert,
 				Domain:           *flEc2DeployDomain,
 				Region:           *flEc2DeployRegion,

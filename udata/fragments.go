@@ -1461,6 +1461,38 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+{{if .DatadogAPIKey}}  - name: "datadog-agent.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Datadog Agent
+     Requires=docker.service
+     After=docker.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=/usr/bin/docker pull datadog/docker-dd-agent
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --hostname $(hostname) \
+       --volume /var/run/docker.sock:/var/run/docker.sock:ro \
+       --volume /proc/:/host/proc/:ro \
+       --volume /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
+       --env API_KEY={{.DatadogAPIKey}} \
+       datadog/docker-dd-agent"
+     ExecStop=/usr/bin/docker stop -t 5 %p
+{{end}}`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
 			anyOf: []string{"worker"},
 		},
 		data: `

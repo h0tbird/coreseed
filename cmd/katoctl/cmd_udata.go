@@ -128,6 +128,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_SYSDIG_ACCESS_KEY").
 		String()
 
+	flUdataDatadogAPIKey = cmdUdata.Flag("datadog-api-key",
+		"Datadog secret API key").
+		PlaceHolder("KATO_UDATA_DATADOG_API_KEY").
+		OverrideDefaultFromEnvar("KATO_UDATA_DATADOG_API_KEY").
+		String()
+
 	flUdataStubZones = cmdUdata.Flag("stub-zone",
 		"Use different nameservers for given domains.").
 		PlaceHolder("KATO_UDATA_STUB_ZONE").

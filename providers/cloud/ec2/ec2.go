@@ -68,6 +68,7 @@ type State struct {
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
+	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   //  ec2:deploy |           | udata |
 	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
@@ -197,7 +198,6 @@ func (d *Data) Add() {
 		"--domain", d.Domain,
 		"--ec2-region", d.Region,
 		"--ns1-api-key", d.Ns1ApiKey,
-		"--sysdig-access-key", d.SysdigAccessKey,
 		"--etcd-token", d.EtcdToken,
 		"--flannel-network", d.FlannelNetwork,
 		"--flannel-subnet-len", d.FlannelSubnetLen,
@@ -207,6 +207,16 @@ func (d *Data) Add() {
 		"--rexray-storage-driver", "ec2",
 		"--iaas-provider", "ec2",
 		"--gzip-udata",
+	}
+
+	// Append the --sysdig-access-key if present:
+	if d.SysdigAccessKey != "" {
+		argsUdata = append(argsUdata, "--sysdig-access-key", d.SysdigAccessKey)
+	}
+
+	// Append the --datadog-api-key if present:
+	if d.DatadogAPIKey != "" {
+		argsUdata = append(argsUdata, "--datadog-api-key", d.DatadogAPIKey)
 	}
 
 	// Append the --ca-cert flag if cert is present:

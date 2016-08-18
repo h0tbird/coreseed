@@ -56,6 +56,7 @@ type Data struct {
 	Ec2Region           string
 	IaasProvider        string
 	SysdigAccessKey     string
+	DatadogAPIKey       string
 	template            string
 	Roles               []string
 	Aliases             []string
