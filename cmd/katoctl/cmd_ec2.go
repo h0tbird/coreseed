@@ -295,9 +295,9 @@ var (
 		Enum("true", "false", "elastic")
 
 	flEc2RunIAMRole = cmdEc2Run.Flag("iam-role",
-		"IAM role [ master | worker | border ]").
+		"IAM role associated to instance.").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_IAM_ROLE").
-		Enum("master", "worker", "border")
+		String()
 
 	flEc2RunSrcDstCheck = cmdEc2Run.Flag("source-dest-check",
 		" [ true | false ]").

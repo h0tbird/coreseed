@@ -85,10 +85,7 @@ type State struct {
 	InetGatewayID    string   `json:"InetGatewayID"`    //             | ec2:setup |       |
 	NatGatewayID     string   `json:"NatGatewayID"`     //             | ec2:setup |       |
 	RouteTableID     string   `json:"RouteTableID"`     //             | ec2:setup |       |
-	QuorumRoleID     string   `json:"QuorumRoleID"`     //             | ec2:setup |       |
-	MasterRoleID     string   `json:"MasterRoleID"`     //             | ec2:setup |       |
-	WorkerRoleID     string   `json:"WorkerRoleID"`     //             | ec2:setup |       |
-	BorderRoleID     string   `json:"BorderRoleID"`     //             | ec2:setup |       |
+	KatoRoleID       string   `json:"KatoRoleID"`       //             | ec2:setup |       |
 	RexrayPolicy     string   `json:"RexrayPolicy"`     //             | ec2:setup |       |
 	QuorumSecGrp     string   `json:"QuorumSecGrp"`     //             | ec2:setup |       |
 	MasterSecGrp     string   `json:"MasterSecGrp"`     //             | ec2:setup |       |
@@ -226,7 +223,7 @@ func (d *Data) Add() {
 		"--key-pair", d.KeyPair,
 		"--subnet-id", d.ExtSubnetID,
 		"--security-group-ids", strings.Join(securityGroupIDs, ","),
-		"--iam-role", "master",
+		"--iam-role", "kato",
 		"--source-dest-check", d.SrcDstCheck,
 		"--public-ip", "true",
 	}
@@ -740,28 +737,26 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
-	// Create IAM roles:
-	if err := d.createIAMRoles(); err != nil {
+	// Create IAM role:
+	if err := d.createIAMRole(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
-	// Create instance profiles:
-	d.createInstanceProfiles()
+	// Create instance profile:
+	d.createInstanceProfile()
 
-	// Attach policies to IAM roles:
-	for _, role := range [4]string{"quorum", "master", "worker", "border"} {
-		for _, policy := range [2]string{
-			"arn:aws:iam::aws:policy/AmazonS3FullAccess",
-			d.RexrayPolicy,
-		} {
-			if err := d.attachPolicyToRole(policy, role); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-			}
+	// Attach policies to IAM role:
+	for _, policy := range [2]string{
+		"arn:aws:iam::aws:policy/AmazonS3FullAccess",
+		d.RexrayPolicy,
+	} {
+		if err := d.attachPolicyToRole(policy, "kato"); err != nil {
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 	}
 
-	// Add IAM roles to instance profiles:
-	if err := d.addIAMRolesToInstanceProfiles(); err != nil {
+	// Add IAM role to instance profile:
+	if err := d.addIAMRoleToInstanceProfile(); err != nil {
 		os.Exit(1)
 	}
 }
@@ -1423,18 +1418,10 @@ func (d *Data) attachPolicyToRole(policy, role string) error {
 }
 
 //-----------------------------------------------------------------------------
-// func: createIAMRoles
+// func: createIAMRole
 //-----------------------------------------------------------------------------
 
-func (d *Data) createIAMRoles() error {
-
-	// Map to iterate:
-	grps := map[string]map[string]string{
-		"quorum": map[string]string{"roleID": ""},
-		"master": map[string]string{"roleID": ""},
-		"worker": map[string]string{"roleID": ""},
-		"border": map[string]string{"roleID": ""},
-	}
+func (d *Data) createIAMRole() error {
 
 	// IAM Role type:
 	policy := `{
@@ -1448,135 +1435,94 @@ func (d *Data) createIAMRoles() error {
         }]
   }`
 
-	// For each security role:
-	for k, v := range grps {
+	// Forge the role request:
+	params := &iam.CreateRoleInput{
+		AssumeRolePolicyDocument: aws.String(policy),
+		RoleName:                 aws.String("kato"),
+		Path:                     aws.String("/kato/"),
+	}
 
-		// Forge the role request:
-		params := &iam.CreateRoleInput{
-			AssumeRolePolicyDocument: aws.String(policy),
-			RoleName:                 aws.String(k),
-			Path:                     aws.String("/kato/"),
-		}
-
-		// Send the role request:
-		resp, err := d.iam.CreateRole(params)
-		if err != nil {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 409 {
-					continue
-				}
+	// Send the role request:
+	resp, err := d.iam.CreateRole(params)
+	if err != nil {
+		if reqErr, ok := err.(awserr.RequestFailure); ok {
+			if reqErr.StatusCode() == 409 {
+				return nil
 			}
-			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			return err
 		}
-
-		// Locally store the role ID:
-		v["roleID"] = *resp.Role.RoleId
-		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["roleID"]}).
-			Info("New " + k + " IAM role")
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
 	}
 
-	// Store security role IDs:
-	if grps["quorum"]["roleID"] != "" {
-		d.QuorumRoleID = grps["quorum"]["roleID"]
-	}
-	if grps["master"]["roleID"] != "" {
-		d.MasterRoleID = grps["master"]["roleID"]
-	}
-	if grps["worker"]["roleID"] != "" {
-		d.WorkerRoleID = grps["worker"]["roleID"]
-	}
-	if grps["border"]["roleID"] != "" {
-		d.BorderRoleID = grps["border"]["roleID"]
-	}
+	// Locally store the role ID:
+	d.KatoRoleID = *resp.Role.RoleId
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.KatoRoleID}).
+		Info("New kato IAM role")
 
 	return nil
 }
 
 //-----------------------------------------------------------------------------
-// func: createInstanceProfiles
+// func: createInstanceProfile
 //-----------------------------------------------------------------------------
 
-func (d *Data) createInstanceProfiles() {
+func (d *Data) createInstanceProfile() {
 
-	// Setup a wait group:
-	var wg sync.WaitGroup
-
-	// For each instance profile:
-	for _, v := range [4]string{"quorum", "master", "worker", "border"} {
-
-		// Increment wait group:
-		wg.Add(1)
-
-		go func(role string) {
-
-			// Decrement wait group:
-			defer wg.Done()
-
-			// Forge the profile request:
-			params := &iam.CreateInstanceProfileInput{
-				InstanceProfileName: aws.String(role),
-				Path:                aws.String("/kato/"),
-			}
-
-			// Send the profile request:
-			resp, err := d.iam.CreateInstanceProfile(params)
-			if err != nil {
-				if reqErr, ok := err.(awserr.RequestFailure); ok {
-					if reqErr.StatusCode() == 409 {
-						return
-					}
-				}
-				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-			}
-
-			// Wait until the instance profile exists:
-			log.WithFields(log.Fields{"cmd": "ec2:" + d.command,
-				"id": *resp.InstanceProfile.InstanceProfileId}).
-				Info("Waiting until " + role + " profile exists")
-			if err := d.iam.WaitUntilInstanceProfileExists(
-				&iam.GetInstanceProfileInput{
-					InstanceProfileName: aws.String(role),
-				}); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-			}
-		}(v)
+	// Forge the profile request:
+	params := &iam.CreateInstanceProfileInput{
+		InstanceProfileName: aws.String("kato"),
+		Path:                aws.String("/kato/"),
 	}
 
-	// Wait:
-	wg.Wait()
+	// Send the profile request:
+	resp, err := d.iam.CreateInstanceProfile(params)
+	if err != nil {
+		if reqErr, ok := err.(awserr.RequestFailure); ok {
+			if reqErr.StatusCode() == 409 {
+				return
+			}
+		}
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Wait until the instance profile exists:
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command,
+		"id": *resp.InstanceProfile.InstanceProfileId}).
+		Info("Waiting until kato profile exists")
+	if err := d.iam.WaitUntilInstanceProfileExists(
+		&iam.GetInstanceProfileInput{
+			InstanceProfileName: aws.String("kato"),
+		}); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
 }
 
 //-----------------------------------------------------------------------------
-// func: addIAMRolesToInstanceProfiles
+// func: addIAMRoleToInstanceProfile
 //-----------------------------------------------------------------------------
 
-func (d *Data) addIAMRolesToInstanceProfiles() error {
+func (d *Data) addIAMRoleToInstanceProfile() error {
 
-	// For each instance profile:
-	for _, v := range [4]string{"quorum", "master", "worker", "border"} {
-
-		// Forge the addition request:
-		params := &iam.AddRoleToInstanceProfileInput{
-			InstanceProfileName: aws.String(v),
-			RoleName:            aws.String(v),
-		}
-
-		// Send the addition request:
-		if _, err := d.iam.AddRoleToInstanceProfile(params); err != nil {
-			if reqErr, ok := err.(awserr.RequestFailure); ok {
-				if reqErr.StatusCode() == 409 {
-					continue
-				}
-			}
-			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			return err
-		}
-
-		// Log the addition request:
-		log.WithField("cmd", "ec2:"+d.command).
-			Info("New " + v + " IAM role added to profile")
+	// Forge the addition request:
+	params := &iam.AddRoleToInstanceProfileInput{
+		InstanceProfileName: aws.String("kato"),
+		RoleName:            aws.String("kato"),
 	}
+
+	// Send the addition request:
+	if _, err := d.iam.AddRoleToInstanceProfile(params); err != nil {
+		if reqErr, ok := err.(awserr.RequestFailure); ok {
+			if reqErr.StatusCode() == 409 {
+				return nil
+			}
+		}
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
+	// Log the addition request:
+	log.WithField("cmd", "ec2:"+d.command).
+		Info("New kato IAM role added to profile")
 
 	return nil
 }
