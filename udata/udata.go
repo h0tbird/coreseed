@@ -36,7 +36,6 @@ type fragment struct {
 // Data contains variables to be interpolated in templates.
 type Data struct {
 	QuorumCount         int
-	MasterCount         int
 	GzipUdata           bool
 	ClusterID           string
 	HostName            string

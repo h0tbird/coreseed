@@ -59,7 +59,6 @@ write_files:`,
    content: |
     KATO_CLUSTER_ID={{.ClusterID}}
     KATO_QUORUM_COUNT={{.QuorumCount}}
-    KATO_MASTER_COUNT={{.MasterCount}}
     KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}

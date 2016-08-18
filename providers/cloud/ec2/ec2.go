@@ -62,7 +62,6 @@ type Instance struct {
 // State data.
 type State struct {
 	QuorumCount      int      `json:"QuorumCount"`      //  ec2:deploy |           |       |
-	MasterCount      int      `json:"MasterCount"`      //  ec2:deploy |           |       |
 	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
 	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
 	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
@@ -195,7 +194,6 @@ func (d *Data) Add() {
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
 		"--quorum-count", strconv.Itoa(d.QuorumCount),
-		"--master-count", strconv.Itoa(d.MasterCount),
 		"--host-name", d.HostName,
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
@@ -438,15 +436,6 @@ func (d *Data) countNodes() {
 		if strings.Contains(q, "quorum") {
 			s := strings.Split(q, ":")
 			d.QuorumCount, _ = strconv.Atoi(s[0])
-			break
-		}
-	}
-
-	// Get the MasterCount:
-	for _, q := range d.Quadruplets {
-		if strings.Contains(q, "master") {
-			s := strings.Split(q, ":")
-			d.MasterCount, _ = strconv.Atoi(s[0])
 			break
 		}
 	}
