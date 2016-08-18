@@ -1258,6 +1258,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
+     ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
        etcdctl get $${i} | awk '{print $1}'; done \
@@ -1303,6 +1304,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull janeczku/go-dnsmasq:release-1.0.6
+     ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
        etcdctl get $${i} | awk '{print $1\":54\"}'; done \
