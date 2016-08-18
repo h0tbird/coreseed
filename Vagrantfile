@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
   # Start the all-in-one:
   #-----------------------
 
-  config.vm.define vm_name = "kato-1" do |conf|
+  config.vm.define "kato-1" do |conf|
 
     conf.vm.hostname = "kato-1.%s" % $domain
 
