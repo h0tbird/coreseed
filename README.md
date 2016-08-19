@@ -96,7 +96,7 @@ Once you have deployed the infrastructure, run sanity checks to evaluate whether
 ```bash
 marc@desk-1 ~ $ ssh -A core@border-1.ext.<managed-public-domain>
 core@border-1 ~ $ etcdctl cluster-health
-core@border-1 ~ $ for i in border master worker; do loopssh ${i} katostat; done
+core@border-1 ~ $ for i in border quorum master worker; do loopssh ${i} katostat; done
 ```
 
 ## 4. Setup pritunl
