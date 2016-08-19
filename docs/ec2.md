@@ -58,4 +58,4 @@ katoctl ec2 add \
 ```
 
 #### Wait for it...
-At this point you must wait for `EC2` to report healthy checks for all your instances. Now you're done deploying infrastructure, go back to step 3 in the main [README](https://github.com/h0tbird/kato/blob/master/README.md#3-pre-flight-checklist).
+At this point you must wait for `EC2` to report healthy checks for all your instances. Now you're done deploying infrastructure, go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist).

@@ -25,8 +25,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/h0tbird/kato/katool"
 	"github.com/imdario/mergo"
+	"github.com/katosys/kato/katool"
 )
 
 //-----------------------------------------------------------------------------

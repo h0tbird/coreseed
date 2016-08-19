@@ -2,23 +2,23 @@
 
 [![Version Widget]][Version] [![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Widget]][Coverage]
 
-[Version]: https://github.com/h0tbird/kato/releases
-[Version Widget]: https://img.shields.io/github/release/h0tbird/kato.svg?maxAge=60
+[Version]: https://github.com/katosys/kato/releases
+[Version Widget]: https://img.shields.io/github/release/katosys/kato.svg?maxAge=60
 [License]: http://www.apache.org/licenses/LICENSE-2.0.txt
 [License Widget]: https://img.shields.io/badge/license-APACHE2-1eb0fc.svg
-[GoReportCard]: https://goreportcard.com/report/h0tbird/kato
-[GoReportCard Widget]: https://goreportcard.com/badge/h0tbird/kato
-[Travis]: https://travis-ci.org/h0tbird/kato
-[Travis Widget]: https://travis-ci.org/h0tbird/kato.svg?branch=master
-[Coverage]: https://coveralls.io/github/h0tbird/kato?branch=master
-[Coverage Widget]: https://coveralls.io/repos/github/h0tbird/kato/badge.svg?branch=master
+[GoReportCard]: https://goreportcard.com/report/katosys/kato
+[GoReportCard Widget]: https://goreportcard.com/badge/katosys/kato
+[Travis]: https://travis-ci.org/katosys/kato
+[Travis Widget]: https://travis-ci.org/katosys/kato.svg?branch=master
+[Coverage]: https://coveralls.io/github/katosys/kato?branch=master
+[Coverage Widget]: https://coveralls.io/repos/github/katosys/kato/badge.svg?branch=master
 
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
 
 </br>
 
-<img src="https://raw.githubusercontent.com/h0tbird/coreseed/master/imgs/kato.png"
+<img src="https://raw.githubusercontent.com/katosys/coreseed/master/imgs/kato.png"
  alt="Booddies logo" title="Booddies" align="right" width="69%" height="69%"/>
 
 **Distinctive attributes**
@@ -70,13 +70,13 @@ All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apa
 
 ##### From the latest release (for *Káto* end users)
 ```bash
-curl -s https://raw.githubusercontent.com/h0tbird/kato/master/install | bash
+curl -s https://raw.githubusercontent.com/katosys/kato/master/install | bash
 ```
 
 ##### From the source code (for *Káto* developers)
 ```bash
-go get -u github.com/h0tbird/kato/cmd/katoctl
-go install github.com/h0tbird/kato/cmd/katoctl
+go get -u github.com/katosys/kato/cmd/katoctl
+go install github.com/katosys/kato/cmd/katoctl
 ```
 
 ##### Setup bash/zsh shell completion
@@ -90,10 +90,10 @@ eval "$(katoctl --completion-script-${0#-})"
 
 |:white_check_mark:|:white_check_mark:|:white_check_mark:|:x:|:x:|:x:|
 |---|---|---|---|---|---|
-|[Vagrant](https://github.com/h0tbird/kato/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/h0tbird/kato/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/h0tbird/kato/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
+|[Vagrant](https://github.com/katosys/kato/blob/master/docs/vagrant.md)|[Packet.net](https://github.com/katosys/kato/blob/master/docs/packet.md)|[Amazon EC2](https://github.com/katosys/kato/blob/master/docs/ec2.md)|[Google GCE]()|[Digital Ocean]()|[Microsoft Azure]()|
 
 ## 3. Pre-flight checklist
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `border-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/h0tbird/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `border-1` node if you are in the cloud or the `master-1` node if you are using *Vagrant*. Also find [here](https://github.com/katosys/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
 
 ```bash
 marc@desk-1 ~ $ ssh -A core@border-1.ext.<managed-public-domain>

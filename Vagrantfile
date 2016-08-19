@@ -26,7 +26,7 @@ if ARGV[0].eql?('up')
 
   if !File.file?("katoctl")
     print "Downloading katoctl...\n"
-    cmd = "wget -q https://github.com/h0tbird/kato/releases/download/%s/katoctl-%s-%s -O katoctl"
+    cmd = "wget -q https://github.com/katosys/kato/releases/download/%s/katoctl-%s-%s -O katoctl"
     system cmd % [ $kato_version, `uname`.tr("\n",'').downcase, `uname -m`.tr("\n",'') ]
     if !system "chmod +x katoctl"
       print "Ops! Where is katoctl?\n"

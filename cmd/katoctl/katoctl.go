@@ -14,10 +14,10 @@ import (
 	"strings"
 
 	// Local:
-	"github.com/h0tbird/kato/providers/cloud/ec2"
-	"github.com/h0tbird/kato/providers/cloud/pkt"
-	"github.com/h0tbird/kato/providers/dns/ns1"
-	"github.com/h0tbird/kato/udata"
+	"github.com/katosys/kato/providers/cloud/ec2"
+	"github.com/katosys/kato/providers/cloud/pkt"
+	"github.com/katosys/kato/providers/dns/ns1"
+	"github.com/katosys/kato/udata"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
