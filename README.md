@@ -10,8 +10,6 @@
 [GoReportCard Widget]: https://goreportcard.com/badge/katosys/kato
 [Travis]: https://travis-ci.org/katosys/kato
 [Travis Widget]: https://travis-ci.org/katosys/kato.svg?branch=master
-[Coverage]: https://coveralls.io/github/katosys/kato?branch=master
-[Coverage Widget]: https://coveralls.io/repos/github/katosys/kato/badge.svg?branch=master
 
 **Káto** (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
