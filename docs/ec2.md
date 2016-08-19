@@ -37,7 +37,7 @@ Subcommands:
 
 If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During the deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
 
-A simple deploy example:
+##### A simple deploy example:
 ```bash
 katoctl ec2 deploy \
   --cluster-id <unique-cluster-id> \
@@ -49,7 +49,7 @@ katoctl ec2 deploy \
   1:m3.medium:border:border
 ```
 
-A complex deploy example:
+##### A complex deploy example:
 ```bash
 export KATO_EC2_DEPLOY_VPC_CIDR_BLOCK='10.136.0.0/16'
 export KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR='10.136.0.0/18'
