@@ -1,55 +1,28 @@
 ### Deploy on Vagrant
 
-#### For operators
-If you are an *operator* you need `the real thing`&trade;
-```bash
-export KATO_MASTER_COUNT=3
-export KATO_WORKER_COUNT=2
-export KATO_BORDER_COUNT=1
-```
+Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your `~/git/` host directory will be mapped to `/code/` inside the VM.
 
-#### For developers
-If you are a *developer* you can deploy a lighter version:
-```bash
-export KATO_MASTER_COUNT=1
-export KATO_WORKER_COUNT=1
-export KATO_BORDER_COUNT=0
-```
+#### Environment variables
 
-#### Everyone
-Export your *NS1* private API key (optional) and your managed public domain:
+Find below envars and their default values:
 ```bash
-export KATO_NS1_API_KEY='<ns1-api-key>'
-export KATO_DOMAIN='<managed-public-domain>'
-```
-
-Find below other options and its default values:
-```bash
-export KATO_MASTER_COUNT=1
-export KATO_WORKER_COUNT=1
-export KATO_BORDER_COUNT=0
-export KATO_MASTER_CPUS=1
-export KATO_MASTER_MEMORY=1024
-export KATO_WORKER_CPUS=2
-export KATO_WORKER_MEMORY=4096
-export KATO_BORDER_CPUS=1
-export KATO_BORDER_MEMORY=512
-export KATO_VERSION=v0.1.0-alpha
-export KATO_COREOS_CHANNEL=stable
-export KATO_COREOS_VERSION=current
-export KATO_NS1_API_KEY=x
-export KATO_DOMAIN=cell-1.dc-1.demo.lan
-export KATO_CA_CERT=''
-export KATO_CODE_PATH=~/git/
+KATO_CLUSTER_ID='cell-1-demo'
+KATO_NODE_CPUS='2'
+KATO_NODE_MEMORY='4096'
+KATO_VERSION='v0.1.0-alpha'
+KATO_COREOS_CHANNEL='stable'
+KATO_COREOS_VERSION='current'
+KATO_NS1_API_KEY='x'
+KATO_DOMAIN='cell-1.dc-1.demo.lan'
+KATO_CA_CERT=''
+KATO_CODE_PATH='~/git/'
 ```
 
 #### Start and connect
-It is very convenient to add the private ssh key to the ssh agent forwarding before you ssh into the box:
 
 ```bash
 vagrant up
-ssh-add ~/.vagrant.d/insecure_private_key
-vagrant ssh master-1
+vagrant ssh kato-1
 ```
 
 Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist.

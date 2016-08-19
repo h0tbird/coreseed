@@ -5,7 +5,6 @@ Vagrant.require_version ">= 1.6.0"
 #------------------------------------------------------------------------------
 
 $cluster_id     = ENV['KATO_CLUSTER_ID'] || 'cell-1-demo'
-$quorum_count   = ENV['KATO_QUORUM_COUNT'] || 1
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
 $node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-alpha'
@@ -55,7 +54,7 @@ end
 
 if $discovery_url && ARGV[0].eql?('up')
   require 'open-uri'
-  token = open($discovery_url % $quorum_count).read.split("/")[-1]
+  token = open($discovery_url % 1).read.split("/")[-1]
 end
 
 #------------------------------------------------------------------------------
@@ -108,10 +107,10 @@ Vagrant.configure("2") do |config|
 
       if $ca_cert
         cmd = $katoctl + " -c %s > user_data_kato-1"
-        system cmd % [ $quorum_count, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token, $ca_cert ]
+        system cmd % [ 1, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token, $ca_cert ]
       else
         cmd = $katoctl + " > user_data_kato-1"
-        system cmd % [ $quorum_count, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token ]
+        system cmd % [ 1, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token ]
       end
 
       if File.exist?("user_data_kato-1")
