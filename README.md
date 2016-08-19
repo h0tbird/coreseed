@@ -1,6 +1,6 @@
 # The Káto system
 
-[![Version Widget]][Version] [![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis] [![Coverage Widget]][Coverage]
+[![Version Widget]][Version] [![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis]
 
 [Version]: https://github.com/katosys/kato/releases
 [Version Widget]: https://img.shields.io/github/release/katosys/kato.svg?maxAge=60
