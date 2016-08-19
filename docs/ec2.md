@@ -4,7 +4,7 @@ Before you start make sure:
 - Your system's clock is synchronized.
 - You have uploaded valid `SSH` keys to `EC2` ([doc](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)).
 - You have AWS credentials in `~/.aws/credentials` ([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
-- You have permissions to manage `EC2` and `VPC` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
+- You have permissions to manage `IAM`, `VPC` and `EC2` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
 #### The EC2 provider
 
@@ -27,7 +27,7 @@ Subcommands:
     Setup IAM, VPC and EC2 components.
 
   ec2 add
-    Adds a new instance to a Káto cluster on EC2.
+    Adds a new instance to an existing Káto cluster on EC2.
 
   ec2 run
     Starts a CoreOS instance on Amazon EC2.
