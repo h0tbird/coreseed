@@ -172,7 +172,7 @@ func (d *Data) systemdUnits() {
 
 	units := []string{}
 
-	// Agregate units of all roles:
+	// Aggregate units of all roles:
 	for _, i := range d.Roles {
 		switch i {
 		case "quorum":
