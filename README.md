@@ -16,8 +16,8 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-<img src="https://raw.githubusercontent.com/katosys/coreseed/master/imgs/kato.png"
- alt="Booddies logo" title="Booddies" align="right" width="69%" height="69%"/>
+<img src="https://raw.githubusercontent.com/katosys/kato/master/imgs/kato.png"
+ align="right" width="69%" height="69%"/>
 
 **Distinctive attributes**
 
