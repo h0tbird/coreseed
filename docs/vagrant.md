@@ -31,4 +31,4 @@ Congratulations, you have now deployed the infrastructure. Go back to step 3 in 
 
 This is optional but recommended. Edit your `/etc/hosts` so you don't have to wait for the public DNS to propagate (if you are using NS1). In *OSX* you can use [Gas Mask](http://clockwise.ee/):
 
-![Gas Mask](https://dl.dropboxusercontent.com/u/29639331/kato/gasmask_vagrant.png)
+![Gas Mask](https://raw.githubusercontent.com/katosys/kato/master/imgs/gasmask.png)
