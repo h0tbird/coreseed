@@ -42,7 +42,7 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth
 
 #### 2. Destroy the elected master
 
-A few seconds after terminating the `EC2` instance `master-3` is elected for mesos:
+A few seconds after terminating the `master-1` `EC2` instance, `master-3` is elected for mesos:
 ```
 core@master-2 ~ $ for i in 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-3.cell-1.dc-1.demo.lan:5050
