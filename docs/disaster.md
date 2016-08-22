@@ -70,6 +70,32 @@ fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=h
 
 I can still browse the *mesos* and *marathon* web GUIs. I can also see the expected information and the application is up, running and usable.
 
+#### 3. Purge the terminated instance:
+
+Since there is no chance for this instance to come back again, it is important to purge the ARP cache:
+```
+core@quorum-1 ~ $ for i in border quorum master worker; do loopssh ${i} sudo arp -d quorum-3.cell-1.dc-1.demo.lan; done
+core@quorum-1 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^quorum-3; done
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at <incomplete> on eth0
+```
+
+Also I must notify the remaining members of the *etcd* cluster not to expect the lost node to come back again:
+```
+core@quorum-1 ~ $ etcdctl member remove 498aec03aa857694
+Removed member 498aec03aa857694 from cluster
+core@quorum-1 ~ $ etcdctl member list
+deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http://10.136.89.99:2379 isLeader=false
+fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=true
+```
+
 ## Master: destroy & restore
 
 Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `master` node I am affecting the `mesos-master` and `marathon` services among others (full list below):
@@ -115,7 +141,7 @@ core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader"
 }
 ```
 
-This is the ARP view of `master-1` from the other cluster nodes:
+This is the ARP view of `master-1` from the point of view of the other cluster nodes:
 ```
 core@master-1 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^master-1; done
 master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
