@@ -135,9 +135,10 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 Stop `mesos-master` on `master-3`:
 ```
 core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
+core@master-3 ~ $ sudo systemctl stop marathon; sleep 10; sudo systemctl start marathon;
 ```
 
-The new elected master is `master-2` and everything works as expected:
+The new mesos elected master is `master-2`:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-2.cell-1.dc-1.demo.lan:5050
@@ -145,12 +146,26 @@ Location: //master-2.cell-1.dc-1.demo.lan:5050
 Location: //master-2.cell-1.dc-1.demo.lan:5050
 ```
 
+The new marathon elected master is `master-1`:
+```
+core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
+```
+
 Stop `mesos-master` on `master-2`:
 ```
 core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
 ```
 
-The new elected master is `master-1` and everything works as expected:
+The mesos new elected master is `master-1` and everything works as expected:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-1.cell-1.dc-1.demo.lan:5050
