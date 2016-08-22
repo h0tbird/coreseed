@@ -1,6 +1,6 @@
-## Quorum destroy & restore
+## Quorum: destroy & restore
 
-Let's destroy the quorum master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `quorum` node we are affecting the `zookeeper` and `etcd2` services among others (full list below):
+Let's destroy the quorum master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `quorum` node I am affecting the `zookeeper` and `etcd2` services among others (full list below):
 
 ```
 core@quorum-1 ~ $ katostat
@@ -14,9 +14,30 @@ LoadState=loaded  ActiveState=active  SubState=running  Id=zookeeper-exporter.se
 LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
 ```
 
-## Elected master destroy & restore
+#### 1. Who is the elected master?
 
-Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `master` node we are affecting the `mesos-master` and `marathon` services among others (full list below):
+The answer is `quorum-3` for *zookeeper*:
+```
+core@quorum-1 ~ $ loopssh quorum "echo srvr | ncat \$(hostname) 2181 | grep Mode"
+--[ quorum-1.cell-1.dc-1.demo.lan ]--
+Mode: follower
+--[ quorum-2.cell-1.dc-1.demo.lan ]--
+Mode: follower
+--[ quorum-3.cell-1.dc-1.demo.lan ]--
+Mode: leader
+```
+
+And conveniently `quorum-3` for *etcd*:
+```
+core@quorum-1 ~ $ etcdctl member list
+deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http://10.136.89.99:2379 isLeader=false
+498aec03aa857694: name=quorum-3 peerURLs=http://10.136.83.75:2380 clientURLs=http://10.136.83.75:2379 isLeader=true
+fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=false
+```
+
+## Master: destroy & restore
+
+Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `master` node I am affecting the `mesos-master` and `marathon` services among others (full list below):
 
 ```
 core@master-1 ~ $ katostat
@@ -37,7 +58,7 @@ LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
 
 #### 1. Who is the elected master?
 
-The answer is `master-1` for mesos:
+The answer is `master-1` for *mesos*:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-1.cell-1.dc-1.demo.lan:5050
@@ -45,7 +66,7 @@ Location: //master-1.cell-1.dc-1.demo.lan:5050
 Location: //master-1.cell-1.dc-1.demo.lan:5050
 ```
 
-And conveniently `master-1` for marathon too:
+And conveniently `master-1` for *marathon* too:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
 {
@@ -75,14 +96,14 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth
 
 #### 2. Destroy the elected master
 
-A few seconds after terminating the `master-1` `EC2` instance, `master-3` is elected for mesos:
+A few seconds after terminating the `master-1` `EC2` instance, `master-3` is elected for *mesos*:
 ```
 core@master-2 ~ $ for i in 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-3.cell-1.dc-1.demo.lan:5050
 Location: //master-3.cell-1.dc-1.demo.lan:5050
 ```
 
-And also for marathon:
+And also for *marathon*:
 ```
 core@master-2 ~ $ for i in 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
 {
@@ -93,7 +114,7 @@ core@master-2 ~ $ for i in 2 3; do curl -s "http://master-${i}:8080/v2/leader" |
 }
 ```
 
-I can still browse the mesos and marathon web GUIs. I can also see the expected information and the application is up, running and usable.
+I can still browse the *mesos* and *marathon* web GUIs. I can also see the expected information and the application is up, running and usable.
 
 #### 3. Purge the terminated instance:
 
@@ -171,7 +192,7 @@ core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl sta
 core@master-3 ~ $ sudo systemctl stop marathon; sleep 10; sudo systemctl start marathon
 ```
 
-The new mesos elected master is `master-2`:
+The new *mesos* elected master is `master-2`:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-2.cell-1.dc-1.demo.lan:5050
@@ -179,7 +200,7 @@ Location: //master-2.cell-1.dc-1.demo.lan:5050
 Location: //master-2.cell-1.dc-1.demo.lan:5050
 ```
 
-The new marathon elected master is `master-1`:
+The new *marathon* elected master is `master-1`:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
 {
@@ -198,7 +219,7 @@ Stop `mesos-master` on `master-2`:
 core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master
 ```
 
-The new mesos elected master is `master-1` and everything works as expected:
+The new *mesos* elected master is `master-1` and everything works as expected:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-1.cell-1.dc-1.demo.lan:5050
