@@ -134,8 +134,8 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 
 Stop `mesos-master` and `marathon` on `master-3`:
 ```
-core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
-core@master-3 ~ $ sudo systemctl stop marathon; sleep 10; sudo systemctl start marathon;
+core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master
+core@master-3 ~ $ sudo systemctl stop marathon; sleep 10; sudo systemctl start marathon
 ```
 
 The new mesos elected master is `master-2`:
@@ -162,7 +162,7 @@ core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader"
 
 Stop `mesos-master` on `master-2`:
 ```
-core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
+core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master
 ```
 
 The new mesos elected master is `master-1` and everything works as expected:
