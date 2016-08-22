@@ -12,7 +12,7 @@ Location: //master-1.cell-1.dc-1.demo.lan:5050
 Location: //master-1.cell-1.dc-1.demo.lan:5050
 ```
 
-And conveniently `mesos-1` for marathon too:
+And conveniently `master-1` for marathon too:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
 {
