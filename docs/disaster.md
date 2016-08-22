@@ -1,8 +1,8 @@
-## Master destroy & restore
+## Mesos master destroy & restore
 
-Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. This is the status of the cluster before I destroy the elected master:
+Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*.
 
-#### Who is the elected master?
+#### 1. Who is the elected master?
 
 The answer is `master-1`:
 ```
@@ -26,7 +26,7 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth
 master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
 ```
 
-#### Destroy the elected master
+#### 2. Destroy the elected master
 
 A few seconds after terminating the `EC2` instance `master-3` is elected:
 ```
@@ -37,7 +37,7 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 
 I can still browse the mesos and marathon web GUIs. I can also see the expected information and the application is up, running and usable.
 
-#### Purge the terminated instance:
+#### 3. Purge the terminated instance:
 
 Since there is no chance for this instance to come back again, it is important to purge the ARP cache:
 ```
@@ -54,7 +54,7 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
 master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
 ```
 
-#### Create a brand new `master-1`:
+#### 4. Create a brand new `master-1`:
 
 This is a new machine, it only shares the name with the previous one:
 ```
@@ -105,7 +105,7 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 Location: //master-3.cell-1.dc-1.demo.lan:5050
 ```
 
-#### Force `master-1` to become the elected master again:
+#### 5. Force `master-1` to become the elected master again:
 
 Stop `mesos-master` on `master-3`:
 ```
