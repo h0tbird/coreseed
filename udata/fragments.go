@@ -234,7 +234,7 @@ write_files:`,
     G=$(tput setaf 2); N=$(tput sgr0)
     A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
     for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
-    -o StrictHostKeyChecking=no $i -C "${@:2}" 2> /dev/null; done`,
+    -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done`,
 	})
 
 	d.frags = append(d.frags, fragment{
