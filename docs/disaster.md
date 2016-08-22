@@ -27,13 +27,48 @@ Mode: follower
 Mode: leader
 ```
 
-And conveniently `quorum-3` for *etcd*:
+And conveniently `quorum-3` for *etcd* too:
 ```
 core@quorum-1 ~ $ etcdctl member list
 deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http://10.136.89.99:2379 isLeader=false
 498aec03aa857694: name=quorum-3 peerURLs=http://10.136.83.75:2380 clientURLs=http://10.136.83.75:2379 isLeader=true
 fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=false
 ```
+
+This is the ARP view of `quorum-3` from the point of view of the other cluster nodes:
+```
+core@quorum-1 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^quorum-3; done
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+quorum-3.cell-1.dc-1.demo.lan (10.136.83.75) at 06:65:1f:74:8f:63 [ether] on eth0
+```
+
+#### 2. Destroy the elected master
+
+A few seconds after terminating the `quorum-3` EC2 instance, `quorum-2` is elected for *zookeeper*:
+```
+core@quorum-1 ~ $ loopssh quorum "echo srvr | ncat \$(hostname) 2181 | grep Mode"
+--[ quorum-1.cell-1.dc-1.demo.lan ]--
+Mode: follower
+--[ quorum-2.cell-1.dc-1.demo.lan ]--
+Mode: leader
+```
+
+And `quorum-1` is elected for *etcd*:
+```
+core@quorum-1 ~ $ etcdctl member list
+deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http://10.136.89.99:2379 isLeader=false
+498aec03aa857694: name=quorum-3 peerURLs=http://10.136.83.75:2380 clientURLs=http://10.136.83.75:2379 isLeader=false
+fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=true
+```
+
+I can still browse the *mesos* and *marathon* web GUIs. I can also see the expected information and the application is up, running and usable.
 
 ## Master: destroy & restore
 
