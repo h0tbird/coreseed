@@ -81,7 +81,7 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
 
 #### 4. Create a brand new `master-1`:
 
-This is a new machine, it only shares the name with the previous one:
+This is a new machine, it only shares the name and IP with the previous one:
 ```
 [0] ~ >> katoctl ec2 add --cluster-id cell-1-dub --host-id 1 --host-name master --instance-type m3.medium --roles master
 INFO[0000] Latest CoreOS stable AMI located              cmd=ec2:add id=ami-b7cba3c4
