@@ -1,15 +1,29 @@
-## Mesos master destroy & restore
+## Elected master destroy & restore
 
 Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*.
 
 #### 1. Who is the elected master?
 
-The answer is `master-1`:
+The answer is `master-1` for mesos:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-1.cell-1.dc-1.demo.lan:5050
 Location: //master-1.cell-1.dc-1.demo.lan:5050
 Location: //master-1.cell-1.dc-1.demo.lan:5050
+```
+
+And conveniently `mesos-1` for marathon too:
+```
+core@master-1 ~ $ for i in 1 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
+{
+  "leader": "master-1.cell-1.dc-1.demo.lan:8080"
+}
 ```
 
 This is the ARP view of `master-1` from the other cluster nodes:
@@ -28,11 +42,22 @@ master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth
 
 #### 2. Destroy the elected master
 
-A few seconds after terminating the `EC2` instance `master-3` is elected:
+A few seconds after terminating the `EC2` instance `master-3` is elected for mesos:
 ```
 core@master-2 ~ $ for i in 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-3.cell-1.dc-1.demo.lan:5050
 Location: //master-3.cell-1.dc-1.demo.lan:5050
+```
+
+And also for marathon:
+```
+core@master-2 ~ $ for i in 2 3; do curl -s "http://master-${i}:8080/v2/leader" | jq '.'; done
+{
+  "leader": "master-3.cell-1.dc-1.demo.lan:8080"
+}
+{
+  "leader": "master-3.cell-1.dc-1.demo.lan:8080"
+}
 ```
 
 I can still browse the mesos and marathon web GUIs. I can also see the expected information and the application is up, running and usable.
