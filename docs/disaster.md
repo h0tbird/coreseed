@@ -96,6 +96,60 @@ deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http
 fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=true
 ```
 
+#### 4. Create a brand new `quorum-3`:
+
+This is a new machine, it only shares the name with the previous one:
+```
+[0] ~ >> katoctl ec2 add --cluster-id cell-1-dub --host-id 3 --host-name quorum --instance-type m3.medium --roles quorum
+INFO[0000] Latest CoreOS stable AMI located              cmd=ec2:add id=ami-b7cba3c4
+INFO[0000] Rendering gzipped cloud-config template       cmd=udata id=quorum-3
+INFO[0001] New m3.medium EC2 instance requested          cmd=ec2:run id=i-00c3028d
+INFO[0001] New EC2 instance tagged
+```
+
+A few minutes later I can ssh into `quorum-3` again:
+```
+core@quorum-3 ~ $ katostat
+LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=zookeeper.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=cadvisor.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=node-exporter.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=zookeeper-exporter.service
+LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
+```
+
+#### 5. Add the new member to *etcd*:
+
+Add the new member to the cluster:
+```
+core@quorum-1 ~ $ etcdctl member add quorum-3 http://10.136.117.252:2380
+Added member named quorum-3 with ID ca42100b497845c0 to cluster
+
+ETCD_NAME="quorum-3"
+ETCD_INITIAL_CLUSTER="quorum-2=http://10.136.89.99:2380,quorum-3=http://10.136.117.252:2380,quorum-1=http://10.136.113.221:2380"
+ETCD_INITIAL_CLUSTER_STATE="existing"
+```
+
+New member with new cluster configuration:
+```
+core@quorum-3 ~ $ cat /run/systemd/system/etcd2.service.d/20-cloudinit.conf
+[Service]
+Environment="ETCD_NAME=quorum-3"
+Environment="ETCD_ADVERTISE_CLIENT_URLS=http://10.136.117.252:2379"
+Environment="ETCD_LISTEN_CLIENT_URLS=http://127.0.0.1:2379,http://10.136.117.252:2379"
+Environment="ETCD_LISTEN_PEER_URLS=http://10.136.117.252:2380"
+Environment="ETCD_INITIAL_CLUSTER=quorum-2=http://10.136.89.99:2380,quorum-3=http://10.136.117.252:2380,quorum-1=http://10.136.113.221:2380"
+Environment="ETCD_INITIAL_CLUSTER_STATE=existing"
+```
+
+Start the new member:
+```
+core@quorum-3 ~ $ sudo systemctl daemon-reload
+core@quorum-3 ~ $ sudo systemctl start etcd2
+```
+
 ## Master: destroy & restore
 
 Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `master` node I am affecting the `mesos-master` and `marathon` services among others (full list below):
