@@ -1,6 +1,39 @@
+## Quorum destroy & restore
+
+Let's destroy the quorum master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `quorum` node we are affecting the `zookeeper` and `etcd2` services among others (full list below):
+
+```
+core@quorum-1 ~ $ katostat
+LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=zookeeper.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=cadvisor.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=node-exporter.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=zookeeper-exporter.service
+LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
+```
+
 ## Elected master destroy & restore
 
-Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*.
+Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. By destroying one `master` node we are affecting the `mesos-master` and `marathon` services among others (full list below):
+
+```
+core@master-1 ~ $ katostat
+LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=flanneld.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-dns.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=marathon.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=confd.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=prometheus.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=cadvisor.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master-exporter.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=node-exporter.service
+LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
+```
 
 #### 1. Who is the elected master?
 
