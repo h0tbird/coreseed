@@ -132,7 +132,7 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 
 #### 5. Force `master-1` to become the elected master again:
 
-Stop `mesos-master` on `master-3`:
+Stop `mesos-master` and `marathon` on `master-3`:
 ```
 core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
 core@master-3 ~ $ sudo systemctl stop marathon; sleep 10; sudo systemctl start marathon;
@@ -165,7 +165,7 @@ Stop `mesos-master` on `master-2`:
 core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
 ```
 
-The mesos new elected master is `master-1` and everything works as expected:
+The new mesos elected master is `master-1` and everything works as expected:
 ```
 core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
 Location: //master-1.cell-1.dc-1.demo.lan:5050
