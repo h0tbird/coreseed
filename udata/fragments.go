@@ -753,7 +753,8 @@ coreos:
      [Unit]
      Description=Mesos DNS
      After=docker.service mesos-master.service
-     Requires=docker.service mesos-master.service
+     Requires=docker.service
+     Wants=mesos-master.service
 
      [Service]
      Restart=always
@@ -801,7 +802,8 @@ coreos:
      [Unit]
      Description=Mesos DNS
      After=docker.service mesos-master.service go-dnsmasq.service
-     Requires=docker.service mesos-master.service go-dnsmasq.service
+     Requires=docker.service go-dnsmasq.service
+     Wants=mesos-master.service
 
      [Service]
      Restart=always
@@ -849,7 +851,8 @@ coreos:
      [Unit]
      Description=Marathon
      After=docker.service mesos-master.service
-     Requires=docker.service mesos-master.service
+     Requires=docker.service
+     Wants=mesos-master.service
 
      [Service]
      Restart=always
