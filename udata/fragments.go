@@ -668,6 +668,7 @@ coreos:
      Description=Mesos Master
      After=docker.service zookeeper.service
      Requires=docker.service zookeeper.service
+     Wants=mesos-dns.service marathon.service mesos-master-exporter.service
 
      [Service]
      Restart=always
@@ -710,6 +711,7 @@ coreos:
      Description=Mesos Master
      After=docker.service
      Requires=docker.service
+     Wants=mesos-dns.service marathon.service mesos-master-exporter.service
 
      [Service]
      Restart=always
