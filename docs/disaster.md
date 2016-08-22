@@ -1,46 +1,134 @@
 ## Master destroy & restore
 
-Let's destroy one master and recreate it from scratch. I have 1 `border`, 3 `master` and 2 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. This is the status of the cluster before I destroy the `master-1` node:
+Let's destroy the elected master and recreate it from scratch. I have 1 `border`, 3 `quorum`, 3 `master` and 3 `worker` nodes up and running on `EC2`. I am also connected to the cluster via `pritunl` which is running on the `border` node. The cluster is running `The Voting App` which is a 5 container demo application deployed with *Marathon*. This is the status of the cluster before I destroy the elected master:
 
-#### Pre-storm etcd status
+#### Who is the elected master?
 
-*Etcd* is running in a non-error state:
+The answer is `master-1`:
 ```
-core@master-1 ~ $ etcdctl cluster-health
-member 84e935dcf8f8f34d is healthy: got healthy result from http://10.136.0.11:2379
-member c9f43ad86b922c35 is healthy: got healthy result from http://10.136.0.12:2379
-member cef07101ac391840 is healthy: got healthy result from http://10.136.0.13:2379
-cluster is healthy
-```
-
-`master-1` is the *etcd* leader:
-```
-core@master-1 ~ $ etcdctl member list
-84e935dcf8f8f34d: name=master-1 peerURLs=http://10.136.0.11:2380 clientURLs=http://10.136.0.11:2379 isLeader=true
-c9f43ad86b922c35: name=master-2 peerURLs=http://10.136.0.12:2380 clientURLs=http://10.136.0.12:2379 isLeader=false
-cef07101ac391840: name=master-3 peerURLs=http://10.136.0.13:2380 clientURLs=http://10.136.0.13:2379 isLeader=false
+core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
+Location: //master-1.cell-1.dc-1.demo.lan:5050
+Location: //master-1.cell-1.dc-1.demo.lan:5050
+Location: //master-1.cell-1.dc-1.demo.lan:5050
 ```
 
-#### Pre-storm zookeeper status
+This is the ARP view of `master-1` from the other cluster nodes:
+```
+core@master-1 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^master-1; done
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:5f:d8:1e:5f:a9 [ether] on eth0
+```
 
-*Zookeeper* is running in a non-error state:
+#### Destroy the elected master
+
+A few seconds after terminating the `EC2` instance `master-3` is elected:
 ```
-core@master-1 ~ $ loopssh master "echo ruok | ncat \$(hostname) 2181; echo"
---[ master-1.cell-1.dub.xnood.com ]--
-imok
---[ master-2.cell-1.dub.xnood.com ]--
-imok
---[ master-3.cell-1.dub.xnood.com ]--
-imok
+core@master-2 ~ $ for i in 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
+Location: //master-3.cell-1.dc-1.demo.lan:5050
+Location: //master-3.cell-1.dc-1.demo.lan:5050
 ```
 
-`master-3` is the *zookeeper* leader:
+I can still browse the mesos and marathon web GUIs. I can also see the expected information and the application is up, running and usable.
+
+#### Purge the terminated instance:
+
+Since there is no chance for this instance to come back again, it is important to purge the ARP cache:
 ```
-core@master-1 ~ $ loopssh master "echo srvr | ncat \$(hostname) 2181 | grep Mode"
---[ master-1.cell-1.dub.xnood.com ]--
-Mode: follower
---[ master-2.cell-1.dub.xnood.com ]--
-Mode: follower
---[ master-3.cell-1.dub.xnood.com ]--
-Mode: leader
+core@master-2 ~ $ for i in border quorum master worker; do loopssh ${i} sudo arp -d master-1.cell-1.dc-1.demo.lan; done
+core@master-2 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^master-1; done
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at <incomplete> on eth0
+```
+
+#### Create a brand new `master-1`:
+
+This is a new machine, it only shares the name with the previous one:
+```
+[0] ~ >> katoctl ec2 add --cluster-id cell-1-dub --host-id 1 --host-name master --instance-type m3.medium --roles master
+INFO[0000] Latest CoreOS stable AMI located              cmd=ec2:add id=ami-b7cba3c4
+INFO[0000] Rendering gzipped cloud-config template       cmd=udata id=master-1
+INFO[0000] New m3.medium EC2 instance requested          cmd=ec2:run id=i-52fd3bdf
+INFO[0001] New EC2 instance tagged
+```
+
+A few minutes later I can ssh into `master-1` again:
+```
+core@master-1 ~ $ katostat
+LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=flanneld.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-dns.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=marathon.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=confd.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=prometheus.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=cadvisor.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master-exporter.service
+LoadState=loaded  ActiveState=active  SubState=running  Id=node-exporter.service
+LoadState=loaded  ActiveState=active  SubState=waiting  Id=etchost.timer
+```
+
+This is the new ARP view:
+```
+core@master-1 ~ $ for i in border quorum master worker; do loopssh ${i} arp -a | grep ^master-1; done
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+master-1.cell-1.dc-1.demo.lan (10.136.64.11) at 06:66:72:e3:21:77 [ether] on eth0
+```
+
+And the elected master still is `master-3`:
+```
+core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
+Location: //master-3.cell-1.dc-1.demo.lan:5050
+Location: //master-3.cell-1.dc-1.demo.lan:5050
+Location: //master-3.cell-1.dc-1.demo.lan:5050
+```
+
+#### Force `master-1` to become the elected master again:
+
+Stop `mesos-master` on `master-3`:
+```
+core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
+```
+
+The new elected master is `master-2` and everything works as expected:
+```
+core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
+Location: //master-2.cell-1.dc-1.demo.lan:5050
+Location: //master-2.cell-1.dc-1.demo.lan:5050
+Location: //master-2.cell-1.dc-1.demo.lan:5050
+```
+
+Stop `mesos-master` on `master-2`:
+```
+core@master-2 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master;
+```
+
+The new elected master is `master-1` and everything works as expected:
+```
+core@master-1 ~ $ for i in 1 2 3; do curl -sI http://master-${i}:5050/redirect | grep Location; done
+Location: //master-1.cell-1.dc-1.demo.lan:5050
+Location: //master-1.cell-1.dc-1.demo.lan:5050
+Location: //master-1.cell-1.dc-1.demo.lan:5050
 ```
