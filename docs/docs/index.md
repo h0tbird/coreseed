@@ -29,9 +29,9 @@ eval "$(katoctl --completion-script-${0#-})"
 
 *Káto* can be deployed on a few *IaaS* providers. More providers are planned but feel free to send a pull request if your prefered provider is not supported yet. Find below deployment guides for each supported provider:
 
-- [Vagrant](https://github.com/katosys/kato/blob/master/docs/vagrant.md)
-- [Packet.net](https://github.com/katosys/kato/blob/master/docs/packet.md)
-- [Amazon EC2](https://github.com/katosys/kato/blob/master/docs/ec2.md)
+- [Vagrant]({{ site.baseurl}}/docs/vagrant.html)
+- [Packet.net]({{ site.baseurl}}/docs/packet.html)
+- [Amazon EC2]({{ site.baseurl}}/docs/ec2.html)
 
 # 3. Pre-flight checklist
 
