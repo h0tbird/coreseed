@@ -1,12 +1,17 @@
-### Deploy on Amazon EC2
+---
+title: Deploy on EC2
+---
+
+# Deploy on Amazon EC2
 
 Before you start make sure:
+
 - Your system's clock is synchronized.
 - You have uploaded valid `SSH` keys to `EC2` ([doc](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)).
 - You have AWS credentials in `~/.aws/credentials` ([doc](https://github.com/aws/aws-sdk-go/wiki/configuring-sdk#shared-credentials-file)).
 - You have permissions to manage `IAM`, `VPC` and `EC2` ([doc](http://docs.aws.amazon.com/IAM/latest/UserGuide/access_permissions.html)).
 
-#### The EC2 provider
+## The EC2 provider
 
 *Káto* can be deployed on *EC2* via the `katoctl ec2` provider. The `deploy` subcommand will recursively call other `katoctl` subcommands such as `ec2 setup` and `ec2 add` in order to orchestrate the deployment. Find below the output of `katoctl ec2 --help` for your reference:
 
@@ -33,11 +38,11 @@ Subcommands:
     Starts a CoreOS instance on Amazon EC2.
 ```
 
-#### Deploy
+## Deploy
 
 If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During the deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
 
-##### Simple deploy example:
+### Simple deploy example:
 ```bash
 katoctl ec2 deploy \
   --cluster-id <unique-cluster-id> \
@@ -49,7 +54,7 @@ katoctl ec2 deploy \
   1:m3.medium:border:border
 ```
 
-##### Complex deploy example:
+### Complex deploy example:
 ```bash
 export KATO_EC2_DEPLOY_VPC_CIDR_BLOCK='10.136.0.0/16'
 export KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR='10.136.0.0/18'
@@ -76,8 +81,10 @@ katoctl ec2 deploy \
   1:m3.medium:border:border
 ```
 
-#### Add more workers
+## Add more workers
+
 The state file is read by `katoctl ec2 add`, adding a third worker is as easy as running:
+
 ```bash
 katoctl ec2 add \
   --cluster-id <unique-cluster-id> \
@@ -87,5 +94,5 @@ katoctl ec2 add \
   --instance-type m3.large
 ```
 
-#### Wait for it...
+## Wait for it...
 At this point you must wait for `EC2` to report healthy checks for all your instances. Now you're done deploying infrastructure, go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist).

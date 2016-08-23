@@ -1,0 +1,38 @@
+---
+layout: default
+---
+
+<div class="row">
+  <div class="col-sm-3">
+    <h5>Documentation</h5>
+    <ul class="list-unstyled">
+      <li>
+        <a href="{{ site.baseurl }}/docs/">Installing</a>
+      </li>
+      <li>
+        <a href="{{ site.baseurl }}/docs/vagrant.html">Vagrant</a>
+      </li>
+      <li>
+        <a href="{{ site.baseurl }}/docs/packet.html">Packet</a>
+      </li>
+      <li>
+        <a href="{{ site.baseurl }}/docs/ec2.html">EC2</a>
+      </li>
+    <hr>
+    <h5>Tutorials</h5>
+    <ul class="list-unstyled">
+       <li>
+        <a href="{{ site.baseurl }}/docs/foo.html">
+        Foo</a>
+      </li>
+       <li>
+        <a href="{{ site.baseurl }}/docs/bar.html">
+        Bar</a>
+      </li>
+    <hr>
+    </ul>
+  </div>
+  <div class="col-sm-9">
+    {{ content }}
+  </div>
+</div>

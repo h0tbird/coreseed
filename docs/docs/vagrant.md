@@ -1,10 +1,15 @@
-### Deploy on Vagrant
+---
+title: Deploy on Vagrant
+---
 
-Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to `/code/` inside the VM.
+# Deploy on Vagrant
 
-#### Environment variables
+Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to the `/code/` directory inside the VM (for this operation to succeed you might be prompted for a password).
 
-Find below envars and their default values:
+## Environment variables
+
+Find below the defined environment variables and their default values:
+
 ```bash
 KATO_CLUSTER_ID='cell-1-demo'
 KATO_NODE_CPUS='2'
@@ -18,17 +23,19 @@ KATO_CA_CERT=''
 KATO_CODE_PATH='~/git/'
 ```
 
-#### Start and connect
+## Start and connect
+
+It is as simple as bringing up the VM and ssh into it:
 
 ```bash
 vagrant up
 vagrant ssh kato-1
 ```
 
-Congratulations, you have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist.
+Congratulations! You have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist.
 
-#### Manage /etc/hosts
+## Manage /etc/hosts
 
-This is optional but recommended. Edit your `/etc/hosts` so you don't have to wait for the public DNS to propagate (if you are using NS1). In *OSX* you can use [Gas Mask](http://clockwise.ee/):
+This is optional but recommended. Edit your `/etc/hosts` so you don't have to wait for the public *DNS* to propagate (if you are using *NS1*). In *OSX* you can use [Gas Mask](http://clockwise.ee/):
 
 ![Gas Mask](https://raw.githubusercontent.com/katosys/kato/master/imgs/gasmask.png)

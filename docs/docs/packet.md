@@ -1,4 +1,9 @@
-### Deploy on Packet.net
+---
+title: Deploy on Packet
+---
+
+# Deploy on Packet.net
+
 ```bash
 #!/bin/bash
 
