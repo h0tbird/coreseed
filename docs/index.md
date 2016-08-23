@@ -19,11 +19,9 @@ title: The catabolic catalyst
 [Káto](https://github.com/katosys/kato) (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
 
-<br>
+<img src="{{ site.baseurl}}/img/kato.png" width="70%" height="70%" align="right">
 
-<p class="text-center">
-  <img src="{{ site.baseurl}}/img/architecture.png" width="610" height="320" align="right">
-</p>
+<br>
 
 **Distinctive attributes**
 
@@ -42,7 +40,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 - High availability
 - Self-healing
 
-<br>
+<br><br><br>
 
 # Overview
 
