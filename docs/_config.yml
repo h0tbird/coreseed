@@ -16,7 +16,7 @@ sass:
   style: :compressed
 
 baseurl: "/kato"
-highlighter: pygments
+highlighter: rouge
 lsi: false
 markdown: redcarpet
 redcarpet:

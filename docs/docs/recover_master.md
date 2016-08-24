@@ -163,7 +163,7 @@ Location: //master-3.cell-1.dc-1.demo.lan:5050
 
 ## 5. Force `master-1` to become the elected master again:
 
-Stop `mesos-master` and `marathon` on `master-3`:
+Stop the `mesos-master` and `marathon` services on `master-3`:
 
 ```
 core@master-3 ~ $ sudo systemctl stop mesos-master; sleep 10; sudo systemctl start mesos-master
