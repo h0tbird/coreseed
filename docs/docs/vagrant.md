@@ -32,7 +32,7 @@ vagrant up
 vagrant ssh kato-1
 ```
 
-Congratulations! You have now deployed the infrastructure. Go back to step 3 in the main [README](https://github.com/katosys/kato/blob/master/README.md#3-pre-flight-checklist) and run the pre-flight checklist.
+Congratulations! You have now deployed the infrastructure. Go back to step 3 in the [Install katoctl]({{ site.baseurl}}/docs) section and run the pre-flight checklist.
 
 ## Manage /etc/hosts
 

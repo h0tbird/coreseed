@@ -16,7 +16,6 @@ curl -s https://raw.githubusercontent.com/katosys/kato/master/install | bash
 
 ```bash
 go get -u github.com/katosys/kato/cmd/katoctl
-go install github.com/katosys/kato/cmd/katoctl
 ```
 
 #### Setup bash/zsh shell completion

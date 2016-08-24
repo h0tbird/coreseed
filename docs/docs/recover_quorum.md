@@ -107,7 +107,7 @@ deff3e5ba168963: name=quorum-2 peerURLs=http://10.136.89.99:2380 clientURLs=http
 fadca54d49882874: name=quorum-1 peerURLs=http://10.136.113.221:2380 clientURLs=http://10.136.113.221:2379 isLeader=true
 ```
 
-## 4. Create a brand new quorum node:
+## 4. Create a brand new `quorum-3` node:
 
 This is a new machine, it only shares the name with the previous one:
 
