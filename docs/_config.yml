@@ -19,7 +19,5 @@ baseurl: "/kato"
 highlighter: rouge
 lsi: false
 markdown: kramdown
-redcarpet:
-  extensions: [with_toc_data, tables]
 safe: true
 source: .
