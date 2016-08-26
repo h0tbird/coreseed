@@ -8,7 +8,7 @@ Find below a list of actions used to troubleshoot *Káto*, this list is based on
 Some issues might have been permanently fixed but are keept here for its troubleshooting value.
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Multiple HA-Proxy PIDs inside one container*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Multiple HA-Proxy PIDs inside one container</em></h4>
 <hr>
 
 **Diagnose:**
@@ -23,7 +23,7 @@ loopssh worker "docker exec -i marathon-lb ps auxf | grep 'haproxy -p'"
 ```
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Disk usage*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Disk usage</em></h4>
 <hr>
 
 **Diagnose:**
@@ -38,7 +38,7 @@ docker rmi $(docker images -qf dangling=true)
 ```
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Mixed CoreOS versions*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Mixed CoreOS versions</em></h4>
 <hr>
 
 **Diagnose:**
@@ -54,7 +54,7 @@ update_engine_client -check_for_update
 ```
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Summary of running containers (not realtime)*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Summary of running containers (not realtime)</em></h4>
 <hr>
 
 ```
@@ -63,7 +63,7 @@ sort | uniq -c | sort -n
 ```
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *The resource demand for a given task is higher than the available resources co-located on a single worker node. Therefore, the Marathon task stays in the waiting state forever.*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>The resource demand for a given task is higher than the available resources co-located on a single worker node. Therefore, the Marathon task stays in the waiting state forever.</em></h4>
 <hr>
 
 This is not really an error, you can:
@@ -72,7 +72,7 @@ This is not really an error, you can:
 - Kill existing tasks in order to free resources.
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Multiple Marathon frameworks registered but only one is expected to be up and running.*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Multiple Marathon frameworks registered but only one is expected to be up and running.</em></h4>
 <hr>
 
 Try to teardown the unexpected framework ID:
@@ -84,7 +84,7 @@ curl \
 ```
 
 <br>
-#### <span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> *Containers on one worker are unable to ping containers on the other workers.*
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Containers on one worker are unable to ping containers on the other workers.</em></h4>
 <hr>
 
 This is most likely to be a *docker*-*fleet* communication problem. Was *fleet* up and running at the time *docker* started? Run the command below to check whether the IP address assigned by *fleet* to the *docker0* bridge is within the range managed by *fleet*, restart *docker* otherwise:
