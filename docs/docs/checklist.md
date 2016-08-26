@@ -95,5 +95,5 @@ curl \
 This is most likely to be a *docker*-*flannel* communication problem. Was *flanneld* up and running at the time *docker* was started? Run the command below to check whether the *IP* address assigned by *flannel* to the *docker0* bridge is within the range managed by *flannel*, restart *docker* otherwise:
 
 ```
-loopssh worker "ip r | grep docker0"
+for i in master worker border; do loopssh ${i} "ip r | grep docker0"; done
 ```
