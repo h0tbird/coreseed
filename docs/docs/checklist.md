@@ -27,11 +27,13 @@ loopssh worker "docker exec -i marathon-lb ps auxf | grep 'haproxy -p'"
 <hr>
 
 **Diagnose:**
+
 ```
 for i in quorum master worker border; do loopssh ${i} df -h; done
 ```
 
 **Mitigate:**
+
 ```
 sudo journalctl --vacuum-time=1h
 docker rmi $(docker images -qf dangling=true)
@@ -42,6 +44,7 @@ docker rmi $(docker images -qf dangling=true)
 <hr>
 
 **Diagnose:**
+
 ```
 for i in quorum master worker border; do
   loopssh ${i} "cat /etc/os-release | grep VERSION="
@@ -49,6 +52,7 @@ done
 ```
 
 **Mitigate:**
+
 ```
 update_engine_client -check_for_update
 ```
