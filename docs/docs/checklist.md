@@ -92,7 +92,7 @@ curl \
 <h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Containers on one worker are unable to ping containers on the other workers.</em></h4>
 <hr>
 
-This is most likely to be a *docker*-*fleet* communication problem. Was *fleet* up and running at the time *docker* started? Run the command below to check whether the IP address assigned by *fleet* to the *docker0* bridge is within the range managed by *fleet*, restart *docker* otherwise:
+This is most likely to be a *docker*-*flannel* communication problem. Was *flanneld* up and running at the time *docker* was started? Run the command below to check whether the *IP* address assigned by *flannel* to the *docker0* bridge is within the range managed by *flannel*, restart *docker* otherwise:
 
 ```
 loopssh worker "ip r | grep docker0"
