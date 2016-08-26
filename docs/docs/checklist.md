@@ -20,6 +20,7 @@ loopssh worker "docker exec -i marathon-lb ps auxf | grep 'haproxy -p'"
 **Mitigate:**
 
 ```
+sudo systemctl restart marathon-lb
 ```
 
 <br>
