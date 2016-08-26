@@ -71,6 +71,7 @@ sort | uniq -c | sort -n
 <hr>
 
 This is not really an error, you can:
+
 - Exo-scale up your cluster.
 - Redefine the task so it requires less resources.
 - Kill existing tasks in order to free resources.
