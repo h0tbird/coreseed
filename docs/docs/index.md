@@ -18,7 +18,7 @@ All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*.
  <div class="tab-pane active" id="1">
   <div class="panel panel-default">
    <div class="panel-body">
-    <center><em>curl kato.one/install | sh</em></center>
+    <center><em>curl kato.one/go | sh</em></center>
    </div>
   </div>
  </div>
@@ -44,9 +44,21 @@ All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*.
 
 *Káto* can be deployed on a few *IaaS* providers. More providers are planned but feel free to send a pull request if your prefered provider is not supported yet. Find below deployment guides for each supported provider:
 
-- [Vagrant]({{ site.baseurl}}/docs/vagrant.html)
-- [Packet.net]({{ site.baseurl}}/docs/packet.html)
-- [Amazon EC2]({{ site.baseurl}}/docs/ec2.html)
+<div class="col-xs-12" style="height:10px;"></div>
+
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="{{ site.baseurl}}/docs/vagrant.html"><font color="#428bca">Vagrant</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="{{ site.baseurl}}/docs/packet.html"><font color="#428bca">Packet.net</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="{{ site.baseurl}}/docs/ec2.html"><font color="#428bca">Amazon EC2</font></a>
+  </div>
+</div>
+
+<div class="col-xs-12" style="height:30px;"></div>
 
 # 3. Pre-flight checklist
 
