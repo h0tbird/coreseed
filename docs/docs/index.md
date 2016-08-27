@@ -34,7 +34,7 @@ eval "$(katoctl --completion-script-${0#-})"
 
 # 3. Pre-flight checklist
 
-Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `border-1` node if you are in the cloud or the `kato-1` node if you are using *Vagrant*. Also find [here](https://github.com/katosys/kato/blob/master/docs/checklist.md) an extended check list if you need to troubleshoot the cluster.
+Once you have deployed the infrastructure, run sanity checks to evaluate whether the cluster is ready for normal operation. Use the `border-1` node if you are in the cloud or the `kato-1` node if you are using *Vagrant*. Also find [here]({{ site.baseurl}}/docs/checklist.html) an extended check list if you need to troubleshoot the cluster.
 
 ```bash
 your@desk-1 ~ $ ssh -A core@border-1.ext.<managed-public-domain>
