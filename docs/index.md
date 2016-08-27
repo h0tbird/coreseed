@@ -5,7 +5,7 @@ title: The catabolic catalyst
 <div class="jumbotron text-center">
   <h1>Káto</h1>
   <p class="lead">
-    The catabolic catalyst
+    The magic is underneath
   </p>
   <p>
     <a href="https://github.com/katosys/kato/releases"
@@ -16,7 +16,7 @@ title: The catabolic catalyst
 </div>
 
 
-[Káto](https://github.com/katosys/kato) (from Greek *κάτω*: 'down', 'below', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
+[Káto](https://github.com/katosys/kato) (from Greek *κάτω*: 'down', 'below', 'beneath', 'underneath') is an opinionated software-defined infrastructure (*SDI*) which governs diverse computing workloads and work-flows.
 Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν* ballein, 'to throw'), the *Káto* system is the catalyst used to breakdown complex monolithic platforms into its fundamental microservices.
 
 <img src="{{ site.baseurl}}/img/kato.png" width="70%" height="70%" align="right">
