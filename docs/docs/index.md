@@ -4,25 +4,41 @@ title: Installing Káto
 
 # 1. Install katoctl
 
-All you need to deploy *Káto* is the `katoctl` binary in your *PATH*. If you are a end user just grab the latest stable release. If you are a *Káto* developer or you want to test the latest code you can get the go-getable version which follows the master branch (and might be broken). Also, you can optionally setup shell completion.
+All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*. If you are a end user just grab the latest stable release. If you are a *Káto* developer or you want to test the latest code you can get the go-getable version which follows the master branch (and might be broken). Also, you can optionally setup shell completion.
 
-#### From the latest release (for *Káto* end users)
+<div class="col-xs-12" style="height:10px;"></div>
 
-```bash
-curl -s https://raw.githubusercontent.com/katosys/kato/master/install | bash
-```
+<ul class="nav nav-tabs">
+ <li class="active"><a href="#1" data-toggle="tab">Latest release</a></li>
+ <li><a href="#2" data-toggle="tab">Main branch</a></li>
+ <li><a href="#3" data-toggle="tab">Shell completion</a></li>
+</ul>
 
-#### From the source code (for *Káto* developers)
+<div class="tab-content ">
+ <div class="tab-pane active" id="1">
+  <div class="panel panel-default">
+   <div class="panel-body">
+    <center><em>curl kato.one/install | sh</em></center>
+   </div>
+  </div>
+ </div>
+ <div class="tab-pane" id="2">
+  <div class="panel panel-default">
+   <div class="panel-body">
+    <center><em>go get -u github.com/katosys/kato/cmd/katoctl</em></center>
+   </div>
+  </div>
+ </div>
+ <div class="tab-pane" id="3">
+  <div class="panel panel-default">
+   <div class="panel-body">
+    <center><em>eval "$(katoctl --completion-script-${0#-})"</em></center>
+   </div>
+  </div>
+ </div>
+</div>
 
-```bash
-go get -u github.com/katosys/kato/cmd/katoctl
-```
-
-#### Setup bash/zsh shell completion
-
-```bash
-eval "$(katoctl --completion-script-${0#-})"
-```
+<div class="col-xs-12" style="height:10px;"></div>
 
 # 2. Deploy Káto's infrastructure
 
