@@ -15,7 +15,6 @@ sass:
   sass_dir: _sass
   style: :compressed
 
-baseurl: "/kato"
 highlighter: rouge
 lsi: false
 markdown: kramdown
