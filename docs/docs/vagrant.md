@@ -14,7 +14,7 @@ Find below the defined environment variables and their default values:
 KATO_CLUSTER_ID='cell-1-demo'
 KATO_NODE_CPUS='2'
 KATO_NODE_MEMORY='4096'
-KATO_VERSION='v0.1.0-alpha'
+KATO_VERSION='v0.1.0-beta'
 KATO_COREOS_CHANNEL='stable'
 KATO_COREOS_VERSION='current'
 KATO_NS1_API_KEY='x'
