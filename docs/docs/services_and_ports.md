@@ -38,7 +38,7 @@ title: Services and ports
    <thead><tr> <th>Service</th> <th>Ports</th> <th>Protocol</th> <th>Access</th> <th>Roles</th> </tr></thead>
    <tbody>
    <tr> <td>mesos-exporter</td> <td>9104</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
-   <tr> <td>marathon</td> <td>9090</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
+   <tr> <td>marathon</td> <td>9292</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-dns</td> <td>53</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-master</td> <td>5050</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>prometheus</td> <td>9191</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
@@ -52,7 +52,7 @@ title: Services and ports
   <table class="table">
    <thead><tr> <th>Service</th> <th>Ports</th> <th>Protocol</th> <th>Access</th> <th>Roles</th> </tr></thead>
    <tbody>
-   <tr> <td>haproxy</td> <td>9091,9092</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
+   <tr> <td>haproxy</td> <td>9090,9091</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
    <tr> <td>haproxy</td> <td>80,443</td> <td>tcp</td> <td><font color="green">external</font></td> <td>worker</td> </tr>
    <tr> <td>go-dnsmasq</td> <td>53</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
    <tr> <td>mesos-slave</td> <td>5051</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
