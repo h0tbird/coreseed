@@ -52,9 +52,9 @@ vagrant ssh kato-1 -c <span class="s2">"watch katostat"</span></code></pre>
  </div>
 </div>
 
-## What' s next?
+## What's next?
 
-Congratulations! You have now deployed an all-in-one local *Káto* system. Use the links below to browse through your new system:
+Congratulations! You have now deployed an all-in-one local *Káto* system. Use the links below to browse through your new local system:
 
 <div class="col-xs-12" style="height:10px;"></div>
 
