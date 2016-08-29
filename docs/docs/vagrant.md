@@ -4,38 +4,74 @@ title: Deploy on Vagrant
 
 # Deploy on Vagrant
 
-Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to the `/code/` directory inside the VM (for this operation to succeed you might be prompted for a password).
+Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to the `/code/` directory inside the *Káto* VM (for this operation to succeed you might be prompted for a password).
 
-## Environment variables
+<div class="col-xs-12" style="height:10px;"></div>
 
-Find below the defined environment variables and their default values:
+<ul class="nav nav-tabs">
+ <li class="active"><a href="#1" data-toggle="tab">1. Clone</a></li>
+ <li><a href="#2" data-toggle="tab">2. Setup</a></li>
+ <li><a href="#3" data-toggle="tab">3. Start</a></li>
+</ul>
 
-```bash
-KATO_CLUSTER_ID='cell-1-demo'
-KATO_NODE_CPUS='2'
-KATO_NODE_MEMORY='4096'
-KATO_VERSION='v0.1.0-beta'
-KATO_COREOS_CHANNEL='stable'
-KATO_COREOS_VERSION='current'
-KATO_NS1_API_KEY='x'
-KATO_DOMAIN='cell-1.dc-1.demo.lan'
-KATO_CA_CERT=''
-KATO_CODE_PATH='~/git/'
-```
+<div class="tab-content ">
+ <div class="tab-pane active" id="1">
+  <div class="panel panel-default">
+   <div class="panel-body">
+    <center><em>git clone https://github.com/katosys/kato.git && cd kato</em></center>
+   </div>
+  </div>
+ </div>
+ <div class="tab-pane" id="2">
+  <div class="panel panel-default">
+   <div class="panel-body language-bash highlighter-rouge">
+   <p>Find below the defined environment variables and their default values:</p>
+   <pre class="highlight"><code>
+   <span class="nv">KATO_CLUSTER_ID</span><span class="o">=</span><span class="s1">'vagrant-kato'</span>  <span class="c"># Unique ID used to identify the cluster.</span>
+   <span class="nv">KATO_NODE_CPUS</span><span class="o">=</span><span class="s1">'2'</span>              <span class="c"># Virtual CPU cores per cluster node.</span>
+   <span class="nv">KATO_NODE_MEMORY</span><span class="o">=</span><span class="s1">'4096'</span>         <span class="c"># Megabytes of memory per cluster node.</span>
+   <span class="nv">KATO_VERSION</span><span class="o">=</span><span class="s1">'v0.1.0-beta'</span>      <span class="c"># Version of katoctl to fetch.</span>
+   <span class="nv">KATO_COREOS_CHANNEL</span><span class="o">=</span><span class="s1">'stable'</span>    <span class="c"># CoreOS release [stable | beta | alpha]</span>
+   <span class="nv">KATO_COREOS_VERSION</span><span class="o">=</span><span class="s1">'current'</span>   <span class="c"># CoreOS release version [current | version]</span>
+   <span class="nv">KATO_NS1_API_KEY</span><span class="o">=</span><span class="s1">'x'</span>            <span class="c"># NS1 private API key (optional).</span>
+   <span class="nv">KATO_DOMAIN</span><span class="o">=</span><span class="s1">'cell-1.dc-1.kato'</span>  <span class="c"># Managed domain name.</span>
+   <span class="nv">KATO_CA_CERT</span><span class="o">=</span><span class="s1">''</span>                 <span class="c"># Path to SSL certificate (optional).</span>
+   <span class="nv">KATO_CODE_PATH</span><span class="o">=</span><span class="s1">'~/git/'</span>         <span class="c"># Path to host's code directory.</span>
+   </code></pre>
+   </div>
+  </div>
+ </div>
+ <div class="tab-pane" id="3">
+  <div class="panel panel-default">
+   <div class="panel-body language-bash highlighter-rouge">
+   <p>It is as simple as bringing up the VM and wait for the services to start:</p>
+   <pre class="highlight"><code>vagrant up
+vagrant ssh kato-1 -c <span class="s2">"watch katostat"</span></code></pre>
+   </div>
+  </div>
+ </div>
+</div>
 
-## Start and connect
+## What' s next?
 
-It is as simple as bringing up the VM and ssh into it:
+Congratulations! You have now deployed an all-in-one local *Káto* system. Use the links below to browse through your new system:
 
-```bash
-vagrant up
-vagrant ssh kato-1
-```
+<div class="col-xs-12" style="height:10px;"></div>
 
-Congratulations! You have now deployed the infrastructure. Go back to step 3 in the [Install katoctl]({{ site.baseurl}}/docs) section and run the pre-flight checklist.
-
-## Manage /etc/hosts
-
-This is optional but recommended. Edit your `/etc/hosts` so you don't have to wait for the public *DNS* to propagate (if you are using *NS1*). In *OSX* you can use [Gas Mask](http://clockwise.ee/):
-
-![Gas Mask](https://raw.githubusercontent.com/katosys/kato/master/imgs/gasmask.png)
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:5050"><font color="#428bca">Mesos</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:8080"><font color="#428bca">Marathon</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:4194"><font color="#428bca">cAdvisor</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://worker-1.cell-1.dc-1.kato:9090/haproxy?stats"><font color="#428bca">HAProxy</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:9191/targets"><font color="#428bca">Prometheus</font></a>
+  </div>
+</div>
