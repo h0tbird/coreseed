@@ -1415,7 +1415,7 @@ coreos:
        --privileged \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
-       --env PORTS=9090,9091 \
+       --env PORTS=9091,9092 \
        mesosphere/marathon-lb:v1.3.3 sse \
        --marathon http://marathon:8080 \
        --health-check \
@@ -1584,7 +1584,7 @@ coreos:
        --net host \
        --name %p \
        katosys/exporters:v0.1.0-1 haproxy_exporter \
-       -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
+       -haproxy.scrape-uri 'http://localhost:9092/haproxy?stats;csv' \
        -web.listen-address :9102"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
