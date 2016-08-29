@@ -18,7 +18,7 @@ All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*.
  <div class="tab-pane active" id="1">
   <div class="panel panel-default">
    <div class="panel-body">
-    <center><em>curl kato.one/go | sh</em></center>
+    <center><em>curl -s kato.one/go | bash</em></center>
    </div>
   </div>
  </div>

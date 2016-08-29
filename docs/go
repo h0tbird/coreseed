@@ -16,7 +16,8 @@ readonly KATO_URL='https://api.github.com/repos/katosys/kato'
 # Discover the latest katoctl release for your OS/Arch:
 KATOCTL=$(${CMD_CURL} -s ${KATO_URL}/releases | ${CMD_JQ} --raw-output \
   --arg SUFFIX $(uname | tr '[:upper:]' '[:lower:]')-$(uname -m) \
-  '.[] | .assets[] | .browser_download_url | select(endswith($SUFFIX))')
+  '.[] | .assets[] | .browser_download_url | select(endswith($SUFFIX))' \
+  head -1)
 
 # Download katoctl to /usr/local/bin:
 echo "Downloadin katoctl to /usr/local/bin ..."
