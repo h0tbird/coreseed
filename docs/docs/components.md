@@ -12,7 +12,7 @@ title: Components
       <th>Component</th>
       <th>Master</th>
       <th>v0.1.0-beta</th>
-      <th>v0.1.0-alfa</th>
+      <th>v0.1.0-alpha</th>
       <th>Container</th>
     </tr>
   </thead>
