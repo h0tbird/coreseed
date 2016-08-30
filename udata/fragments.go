@@ -643,6 +643,7 @@ coreos:
        --name %p \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
+       --volume /var/lib/zookeeper:/var/lib/zookeeper:rw \
        --env ZK_SERVER_ID=${KATO_HOST_ID} \
        --env ZK_TICK_TIME=2000 \
        --env ZK_INIT_LIMIT=5 \
@@ -651,7 +652,7 @@ coreos:
        --env ZK_DATA_DIR=/var/lib/zookeeper \
        --env ZK_CLIENT_PORT=2181 \
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
-       --env JMXDISABLE=true \
+       --env JMXDISABLE=false \
        h0tbird/zookeeper:v3.4.8-2'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
