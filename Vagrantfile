@@ -4,14 +4,14 @@ Vagrant.require_version ">= 1.6.0"
 # Variables:
 #------------------------------------------------------------------------------
 
-$cluster_id     = ENV['KATO_CLUSTER_ID'] || 'cell-1-demo'
+$cluster_id     = ENV['KATO_CLUSTER_ID'] || 'vagrant-kato'
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
 $node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-beta'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
-$domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.demo.lan'
+$domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $ca_cert        = ENV['KATO_CA_CERT']
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
@@ -101,7 +101,17 @@ Vagrant.configure("2") do |config|
     ip_pri = "172.17.8.11"
     conf.vm.network :private_network, ip: ip_pri
 
+    if ARGV[0].eql?('destroy') || ARGV[0].eql?('halt') || ARGV[0].eql?('up')
+      system "sudo sed -i.bak '/%s quorum-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
+      system "sudo sed -i.bak '/%s master-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
+      system "sudo sed -i.bak '/%s worker-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
+    end
+
     if ARGV[0].eql?('up')
+
+      system 'sudo bash -c "echo %s quorum-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
+      system 'sudo bash -c "echo %s master-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
+      system 'sudo bash -c "echo %s worker-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
 
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
