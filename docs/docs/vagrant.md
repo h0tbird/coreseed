@@ -4,7 +4,7 @@ title: Deploy on Vagrant
 
 # Deploy on Vagrant
 
-Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to the `/code/` directory inside the *Káto* VM (for this operation to succeed you might be prompted for a password).
+Currently *VirtualBox* (on *OSX* and *Linux*) is the only supported *Vagrant* provider. Running `vagrant up` will deploy an all-in-one version of *Káto*. Your host's `~/git/` directory will be mapped to the `/code/` directory inside the *Káto* VM and `sudo` is used to edit your host's `/etc/hosts` file (for this operations to succeed you might be prompted for a password).
 
 <div class="col-xs-12" style="height:10px;"></div>
 
@@ -25,7 +25,7 @@ Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagran
  <div class="tab-pane" id="2">
   <div class="panel panel-default">
    <div class="panel-body language-bash highlighter-rouge">
-   <p>Find below the defined environment variables and their default values:</p>
+   <p>If you want to override the default <code class="highlighter-rouge">Vagrantfile</code> settings you can export the following environment variablest (default values below):</p>
    <pre class="highlight"><code>
    <span class="nv">KATO_CLUSTER_ID</span><span class="o">=</span><span class="s1">'vagrant-kato'</span>  <span class="c"># Unique ID used to identify the cluster.</span>
    <span class="nv">KATO_NODE_CPUS</span><span class="o">=</span><span class="s1">'2'</span>              <span class="c"># Virtual CPU cores per cluster node.</span>
@@ -82,7 +82,7 @@ Congratulations! You have now deployed an all-in-one local *Káto* system. Use t
 
 ## Deploy a sample application
 
-[The Voting App](https://github.com/katosys/the-voting-app) is a sample application. The original demo was designed to run on top of a *Swarm* scheduler with docker compose. This one has been modified to run on top of a *Mesos/Marathon* scheduler.
+[The Voting App](https://github.com/katosys/the-voting-app) is a sample application. The original demo was designed to run on top of a *Swarm* scheduler with docker compose. This one has been modified to run on top of a *Mesos/Marathon* scheduler. Click on the links below to access the vote and results websites.
 
 ```bash
 git clone --recursive https://github.com/katosys/the-voting-app.git
