@@ -44,7 +44,7 @@ Currently *VirtualBox* is the only supported *Vagrant* provider. Running `vagran
  <div class="tab-pane" id="3">
   <div class="panel panel-default">
    <div class="panel-body language-bash highlighter-rouge">
-   <p>It is as simple as bringing up the VM and wait for the services to start:</p>
+   <p>It is as simple as bringing up the <em>VM</em> and wait for the services to start (be patient):</p>
    <pre class="highlight"><code>vagrant up
 vagrant ssh kato-1 -c <span class="s2">"watch katostat"</span></code></pre>
    </div>
@@ -89,4 +89,15 @@ git clone --recursive https://github.com/katosys/the-voting-app.git
 cd the-voting-app
 export MARATHON_URL='http://master-1.cell-1.dc-1.kato:8080'
 ./bin/marathon start
+sudo bash -c "echo 172.17.8.11 vote.thevotingapp.com >> /etc/hosts"
+sudo bash -c "echo 172.17.8.11 results.thevotingapp.com >> /etc/hosts"
 ```
+
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://vote.thevotingapp.com"><font color="#428bca">Vote</font></a>
+  </div>
+  <div class="btn-group" role="group">
+    <a class="btn btn-default" href="http://results.thevotingapp.com"><font color="#428bca">Results</font></a>
+  </div>
+</div>
