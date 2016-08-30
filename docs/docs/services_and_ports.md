@@ -38,11 +38,10 @@ title: Services and ports
    <thead><tr> <th>Service</th> <th>Ports</th> <th>Protocol</th> <th>Access</th> <th>Roles</th> </tr></thead>
    <tbody>
    <tr> <td>mesos-exporter</td> <td>9104</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
-   <tr> <td>marathon</td> <td>9292</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
+   <tr> <td>marathon</td> <td>8080,9292</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-dns</td> <td>53</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-master</td> <td>5050</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>prometheus</td> <td>9191</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
-   <tr> <td>marathon</td> <td>8080</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    </tbody>
   </table>
 </div>
