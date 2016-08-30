@@ -25,7 +25,9 @@ write_files:`,
  - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb`,
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+{{range .Aliases}}    $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -33,10 +35,12 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/.hosts"
+ - path: "/etc/hosts"
    content: |
     127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{range .Aliases}}{{.}}-{{$.HostID}} {{end}}marathon-lb`,
+    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+{{range .Aliases}}    $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{

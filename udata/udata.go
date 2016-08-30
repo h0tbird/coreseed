@@ -151,17 +151,11 @@ func (d *Data) zookeeperURL() {
 //-----------------------------------------------------------------------------
 
 func (d *Data) hostnameAliases() {
-
-	// Return if exists:
 	for _, i := range d.Roles {
-		if i == d.HostName {
-			d.Aliases = d.Roles
-			return
+		if i != d.HostName {
+			d.Aliases = append(d.Aliases, i)
 		}
 	}
-
-	// Prepend HostName if missing:
-	d.Aliases = append(strings.Fields(d.HostName), d.Roles...)
 }
 
 //-----------------------------------------------------------------------------
