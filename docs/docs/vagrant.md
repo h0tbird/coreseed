@@ -52,6 +52,8 @@ vagrant ssh kato-1 -c <span class="s2">"watch katostat"</span></code></pre>
  </div>
 </div>
 
+<div class="col-xs-12" style="height:10px;"></div>
+
 ## What's next?
 
 Congratulations! You have now deployed an all-in-one local *Káto* system. Use the links below to browse through your new local system:
@@ -75,3 +77,16 @@ Congratulations! You have now deployed an all-in-one local *Káto* system. Use t
     <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:9191/targets"><font color="#428bca">Prometheus</font></a>
   </div>
 </div>
+
+<div class="col-xs-12" style="height:30px;"></div>
+
+## Deploy a sample application
+
+[The Voting App](https://github.com/katosys/the-voting-app) is a sample application. The original demo was designed to run on top of a *Swarm* scheduler with docker compose. This one has been modified to run on top of a *Mesos/Marathon* scheduler.
+
+```bash
+git clone --recursive https://github.com/katosys/the-voting-app.git
+cd the-voting-app
+export MARATHON_URL='http://master-1.cell-1.dc-1.kato:8080'
+./bin/marathon start
+```
