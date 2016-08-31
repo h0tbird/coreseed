@@ -298,7 +298,7 @@ write_files:`,
       ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
       NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
       [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
-    }
+    }; exit 0
 {{end}}`,
 	})
 
