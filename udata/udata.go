@@ -51,7 +51,6 @@ type Data struct {
 	FlannelSubnetMax    string
 	FlannelBackend      string
 	RexrayStorageDriver string
-	RexrayConfigSnippet string
 	RexrayEndpointIP    string
 	Ec2Region           string
 	IaasProvider        string
