@@ -10,7 +10,6 @@ $node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-beta'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
-$ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $ca_cert        = ENV['KATO_CA_CERT']
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
@@ -41,7 +40,6 @@ if ARGV[0].eql?('up')
     "--quorum-count %s " +
     "--host-name %s " +
     "--cluster-id %s " +
-    "--ns1-api-key %s " +
     "--domain %s " +
     "--host-id %s " +
     "--roles %s "
@@ -106,10 +104,10 @@ Vagrant.configure("2") do |config|
 
       if $ca_cert
         cmd = $katoctl + " -c %s > user_data_kato-1"
-        system cmd % [ 1, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', $ca_cert ]
+        system cmd % [ 1, 'kato', $cluser_id, $domain, 1, 'quorum,master,worker', $ca_cert ]
       else
         cmd = $katoctl + " > user_data_kato-1"
-        system cmd % [ 1, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker' ]
+        system cmd % [ 1, 'kato', $cluster_id, $domain, 1, 'quorum,master,worker' ]
       end
 
       if File.exist?("user_data_kato-1")

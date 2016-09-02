@@ -240,6 +240,10 @@ func (d *Data) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
 
+	if d.Ns1ApiKey != "" {
+		tags = append(tags, "ns1")
+	}
+
 	if d.Prometheus {
 		tags = append(tags, "prometheus")
 	}

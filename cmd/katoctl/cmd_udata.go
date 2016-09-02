@@ -49,7 +49,7 @@ var (
 
 	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key",
 		"NS1 private API key.").
-		Required().PlaceHolder("KATO_UDATA_NS1_API_KEY").
+		PlaceHolder("KATO_UDATA_NS1_API_KEY").
 		OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
 		String()
 

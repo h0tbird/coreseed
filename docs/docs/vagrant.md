@@ -33,7 +33,6 @@ Currently *VirtualBox* (on *OSX* and *Linux*) is the only supported *Vagrant* pr
    <span class="nv">KATO_VERSION</span><span class="o">=</span><span class="s1">'v0.1.0-beta'</span>      <span class="c"># Version of katoctl to fetch.</span>
    <span class="nv">KATO_COREOS_CHANNEL</span><span class="o">=</span><span class="s1">'stable'</span>    <span class="c"># CoreOS release [stable | beta | alpha]</span>
    <span class="nv">KATO_COREOS_VERSION</span><span class="o">=</span><span class="s1">'current'</span>   <span class="c"># CoreOS release version [current | version]</span>
-   <span class="nv">KATO_NS1_API_KEY</span><span class="o">=</span><span class="s1">'x'</span>            <span class="c"># NS1 private API key (optional).</span>
    <span class="nv">KATO_DOMAIN</span><span class="o">=</span><span class="s1">'cell-1.dc-1.kato'</span>  <span class="c"># Managed domain name.</span>
    <span class="nv">KATO_CA_CERT</span><span class="o">=</span><span class="s1">''</span>                 <span class="c"># Path to SSL certificate (optional).</span>
    <span class="nv">KATO_CODE_PATH</span><span class="o">=</span><span class="s1">'~/git/'</span>         <span class="c"># Path to host's code directory.</span>

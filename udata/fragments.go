@@ -175,6 +175,7 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"ns1"},
 		},
 		data: `
  - path: "/opt/bin/ns1dns"
@@ -1038,6 +1039,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"ns1"},
 		},
 		data: `
   - name: "ns1dns.service"
