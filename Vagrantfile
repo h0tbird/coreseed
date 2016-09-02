@@ -16,7 +16,6 @@ $ca_cert        = ENV['KATO_CA_CERT']
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
-$discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
 #------------------------------------------------------------------------------
 # Forge the katoctl command:
@@ -45,17 +44,7 @@ if ARGV[0].eql?('up')
     "--ns1-api-key %s " +
     "--domain %s " +
     "--host-id %s " +
-    "--roles %s " +
-    "--etcd-token %s"
-end
-
-#------------------------------------------------------------------------------
-# Generate a new etcd discovery token:
-#------------------------------------------------------------------------------
-
-if $discovery_url && ARGV[0].eql?('up')
-  require 'open-uri'
-  token = open($discovery_url % 1).read.split("/")[-1]
+    "--roles %s "
 end
 
 #------------------------------------------------------------------------------
@@ -117,10 +106,10 @@ Vagrant.configure("2") do |config|
 
       if $ca_cert
         cmd = $katoctl + " -c %s > user_data_kato-1"
-        system cmd % [ 1, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token, $ca_cert ]
+        system cmd % [ 1, 'kato', $cluser_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', $ca_cert ]
       else
         cmd = $katoctl + " > user_data_kato-1"
-        system cmd % [ 1, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker', token ]
+        system cmd % [ 1, 'kato', $cluster_id, $ns1_api_key, $domain, 1, 'quorum,master,worker' ]
       end
 
       if File.exist?("user_data_kato-1")

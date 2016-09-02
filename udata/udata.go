@@ -45,6 +45,7 @@ type Data struct {
 	Ns1ApiKey           string
 	CaCert              string
 	EtcdToken           string
+	EtcdServers         string
 	ZkServers           string
 	FlannelNetwork      string
 	FlannelSubnetLen    string
@@ -142,6 +143,21 @@ func (d *Data) zookeeperURL() {
 		d.ZkServers = d.ZkServers + "quorum-" + strconv.Itoa(i) + ":2181"
 		if i != d.QuorumCount {
 			d.ZkServers = d.ZkServers + ","
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: etcdURL
+//-----------------------------------------------------------------------------
+
+func (d *Data) etcdURL() {
+	for i := 1; i <= d.QuorumCount; i++ {
+		d.EtcdServers = d.EtcdServers +
+			"quorum-" + strconv.Itoa(i) + "=http://quorum-" +
+			strconv.Itoa(i) + ":2380"
+		if i != d.QuorumCount {
+			d.EtcdServers = d.EtcdServers + ","
 		}
 	}
 }
@@ -262,6 +278,7 @@ func (d *Data) Render() {
 
 	d.caCertificate()   // Retrieve the CA certificate.
 	d.zookeeperURL()    // Forge the Zookeeper URL.
+	d.etcdURL()         // Initial etcd cluster URL.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
 	d.loadFragments()   // Load the fragments array.

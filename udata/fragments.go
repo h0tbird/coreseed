@@ -1654,8 +1654,8 @@ coreos:
 		},
 		data: `
  etcd2:
-  name: "{{.HostName}}-{{.HostID}}"
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial-cluster: "quorum-1=http://quorum-1:2380,quorum-2=http://quorum-2:2380,quorum-3=http://quorum-3:2380"
+  name: "quorum-{{.HostID}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial-cluster: "{{.EtcdServers}}"
   initial-cluster-state: "new"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   initial-advertise-peer-urls: "http://$private_ipv4:2380"
@@ -1671,7 +1671,7 @@ coreos:
 		data: `
  etcd2:
  {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "{{.HostName}}-{{.HostID}}"
-  initial-cluster: "quorum-1=http://quorum-1:2380,quorum-2=http://quorum-2:2380,quorum-3=http://quorum-3:2380"{{end}}
+  initial-cluster: "{{.EtcdServers}}"{{end}}
   advertise-client-urls: "http://$private_ipv4:2379"
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
   proxy: on`,
