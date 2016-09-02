@@ -14,6 +14,7 @@ $ns1_api_key    = ENV['KATO_NS1_API_KEY'] || 'x'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $ca_cert        = ENV['KATO_CA_CERT']
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
+$ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 $discovery_url  = "https://discovery.etcd.io/new?size=%s"
 
@@ -98,20 +99,19 @@ Vagrant.configure("2") do |config|
       end
     end
 
-    ip_pri = "172.17.8.11"
-    conf.vm.network :private_network, ip: ip_pri
+    conf.vm.network :private_network, ip: $ip_address
 
     if ARGV[0].eql?('destroy') || ARGV[0].eql?('halt') || ARGV[0].eql?('up')
-      system "sudo sed -i.bak '/%s quorum-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
-      system "sudo sed -i.bak '/%s master-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
-      system "sudo sed -i.bak '/%s worker-1.%s/d' /etc/hosts" % [ ip_pri, $domain ]
+      system "sudo sed -i.bak '/%s quorum-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
+      system "sudo sed -i.bak '/%s master-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
+      system "sudo sed -i.bak '/%s worker-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
     end
 
     if ARGV[0].eql?('up')
 
-      system 'sudo bash -c "echo %s quorum-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
-      system 'sudo bash -c "echo %s master-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
-      system 'sudo bash -c "echo %s worker-1.%s >> /etc/hosts"' % [ ip_pri, $domain ]
+      system 'sudo bash -c "echo %s quorum-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
+      system 'sudo bash -c "echo %s master-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
+      system 'sudo bash -c "echo %s worker-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
 
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
