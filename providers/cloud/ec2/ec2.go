@@ -206,6 +206,7 @@ func (d *Data) Add() {
 		"--flannel-backend", d.FlannelBackend,
 		"--rexray-storage-driver", "ec2",
 		"--iaas-provider", "ec2",
+		"--prometheus",
 		"--gzip-udata",
 	}
 

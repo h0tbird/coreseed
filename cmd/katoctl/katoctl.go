@@ -88,6 +88,7 @@ func main() {
 			SysdigAccessKey:     *flUdataSysdigAccessKey,
 			DatadogAPIKey:       *flUdataDatadogAPIKey,
 			StubZones:           *flUdataStubZones,
+			Prometheus:          *flUdataPrometheus,
 		}
 
 		udata.Render()

@@ -139,4 +139,9 @@ var (
 		PlaceHolder("KATO_UDATA_STUB_ZONE").
 		OverrideDefaultFromEnvar("KATO_UDATA_STUB_ZONE").
 		Strings()
+
+	flUdataPrometheus = cmdUdata.Flag("prometheus",
+		"Enable prometheus and/or its exporters.").
+		Default("false").OverrideDefaultFromEnvar("KATO_UDATA_PROMETHEUS").
+		Bool()
 )

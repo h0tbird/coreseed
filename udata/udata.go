@@ -37,6 +37,7 @@ type fragment struct {
 type Data struct {
 	QuorumCount         int
 	GzipUdata           bool
+	Prometheus          bool
 	ClusterID           string
 	HostName            string
 	HostID              string
@@ -170,18 +171,27 @@ func (d *Data) systemdUnits() {
 		switch i {
 		case "quorum":
 			units = append(units,
-				"etcd2", "docker", "zookeeper", "rexray", "cadvisor", "node-exporter",
-				"zookeeper-exporter", "etchost.timer")
+				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer")
+			if d.Prometheus {
+				units = append(units,
+					"cadvisor", "node-exporter", "zookeeper-exporter")
+			}
 		case "master":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "mesos-master", "mesos-dns",
-				"marathon", "confd", "prometheus", "cadvisor", "mesos-master-exporter",
-				"node-exporter", "etchost.timer")
+				"marathon", "etchost.timer")
+			if d.Prometheus {
+				units = append(units,
+					"cadvisor", "confd", "prometheus", "node-exporter", "mesos-master-exporter")
+			}
 		case "worker":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "go-dnsmasq", "mesos-agent",
-				"marathon-lb", "cadvisor", "mesos-agent-exporter", "node-exporter",
-				"haproxy-exporter", "etchost.timer")
+				"marathon-lb", "etchost.timer")
+			if d.Prometheus {
+				units = append(units,
+					"cadvisor", "mesos-agent-exporter", "node-exporter", "haproxy-exporter")
+			}
 		case "border":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "mongodb", "pritunl",
@@ -207,13 +217,28 @@ func (d *Data) systemdUnits() {
 }
 
 //-----------------------------------------------------------------------------
+// func: listOfTags
+//-----------------------------------------------------------------------------
+
+func (d *Data) listOfTags() (tags []string) {
+
+	tags = append(d.Roles, d.IaasProvider)
+
+	if d.Prometheus {
+		tags = append(tags, "prometheus")
+	}
+
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: composeTemplate
 //-----------------------------------------------------------------------------
 
 func (d *Data) composeTemplate() {
 
 	// Tags used to filter template fragments:
-	tags := append(d.Roles, d.IaasProvider)
+	tags := d.listOfTags()
 
 	// Apply the filter:
 	for _, frag := range d.frags {

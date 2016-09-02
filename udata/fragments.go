@@ -305,6 +305,7 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
  - path: "/etc/prometheus/targets/prometheus.yml"
@@ -367,6 +368,7 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
  - path: "/etc/confd/conf.d/prom-prometheus.toml"
@@ -890,6 +892,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "confd.service"
@@ -952,6 +955,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "prometheus.service"
@@ -994,6 +998,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "cadvisor.service"
@@ -1083,6 +1088,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "mesos-master-exporter.service"
@@ -1115,6 +1121,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "node-exporter.service"
@@ -1146,6 +1153,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "zookeeper-exporter.service"
@@ -1568,6 +1576,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "haproxy-exporter.service"
@@ -1600,6 +1609,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+			allOf: []string{"prometheus"},
 		},
 		data: `
   - name: "mesos-agent-exporter.service"
