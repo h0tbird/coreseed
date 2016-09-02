@@ -240,6 +240,10 @@ func (d *Data) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
 
+	if d.CaCert != "" {
+		tags = append(tags, "cacert")
+	}
+
 	if d.Ns1ApiKey != "" {
 		tags = append(tags, "ns1")
 	}

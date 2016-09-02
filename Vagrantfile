@@ -11,9 +11,9 @@ $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-beta'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
-$ca_cert        = ENV['KATO_CA_CERT']
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
+$ca_cert        = ENV['KATO_CA_CERT']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 
 #------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ Vagrant.configure("2") do |config|
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
       if $ca_cert
-        cmd = $katoctl + " -c %s > user_data_kato-1"
+        cmd = $katoctl + " --ca-cert %s > user_data_kato-1"
         system cmd % [ 1, 'kato', $cluser_id, $domain, 1, 'quorum,master,worker', $ca_cert ]
       else
         cmd = $katoctl + " > user_data_kato-1"

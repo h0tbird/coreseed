@@ -73,12 +73,12 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"cacert"},
 		},
 		data: `
-{{if .CaCert}} - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+ - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
-    {{.CaCert}}
-{{end}}`,
+    {{.CaCert}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -274,23 +274,24 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+			allOf: []string{"cacert"},
 		},
 		data: `
-{{if .CaCert}} - path: "/opt/bin/getcerts"
+ - path: "/opt/bin/getcerts"
    permissions: "0755"
    content: |
     #!/bin/bash
     [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
-{{end}}`,
+    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .`,
 	})
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"cacert"},
 		},
 		data: `
-{{if .CaCert}} - path: "/opt/bin/custom-ca"
+ - path: "/opt/bin/custom-ca"
    permissions: "0755"
    content: |
     #!/bin/bash
@@ -299,8 +300,7 @@ write_files:`,
       ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
       NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
       [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
-    }; exit 0
-{{end}}`,
+    }; exit 0`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -527,9 +527,10 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"cacert"},
 		},
 		data: `
-{{if .CaCert}}  - name: "custom-ca.service"
+  - name: "custom-ca.service"
     command: "start"
     content: |
      [Unit]
@@ -538,8 +539,7 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/custom-ca
-{{end}}`,
+     ExecStart=/opt/bin/custom-ca`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1515,9 +1515,10 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+			allOf: []string{"cacert"},
 		},
 		data: `
-{{if .CaCert}}  - name: "getcerts.service"
+  - name: "getcerts.service"
     command: "start"
     content: |
      [Unit]
@@ -1527,8 +1528,7 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/getcerts
-{{end}}`,
+     ExecStart=/opt/bin/getcerts`,
 	})
 
 	d.frags = append(d.frags, fragment{
