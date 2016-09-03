@@ -622,11 +622,27 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+  - name: "kato.target"
+    command: "start"
+    enable: true
+    content: |
+     [Unit]
+     Description=The Káto System
+
+     [Install]
+     WantedBy=multi-user.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
 			anyOf: []string{"quorum"},
 		},
 		data: `
   - name: "zookeeper.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Zookeeper
@@ -660,66 +676,22 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
-			allOf: []string{"quorum", "master"},
 		},
 		data: `
   - name: "mesos-master.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Mesos Master
      After=docker.service zookeeper.service
-     Requires=docker.service zookeeper.service
-     Wants=mesos-dns.service marathon.service mesos-master-exporter.service
-
-     [Service]
-     Restart=always
-     RestartSec=10
-     TimeoutStartSec=0
-     EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.1
-     ExecStartPre=/usr/bin/echo ruok | ncat $(hostname -i) 2181 | grep -q imok
-     ExecStart=/usr/bin/sh -c "docker run \
-       --privileged \
-       --name %p \
-       --net host \
-       --volume /var/lib/mesos:/var/lib/mesos:rw \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       mesosphere/mesos-master:0.28.1 \
-       --ip=$(hostname -i) \
-       --zk=zk://${KATO_ZK}/mesos \
-       --work_dir=/var/lib/mesos/master \
-       --log_dir=/var/log/mesos \
-       --quorum=$(($KATO_QUORUM_COUNT/2 + 1))"
-     ExecStop=/usr/bin/docker stop -t 5 %p
-
-     [Install]
-     WantedBy=multi-user.target`,
-	})
-
-	d.frags = append(d.frags, fragment{
-		filter: filter{
-			anyOf:  []string{"master"},
-			noneOf: []string{"quorum"},
-		},
-		data: `
-  - name: "mesos-master.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Mesos Master
-     After=docker.service
      Requires=docker.service
-     Wants=mesos-dns.service marathon.service mesos-master-exporter.service
+     Wants=zookeeper.service mesos-dns.service marathon.service mesos-master-exporter.service
 
      [Service]
      Restart=always
@@ -746,7 +718,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -755,13 +727,13 @@ coreos:
 		},
 		data: `
   - name: "mesos-dns.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Mesos DNS
      After=docker.service mesos-master.service go-dnsmasq.service
-     Requires=docker.service go-dnsmasq.service
-     Wants=mesos-master.service
+     Requires=docker.service
+     Wants=mesos-master.service go-dnsmasq.service
 
      [Service]
      Restart=always
@@ -795,7 +767,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -804,7 +776,7 @@ coreos:
 		},
 		data: `
   - name: "marathon.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Marathon
@@ -837,7 +809,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -847,7 +819,7 @@ coreos:
 		},
 		data: `
   - name: "confd.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Lightweight configuration management tool
@@ -871,7 +843,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -880,7 +852,7 @@ coreos:
 		},
 		data: `
   - name: "rexray.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=REX-Ray volume plugin
@@ -900,7 +872,7 @@ coreos:
      KillMode=process
 
      [Install]
-     WantedBy=docker.service`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -910,7 +882,7 @@ coreos:
 		},
 		data: `
   - name: "prometheus.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus service
@@ -943,7 +915,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -953,7 +925,7 @@ coreos:
 		},
 		data: `
   - name: "cadvisor.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=cAdvisor service
@@ -983,7 +955,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -993,7 +965,7 @@ coreos:
 		},
 		data: `
   - name: "ns1dns.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Publish DNS records to nsone
@@ -1001,7 +973,10 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/ns1dns`,
+     ExecStart=/opt/bin/ns1dns
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1010,6 +985,7 @@ coreos:
 		},
 		data: `
   - name: "etchost.service"
+    enable: true
     content: |
      [Unit]
      Description=Stores IP and hostname in etcd
@@ -1018,7 +994,10 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/etchost`,
+     ExecStart=/opt/bin/etchost
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1027,14 +1006,17 @@ coreos:
 		},
 		data: `
   - name: "etchost.timer"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Run etchost.service every 5 minutes
 
      [Timer]
      OnBootSec=10s
-     OnUnitActiveSec=5min`,
+     OnUnitActiveSec=5min
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1044,7 +1026,7 @@ coreos:
 		},
 		data: `
   - name: "mesos-master-exporter.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus mesos master exporter
@@ -1067,7 +1049,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1077,7 +1059,7 @@ coreos:
 		},
 		data: `
   - name: "node-exporter.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus node exporter
@@ -1099,7 +1081,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1109,7 +1091,7 @@ coreos:
 		},
 		data: `
   - name: "zookeeper-exporter.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus zookeeper exporter
@@ -1133,7 +1115,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1142,7 +1124,7 @@ coreos:
 		},
 		data: `
   - name: "mongodb.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=MongoDB
@@ -1169,7 +1151,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1178,7 +1160,7 @@ coreos:
 		},
 		data: `
   - name: "pritunl.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Pritunl
@@ -1203,7 +1185,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1212,7 +1194,7 @@ coreos:
 		},
 		data: `
   - name: "go-dnsmasq.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
@@ -1250,7 +1232,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1259,7 +1241,7 @@ coreos:
 		},
 		data: `
   - name: "mesos-agent.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Mesos agent
@@ -1302,7 +1284,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1311,7 +1293,7 @@ coreos:
 		},
 		data: `
   - name: "marathon-lb.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Marathon load balancer
@@ -1341,7 +1323,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1351,7 +1333,7 @@ coreos:
 		},
 		data: `
   - name: "sysdig-agent.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Sysdig Cloud Agent
@@ -1378,7 +1360,10 @@ coreos:
        --volume /proc:/host/proc:ro \
        --volume /boot:/host/boot:ro \
        sysdig/agent"
-     ExecStop=/usr/bin/docker stop -t 5 %p`,
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1388,7 +1373,7 @@ coreos:
 		},
 		data: `
   - name: "datadog-agent.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Datadog Agent
@@ -1410,7 +1395,10 @@ coreos:
        --volume /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
        --env API_KEY={{.DatadogAPIKey}} \
        datadog/docker-dd-agent"
-     ExecStop=/usr/bin/docker stop -t 5 %p`,
+     ExecStop=/usr/bin/docker stop -t 5 %p
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1420,7 +1408,7 @@ coreos:
 		},
 		data: `
   - name: "getcerts.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Get certificates from private S3 bucket
@@ -1429,7 +1417,10 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/getcerts`,
+     ExecStart=/opt/bin/getcerts
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1438,7 +1429,7 @@ coreos:
 		},
 		data: `
   - name: "docker-gc.service"
-    command: start
+    enable: true
     content: |
      [Unit]
      Description=Docker garbage collector
@@ -1457,7 +1448,10 @@ coreos:
        etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{"{{"}}.Image{{"}}"}}" | sort -u)"; \
        for i in $$(etcdctl ls /docker/images); do etcdctl get $$i; done | sort -u > images.running; \
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
-       for i in $$(comm -23 images.local images.running | grep -v katosys); do docker rmi $$i; done; true'`,
+       for i in $$(comm -23 images.local images.running | grep -v katosys); do docker rmi $$i; done; true'
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1466,14 +1460,17 @@ coreos:
 		},
 		data: `
   - name: "docker-gc.timer"
-    command: start
+    enable: true
     content: |
      [Unit]
      Description=Run docker-gc.service every 60 minutes
 
      [Timer]
      OnBootSec=1min
-     OnUnitActiveSec=30min`,
+     OnUnitActiveSec=30min
+
+     [Install]
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1483,7 +1480,7 @@ coreos:
 		},
 		data: `
   - name: "haproxy-exporter.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus haproxy exporter
@@ -1506,7 +1503,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -1516,7 +1513,7 @@ coreos:
 		},
 		data: `
   - name: "mesos-agent-exporter.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Prometheus mesos agent exporter
@@ -1539,7 +1536,7 @@ coreos:
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
-     WantedBy=multi-user.target`,
+     WantedBy=kato.target`,
 	})
 
 	d.frags = append(d.frags, fragment{
