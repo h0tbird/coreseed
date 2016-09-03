@@ -47,6 +47,7 @@ type Data struct {
 	EtcdToken           string
 	EtcdServers         string
 	ZkServers           string
+	MesosDNSPort        string
 	FlannelNetwork      string
 	FlannelSubnetLen    string
 	FlannelSubnetMin    string
@@ -158,6 +159,24 @@ func (d *Data) etcdURL() {
 			strconv.Itoa(i) + ":2380"
 		if i != d.QuorumCount {
 			d.EtcdServers = d.EtcdServers + ","
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: mesosDNSPort
+//-----------------------------------------------------------------------------
+
+func (d *Data) mesosDNSPort() {
+	d.MesosDNSPort = "53"
+	for _, role := range d.Roles {
+		if role == "master" {
+			for _, role := range d.Roles {
+				if role == "worker" {
+					d.MesosDNSPort = "54"
+					return
+				}
+			}
 		}
 	}
 }
@@ -295,6 +314,7 @@ func (d *Data) Render() {
 	d.caCertificate()   // Retrieve the CA certificate.
 	d.zookeeperURL()    // Forge the Zookeeper URL.
 	d.etcdURL()         // Initial etcd cluster URL.
+	d.mesosDNSPort()    // One of 53 or 54.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
 	d.loadFragments()   // Load the fragments array.
