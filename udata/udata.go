@@ -248,6 +248,14 @@ func (d *Data) listOfTags() (tags []string) {
 		tags = append(tags, "ns1")
 	}
 
+	if d.SysdigAccessKey != "" {
+		tags = append(tags, "sysdig")
+	}
+
+	if d.DatadogAPIKey != "" {
+		tags = append(tags, "datadog")
+	}
+
 	if d.Prometheus {
 		tags = append(tags, "prometheus")
 	}

@@ -1446,9 +1446,10 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"sysdig"},
 		},
 		data: `
-{{if .SysdigAccessKey}}  - name: "sysdig-agent.service"
+  - name: "sysdig-agent.service"
     command: "start"
     content: |
      [Unit]
@@ -1476,16 +1477,16 @@ coreos:
        --volume /proc:/host/proc:ro \
        --volume /boot:/host/boot:ro \
        sysdig/agent"
-     ExecStop=/usr/bin/docker stop -t 5 %p
-{{end}}`,
+     ExecStop=/usr/bin/docker stop -t 5 %p`,
 	})
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"datadog"},
 		},
 		data: `
-{{if .DatadogAPIKey}}  - name: "datadog-agent.service"
+  - name: "datadog-agent.service"
     command: "start"
     content: |
      [Unit]
@@ -1508,8 +1509,7 @@ coreos:
        --volume /sys/fs/cgroup/:/host/sys/fs/cgroup:ro \
        --env API_KEY={{.DatadogAPIKey}} \
        datadog/docker-dd-agent"
-     ExecStop=/usr/bin/docker stop -t 5 %p
-{{end}}`,
+     ExecStop=/usr/bin/docker stop -t 5 %p`,
 	})
 
 	d.frags = append(d.frags, fragment{
