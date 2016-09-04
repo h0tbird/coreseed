@@ -1467,8 +1467,8 @@ coreos:
      Description=Run docker-gc.service every 60 minutes
 
      [Timer]
-     OnBootSec=1min
-     OnUnitActiveSec=30min
+     OnBootSec=0s
+     OnUnitActiveSec=12h
 
      [Install]
      WantedBy=kato.target`,
