@@ -1010,9 +1010,11 @@ coreos:
     content: |
      [Unit]
      Description=Run etchost.service every 5 minutes
+     Requires=etcd2.service
+     After=etcd2.service
 
      [Timer]
-     OnBootSec=10s
+     OnBootSec=1min
      OnUnitActiveSec=5min
 
      [Install]
@@ -1464,7 +1466,7 @@ coreos:
     enable: true
     content: |
      [Unit]
-     Description=Run docker-gc.service every 60 minutes
+     Description=Run docker-gc.service every 12 hours
 
      [Timer]
      OnBootSec=0s
