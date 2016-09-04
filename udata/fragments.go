@@ -656,7 +656,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull h0tbird/zookeeper:v3.4.8-2
+     ExecStartPre=-/usr/bin/docker pull katosys/zookeeper:v3.4.8-3
      ExecStart=/usr/bin/sh -c 'docker run \
        --net host \
        --name %p \
@@ -672,7 +672,7 @@ coreos:
        --env ZK_CLIENT_PORT=2181 \
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
        --env JMXDISABLE=false \
-       h0tbird/zookeeper:v3.4.8-2'
+       katosys/zookeeper:v3.4.8-3'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
@@ -742,7 +742,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull h0tbird/mesos-dns:v0.5.2-1
+     ExecStartPre=-/usr/bin/docker pull katosys/mesos-dns:v0.5.2-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
@@ -757,7 +757,7 @@ coreos:
        --env MDNS_RESOLVERS=8.8.8.8 \
        --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
        --env MDNS_IPSOURCE=netinfo \
-       h0tbird/mesos-dns:v0.5.2-1"
+       katosys/mesos-dns:v0.5.2-2"
      ExecStartPost=/usr/bin/sh -c ' \
        echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
        echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
@@ -1448,7 +1448,8 @@ coreos:
        etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{"{{"}}.Image{{"}}"}}" | sort -u)"; \
        for i in $$(etcdctl ls /docker/images); do etcdctl get $$i; done | sort -u > images.running; \
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
-       for i in $$(comm -23 images.local images.running | grep -v katosys); do docker rmi $$i; done; true'
+       for i in $$(comm -23 images.local images.running | grep -v katosys | grep -v mesosphere); \
+       do docker rmi $$i; done; true'
 
      [Install]
      WantedBy=kato.target`,
