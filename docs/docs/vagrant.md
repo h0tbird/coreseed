@@ -68,13 +68,7 @@ Congratulations! You have now deployed an all-in-one local *Káto* system. Use t
     <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:8080"><font color="#428bca">Marathon</font></a>
   </div>
   <div class="btn-group" role="group">
-    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:4194"><font color="#428bca">cAdvisor</font></a>
-  </div>
-  <div class="btn-group" role="group">
     <a class="btn btn-default" href="http://worker-1.cell-1.dc-1.kato:9090/haproxy?stats"><font color="#428bca">HAProxy</font></a>
-  </div>
-  <div class="btn-group" role="group">
-    <a class="btn btn-default" href="http://master-1.cell-1.dc-1.kato:9191/targets"><font color="#428bca">Prometheus</font></a>
   </div>
 </div>
 
