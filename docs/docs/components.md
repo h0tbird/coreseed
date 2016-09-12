@@ -40,7 +40,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://mesosphere.github.io/marathon">Marathon</a></th>
-      <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
+      <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.3</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
       <td><a href="https://hub.docker.com/r/mesosphere/marathon"><img src="https://img.shields.io/docker/pulls/mesosphere/marathon.svg"></a></td>

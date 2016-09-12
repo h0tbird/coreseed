@@ -791,7 +791,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.1.1
+     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.1.3
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
@@ -799,7 +799,7 @@ coreos:
        --volume /etc/hosts:/etc/hosts:ro \
        --env LIBPROCESS_IP=$(hostname -i) \
        --env LIBPROCESS_PORT=9292 \
-       mesosphere/marathon:v1.1.1 \
+       mesosphere/marathon:v1.1.3 \
        --http_address $(hostname -i) \
        --master zk://${KATO_ZK}/mesos \
        --zk zk://${KATO_ZK}/marathon \
