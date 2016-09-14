@@ -1301,6 +1301,7 @@ coreos:
      Description=Marathon load balancer
      After=docker.service
      Requires=docker.service
+     Wants=marathon.service
 
      [Service]
      Restart=always
