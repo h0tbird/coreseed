@@ -24,6 +24,9 @@ var (
 	ec2Zones = []string{
 		"a", "b", "c", "d"}
 
+	katoRoles = []string{
+		"quorum", "master", "worker", "border"}
+
 	//------------------------
 	// ec2: top level command
 	//------------------------
@@ -155,7 +158,7 @@ var (
 
 	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
-		Required())
+		Required(), ec2Instances, katoRoles)
 
 	//---------------------------
 	// ec2 setup: nested command

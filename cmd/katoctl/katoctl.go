@@ -326,15 +326,13 @@ func regexpMatch(s kingpin.Settings, regexp string) *string {
 // Quadruplets custom parser:
 //-----------------------------------------------------------------------------
 
-/*type quadrupletsValue struct {
+type quadrupletsValue struct {
 	quadList []string
-	types    *[]string
-	roles    *[]string
-}*/
+	types    []string
+	roles    []string
+}
 
-type quadList []string
-
-func (q *quadList) Set(value string) error {
+func (q *quadrupletsValue) Set(value string) error {
 
 	// 1. Four elements:
 	if quad := strings.Split(value, ":"); len(quad) != 4 {
@@ -347,39 +345,59 @@ func (q *quadList) Set(value string) error {
 			Fatal("First quadruplet element must be a positive integer, but got: " + quad[0])
 
 		// 3. Valid instance type:
-	} else if 1 == 1 {
+	} else if !func() bool {
+		for _, t := range q.types {
+			if t == quad[1] {
+				return true
+			}
+		}
+		return false
+	}() {
 		log.WithField("value", value).
 			Fatal("Second quadruplet element must be a valid instance type, but got: " + quad[1])
 
 		// 4. Valid DNS name:
-	} else if match, err := regexp.MatchString("[a-z0-9-]*", value); err != nil || !match {
+	} else if match, err := regexp.MatchString("^[a-z\\d-]+$", quad[2]); err != nil || !match {
 		log.WithField("value", value).
-			Fatal("Third quadruplet element must matmatch [a-z0-9-]*, but got: " + quad[2])
+			Fatal("Third quadruplet element must matmatch ^[a-z\\d-]+$, but got: " + quad[2])
 
 		// 5. Valid Káto roles:
-	} else if 1 == 1 {
+	} else if !func() bool {
+		for _, role := range strings.Split(quad[3], ",") {
+			found := false
+			for _, r := range q.roles {
+				if r == role {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return false
+			}
+		}
+		return true
+	}() {
 		log.WithField("value", value).
 			Fatal("Fourth quadruplet element must be a valid list of Káto roles, but got: " + quad[3])
 	}
 
-	//roles := strings.Split(quad[3], ",")
-	log.WithField("value", value).Fatal("STOP")
-
 	// All tests ok:
-	*q = append(*q, value)
+	q.quadList = append(q.quadList, value)
 	return nil
 }
 
-func (q *quadList) String() string {
+func (q *quadrupletsValue) String() string {
 	return ""
 }
 
-func (q *quadList) IsCumulative() bool {
+func (q *quadrupletsValue) IsCumulative() bool {
 	return true
 }
 
-func quadruplets(s kingpin.Settings) (target *[]string) {
-	target = new([]string)
-	s.SetValue((*quadList)(target))
-	return
+func quadruplets(s kingpin.Settings, types, roles []string) *[]string {
+	target := &quadrupletsValue{}
+	target.types = types
+	target.roles = roles
+	s.SetValue(target)
+	return &target.quadList
 }
