@@ -1308,7 +1308,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.3.3
+     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.3.5
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
@@ -1316,7 +1316,7 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        --env PORTS=9090,9091 \
-       mesosphere/marathon-lb:v1.3.3 sse \
+       mesosphere/marathon-lb:v1.3.5 sse \
        --marathon http://marathon:8080 \
        --health-check \
        --group external \
