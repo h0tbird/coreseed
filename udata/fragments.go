@@ -1175,7 +1175,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull h0tbird/pritunl:v1.21.954.48-3
+     ExecStartPre=-/usr/bin/docker pull katosys/pritunl:v1.25.1093.62-1
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --name %p \
@@ -1183,7 +1183,7 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-       h0tbird/pritunl:v1.21.954.48-3"
+       katosys/pritunl:v1.25.1093.62-1"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
