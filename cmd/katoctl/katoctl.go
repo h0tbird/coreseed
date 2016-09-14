@@ -11,6 +11,7 @@ import (
 	"path"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 
 	// Local:
@@ -325,9 +326,46 @@ func regexpMatch(s kingpin.Settings, regexp string) *string {
 // Quadruplets custom parser:
 //-----------------------------------------------------------------------------
 
+/*type quadrupletsValue struct {
+	quadList []string
+	types    *[]string
+	roles    *[]string
+}*/
+
 type quadList []string
 
 func (q *quadList) Set(value string) error {
+
+	// 1. Four elements:
+	if quad := strings.Split(value, ":"); len(quad) != 4 {
+		log.WithField("value", value).
+			Fatal("Expected 4 elements, but got " + strconv.Itoa(len(quad)))
+
+		// 2. Positive integer:
+	} else if i, err := strconv.Atoi(quad[0]); err != nil || i < 0 {
+		log.WithField("value", value).
+			Fatal("First quadruplet element must be a positive integer, but got: " + quad[0])
+
+		// 3. Valid instance type:
+	} else if 1 == 1 {
+		log.WithField("value", value).
+			Fatal("Second quadruplet element must be a valid instance type, but got: " + quad[1])
+
+		// 4. Valid DNS name:
+	} else if match, err := regexp.MatchString("[a-z0-9-]*", value); err != nil || !match {
+		log.WithField("value", value).
+			Fatal("Third quadruplet element must matmatch [a-z0-9-]*, but got: " + quad[2])
+
+		// 5. Valid Káto roles:
+	} else if 1 == 1 {
+		log.WithField("value", value).
+			Fatal("Fourth quadruplet element must be a valid list of Káto roles, but got: " + quad[3])
+	}
+
+	//roles := strings.Split(quad[3], ",")
+	log.WithField("value", value).Fatal("STOP")
+
+	// All tests ok:
 	*q = append(*q, value)
 	return nil
 }
