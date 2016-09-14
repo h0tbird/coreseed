@@ -392,12 +392,17 @@ write_files:`,
     src = "prom-cadvisor.tmpl"
     dest = "/etc/prometheus/targets/cadvisor.yml"
     keys = [
+      "/hosts/quorum",
       "/hosts/master",
       "/hosts/worker",
     ]
 
  - path: "/etc/confd/templates/prom-cadvisor.tmpl"
    content: |
+    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      labels:
+        role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
@@ -413,12 +418,17 @@ write_files:`,
     src = "prom-etcd.tmpl"
     dest = "/etc/prometheus/targets/etcd.yml"
     keys = [
+      "/hosts/quorum",
       "/hosts/master",
       "/hosts/worker",
     ]
 
  - path: "/etc/confd/templates/prom-etcd.tmpl"
    content: |
+    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      labels:
+        role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
@@ -434,12 +444,17 @@ write_files:`,
     src = "prom-node.tmpl"
     dest = "/etc/prometheus/targets/node.yml"
     keys = [
+      "/hosts/quorum",
       "/hosts/master",
       "/hosts/worker",
     ]
 
  - path: "/etc/confd/templates/prom-node.tmpl"
    content: |
+    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      labels:
+        role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
@@ -489,14 +504,14 @@ write_files:`,
     [template]
     src = "prom-zookeeper.tmpl"
     dest = "/etc/prometheus/targets/zookeeper.yml"
-    keys = [ "/hosts/master" ]
+    keys = [ "/hosts/quorum" ]
 
  - path: "/etc/confd/templates/prom-zookeeper.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9103{{"{{"}}end{{"}}"}}
       labels:
-        role: master`,
+        role: quorum`,
 	})
 
 	d.frags = append(d.frags, fragment{
