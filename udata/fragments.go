@@ -1299,7 +1299,7 @@ coreos:
     content: |
      [Unit]
      Description=Marathon load balancer
-     After=docker.service
+     After=docker.service marathon.service
      Requires=docker.service
      Wants=marathon.service
 
