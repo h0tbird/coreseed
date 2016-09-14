@@ -54,7 +54,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://zookeeper.apache.org/">Zookeeper</a></th>
-      <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
+      <td><a href="https://zookeeper.apache.org/doc/r3.4.9">3.4.9</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8/">3.4.8</a></td>
       <td><a href="https://hub.docker.com/r/h0tbird/zookeeper"><img src="https://img.shields.io/docker/pulls/h0tbird/zookeeper.svg"></a></td>
