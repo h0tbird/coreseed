@@ -1214,7 +1214,7 @@ coreos:
      ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
-       etcdctl get $${i} | awk '{print $1\":{{.MesosDNSPort}}\"}'; done \
+       etcdctl get $${i} | awk '/master/ {print $1\":{{.MesosDNSPort}}\"}'; done \
        | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
