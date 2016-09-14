@@ -508,7 +508,7 @@ write_files:`,
 
  - path: "/etc/confd/templates/prom-zookeeper.tmpl"
    content: |
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
       - {{"{{"}}base .Key{{"}}"}}:9103{{"{{"}}end{{"}}"}}
       labels:
         role: quorum`,
