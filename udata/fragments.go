@@ -713,8 +713,8 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker kill m3s0s-master
+     ExecStartPre=-/usr/bin/docker rm m3s0s-master
      ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:1.0.1-2.0.93.ubuntu1404
      ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
@@ -725,12 +725,13 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        mesosphere/mesos-master:1.0.1-2.0.93.ubuntu1404 \
+       --cluster={{.ClusterID}} \
        --ip=$(hostname -i) \
        --zk=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/master \
        --log_dir=/var/log/mesos \
        --quorum=$(($KATO_QUORUM_COUNT/2 + 1))"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStop=/usr/bin/docker stop -t 5 m3s0s-master
 
      [Install]
      WantedBy=kato.target`,
@@ -1271,8 +1272,8 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker kill m3s0s-agent
+     ExecStartPre=-/usr/bin/docker rm m3s0s-agent
      ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:1.0.1-2.0.93.ubuntu1404
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
@@ -1298,7 +1299,7 @@ coreos:
        --master=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/node \
        --log_dir=/var/log/mesos/node"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStop=/usr/bin/docker stop -t 5 m3s0s-agent
 
      [Install]
      WantedBy=kato.target`,
