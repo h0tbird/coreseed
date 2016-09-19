@@ -7,11 +7,13 @@ package ns1
 import (
 
 	// Stdlib:
-	"strings"
+	"net/http"
+	"time"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/bobtfish/go-nsone-api"
+	api "gopkg.in/ns1/ns1-go.v2/rest"
+	"gopkg.in/ns1/ns1-go.v2/rest/model/dns"
 )
 
 //-----------------------------------------------------------------------------
@@ -39,42 +41,27 @@ func (d *Data) AddZones() {
 	d.command = "zone:add"
 
 	// Create an NS1 API client:
-	api := nsone.New(d.APIKey)
+	httpClient := &http.Client{Timeout: time.Second * 10}
+	client := api.NewClient(httpClient, api.SetAPIKey(d.APIKey))
 
-	// Retrieve the current zone list:
-	zones, err := api.GetZones()
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-Zone:
 	// For each requested zone:
-	for _, e := range d.Zones {
+	for _, zone := range d.Zones {
 
 		// New zone handler:
-		z := nsone.NewZone(e)
-
-		// Setup link if defined:
+		z := dns.NewZone(zone)
 		if d.Link != "" {
 			z.LinkTo(d.Link)
 		}
 
-		// Continue if already exists:
-		for _, v := range zones {
-			if v.Zone == z.Zone {
-				log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
-					Info("Using existing DNS zone")
-				continue Zone
+		// Send the new zone request:
+		if _, err := client.Zones.Create(z); err != nil {
+			if err != api.ErrZoneExists {
+				log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).Fatal(err)
 			}
 		}
 
-		// Send the new zone request:
-		if err := api.CreateZone(z); err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
-		}
-
 		// Log zone creation:
-		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
+		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).
 			Info("New DNS zone created")
 	}
 }
@@ -88,42 +75,4 @@ func (d *Data) AddRecords() {
 
 	// Set the current command:
 	d.command = "record:add"
-
-	// Create an NS1 API client:
-	api := nsone.New(d.APIKey)
-
-Record:
-	// For each requested record:
-	for _, e := range d.Records {
-
-		// New record handler:
-		s := strings.Split(e, ":")
-		r1 := nsone.NewRecord(d.Zone, s[2]+"."+d.Zone, s[1])
-		r1.Answers = make([]nsone.Answer, 1)
-		r1.Answers[0] = nsone.NewAnswer()
-		r1.Answers[0].Answer = []string{s[0]}
-
-		// Attempt to retrieve an existing record:
-		r2, err := api.GetRecord(d.Zone, s[2]+"."+d.Zone, s[1])
-		if err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
-		}
-
-		// Compare and continue:
-		if r1.Domain == r2.Domain {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
-				Info("Using existing DNS record")
-			continue Record
-		}
-
-		// Send the new record request:
-		err = api.CreateRecord(r1)
-		if err != nil {
-			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).Fatal(err)
-		}
-
-		// Log record creation:
-		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": e}).
-			Info("New DNS record created")
-	}
 }
