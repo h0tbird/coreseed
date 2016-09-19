@@ -33,7 +33,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://mesosphere.github.io/mesos-dns">Mesos-dns</a></th>
-      <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.6.0">0.5.2</a></td>
+      <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.6.0">0.6.0</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
       <td><a href="https://hub.docker.com/r/mesosphere/mesos-dns"><img src="https://img.shields.io/docker/pulls/mesosphere/mesos-dns.svg"></a></td>
@@ -86,6 +86,13 @@ title: Components
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://hub.docker.com/r/h0tbird/pritunl"><img src="https://img.shields.io/docker/pulls/h0tbird/pritunl.svg"></a></td>
+    </tr>
+    <tr>
+      <th><a href="https://github.com/kelseyhightower/confd">confd</a></th>
+      <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
+      <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
+      <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
+      <td><a href="https://hub.docker.com/r/katosys/confd"><img src="https://img.shields.io/docker/pulls/katosys/confd.svg"></a></td>
     </tr>
     <tr>
       <th><a href="http://rexray.readthedocs.io/en/stable">REX-Ray</a></th>
