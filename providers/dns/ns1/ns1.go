@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"net/http"
+	"strings"
 	"time"
 
 	// Community:
@@ -75,4 +76,29 @@ func (d *Data) AddRecords() {
 
 	// Set the current command:
 	d.command = "record:add"
+
+	// Create an NS1 API client:
+	httpClient := &http.Client{Timeout: time.Second * 10}
+	client := api.NewClient(httpClient, api.SetAPIKey(d.APIKey))
+
+	// For each requested record:
+	for _, record := range d.Records {
+
+		// New record handler:
+		s := strings.Split(record, ":")
+		r := dns.NewRecord(d.Zone, s[2], s[1])
+		a := dns.NewAv4Answer(s[0])
+		r.AddAnswer(a)
+
+		// Send the new record request:
+		if _, err := client.Records.Create(r); err != nil {
+			if err != api.ErrRecordExists {
+				log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": record}).Fatal(err)
+			}
+		}
+
+		// Log record creation:
+		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": record}).
+			Info("New DNS record created")
+	}
 }
