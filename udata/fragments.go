@@ -671,7 +671,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull katosys/zookeeper:v3.4.9-1
+     ExecStartPre=-/usr/bin/docker pull katosys/zookeeper:v3.4.8-3
      ExecStart=/usr/bin/sh -c 'docker run \
        --net host \
        --name %p \
@@ -687,7 +687,7 @@ coreos:
        --env ZK_CLIENT_PORT=2181 \
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
        --env JMXDISABLE=false \
-       katosys/zookeeper:v3.4.9-1'
+       katosys/zookeeper:v3.4.8-3'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
@@ -715,16 +715,16 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:0.28.2-2.0.27.ubuntu1404
+     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-master:1.0.1-2.0.93.ubuntu1404
      ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
-       --name %p \
+       --name m3s0s-master \
        --net host \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
-       mesosphere/mesos-master:0.28.2-2.0.27.ubuntu1404 \
+       mesosphere/mesos-master:1.0.1-2.0.93.ubuntu1404 \
        --ip=$(hostname -i) \
        --zk=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/master \
@@ -1273,12 +1273,12 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:0.28.2-2.0.27.ubuntu1404
+     ExecStartPre=-/usr/bin/docker pull mesosphere/mesos-slave:1.0.1-2.0.93.ubuntu1404
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --net host \
        --pid host \
-       --name %p \
+       --name m3s0s-agent \
        --volume /sys:/sys \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
@@ -1290,7 +1290,7 @@ coreos:
        --volume /lib64/libgpg-error.so.0:/lib/x86_64-linux-gnu/libgpg-error.so.0:ro \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/certs:/etc/certs:ro \
-       mesosphere/mesos-slave:0.28.2-2.0.27.ubuntu1404 \
+       mesosphere/mesos-slave:1.0.1-2.0.93.ubuntu1404 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
        --containerizers=docker \

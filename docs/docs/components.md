@@ -26,7 +26,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://mesos.apache.org">Mesos</a></th>
-      <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.2">0.28.2</a></td>
+      <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=1.0.1">1.0.1</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
       <td><a href="https://hub.docker.com/r/mesosphere/mesos-master"><img src="https://img.shields.io/docker/pulls/mesosphere/mesos-master.svg"></a></td>
@@ -54,7 +54,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://zookeeper.apache.org/">Zookeeper</a></th>
-      <td><a href="https://zookeeper.apache.org/doc/r3.4.9">3.4.9</a></td>
+      <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8/">3.4.8</a></td>
       <td><a href="https://hub.docker.com/r/h0tbird/zookeeper"><img src="https://img.shields.io/docker/pulls/h0tbird/zookeeper.svg"></a></td>
