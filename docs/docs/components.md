@@ -33,7 +33,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://mesosphere.github.io/mesos-dns">Mesos-dns</a></th>
-      <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
+      <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.6.0">0.5.2</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
       <td><a href="https://hub.docker.com/r/mesosphere/mesos-dns"><img src="https://img.shields.io/docker/pulls/mesosphere/mesos-dns.svg"></a></td>

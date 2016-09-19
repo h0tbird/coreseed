@@ -757,7 +757,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos-dns:v0.5.2-2
+     ExecStartPre=-/usr/bin/docker pull katosys/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
@@ -772,7 +772,7 @@ coreos:
        --env MDNS_RESOLVERS=8.8.8.8 \
        --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
        --env MDNS_IPSOURCE=netinfo \
-       katosys/mesos-dns:v0.5.2-2"
+       katosys/mesos-dns:v0.6.0-2"
      ExecStartPost=/usr/bin/sh -c ' \
        echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
        echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
