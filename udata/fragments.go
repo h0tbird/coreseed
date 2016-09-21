@@ -1432,6 +1432,7 @@ coreos:
      [Unit]
      Description=Get certificates from private S3 bucket
      Requires=docker.service
+     Before=go-dnsmasq.service
      After=docker.service
 
      [Service]

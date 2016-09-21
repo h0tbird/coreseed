@@ -222,7 +222,7 @@ func (d *Data) systemdUnits() {
 		case "worker":
 			units = append(units,
 				"etcd2", "flanneld", "docker", "rexray", "go-dnsmasq", "mesos-agent",
-				"marathon-lb", "etchost.timer")
+				"marathon-lb", "etchost.timer", "getcerts")
 			if d.Prometheus {
 				units = append(units,
 					"cadvisor", "mesos-agent-exporter", "node-exporter", "haproxy-exporter")
