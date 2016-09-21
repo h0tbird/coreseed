@@ -756,11 +756,11 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=-/usr/bin/docker kill m3s0s-dns
+     ExecStartPre=-/usr/bin/docker rm m3s0s-dns
      ExecStartPre=-/usr/bin/docker pull katosys/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
+       --name m3s0s-dns \
        --net host \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
@@ -780,7 +780,7 @@ coreos:
      ExecStop=/usr/bin/sh -c ' \
        echo search $(hostname -d) > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStop=/usr/bin/docker stop -t 5 m3s0s-dns
 
      [Install]
      WantedBy=kato.target`,
@@ -1055,16 +1055,16 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker kill m3s0s-master-exporter
+     ExecStartPre=-/usr/bin/docker rm -f m3s0s-master-exporter
      ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
-       --name %p \
+       --name m3s0s-master-exporter \
        katosys/exporters:v0.1.0-1 mesos_exporter \
        -master http://$(hostname):5050 \
        -addr :9104"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStop=/usr/bin/docker stop -t 5 m3s0s-master-exporter
 
      [Install]
      WantedBy=kato.target`,
@@ -1437,6 +1437,7 @@ coreos:
 
      [Service]
      Type=oneshot
+     RemainAfterExit=yes
      ExecStart=/opt/bin/getcerts
 
      [Install]
