@@ -327,8 +327,9 @@ write_files:`,
 
     receivers:
     - name: 'slack'
-      send_resolved: true
-      channel: kato`,
+      slack_configs:
+      - send_resolved: true
+        channel: kato`,
 	})
 
 	d.frags = append(d.frags, fragment{
