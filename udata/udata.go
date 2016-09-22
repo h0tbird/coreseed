@@ -331,6 +331,7 @@ func (d *Data) Render() {
 	d.caCertificate()   // Retrieve the CA certificate.
 	d.zookeeperURL()    // Forge the Zookeeper URL.
 	d.etcdURL()         // Initial etcd cluster URL.
+	d.alertmanagerURL() // Comma separated alertmanagers.
 	d.mesosDNSPort()    // One of 53 or 54.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.
