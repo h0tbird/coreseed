@@ -309,6 +309,34 @@ write_files:`,
 			allOf: []string{"prometheus"},
 		},
 		data: `
+ - path: "/etc/alertmanager/config.yml"
+   permissions: "0600"
+   content: |
+    global:
+      slack_api_url: https://hooks.slack.com/services/{{.SlackKey}}
+
+    templates:
+    - '/etc/alertmanager/template/*.tmpl'
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      receiver: slack
+
+    receivers:
+    - name: 'slack'
+      send_resolved: true
+      channel: kato`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
+		},
+		data: `
  - path: "/etc/prometheus/targets/prometheus.yml"
  - path: "/etc/prometheus/prometheus.yml"
    permissions: "0600"
@@ -886,6 +914,44 @@ coreos:
      ExecStart=/opt/bin/rexray start -f
      ExecReload=/bin/kill -HUP $MAINPID
      KillMode=process
+
+     [Install]
+     WantedBy=kato.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
+		},
+		data: `
+  - name: "alertmanager.service"
+    enable: true
+    content: |
+     [Unit]
+     Description=Alertmanager service
+     After=docker.service
+     Before=prometheus.service
+     Requires=docker.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     ExecStartPre=-/usr/bin/docker kill %p
+     ExecStartPre=-/usr/bin/docker rm -f %p
+     ExecStartPre=-/usr/bin/docker pull prom/alertmanager:v0.4.2
+     ExecStart=/usr/bin/sh -c "docker run \
+       --net host \
+       --name %p \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/hosts:/etc/hosts:ro \
+       --volume /etc/alertmanager:/etc/alertmanager:ro \
+       --volume /var/lib/alertmanager:/var/lib/alertmanager:rw \
+       prom/alertmanager:v0.4.2 \
+       -config.file=/etc/alertmanager/config.yml \
+       -storage.path=/var/lib/alertmanager"
+     ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
      WantedBy=kato.target`,
