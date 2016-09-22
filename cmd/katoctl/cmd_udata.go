@@ -13,9 +13,14 @@ var (
 	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
 
 	flUdataQuorumCount = cmdUdata.Flag("quorum-count",
-		"Number of quorum nodes [ 1 | 3 | 5 ]").
+		"Number of initial quorum nodes [ 1 | 3 | 5 ]").
 		Required().OverrideDefaultFromEnvar("KATO_UDATA_QUORUM_COUNT").
 		HintOptions("1", "3", "5").Int()
+
+	flUdataMasterCount = cmdUdata.Flag("master-count",
+		"Number of initial master nodes").
+		Required().OverrideDefaultFromEnvar("KATO_UDATA_MASTER_COUNT").
+		Int()
 
 	flUdataClusterID = cmdUdata.Flag("cluster-id",
 		"Cluster ID.").

@@ -67,7 +67,8 @@ write_files:`,
     KATO_HOST_NAME={{.HostName}}
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
-    KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'`,
+    KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
+    KATO_ALERT_MANAGERS={{.AlertManagers}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -992,6 +993,7 @@ coreos:
        prom/prometheus:v1.1.2 \
        -config.file=/etc/prometheus/prometheus.yml \
        -storage.local.path=/prometheus \
+       -alertmanager.url ${KATO_ALERT_MANAGERS} \
        -web.console.libraries=/etc/prometheus/console_libraries \
        -web.console.templates=/etc/prometheus/consoles \
        -web.listen-address=:9191"

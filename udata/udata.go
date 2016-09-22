@@ -36,6 +36,7 @@ type fragment struct {
 // Data contains variables to be interpolated in templates.
 type Data struct {
 	QuorumCount         int
+	MasterCount         int
 	GzipUdata           bool
 	Prometheus          bool
 	ClusterID           string
@@ -47,6 +48,7 @@ type Data struct {
 	EtcdToken           string
 	EtcdServers         string
 	ZkServers           string
+	AlertManagers       string
 	MesosDNSPort        string
 	FlannelNetwork      string
 	FlannelSubnetLen    string
@@ -159,6 +161,19 @@ func (d *Data) etcdURL() {
 			strconv.Itoa(i) + ":2380"
 		if i != d.QuorumCount {
 			d.EtcdServers = d.EtcdServers + ","
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: alertmanagerURL
+//-----------------------------------------------------------------------------
+
+func (d *Data) alertmanagerURL() {
+	for i := 1; i <= d.MasterCount; i++ {
+		d.AlertManagers = d.AlertManagers + "http://master-" + strconv.Itoa(i) + ":9093"
+		if i != d.MasterCount {
+			d.AlertManagers = d.AlertManagers + ","
 		}
 	}
 }
