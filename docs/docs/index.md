@@ -106,7 +106,7 @@ Congratulations! You have now deployed *Káto*. Provide your domain and follow t
     </a>
   </div>
   <div class="btn-group" role="group">
-    <a class="btn btn-default domain-derived-link" data-url="http://master-1.{domain}:9191/graph">
+    <a class="btn btn-default domain-derived-link" data-url="http://master-1.{domain}:9191/targets">
     <font color="#428bca">Prometheus</font>
     </a>
   </div>
