@@ -67,6 +67,13 @@ title: Components
       <td><a href="https://hub.docker.com/r/prom/prometheus"><img src="https://img.shields.io/docker/pulls/prom/prometheus.svg"></a></td>
     </tr>
     <tr>
+      <th><a href="https://prometheus.io/docs/alerting/alertmanager">Alertmanager</a></th>
+      <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.4.2">0.4.2</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="https://hub.docker.com/r/prom/prometheus"><img src="https://img.shields.io/docker/pulls/prom/prometheus.svg"></a></td>
+    </tr>
+    <tr>
       <th><a href="https://github.com/janeczku/go-dnsmasq">go-dnsmasq</a></th>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.6">1.0.6</a></td>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.6">1.0.6</a></td>

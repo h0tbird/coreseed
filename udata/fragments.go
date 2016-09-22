@@ -314,6 +314,8 @@ write_files:`,
    permissions: "0600"
    content: |
     global:
+      smtp_smarthost: 'localhost:25'
+      smtp_from: 'alertmanager@example.org'
 {{- if .SlackWebhook}}
       slack_api_url: {{.SlackWebhook}}{{end}}
 
@@ -325,12 +327,13 @@ write_files:`,
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 3h
-{{- if .SlackWebhook}}
-      receiver: slack{{end}}
+      receiver: operators
 
     receivers:
+    - name: 'operators'
+      email_configs:
+      - to: 'operators@example.org'
 {{- if .SlackWebhook}}
-    - name: 'slack'
       slack_configs:
       - send_resolved: true
         channel: kato
