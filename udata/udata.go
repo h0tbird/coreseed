@@ -59,6 +59,7 @@ type Data struct {
 	RexrayEndpointIP    string
 	Ec2Region           string
 	IaasProvider        string
+	SlackWebhook        string
 	SysdigAccessKey     string
 	DatadogAPIKey       string
 	template            string

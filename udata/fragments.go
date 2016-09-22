@@ -314,7 +314,8 @@ write_files:`,
    permissions: "0600"
    content: |
     global:
-      slack_api_url: https://hooks.slack.com/services/{{.SlackKey}}
+{{- if .SlackWebhook}}
+      slack_api_url: {{.SlackWebhook}}{{end}}
 
     templates:
     - '/etc/alertmanager/template/*.tmpl'
@@ -324,13 +325,16 @@ write_files:`,
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 3h
-      receiver: slack
+{{- if .SlackWebhook}}
+      receiver: slack{{end}}
 
     receivers:
+{{- if .SlackWebhook}}
     - name: 'slack'
       slack_configs:
       - send_resolved: true
-        channel: kato`,
+        channel: kato
+{{end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{

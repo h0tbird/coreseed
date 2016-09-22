@@ -87,6 +87,7 @@ func main() {
 			RexrayEndpointIP:    *flUdataRexrayEndpointIP,
 			Ec2Region:           *flUdataEc2Region,
 			IaasProvider:        *flUdataIaasProvider,
+			SlackWebhook:        *flUdataSlackWebhook,
 			SysdigAccessKey:     *flUdataSysdigAccessKey,
 			DatadogAPIKey:       *flUdataDatadogAPIKey,
 			StubZones:           *flUdataStubZones,

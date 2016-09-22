@@ -127,14 +127,20 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_IAAS_PROVIDER").
 		Enum("vbox", "ec2", "pkt")
 
+	flUdataSlackWebhook = cmdUdata.Flag("slack-webhook",
+		"Slack webhook URL.").
+		PlaceHolder("KATO_UDATA_SLACK_WEBHOOK").
+		OverrideDefaultFromEnvar("KATO_UDATA_SLACK_WEBHOOK").
+		String()
+
 	flUdataSysdigAccessKey = cmdUdata.Flag("sysdig-access-key",
-		"SysDig secret access key").
+		"SysDig secret access key.").
 		PlaceHolder("KATO_UDATA_SYSDIG_ACCESS_KEY").
 		OverrideDefaultFromEnvar("KATO_UDATA_SYSDIG_ACCESS_KEY").
 		String()
 
 	flUdataDatadogAPIKey = cmdUdata.Flag("datadog-api-key",
-		"Datadog secret API key").
+		"Datadog secret API key.").
 		PlaceHolder("KATO_UDATA_DATADOG_API_KEY").
 		OverrideDefaultFromEnvar("KATO_UDATA_DATADOG_API_KEY").
 		String()
