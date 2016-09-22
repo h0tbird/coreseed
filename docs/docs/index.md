@@ -10,7 +10,7 @@ All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*.
 
 <ul class="nav nav-tabs">
  <li class="active"><a href="#1" data-toggle="tab">Latest stable release</a></li>
- <li><a href="#2" data-toggle="tab">Main devel branch</a></li>
+ <li><a href="#2" data-toggle="tab">Master devel branch</a></li>
  <li><a href="#3" data-toggle="tab">Shell completion</a></li>
 </ul>
 
@@ -91,7 +91,7 @@ Congratulations! You have now deployed *Káto*. Provide your domain and follow t
 
 <div class="btn-group btn-group-justified" role="group" aria-label="...">
   <div class="btn-group" role="group">
-    <a class="btn btn-default domain-derived-link" data-url="https://border-1.{domain}">
+    <a class="btn btn-default domain-derived-link" data-url="https://border-1.ext.{domain}">
     <font color="#428bca">Pritunl</font>
     </a>
   </div>
