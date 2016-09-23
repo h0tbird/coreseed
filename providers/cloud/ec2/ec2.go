@@ -466,7 +466,7 @@ func (d *Data) countNodes() {
 	for _, q := range d.Quadruplets {
 		if strings.Contains(q, "master") {
 			s := strings.Split(q, ":")
-			d.QuorumCount, _ = strconv.Atoi(s[0])
+			d.MasterCount, _ = strconv.Atoi(s[0])
 			break
 		}
 	}
