@@ -156,6 +156,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_STUB_ZONE").
 		Strings()
 
+	flEc2DeploySlackWebhook = cmdEc2Deploy.Flag("slack-webhook",
+		"Slack webhook URL.").
+		PlaceHolder("KATO_EC2_DEPLOY_SLACK_WEBHOOK").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SLACK_WEBHOOK").
+		String()
+
 	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
 		Required(), ec2Instances, katoRoles)

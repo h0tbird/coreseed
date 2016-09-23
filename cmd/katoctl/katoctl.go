@@ -160,6 +160,7 @@ func main() {
 				FlannelSubnetMax: *flEc2DeployFlannelSubnetMax,
 				FlannelBackend:   *flEc2DeployFlannelBackend,
 				StubZones:        *flEc2DeployStubZones,
+				SlackWebhook:     *flEc2DeploySlackWebhook,
 				Quadruplets:      *arEc2DeployQuadruplet,
 			},
 		}

@@ -70,6 +70,7 @@ type State struct {
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
 	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   //  ec2:deploy |           | udata |
+	SlackWebhook     string   `json:"SlackWebhook:"`    //  ec2:deploy |           | udata |
 	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
@@ -220,6 +221,11 @@ func (d *Data) Add() {
 	// Append the --datadog-api-key if present:
 	if d.DatadogAPIKey != "" {
 		argsUdata = append(argsUdata, "--datadog-api-key", d.DatadogAPIKey)
+	}
+
+	// Append the --slack-webhook if present:
+	if d.SlackWebhook != "" {
+		argsUdata = append(argsUdata, "--slack-webhook", d.SlackWebhook)
 	}
 
 	// Append the --ca-cert flag if cert is present:
