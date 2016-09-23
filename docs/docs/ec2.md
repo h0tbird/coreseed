@@ -40,59 +40,84 @@ Subcommands:
 
 ## Deploy
 
-If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During the deployment a state file will be generated under `$HOME/.kato/<unique-cluster-id>.json`
+If you want to reuse existing *EBS* volumes you must target the `--region` and `--zone` where your volumes are stored. During the deployment a cluster state file will be generated in your home directory under `~/.kato/<cluster-id>.json`.
 
-### Simple deploy example:
-```bash
-katoctl ec2 deploy \
-  --cluster-id <unique-cluster-id> \
-  --ns1-api-key <ns1-private-key> \
-  --domain <managed-public-domain> \
-  --region <ec2-region> \
-  --key-pair <ec2-ssh-key-name> \
-  1:m3.xlarge:kato:quorum,master,worker \
-  1:m3.medium:border:border
-```
+<ul class="nav nav-tabs">
+ <li class="active"><a href="#1" data-toggle="tab">Simple deploy example</a></li>
+ <li><a href="#2" data-toggle="tab">Advanced deploy example</a></li>
+ <li><a href="#3" data-toggle="tab">Add more nodes</a></li>
+</ul>
 
-### Complex deploy example:
-```bash
-export KATO_EC2_DEPLOY_VPC_CIDR_BLOCK='10.136.0.0/16'
-export KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR='10.136.0.0/18'
-export KATO_EC2_DEPLOY_EXTERNAL_SUBNET_CIDR='10.136.64.0/18'
-export KATO_EC2_DEPLOY_FLANNEL_NETWORK='10.136.128.0/18'
-export KATO_EC2_DEPLOY_FLANNEL_SUBNET_MIN='10.136.128.0'
-export KATO_EC2_DEPLOY_FLANNEL_SUBNET_MAX='10.136.191.192'
-export KATO_EC2_DEPLOY_FLANNEL_SUBNET_LEN='26'
+<div class="tab-content ">
+ <div class="tab-pane active" id="1">
+  <div class="panel panel-default">
+   <div class="panel-body language-bash highlighter-rouge">
+    <p>Deploy one <code class="highlighter-rouge">m3.xlarge</code> <em>EC2</em> instance named <code class="highlighter-rouge">kato-1</code> with 3 <em>Káto</em> roles: <code class="highlighter-rouge">quorum</code>, <code class="highlighter-rouge">master</code> and <code class="highlighter-rouge">worker</code>. Also deploy a second <code class="highlighter-rouge">m3.medium</code> instance named <code class="highlighter-rouge">border-1</code> with the <code class="highlighter-rouge">border</code> <em>Káto</em> role assigned to it:</p>
+    <pre class="highlight"><code>
+ katoctl ec2 deploy
+   --cluster-id &lt;cluster-id&gt; <span class="se">\</span>
+   --ns1-api-key &lt;ns1-private-key&gt; <span class="se">\</span>
+   --domain &lt;managed-public-domain&gt; <span class="se">\</span>
+   --region &lt;ec2-region&gt; <span class="se">\</span>
+   --key-pair &lt;ec2-ssh-key-name&gt; <span class="se">\</span>
+   1:m3.xlarge:kato:quorum,master,worker <span class="se">\</span>
+   1:m3.medium:border:border
+    </code></pre>
+   </div>
+  </div>
+ </div>
 
-katoctl ec2 deploy \
-  --cluster-id <unique-cluster-id> \
-  --ns1-api-key <ns1-private-key> \
-  --sysdig-access-key <sysdig-access-key> \
-  --datadog-api-key <datadog-api-key> \
-  --ca-cert <path-to-crt-pem> \
-  --stub-zone foo.demo.lan/192.168.1.201:53,192.168.1.202:53 \
-  --stub-zone bar.demo.lan/192.168.2.201:53,192.168.2.202:53 \
-  --domain <managed-public-domain> \
-  --region <ec2-region> \
-  --key-pair <ec2-ssh-key-name> \
-  3:m3.medium:quorum:quorum \
-  3:m3.medium:master:master \
-  3:m3.large:worker:worker \
-  1:m3.medium:border:border
-```
+ <div class="tab-pane" id="2">
+  <div class="panel panel-default">
+   <div class="panel-body language-bash highlighter-rouge">
+    <p>Find below a much more complex deploy where many options are set:</p>
+    <pre class="highlight"><code>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_VPC_CIDR_BLOCK</span><span class="o">=</span><span class="s1">'10.136.0.0/16'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR</span><span class="o">=</span><span class="s1">'10.136.0.0/18'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_EXTERNAL_SUBNET_CIDR</span><span class="o">=</span><span class="s1">'10.136.64.0/18'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_NETWORK</span><span class="o">=</span><span class="s1">'10.136.128.0/18'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_MIN</span><span class="o">=</span><span class="s1">'10.136.128.0'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_MAX</span><span class="o">=</span><span class="s1">'10.136.191.192'</span>
+ <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_LEN</span><span class="o">=</span><span class="s1">'26'</span>
 
-## Add more workers
+ katoctl ec2 deploy <span class="se">\</span>
+   --cluster-id &lt;cluster-id&gt; <span class="se">\</span>
+   --ns1-api-key &lt;ns1-private-key&gt; <span class="se">\</span>
+   --sysdig-access-key &lt;sysdig-access-key&gt; <span class="se">\</span>
+   --datadog-api-key &lt;datadog-api-key&gt; <span class="se">\</span>
+   --slack-webhook &lt;slack-webhook-url&gt; <span class="se">\</span>
+   --ca-cert &lt;path-to-crt-pem&gt; <span class="se">\</span>
+   --stub-zone foo.demo.lan/192.168.1.201:53,192.168.1.202:53 <span class="se">\</span>
+   --stub-zone bar.demo.lan/192.168.2.201:53,192.168.2.202:53 <span class="se">\</span>
+   --domain &lt;managed-public-domain&gt; <span class="se">\</span>
+   --region &lt;ec2-region&gt; <span class="se">\</span>
+   --key-pair &lt;ec2-ssh-key-name&gt; <span class="se">\</span>
+   3:m3.medium:quorum:quorum <span class="se">\</span>
+   3:m3.medium:master:master <span class="se">\</span>
+   3:m3.large:worker:worker <span class="se">\</span>
+   1:m3.medium:border:border
+    </code></pre>
+   </div>
+  </div>
+ </div>
 
-The state file is read by `katoctl ec2 add`, adding a third worker is as easy as running:
+ <div class="tab-pane" id="3">
+  <div class="panel panel-default">
+   <div class="panel-body language-bash highlighter-rouge">
+    <p>The cluster state file is read by <code class="highlighter-rouge">katoctl ec2 add</code>, adding a third worker is as easy as running:</p>
+    <pre class="highlight"><code>
+ katoctl ec2 add <span class="se">\</span>
+   --cluster-id &lt;cluster-id&gt; <span class="se">\</span>
+   --host-name worker <span class="se">\</span>
+   --host-id 3 <span class="se">\</span>
+   --roles worker <span class="se">\</span>
+   --instance-type m3.large
+    </code></pre>
+   </div>
+  </div>
+ </div>
 
-```bash
-katoctl ec2 add \
-  --cluster-id <unique-cluster-id> \
-  --host-name worker \
-  --host-id 3 \
-  --roles worker \
-  --instance-type m3.large
-```
+</div>
 
 ## Wait for it...
 At this point you must wait for `EC2` to report healthy checks for all your instances. Now you're done deploying infrastructure, go back to step 3 in the [Install katoctl]({{ site.baseurl}}/docs) section.
