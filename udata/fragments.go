@@ -314,8 +314,11 @@ write_files:`,
    permissions: "0600"
    content: |
     global:
-      smtp_smarthost: 'localhost:25'
-      smtp_from: 'alertmanager@example.org'
+{{- if .SMTPURL}}
+      smtp_smarthost: {{.SMTPHost}}:{{.SMTPPort}}
+      smtp_from: alertmanager@{{.Domain}}
+      smtp_auth_username: {{.SMTPUser}}
+      smtp_auth_password: {{.SMTPPass}}{{end}}
 {{- if .SlackWebhook}}
       slack_api_url: {{.SlackWebhook}}{{end}}
 
@@ -331,13 +334,15 @@ write_files:`,
 
     receivers:
     - name: 'operators'
+{{- if .SMTPURL}}
       email_configs:
-      - to: 'operators@example.org'
+{{- if .AdminEmail}}
+      - to: '{{.AdminEmail}}'{{end}}{{end}}
 {{- if .SlackWebhook}}
       slack_configs:
       - send_resolved: true
-        channel: kato
-{{end}}`,
+        channel: kato{{end}}
+`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -356,7 +361,8 @@ write_files:`,
      evaluation_interval: 10s
 
     rule_files:
-     - /etc/prometheus/prometheus.rules
+     - /etc/prometheus/recording.rules
+     - /etc/prometheus/alerting.rules
 
     scrape_configs:
 
@@ -401,6 +407,25 @@ write_files:`,
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/zookeeper.yml`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
+		},
+		data: `
+ - path: "/etc/prometheus/alerting.rules"
+   permissions: "0600"
+   content: |
+    ALERT InstanceDown
+      IF up == 0
+      FOR 5m
+      LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance {{"{{"}} $labels.instance {{"}}"}} down",
+        description = "{{"{{"}} $labels.instance {{"}}"}} of job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
+      }`,
 	})
 
 	d.frags = append(d.frags, fragment{

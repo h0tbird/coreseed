@@ -10,6 +10,7 @@ import (
 	"compress/gzip"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -62,6 +63,12 @@ type Data struct {
 	SlackWebhook        string
 	SysdigAccessKey     string
 	DatadogAPIKey       string
+	SMTPURL             string
+	SMTPHost            string
+	SMTPPort            string
+	SMTPUser            string
+	SMTPPass            string
+	AdminEmail          string
 	template            string
 	Roles               []string
 	Aliases             []string
@@ -175,6 +182,25 @@ func (d *Data) alertmanagerURL() {
 		d.AlertManagers = d.AlertManagers + "http://master-" + strconv.Itoa(i) + ":9093"
 		if i != d.MasterCount {
 			d.AlertManagers = d.AlertManagers + ","
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: smtpURL
+//-----------------------------------------------------------------------------
+
+func (d *Data) smtpURL() {
+	if d.SMTPURL != "" {
+		r, _ := regexp.Compile("^smtp://(.+):(.+)@(.+):(\\d+)$")
+		if sub := r.FindStringSubmatch(d.SMTPURL); sub != nil {
+			d.SMTPUser = sub[1]
+			d.SMTPPass = sub[2]
+			d.SMTPHost = sub[3]
+			d.SMTPPort = sub[4]
+		} else {
+			log.WithFields(log.Fields{"cmd": "udata", "id": d.SMTPURL}).
+				Fatal("Invalid SMTP URL format.")
 		}
 	}
 }
@@ -332,6 +358,7 @@ func (d *Data) Render() {
 	d.zookeeperURL()    // Forge the Zookeeper URL.
 	d.etcdURL()         // Initial etcd cluster URL.
 	d.alertmanagerURL() // Comma separated alertmanagers.
+	d.smtpURL()         // Split URL into its components.
 	d.mesosDNSPort()    // One of 53 or 54.
 	d.hostnameAliases() // Hostname aliases array.
 	d.systemdUnits()    // Systemd units array.

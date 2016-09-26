@@ -71,6 +71,8 @@ type State struct {
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
 	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   //  ec2:deploy |           | udata |
 	SlackWebhook     string   `json:"SlackWebhook:"`    //  ec2:deploy |           | udata |
+	SMTPURL          string   `json:"SMTPURL:"`         //  ec2:deploy |           | udata |
+	AdminEmail       string   `json:"AdminEmail:"`      //  ec2:deploy |           | udata |
 	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
@@ -236,6 +238,16 @@ func (d *Data) Add() {
 	// Append --stub-zone flags if present:
 	for _, z := range d.StubZones {
 		argsUdata = append(argsUdata, "--stub-zone", z)
+	}
+
+	// Append --smtp-url flags if present:
+	if d.SMTPURL != "" {
+		argsUdata = append(argsUdata, "--smtp-url", d.SMTPURL)
+	}
+
+	// Append --admin-email flags if present:
+	if d.AdminEmail != "" {
+		argsUdata = append(argsUdata, "--admin-email", d.AdminEmail)
 	}
 
 	// Ec2 run arguments bundle:

@@ -92,6 +92,8 @@ func main() {
 			DatadogAPIKey:       *flUdataDatadogAPIKey,
 			StubZones:           *flUdataStubZones,
 			Prometheus:          *flUdataPrometheus,
+			SMTPURL:             *flUdataSMTPURL,
+			AdminEmail:          *flUdataAdminEmail,
 		}
 
 		udata.Render()
@@ -161,6 +163,8 @@ func main() {
 				FlannelBackend:   *flEc2DeployFlannelBackend,
 				StubZones:        *flEc2DeployStubZones,
 				SlackWebhook:     *flEc2DeploySlackWebhook,
+				SMTPURL:          *flEc2DeploySMTPURL,
+				AdminEmail:       *flEc2DeployAdminEmail,
 				Quadruplets:      *arEc2DeployQuadruplet,
 			},
 		}

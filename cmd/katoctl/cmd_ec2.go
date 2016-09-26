@@ -162,6 +162,16 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SLACK_WEBHOOK").
 		String()
 
+	flEc2DeploySMTPURL = regexpMatch(cmdEc2Deploy.Flag("smtp-url",
+		"SMTP server URL: <smtp://user:pass@host:port>").
+		PlaceHolder("KATO_EC2_DEPLOY_SMTP_URL").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SMTP_URL"), "^smtp://(.+):(.+)@(.+):(\\d+)$")
+
+	flEc2DeployAdminEmail = regexpMatch(cmdEc2Deploy.Flag("admin-email",
+		"Administrator e-mail for cluster notifications.").
+		PlaceHolder("KATO_EC2_DEPLOY_ADMIN_EMAIL").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ADMIN_EMAIL"), "^[\\w-.+]+@[\\w-.+]+\\.[a-z]{2,4}$")
+
 	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
 		Required(), ec2Instances, katoRoles)
