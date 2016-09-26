@@ -82,6 +82,8 @@ If you want to reuse existing *EBS* volumes you must target the `--region` and `
 
  katoctl ec2 deploy <span class="se">\</span>
    --cluster-id &lt;cluster-id&gt; <span class="se">\</span>
+   --admin-email &lt;notifications-email&gt; <span class="se">\</span>
+   --smtp-url &lt;smtp://user:pass@host:port&gt; <span class="se">\</span>
    --ns1-api-key &lt;ns1-private-key&gt; <span class="se">\</span>
    --sysdig-access-key &lt;sysdig-access-key&gt; <span class="se">\</span>
    --datadog-api-key &lt;datadog-api-key&gt; <span class="se">\</span>
