@@ -61,7 +61,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io">Prometheus</a></th>
-      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.1.2">1.1.2</a></td>
+      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.1.3">1.1.3</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.20.0">0.20.0</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.19.2">0.19.2</a></td>
       <td><a href="https://hub.docker.com/r/prom/prometheus"><img src="https://img.shields.io/docker/pulls/prom/prometheus.svg"></a></td>
