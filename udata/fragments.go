@@ -983,6 +983,7 @@ coreos:
        --volume /etc/alertmanager:/etc/alertmanager:ro \
        --volume /var/lib/alertmanager:/var/lib/alertmanager:rw \
        prom/alertmanager:v0.4.2 \
+       -web.external-url=master-${KATO_HOST_ID}.$(hostname -d) \
        -config.file=/etc/alertmanager/config.yml \
        -storage.path=/var/lib/alertmanager"
      ExecStop=/usr/bin/docker stop -t 5 %p
