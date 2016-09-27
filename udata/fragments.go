@@ -972,6 +972,7 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=-/usr/bin/docker pull prom/alertmanager:v0.4.2
