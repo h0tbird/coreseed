@@ -787,6 +787,7 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        mesosphere/mesos-master:1.0.1-2.0.93.ubuntu1404 \
+       --hostname master-${KATO_HOST_ID}.$(hostname -d) \
        --cluster={{.ClusterID}} \
        --ip=$(hostname -i) \
        --zk=zk://${KATO_ZK}/mesos \
