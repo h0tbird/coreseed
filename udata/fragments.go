@@ -444,7 +444,7 @@ write_files:`,
  - path: "/etc/confd/templates/prom-prometheus.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9191{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
       labels:
         role: master
 
@@ -462,15 +462,15 @@ write_files:`,
  - path: "/etc/confd/templates/prom-cadvisor.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -488,15 +488,15 @@ write_files:`,
  - path: "/etc/confd/templates/prom-etcd.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -514,15 +514,15 @@ write_files:`,
  - path: "/etc/confd/templates/prom-node.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -539,11 +539,11 @@ write_files:`,
  - path: "/etc/confd/templates/prom-mesos.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
       labels:
         role: master
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9105{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -557,7 +557,7 @@ write_files:`,
  - path: "/etc/confd/templates/prom-haproxy.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9102{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
       labels:
         role: worker
 
@@ -571,7 +571,7 @@ write_files:`,
  - path: "/etc/confd/templates/prom-zookeeper.tmpl"
    content: |
     - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      - {{"{{"}}base .Key{{"}}"}}:9103{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
       labels:
         role: quorum`,
 	})
