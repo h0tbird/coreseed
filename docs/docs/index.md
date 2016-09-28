@@ -111,6 +111,11 @@ Congratulations! You have now deployed *Káto*. Provide your domain and follow t
     </a>
   </div>
   <div class="btn-group" role="group">
+    <a class="btn btn-default domain-derived-link" data-url="http://master-1.{domain}:9093">
+    <font color="#428bca">Alertmgr</font>
+    </a>
+  </div>
+  <div class="btn-group" role="group">
     <a class="btn btn-default domain-derived-link" data-url="http://worker-1.{domain}:9090/haproxy?stats">
     <font color="#428bca">HAProxy</font>
     </a>

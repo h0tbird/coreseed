@@ -986,7 +986,7 @@ coreos:
        prom/alertmanager:v0.4.2 \
        -log.level=info \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9093 \
-       -web.external-url=master-${KATO_HOST_ID}.$(hostname -d):9093 \
+       -web.external-url=http://master-${KATO_HOST_ID}.$(hostname -d):9093 \
        -config.file=/etc/alertmanager/config.yml \
        -storage.path=/var/lib/alertmanager"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1030,9 +1030,10 @@ coreos:
        -config.file=/etc/prometheus/prometheus.yml \
        -storage.local.path=/prometheus \
        -alertmanager.url ${KATO_ALERT_MANAGERS} \
+       -web.external-url=http://master-${KATO_HOST_ID}.$(hostname -d):9191 \
        -web.console.libraries=/etc/prometheus/console_libraries \
        -web.console.templates=/etc/prometheus/consoles \
-       -web.listen-address=:9191"
+       -web.listen-address=$(hostname -i | awk '{print $1}'):9191"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
