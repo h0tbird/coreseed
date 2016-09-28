@@ -424,7 +424,7 @@ write_files:`,
       LABELS { severity = "page" }
       ANNOTATIONS {
         summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
-        description = Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
+        description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
       }`,
 	})
 
