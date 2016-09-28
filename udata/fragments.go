@@ -418,13 +418,13 @@ write_files:`,
  - path: "/etc/prometheus/alerting.rules"
    permissions: "0600"
    content: |
-    ALERT InstanceDown
+    ALERT ScrapeDown
       IF up == 0
       FOR 5m
       LABELS { severity = "page" }
       ANNOTATIONS {
-        summary = "Instance {{"{{"}} $labels.instance {{"}}"}} down",
-        description = "{{"{{"}} $labels.instance {{"}}"}} of job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
+        summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
+        description = Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
       }`,
 	})
 
