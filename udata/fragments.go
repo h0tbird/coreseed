@@ -314,8 +314,6 @@ write_files:`,
    permissions: "0600"
    content: |
     global:
-      external_labels:
-        master: {{.HostID}}
 {{- if .SMTPURL}}
       smtp_smarthost: {{.SMTPHost}}:{{.SMTPPort}}
       smtp_from: alertmanager@{{.Domain}}
@@ -358,6 +356,8 @@ write_files:`,
    permissions: "0600"
    content: |
     global:
+     external_labels:
+      master: {{.HostID}}
      scrape_interval: 1m
      scrape_timeout: 10s
      evaluation_interval: 10s
