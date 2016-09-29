@@ -721,7 +721,7 @@ coreos:
 		},
 		data: `
   - name: "zookeeper.service"
-{{- if eq .ClusterState "new" }}
+{{- if eq .ClusterState "existing" }}
     command: "stop"
     enable: false
 {{- else}}
