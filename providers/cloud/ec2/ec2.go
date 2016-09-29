@@ -196,6 +196,7 @@ func (d *Data) Add() {
 	argsUdata := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
+		"--cluster-state", "new",
 		"--quorum-count", strconv.Itoa(d.QuorumCount),
 		"--master-count", strconv.Itoa(d.MasterCount),
 		"--host-name", d.HostName,

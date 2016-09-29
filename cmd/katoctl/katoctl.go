@@ -70,6 +70,7 @@ func main() {
 			QuorumCount:         *flUdataQuorumCount,
 			MasterCount:         *flUdataMasterCount,
 			ClusterID:           *flUdataClusterID,
+			ClusterState:        *flUdataClusterState,
 			HostName:            *flUdataHostName,
 			HostID:              *flUdataHostID,
 			Domain:              *flUdataDomain,

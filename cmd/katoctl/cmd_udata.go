@@ -28,6 +28,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_CLUSTER_ID").
 		String()
 
+	flUdataClusterState = cmdUdata.Flag("cluster-state",
+		"Initial cluster state [ new | existing ]").
+		Default("existing").PlaceHolder("KATO_UDATA_CLUSTER_STATE").
+		OverrideDefaultFromEnvar("KATO_UDATA_CLUSTER_STATE").
+		HintOptions("new", "existing").String()
+
 	flUdataHostName = cmdUdata.Flag("host-name",
 		"hostname = <host-name>-<host-id>").
 		Required().PlaceHolder("KATO_UDATA_HOST_NAME").

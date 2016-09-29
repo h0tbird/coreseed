@@ -41,6 +41,7 @@ type Data struct {
 	GzipUdata           bool
 	Prometheus          bool
 	ClusterID           string
+	ClusterState        string
 	HostName            string
 	HostID              string
 	Domain              string
@@ -301,6 +302,7 @@ func (d *Data) systemdUnits() {
 func (d *Data) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
+	tags = append(tags, d.ClusterState)
 
 	if d.CaCert != "" {
 		tags = append(tags, "cacert")

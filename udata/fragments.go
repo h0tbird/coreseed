@@ -721,7 +721,12 @@ coreos:
 		},
 		data: `
   - name: "zookeeper.service"
+{{- if eq .ClusterState "new" }}
+    command: "stop"
+    enable: false
+{{- else}}
     enable: true
+{{- end}}
     content: |
      [Unit]
      Description=Zookeeper
