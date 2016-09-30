@@ -366,6 +366,13 @@ write_files:`,
      - /etc/prometheus/recording.rules
      - /etc/prometheus/alerting.rules
 
+    alerting:
+     alert_relabel_configs:
+     - source_labels: [master]
+       action: replace
+       replacement: 'all'
+       target_label: master
+
     scrape_configs:
 
      - job_name: 'prometheus'
