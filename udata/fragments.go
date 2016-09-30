@@ -449,6 +449,7 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
       labels:
         role: master
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-cadvisor.toml"
    content: |
@@ -467,14 +468,17 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: master
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-etcd.toml"
    content: |
@@ -493,14 +497,17 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: master
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-node.toml"
    content: |
@@ -519,14 +526,17 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: quorum
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: master
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-mesos.toml"
    content: |
@@ -544,10 +554,12 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
       labels:
         role: master
+        shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-haproxy.toml"
    content: |
@@ -562,6 +574,7 @@ write_files:`,
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
       labels:
         role: worker
+        shard: {{.HostID}}
 
  - path: "/etc/confd/conf.d/prom-zookeeper.toml"
    content: |
@@ -575,7 +588,8 @@ write_files:`,
     - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
       {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
       labels:
-        role: quorum`,
+        role: quorum
+        shard: {{.HostID}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
