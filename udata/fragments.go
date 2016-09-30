@@ -1042,7 +1042,7 @@ coreos:
        -web.console.libraries=/etc/prometheus/console_libraries \
        -web.console.templates=/etc/prometheus/consoles \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9191"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStop=/usr/bin/docker stop -t 60 %p
 
      [Install]
      WantedBy=kato.target`,
