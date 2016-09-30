@@ -358,7 +358,7 @@ write_files:`,
     global:
      external_labels:
       master: {{.HostID}}
-     scrape_interval: 1m
+     scrape_interval: 10s
      scrape_timeout: 10s
      evaluation_interval: 10s
 
@@ -376,43 +376,36 @@ write_files:`,
     scrape_configs:
 
      - job_name: 'prometheus'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/prometheus.yml
 
      - job_name: 'cadvisor'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/cadvisor.yml
 
      - job_name: 'etcd'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/etcd.yml
 
      - job_name: 'node'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/node.yml
 
      - job_name: 'mesos'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/mesos.yml
 
      - job_name: 'haproxy'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/haproxy.yml
 
      - job_name: 'zookeeper'
-       scrape_interval: 10s
        file_sd_configs:
         - files:
           - /etc/prometheus/targets/zookeeper.yml`,
