@@ -358,7 +358,7 @@ write_files:`,
     global:
      external_labels:
       master: {{.HostID}}
-     scrape_interval: 10s
+     scrape_interval: 15s
      scrape_timeout: 10s
      evaluation_interval: 10s
 
