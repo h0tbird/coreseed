@@ -1554,6 +1554,32 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+		},
+		data: `
+  - name: "cni-plugins.service"
+    enable: true
+    content: |
+     [Unit]
+     Description=Get the CNI plugins
+     Requires=docker.service
+     After=docker.service
+     Before=mesos-agent.service
+
+     [Service]
+     Type=oneshot
+     ExecStart=/usr/bin/sh -c "docker run \
+       --name %p \
+       --net host \
+       --volume /var/lib/mesos/cni-plugins:/tmp \
+       katosys/cni-plugins:v0.3.0-1"
+
+     [Install]
+     WantedBy=kato.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"worker"},
 			allOf: []string{"cacert"},
 		},
 		data: `
@@ -1568,7 +1594,6 @@ coreos:
 
      [Service]
      Type=oneshot
-     RemainAfterExit=yes
      ExecStart=/opt/bin/getcerts
 
      [Install]
