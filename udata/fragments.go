@@ -253,6 +253,7 @@ write_files:`,
    content: |
     #!/bin/bash
     docker run -i --rm \
+    --net host \
     --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
     katosys/awscli:v1.10.47-1 "${@}"`,
@@ -1537,6 +1538,7 @@ coreos:
      ExecStartPre=/usr/bin/docker pull datadog/docker-dd-agent
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
+       --net host \
        --hostname $(hostname) \
        --volume /var/run/docker.sock:/var/run/docker.sock:ro \
        --volume /proc/:/host/proc/:ro \
