@@ -1410,16 +1410,17 @@ coreos:
        --pid host \
        --name m3s0s-agent \
        --volume /sys:/sys \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
+       --volume /etc/cni:/etc/cni:ro \
        --volume /etc/hosts:/etc/hosts:ro \
+       --volume /etc/certs:/etc/certs:ro \
+       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /usr/bin/docker:/usr/bin/docker:ro \
+       --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /var/run/docker.sock:/var/run/docker.sock:rw \
        --volume /lib64/libdevmapper.so.1.02:/lib/libdevmapper.so.1.02:ro \
        --volume /lib64/libsystemd.so.0:/lib/libsystemd.so.0:ro \
        --volume /lib64/libgcrypt.so.20:/lib/libgcrypt.so.20:ro \
        --volume /lib64/libgpg-error.so.0:/lib/x86_64-linux-gnu/libgpg-error.so.0:ro \
-       --volume /var/lib/mesos:/var/lib/mesos:rw \
-       --volume /etc/certs:/etc/certs:ro \
        mesosphere/mesos-slave:1.0.1-2.0.93.ubuntu1404 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
@@ -1427,7 +1428,9 @@ coreos:
        --executor_registration_timeout=2mins \
        --master=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/node \
-       --log_dir=/var/log/mesos/node"
+       --log_dir=/var/log/mesos/node \
+       --network_cni_config_dir=/etc/cni \
+       --network_cni_plugins_dir=/var/lib/mesos/cni-plugins"
      ExecStop=/usr/bin/docker stop -t 5 m3s0s-agent
 
      [Install]
