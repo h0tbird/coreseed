@@ -557,7 +557,7 @@ write_files:`,
         role: master
         shard: {{.HostID}}
     - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9105{{"{{"}}end{{"}}"}}
       labels:
         role: worker
         shard: {{.HostID}}
