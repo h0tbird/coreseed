@@ -266,6 +266,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_INSTANCE_TYPE").
 		Enum(ec2Instances...)
 
+	flEc2AddClusterState = cmdEc2Add.Flag("cluster-state",
+		"Initial cluster state [ new | existing ]").
+		Default("existing").PlaceHolder("KATO_EC2_ADD_CLUSTER_STATE").
+		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_STATE").
+		HintOptions("new", "existing").String()
+
 	//-------------------------
 	// ec2 run: nested command
 	//-------------------------

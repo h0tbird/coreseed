@@ -42,67 +42,68 @@ type svc struct {
 
 // Instance data.
 type Instance struct {
-	InstanceID   string `json:"InstanceID"`   //  ec2:run |
-	SubnetID     string `json:"SubnetID"`     //  ec2:run |
-	SecGrpIDs    string `json:"SecGrpIDs"`    //  ec2:run |
-	InstanceType string `json:"InstanceType"` //  ec2:run |
-	PublicIP     string `json:"PublicIP"`     //  ec2:run |
-	PrivateIP    string `json:"PrivateIP"`    //  ec2:run |
-	IAMRole      string `json:"IAMRole"`      //  ec2:run |
-	InterfaceID  string `json:"InterfaceID"`  //  ec2:run |
-	ELBName      string `json:"ELBName"`      //  ec2:run |
-	TagName      string `json:"TagName"`      //  ec2:run |
-	SrcDstCheck  string `json:"SrcDstCheck"`  //  ec2:run | ec2:add
-	AmiID        string `json:"AmiID"`        //  ec2:run | ec2:add
-	HostName     string `json:"HostName"`     //  ec2:run | ec2:add
-	HostID       string `json:"HostID"`       //          | ec2:add
-	Roles        string `json:"Roles"`        //          | ec2:add
+	AmiID        string `json:"AmiID"`        // deploy | add | run
+	HostName     string `json:"HostName"`     //        | add |
+	HostID       string `json:"HostID"`       //        | add |
+	Roles        string `json:"Roles"`        //        | add |
+	ClusterState string `json:"ClusterState"` //        | add |
+	InstanceType string `json:"InstanceType"` //        | add | run
+	SrcDstCheck  string `json:"SrcDstCheck"`  //        | add | run
+	KeyPair      string `json:"KeyPair"`      //        | add | run
+	InstanceID   string `json:"InstanceID"`   //        |     | run
+	SubnetID     string `json:"SubnetID"`     //        |     | run
+	SecGrpIDs    string `json:"SecGrpIDs"`    //        |     | run
+	PublicIP     string `json:"PublicIP"`     //        |     | run
+	PrivateIP    string `json:"PrivateIP"`    //        |     | run
+	IAMRole      string `json:"IAMRole"`      //        |     | run
+	InterfaceID  string `json:"InterfaceID"`  //        |     | run
+	ELBName      string `json:"ELBName"`      //        |     | run
+	TagName      string `json:"TagName"`      //        |     | run
 }
 
 // State data.
 type State struct {
-	Quadruplets      []string `json:"-"`                //  ec2:deploy |           |       |
-	StubZones        []string `json:"StubZones"`        //  ec2:deploy |           |       |
-	QuorumCount      int      `json:"QuorumCount"`      //  ec2:deploy |           |       |
-	MasterCount      int      `json:"MasterCount"`      //  ec2:deploy |           |       |
-	Channel          string   `json:"Channel"`          //  ec2:deploy |           |       |
-	EtcdToken        string   `json:"EtcdToken"`        //  ec2:deploy |           | udata |
-	Ns1ApiKey        string   `json:"Ns1ApiKey"`        //  ec2:deploy |           | udata |
-	SysdigAccessKey  string   `json:"SysdigAccessKey:"` //  ec2:deploy |           | udata |
-	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   //  ec2:deploy |           | udata |
-	SlackWebhook     string   `json:"SlackWebhook:"`    //  ec2:deploy |           | udata |
-	SMTPURL          string   `json:"SMTPURL:"`         //  ec2:deploy |           | udata |
-	AdminEmail       string   `json:"AdminEmail:"`      //  ec2:deploy |           | udata |
-	CaCert           string   `json:"CaCert"`           //  ec2:deploy |           | udata |
-	FlannelNetwork   string   `json:"FlannelNetwork"`   //  ec2:deploy |           | udata |
-	FlannelSubnetLen string   `json:"FlannelSubnetLen"` //  ec2:deploy |           | udata |
-	FlannelSubnetMin string   `json:"FlannelSubnetMin"` //  ec2:deploy |           | udata |
-	FlannelSubnetMax string   `json:"FlannelSubnetMax"` //  ec2:deploy |           | udata |
-	FlannelBackend   string   `json:"FlannelBackend"`   //  ec2:deploy |           | udata |
-	Domain           string   `json:"Domain"`           //  ec2:deploy | ec2:setup | udata |
-	ClusterID        string   `json:"ClusterID"`        //  ec2:deploy | ec2:setup | udata |
-	Region           string   `json:"Region"`           //  ec2:deploy | ec2:setup |       | ec2:run
-	Zone             string   `json:"Zone"`             //  ec2:deploy | ec2:setup |       | ec2:run
-	VpcCidrBlock     string   `json:"VpcCidrBlock"`     //  ec2:deploy | ec2:setup |       |
-	IntSubnetCidr    string   `json:"IntSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	ExtSubnetCidr    string   `json:"ExtSubnetCidr"`    //  ec2:deploy | ec2:setup |       |
-	VpcID            string   `json:"VpcID"`            //             | ec2:setup |       |
-	MainRouteTableID string   `json:"MainRouteTableID"` //             | ec2:setup |       |
-	InetGatewayID    string   `json:"InetGatewayID"`    //             | ec2:setup |       |
-	NatGatewayID     string   `json:"NatGatewayID"`     //             | ec2:setup |       |
-	RouteTableID     string   `json:"RouteTableID"`     //             | ec2:setup |       |
-	KatoRoleID       string   `json:"KatoRoleID"`       //             | ec2:setup |       |
-	RexrayPolicy     string   `json:"RexrayPolicy"`     //             | ec2:setup |       |
-	QuorumSecGrp     string   `json:"QuorumSecGrp"`     //             | ec2:setup |       |
-	MasterSecGrp     string   `json:"MasterSecGrp"`     //             | ec2:setup |       |
-	WorkerSecGrp     string   `json:"WorkerSecGrp"`     //             | ec2:setup |       |
-	BorderSecGrp     string   `json:"BorderSecGrp"`     //             | ec2:setup |       |
-	ELBSecGrp        string   `json:"ELBSecGrp"`        //             | ec2:setup |       |
-	IntSubnetID      string   `json:"IntSubnetID"`      //             | ec2:setup |       |
-	ExtSubnetID      string   `json:"ExtSubnetID"`      //             | ec2:setup |       |
-	DNSName          string   `json:"DNSName"`          //             | ec2:setup |       |
-	AllocationID     string   `json:"AllocationID"`     //             | ec2:setup |       | ec2:run
-	KeyPair          string   `json:"KeyPair"`          //             |           |       | ec2:run
+	Quadruplets      []string `json:"-"`                // deploy |       | add |
+	StubZones        []string `json:"StubZones"`        // deploy |       | add |
+	QuorumCount      int      `json:"QuorumCount"`      // deploy |       | add |
+	MasterCount      int      `json:"MasterCount"`      // deploy |       | add |
+	Channel          string   `json:"Channel"`          // deploy |       | add |
+	EtcdToken        string   `json:"EtcdToken"`        // deploy |       | add |
+	Ns1ApiKey        string   `json:"Ns1ApiKey"`        // deploy |       | add |
+	SysdigAccessKey  string   `json:"SysdigAccessKey:"` // deploy |       | add |
+	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   // deploy |       | add |
+	SlackWebhook     string   `json:"SlackWebhook:"`    // deploy |       | add |
+	SMTPURL          string   `json:"SMTPURL:"`         // deploy |       | add |
+	AdminEmail       string   `json:"AdminEmail:"`      // deploy |       | add |
+	CaCert           string   `json:"CaCert"`           // deploy |       | add |
+	FlannelNetwork   string   `json:"FlannelNetwork"`   // deploy |       | add |
+	FlannelSubnetLen string   `json:"FlannelSubnetLen"` // deploy |       | add |
+	FlannelSubnetMin string   `json:"FlannelSubnetMin"` // deploy |       | add |
+	FlannelSubnetMax string   `json:"FlannelSubnetMax"` // deploy |       | add |
+	FlannelBackend   string   `json:"FlannelBackend"`   // deploy |       | add |
+	Domain           string   `json:"Domain"`           // deploy | setup | add |
+	ClusterID        string   `json:"ClusterID"`        // deploy | setup | add |
+	Region           string   `json:"Region"`           // deploy | setup | add | run
+	Zone             string   `json:"Zone"`             // deploy | setup | add | run
+	VpcCidrBlock     string   `json:"VpcCidrBlock"`     // deploy | setup |     |
+	IntSubnetCidr    string   `json:"IntSubnetCidr"`    // deploy | setup |     |
+	ExtSubnetCidr    string   `json:"ExtSubnetCidr"`    // deploy | setup |     |
+	AllocationID     string   `json:"AllocationID"`     //        | setup |     | run
+	VpcID            string   `json:"VpcID"`            //        | setup |     |
+	MainRouteTableID string   `json:"MainRouteTableID"` //        | setup |     |
+	InetGatewayID    string   `json:"InetGatewayID"`    //        | setup |     |
+	NatGatewayID     string   `json:"NatGatewayID"`     //        | setup |     |
+	RouteTableID     string   `json:"RouteTableID"`     //        | setup |     |
+	KatoRoleID       string   `json:"KatoRoleID"`       //        | setup |     |
+	RexrayPolicy     string   `json:"RexrayPolicy"`     //        | setup |     |
+	QuorumSecGrp     string   `json:"QuorumSecGrp"`     //        | setup |     |
+	MasterSecGrp     string   `json:"MasterSecGrp"`     //        | setup |     |
+	WorkerSecGrp     string   `json:"WorkerSecGrp"`     //        | setup |     |
+	BorderSecGrp     string   `json:"BorderSecGrp"`     //        | setup |     |
+	ELBSecGrp        string   `json:"ELBSecGrp"`        //        | setup |     |
+	IntSubnetID      string   `json:"IntSubnetID"`      //        | setup |     |
+	ExtSubnetID      string   `json:"ExtSubnetID"`      //        | setup |     |
+	DNSName          string   `json:"DNSName"`          //        | setup |     |
 }
 
 // Data struct for EC2 endpoints, instance and state data.
@@ -196,7 +197,7 @@ func (d *Data) Add() {
 	argsUdata := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
-		"--cluster-state", "new",
+		"--cluster-state", d.ClusterState,
 		"--quorum-count", strconv.Itoa(d.QuorumCount),
 		"--master-count", strconv.Itoa(d.MasterCount),
 		"--host-name", d.HostName,
@@ -571,6 +572,7 @@ func (d *Data) deployNodes(count int, itype, hostname, roles string, wg *sync.Wa
 			// Forge the add command:
 			cmdAdd := exec.Command("katoctl", "ec2", "add",
 				"--cluster-id", d.ClusterID,
+				"--cluster-state", "new",
 				"--roles", roles,
 				"--host-name", hostname,
 				"--host-id", strconv.Itoa(id),

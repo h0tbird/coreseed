@@ -142,6 +142,9 @@ func main() {
 	case cmdEc2Deploy.FullCommand():
 
 		ec2 := ec2.Data{
+			Instance: ec2.Instance{
+				KeyPair: *flEc2DeployKeyPair,
+			},
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
 				Channel:          *flEc2DeployChannel,
@@ -153,7 +156,6 @@ func main() {
 				Domain:           *flEc2DeployDomain,
 				Region:           *flEc2DeployRegion,
 				Zone:             *flEc2DeployZone,
-				KeyPair:          *flEc2DeployKeyPair,
 				VpcCidrBlock:     *flEc2DeployVpcCidrBlock,
 				IntSubnetCidr:    *flEc2DeployIntSubnetCidr,
 				ExtSubnetCidr:    *flEc2DeployExtSubnetCidr,
@@ -208,6 +210,7 @@ func main() {
 				HostID:       *flEc2AddHostID,
 				AmiID:        *flEc2AddAmiID,
 				InstanceType: *flEc2AddInsanceType,
+				ClusterState: *flEc2AddClusterState,
 			},
 		}
 
@@ -221,9 +224,8 @@ func main() {
 
 		ec2 := ec2.Data{
 			State: ec2.State{
-				Region:  *flEc2RunRegion,
-				Zone:    *flEc2RunZone,
-				KeyPair: *flEc2RunKeyPair,
+				Region: *flEc2RunRegion,
+				Zone:   *flEc2RunZone,
 			},
 			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
@@ -236,6 +238,7 @@ func main() {
 				AmiID:        *flEc2RunAmiID,
 				ELBName:      *flEc2RunELBName,
 				PrivateIP:    *flEc2RunPrivateIP,
+				KeyPair:      *flEc2RunKeyPair,
 			},
 		}
 
