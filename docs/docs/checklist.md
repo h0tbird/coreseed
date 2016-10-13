@@ -98,3 +98,12 @@ This is most likely to be a *docker*-*flannel* communication problem. Was *flann
 ```
 for i in master worker border; do loopssh ${i} "ip r | grep docker0"; done
 ```
+
+<br>
+<h4><span class="glyphicon glyphicon glyphicon-pencil" aria-hidden="true"></span> <em>Retrieve user-data</em></h4>
+<hr>
+
+To view `user-data` on EC2:
+```
+curl -s http://169.254.169.254/2009-04-04/user-data | gzip -d | less
+```
