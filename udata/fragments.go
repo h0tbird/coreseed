@@ -1238,7 +1238,12 @@ coreos:
 		},
 		data: `
   - name: "zookeeper-exporter.service"
+{{- if eq .ClusterState "existing" }}
+    command: "stop"
+    enable: false
+{{- else}}
     enable: true
+{{- end}}
     content: |
      [Unit]
      Description=Prometheus zookeeper exporter
