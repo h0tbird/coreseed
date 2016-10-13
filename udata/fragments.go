@@ -601,7 +601,12 @@ write_files:`,
 coreos:
  units:
   - name: "etcd2.service"
-    command: "start"`,
+{{- if eq .ClusterState "existing" }}
+    command: "stop"
+    enable: false
+{{- else}}
+    command: "start"
+{{- end}}`,
 	})
 
 	d.frags = append(d.frags, fragment{
