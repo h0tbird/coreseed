@@ -142,12 +142,10 @@ func main() {
 	case cmdEc2Deploy.FullCommand():
 
 		ec2 := ec2.Data{
-			Instance: ec2.Instance{
-				KeyPair: *flEc2DeployKeyPair,
-			},
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
 				Channel:          *flEc2DeployChannel,
+				KeyPair:          *flEc2DeployKeyPair,
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
 				SysdigAccessKey:  *flEc2DeploySysdigAccessKey,
@@ -224,8 +222,9 @@ func main() {
 
 		ec2 := ec2.Data{
 			State: ec2.State{
-				Region: *flEc2RunRegion,
-				Zone:   *flEc2RunZone,
+				Region:  *flEc2RunRegion,
+				Zone:    *flEc2RunZone,
+				KeyPair: *flEc2RunKeyPair,
 			},
 			Instance: ec2.Instance{
 				SubnetID:     *flEc2RunSubnetID,
@@ -238,7 +237,6 @@ func main() {
 				AmiID:        *flEc2RunAmiID,
 				ELBName:      *flEc2RunELBName,
 				PrivateIP:    *flEc2RunPrivateIP,
-				KeyPair:      *flEc2RunKeyPair,
 			},
 		}
 

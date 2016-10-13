@@ -49,7 +49,6 @@ type Instance struct {
 	ClusterState string `json:"ClusterState"` //        | add |
 	InstanceType string `json:"InstanceType"` //        | add | run
 	SrcDstCheck  string `json:"SrcDstCheck"`  //        | add | run
-	KeyPair      string `json:"KeyPair"`      //        | add | run
 	InstanceID   string `json:"InstanceID"`   //        |     | run
 	SubnetID     string `json:"SubnetID"`     //        |     | run
 	SecGrpIDs    string `json:"SecGrpIDs"`    //        |     | run
@@ -104,6 +103,7 @@ type State struct {
 	IntSubnetID      string   `json:"IntSubnetID"`      //        | setup |     |
 	ExtSubnetID      string   `json:"ExtSubnetID"`      //        | setup |     |
 	DNSName          string   `json:"DNSName"`          //        | setup |     |
+	KeyPair          string   `json:"KeyPair"`          //        |       | add | run
 }
 
 // Data struct for EC2 endpoints, instance and state data.
