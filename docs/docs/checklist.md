@@ -104,6 +104,7 @@ for i in master worker border; do loopssh ${i} "ip r | grep docker0"; done
 <hr>
 
 To view `user-data` on EC2:
+
 ```
 curl -s http://169.254.169.254/2009-04-04/user-data | gzip -d | less
 ```
