@@ -1089,7 +1089,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.23.8
+     ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.24.1
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
        --name %p \
@@ -1099,7 +1099,7 @@ coreos:
        --volume /var/lib/docker/:/var/lib/docker:ro \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
-       google/cadvisor:v0.23.8 \
+       google/cadvisor:v0.24.1 \
        --listen_ip $(hostname -i) \
        --logtostderr \
        --port=4194"
