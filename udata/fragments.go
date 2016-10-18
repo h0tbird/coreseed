@@ -1366,7 +1366,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/go-dnsmasq:v1.0.6-1
+     ExecStartPre=-/usr/bin/docker pull katosys/go-dnsmasq:v1.0.7-1
      ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
@@ -1377,7 +1377,7 @@ coreos:
        --net host \
        --volume /etc/resolv.conf:/etc/resolv.conf:rw \
        --volume /etc/hosts:/etc/hosts:ro \
-       katosys/go-dnsmasq:v1.0.6-1 \
+       katosys/go-dnsmasq:v1.0.7-1 \
        --listen $(hostname -i) \
        --nameservers $(cat /tmp/ns) \
        --hostsfile /etc/hosts \

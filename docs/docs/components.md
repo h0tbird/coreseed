@@ -75,10 +75,10 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/janeczku/go-dnsmasq">go-dnsmasq</a></th>
-      <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.6">1.0.6</a></td>
+      <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.7">1.0.7</a></td>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.6">1.0.6</a></td>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.5">1.0.5</a></td>
-      <td><a href="https://hub.docker.com/r/janeczku/go-dnsmasq"><img src="https://img.shields.io/docker/pulls/janeczku/go-dnsmasq.svg"></a></td>
+      <td><a href="https://hub.docker.com/r/katosys/go-dnsmasq"><img src="https://img.shields.io/docker/pulls/katosys/go-dnsmasq.svg"></a></td>
     </tr>
     <tr>
       <th><a href="https://github.com/google/cadvisor">cAdvisor</a></th>
