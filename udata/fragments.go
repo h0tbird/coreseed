@@ -68,7 +68,8 @@ write_files:`,
     KATO_HOST_ID={{.HostID}}
     KATO_ZK={{.ZkServers}}
     KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
-    KATO_ALERT_MANAGERS={{.AlertManagers}}`,
+    KATO_ALERT_MANAGERS={{.AlertManagers}}
+    DOCKER_VERSION=$(docker version --format '{{"{{"}}.Server.Version{{"}}"}}')`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -804,7 +805,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-master
      ExecStartPre=-/usr/bin/docker rm m3s0s-master
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-1
+     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1
      ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
@@ -813,7 +814,7 @@ coreos:
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
-       katosys/mesos:v1.0.1-1 mesos-master \
+       katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-master \
        --hostname=master-${KATO_HOST_ID}.$(hostname -d) \
        --cluster={{.ClusterID}} \
        --ip=$(hostname -i) \
@@ -1413,7 +1414,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-agent
      ExecStartPre=-/usr/bin/docker rm m3s0s-agent
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-1
+     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --net host \
@@ -1426,8 +1427,8 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /var/run/docker.sock:/var/run/docker.sock:rw \
-       katosys/mesos:v1.0.1-1 mesos-agent \
-       --docker_mesos_image=katosys/mesos:v1.0.1-1 \
+       katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-agent \
+       --docker_mesos_image=katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
        --containerizers=docker \
