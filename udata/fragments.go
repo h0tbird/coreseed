@@ -69,7 +69,7 @@ write_files:`,
     KATO_ZK={{.ZkServers}}
     KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
     KATO_ALERT_MANAGERS={{.AlertManagers}}
-    DOCKER_VERSION=$(docker version --format '{{"{{"}}.Server.Version{{"}}"}}')`,
+    DOCKER_VERSION=$(docker -v | awk -F'[ ,]' '{print $3}')`,
 	})
 
 	d.frags = append(d.frags, fragment{
