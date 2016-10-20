@@ -37,6 +37,7 @@ if ARGV[0].eql?('up')
     "--rexray-endpoint-ip 172.17.8.1 " +
     "--flannel-backend host-gw " +
     "--iaas-provider vbox " +
+    "--cluster-state new " +
     "--quorum-count 1 " +
     "--master-count 1 " +
     "--host-name %s " +

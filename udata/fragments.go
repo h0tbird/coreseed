@@ -69,7 +69,7 @@ write_files:`,
     KATO_ZK={{.ZkServers}}
     KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
     KATO_ALERT_MANAGERS={{.AlertManagers}}
-    DOCKER_VERSION=$(docker -v | awk -F'[ ,]' '{print $3}')`,
+    DOCKER_VERSION="$(docker -v | awk -F'[ ,]' '{print $3}')"`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -761,7 +761,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull katosys/zookeeper:v3.4.8-3
+     ExecStartPre=/usr/bin/docker pull katosys/zookeeper:v3.4.8-3
      ExecStart=/usr/bin/sh -c 'docker run \
        --net host \
        --name %p \
@@ -796,7 +796,6 @@ coreos:
      Description=Mesos Master
      After=docker.service zookeeper.service
      Requires=docker.service
-     Wants=zookeeper.service mesos-dns.service marathon.service mesos-master-exporter.service
 
      [Service]
      Restart=always
@@ -805,7 +804,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-master
      ExecStartPre=-/usr/bin/docker rm m3s0s-master
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1
+     ExecStartPre=/usr/bin/sh -c "docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1"
      ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
@@ -840,7 +839,6 @@ coreos:
      Description=Mesos DNS
      After=docker.service mesos-master.service go-dnsmasq.service
      Requires=docker.service
-     Wants=mesos-master.service go-dnsmasq.service
 
      [Service]
      Restart=always
@@ -849,7 +847,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-dns
      ExecStartPre=-/usr/bin/docker rm m3s0s-dns
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos-dns:v0.6.0-2
+     ExecStartPre=/usr/bin/docker pull katosys/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name m3s0s-dns \
        --net host \
@@ -889,7 +887,6 @@ coreos:
      Description=Marathon
      After=docker.service mesos-master.service
      Requires=docker.service
-     Wants=mesos-master.service
 
      [Service]
      Restart=always
@@ -898,7 +895,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon:v1.3.3
+     ExecStartPre=/usr/bin/docker pull mesosphere/marathon:v1.3.3
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
@@ -939,7 +936,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/confd:v0.11.0-2
+     ExecStartPre=/usr/bin/docker pull katosys/confd:v0.11.0-2
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
@@ -1004,7 +1001,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull prom/alertmanager:v0.4.2
+     ExecStartPre=/usr/bin/docker pull prom/alertmanager:v0.4.2
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
        --name %p \
@@ -1037,7 +1034,6 @@ coreos:
      Description=Prometheus service
      After=docker.service rexray.service confd.service
      Requires=docker.service rexray.service
-     Wants=confd.service
 
      [Service]
      Restart=always
@@ -1046,7 +1042,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull prom/prometheus:v1.2.1
+     ExecStartPre=/usr/bin/docker pull prom/prometheus:v1.2.1
      ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
@@ -1089,7 +1085,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull google/cadvisor:v0.24.1
+     ExecStartPre=/usr/bin/docker pull google/cadvisor:v0.24.1
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
        --name %p \
@@ -1192,7 +1188,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill m3s0s-master-exporter
      ExecStartPre=-/usr/bin/docker rm -f m3s0s-master-exporter
-     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name m3s0s-master-exporter \
@@ -1225,7 +1221,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
@@ -1263,7 +1259,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
@@ -1296,7 +1292,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mongo:3.2
+     ExecStartPre=/usr/bin/docker pull mongo:3.2
      ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-pritunl-mongo -d rexray
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
@@ -1331,7 +1327,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull katosys/pritunl:v1.25.1093.62-1
+     ExecStartPre=/usr/bin/docker pull katosys/pritunl:v1.25.1093.62-1
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --name %p \
@@ -1358,7 +1354,6 @@ coreos:
      Description=Lightweight caching DNS proxy
      After=docker.service etchost.timer
      Requires=docker.service
-     Wants=etchost.timer
 
      [Service]
      Restart=always
@@ -1366,7 +1361,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/go-dnsmasq:v1.0.7-1
+     ExecStartPre=/usr/bin/docker pull katosys/go-dnsmasq:v1.0.7-1
      ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
@@ -1404,7 +1399,6 @@ coreos:
      [Unit]
      Description=Mesos agent
      After=docker.service go-dnsmasq.service
-     Wants=go-dnsmasq.service
      Requires=docker.service
 
      [Service]
@@ -1414,7 +1408,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-agent
      ExecStartPre=-/usr/bin/docker rm m3s0s-agent
-     ExecStartPre=-/usr/bin/docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1
+     ExecStartPre=/usr/bin/sh -c "docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1"
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --net host \
@@ -1456,7 +1450,6 @@ coreos:
      Description=Marathon load balancer
      After=docker.service marathon.service
      Requires=docker.service
-     Wants=marathon.service
 
      [Service]
      Restart=always
@@ -1464,7 +1457,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
+     ExecStartPre=/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
      ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
@@ -1682,7 +1675,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
@@ -1715,7 +1708,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=-/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
