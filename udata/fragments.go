@@ -1465,6 +1465,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
      ExecStartPre=-/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
+     ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
