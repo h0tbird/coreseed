@@ -761,7 +761,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull katosys/zookeeper:v3.4.8-3
+     ExecStartPre=/usr/bin/docker pull katosys/zookeeper:v3.4.8-4
      ExecStart=/usr/bin/sh -c 'docker run \
        --net host \
        --name %p \
@@ -777,7 +777,7 @@ coreos:
        --env ZK_CLIENT_PORT=2181 \
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
        --env JMXDISABLE=false \
-       katosys/zookeeper:v3.4.8-3'
+       katosys/zookeeper:v3.4.8-4'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
