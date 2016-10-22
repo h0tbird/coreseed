@@ -257,7 +257,7 @@ write_files:`,
     --net host \
     --volume /home/core/.aws:/root/.aws:ro \
     --volume ${PWD}:/aws \
-    katosys/awscli:v1.10.47-1 "${@}"`,
+    quay.io/kato/awscli:v1.10.47-1 "${@}"`,
 	})
 
 	d.frags = append(d.frags, fragment{
@@ -761,7 +761,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull katosys/zookeeper:v3.4.8-4
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/zookeeper:v3.4.8-4
      ExecStart=/usr/bin/sh -c 'docker run \
        --net host \
        --name %p \
@@ -777,7 +777,7 @@ coreos:
        --env ZK_CLIENT_PORT=2181 \
        --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
        --env JMXDISABLE=false \
-       katosys/zookeeper:v3.4.8-4'
+       quay.io/kato/zookeeper:v3.4.8-4'
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
@@ -804,7 +804,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-master
      ExecStartPre=-/usr/bin/docker rm m3s0s-master
-     ExecStartPre=/usr/bin/sh -c "docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1"
+     ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1"
      ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
@@ -813,7 +813,7 @@ coreos:
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
-       katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-master \
+       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-master \
        --hostname=master-${KATO_HOST_ID}.$(hostname -d) \
        --cluster={{.ClusterID}} \
        --ip=$(hostname -i) \
@@ -847,7 +847,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-dns
      ExecStartPre=-/usr/bin/docker rm m3s0s-dns
-     ExecStartPre=/usr/bin/docker pull katosys/mesos-dns:v0.6.0-2
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name m3s0s-dns \
        --net host \
@@ -862,7 +862,7 @@ coreos:
        --env MDNS_RESOLVERS=8.8.8.8 \
        --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
        --env MDNS_IPSOURCE=netinfo \
-       katosys/mesos-dns:v0.6.0-2"
+       quay.io/kato/mesos-dns:v0.6.0-2"
      ExecStartPost=/usr/bin/sh -c ' \
        echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
        echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
@@ -936,12 +936,12 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/confd:v0.11.0-2
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/confd:v0.11.0-2
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
        --volume /etc:/etc:rw \
-       katosys/confd:v0.11.0-2 \
+       quay.io/kato/confd:v0.11.0-2 \
        -node 127.0.0.1:2379 \
        -watch"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1188,11 +1188,11 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill m3s0s-master-exporter
      ExecStartPre=-/usr/bin/docker rm -f m3s0s-master-exporter
-     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name m3s0s-master-exporter \
-       katosys/exporters:v0.1.0-1 mesos_exporter \
+       quay.io/kato/exporters:v0.1.0-1 mesos_exporter \
        -master http://$(hostname):5050 \
        -addr :9104"
      ExecStop=/usr/bin/docker stop -t 5 m3s0s-master-exporter
@@ -1221,11 +1221,11 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
-       katosys/exporters:v0.1.0-1 node_exporter \
+       quay.io/kato/exporters:v0.1.0-1 node_exporter \
        -web.listen-address :9101"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
@@ -1259,11 +1259,11 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
-       katosys/exporters:v0.1.0-1 zookeeper_exporter \
+       quay.io/kato/exporters:v0.1.0-1 zookeeper_exporter \
        -web.listen-address :9103 \
        $(echo ${KATO_ZK} | tr , ' ')"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1327,7 +1327,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull katosys/pritunl:v1.25.1093.62-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/pritunl:v1.25.1093.62-1
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --name %p \
@@ -1335,7 +1335,7 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-       katosys/pritunl:v1.25.1093.62-1"
+       quay.io/kato/pritunl:v1.25.1093.62-1"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
@@ -1361,7 +1361,7 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/go-dnsmasq:v1.0.7-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/go-dnsmasq:v1.0.7-1
      ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
@@ -1372,7 +1372,7 @@ coreos:
        --net host \
        --volume /etc/resolv.conf:/etc/resolv.conf:rw \
        --volume /etc/hosts:/etc/hosts:ro \
-       katosys/go-dnsmasq:v1.0.7-1 \
+       quay.io/kato/go-dnsmasq:v1.0.7-1 \
        --listen $(hostname -i) \
        --nameservers $(cat /tmp/ns) \
        --hostsfile /etc/hosts \
@@ -1408,7 +1408,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-agent
      ExecStartPre=-/usr/bin/docker rm m3s0s-agent
-     ExecStartPre=/usr/bin/sh -c "docker pull katosys/mesos:v1.0.1-${DOCKER_VERSION}-1"
+     ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1"
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --net host \
@@ -1421,8 +1421,8 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /var/run/docker.sock:/var/run/docker.sock:rw \
-       katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-agent \
-       --docker_mesos_image=katosys/mesos:v1.0.1-${DOCKER_VERSION}-1 \
+       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1 mesos-agent \
+       --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
        --containerizers=docker \
@@ -1575,7 +1575,7 @@ coreos:
        --name %p \
        --net host \
        --volume /var/lib/mesos/cni-plugins:/tmp \
-       katosys/cni-plugins:v0.3.0-1"
+       quay.io/kato/cni-plugins:v0.3.0-1"
 
      [Install]
      WantedBy=kato.target`,
@@ -1629,7 +1629,7 @@ coreos:
        etcdctl set /docker/images/$$(hostname) "$$(docker ps --format "{{"{{"}}.Image{{"}}"}}" | sort -u)"; \
        for i in $$(etcdctl ls /docker/images); do etcdctl get $$i; done | sort -u > images.running; \
        docker images | awk "{print \$$1\\":\\"\$$2}" | sed 1d | sort -u > images.local; \
-       for i in $$(comm -23 images.local images.running | grep -v katosys | grep -v mesosphere); \
+       for i in $$(comm -23 images.local images.running | grep -v kato | grep -v mesosphere); \
        do docker rmi $$i; done; true'
 
      [Install]
@@ -1675,11 +1675,11 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
-       katosys/exporters:v0.1.0-1 haproxy_exporter \
+       quay.io/kato/exporters:v0.1.0-1 haproxy_exporter \
        -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
        -web.listen-address :9102"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1708,11 +1708,11 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull katosys/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
      ExecStart=/usr/bin/sh -c "docker run --rm \
        --net host \
        --name %p \
-       katosys/exporters:v0.1.0-1 mesos_exporter \
+       quay.io/kato/exporters:v0.1.0-1 mesos_exporter \
        -slave http://$(hostname):5051 \
        -addr :9105"
      ExecStop=/usr/bin/docker stop -t 5 %p
