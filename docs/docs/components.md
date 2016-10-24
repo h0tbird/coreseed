@@ -36,14 +36,14 @@ title: Components
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.6.0">0.6.0</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
       <td><a href="https://github.com/mesosphere/mesos-dns/releases/tag/v0.5.2">0.5.2</a></td>
-      <td><a href="https://hub.docker.com/r/mesosphere/mesos-dns"><img src="https://img.shields.io/docker/pulls/mesosphere/mesos-dns.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/mesos-dns"><img src="https://quay.io/repository/kato/mesos-dns/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://mesosphere.github.io/marathon">Marathon</a></th>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.3.3">1.3.3</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
-      <td><a href="https://hub.docker.com/r/mesosphere/marathon"><img src="https://img.shields.io/docker/pulls/mesosphere/marathon.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/marathon"><img src="https://quay.io/repository/kato/marathon/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://github.com/mesosphere/marathon-lb">Marathon-lb</a></th>
@@ -57,7 +57,7 @@ title: Components
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8">3.4.8</a></td>
       <td><a href="https://zookeeper.apache.org/doc/r3.4.8/">3.4.8</a></td>
-      <td><a href="https://hub.docker.com/r/katosys/zookeeper"><img src="https://img.shields.io/docker/pulls/katosys/zookeeper.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/zookeeper"><img src="https://quay.io/repository/kato/zookeeper/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://prometheus.io">Prometheus</a></th>
@@ -78,7 +78,7 @@ title: Components
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.7">1.0.7</a></td>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.6">1.0.6</a></td>
       <td><a href="https://github.com/janeczku/go-dnsmasq/releases/tag/1.0.5">1.0.5</a></td>
-      <td><a href="https://hub.docker.com/r/katosys/go-dnsmasq"><img src="https://img.shields.io/docker/pulls/katosys/go-dnsmasq.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/go-dnsmasq"><img src="https://quay.io/repository/kato/go-dnsmasq/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://github.com/google/cadvisor">cAdvisor</a></th>
@@ -99,7 +99,7 @@ title: Components
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
-      <td><a href="https://hub.docker.com/r/katosys/confd"><img src="https://img.shields.io/docker/pulls/katosys/confd.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/confd"><img src="https://quay.io/repository/kato/confd/status"></a></td>
     </tr>
     <tr>
       <th><a href="http://rexray.readthedocs.io/en/stable">REX-Ray</a></th>
