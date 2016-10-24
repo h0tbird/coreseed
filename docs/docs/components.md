@@ -29,7 +29,7 @@ title: Components
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=1.0.1">1.0.1</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
-      <td><a href="https://hub.docker.com/r/katosys/mesos"><img src="https://img.shields.io/docker/pulls/katosys/mesos.svg"></a></td>
+      <td><a href="https://quay.io/repository/kato/mesos"><img src="https://quay.io/repository/kato/mesos/status"></a></td>
     </tr>
     <tr>
       <th><a href="http://mesosphere.github.io/mesos-dns">Mesos-dns</a></th>
