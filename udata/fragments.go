@@ -804,8 +804,8 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-master
      ExecStartPre=-/usr/bin/docker rm m3s0s-master
+     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
      ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2"
-     ExecStartPre=/usr/bin/echo ruok | ncat quorum-1 2181 | grep -q imok
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
        --name m3s0s-master \
@@ -847,6 +847,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-dns
      ExecStartPre=-/usr/bin/docker rm m3s0s-dns
+     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
      ExecStartPre=/usr/bin/docker pull quay.io/kato/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name m3s0s-dns \
@@ -895,6 +896,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
+     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
      ExecStartPre=/usr/bin/docker pull quay.io/kato/marathon:v1.3.5-1
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
@@ -903,7 +905,7 @@ coreos:
        --volume /etc/hosts:/etc/hosts:ro \
        --env LIBPROCESS_IP=$(hostname -i) \
        --env LIBPROCESS_PORT=9292 \
-       quay.io/kato/marathon:v1.3.5-1 \
+       quay.io/kato/marathon:v1.3.5-1 marathon \
        --http_address $(hostname -i) \
        --master zk://${KATO_ZK}/mesos \
        --zk zk://${KATO_ZK}/marathon \
@@ -1408,6 +1410,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill m3s0s-agent
      ExecStartPre=-/usr/bin/docker rm m3s0s-agent
+     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
      ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2"
      ExecStart=/usr/bin/sh -c "docker run \
        --privileged \
@@ -1421,6 +1424,7 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /var/lib/mesos:/var/lib/mesos:rw \
        --volume /var/run/docker.sock:/var/run/docker.sock:rw \
+       --env MESOS_SYSTEMD_ENABLE_SUPPORT=false \
        quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 mesos-agent \
        --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
@@ -1457,8 +1461,8 @@ coreos:
      TimeoutStartSec=0
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
      ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
+     ExecStartPre=/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
      ExecStart=/usr/bin/sh -c "docker run \
        --name %p \
        --net host \
