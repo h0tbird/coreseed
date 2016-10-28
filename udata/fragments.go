@@ -1426,7 +1426,7 @@ coreos:
        --volume /var/run/docker.sock:/var/run/docker.sock:rw \
        --env MESOS_SYSTEMD_ENABLE_SUPPORT=false \
        quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 mesos-agent \
-       --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-1 \
+       --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
        --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
        --ip=$(hostname -i) \
        --containerizers=docker \
