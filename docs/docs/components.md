@@ -89,7 +89,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://pritunl.com">Pritunl</a></th>
-      <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.25.1141.65-1">1.25</a></td>
+      <td><a href="https://github.com/pritunl/pritunl/releases/tag/v1.25.1126.38-1">1.25</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://hub.docker.com/r/h0tbird/pritunl"><img src="https://img.shields.io/docker/pulls/h0tbird/pritunl.svg"></a></td>
