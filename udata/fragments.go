@@ -848,7 +848,7 @@ coreos:
      ExecStartPre=-/usr/bin/docker kill m3s0s-dns
      ExecStartPre=-/usr/bin/docker rm m3s0s-dns
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/mesos-dns:v0.6.0-2
+     ExecStartPre=-/usr/bin/docker pull quay.io/kato/mesos-dns:v0.6.0-2
      ExecStart=/usr/bin/sh -c "docker run \
        --name m3s0s-dns \
        --net host \
