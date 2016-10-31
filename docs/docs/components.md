@@ -40,7 +40,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://mesosphere.github.io/marathon">Marathon</a></th>
-      <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.3.3">1.3.3</a></td>
+      <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.3.5">1.3.5</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
       <td><a href="https://github.com/mesosphere/marathon/releases/tag/v1.1.1">1.1.1</a></td>
       <td><a href="https://quay.io/repository/kato/marathon"><img src="https://quay.io/repository/kato/marathon/status"></a></td>
