@@ -59,24 +59,6 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/kato.env"
-   content: |
-    KATO_CLUSTER_ID={{.ClusterID}}
-    KATO_QUORUM_COUNT={{.QuorumCount}}
-    KATO_ROLES='{{range .Roles}}{{.}} {{end}}'
-    KATO_HOST_NAME={{.HostName}}
-    KATO_HOST_ID={{.HostID}}
-    KATO_ZK={{.ZkServers}}
-    KATO_SYSTEMD_UNITS='{{range .SystemdUnits}}{{.}} {{end}}'
-    KATO_ALERT_MANAGERS={{.AlertManagers}}
-    DOCKER_VERSION="$(docker -v | awk -F'[ ,]' '{print $3}')"`,
-	})
-
-	d.frags = append(d.frags, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
  - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
    content: |
     -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -753,12 +735,46 @@ coreos:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
+  - name: "kato-env.service"
+    command: "start"
+    enable: true
+    content: |
+     [Unit]
+     Description=Káto environment variables
+
+     [Service]
+     Type=oneshot
+     ExecStart=/usr/bin/sh -c 'echo -e "\
+       KATO_CLUSTER_ID={{.ClusterID}}\n\
+       KATO_QUORUM_COUNT={{.QuorumCount}}\n\
+       KATO_ROLES=\'{{range .Roles}}{{.}} {{end}}\'\n\
+       KATO_HOST_NAME={{.HostName}}\n\
+       KATO_HOST_ID={{.HostID}}\n\
+       KATO_ZK={{.ZkServers}}\n\
+       KATO_SYSTEMD_UNITS=\'{{range .SystemdUnits}}{{.}} {{end}}\'\n\
+       KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
+       KATO_DOMAIN=$(hostname -d)\n\
+       KATO_IP=$(hostname -i)\n\
+       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
+       DOCKER_VERSION=$(docker -v | awk -F\'[ ,]\' \'{print $$3}\')" > /etc/kato.env'
+
+     [Install]
+     WantedBy=multi-user.target`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
   - name: "kato.target"
     command: "start"
     enable: true
     content: |
      [Unit]
      Description=The Káto System
+     After=kato-env.service
+     Requires=kato-env.service
 
      [Install]
      WantedBy=multi-user.target`,
@@ -788,7 +804,7 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
-     EnvironmentFile=/etc/environment
+     EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/zookeeper:v3.4.8-4
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/zookeeper ] || mkdir /var/lib/zookeeper"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
@@ -796,9 +812,9 @@ coreos:
       --net=host \
       --dns=host \
       --hosts-entry=host \
-      --set-env=ZK_SERVER_ID={{.HostID}} \
-      --set-env=ZK_SERVERS={{.ZkServers}} \
-      --set-env=ZK_CLIENT_PORT_ADDRESS=${COREOS_PRIVATE_IPV4} \
+      --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
+      --set-env=ZK_SERVERS=${KATO_ZK} \
+      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_IP} \
       --set-env=ZK_TICK_TIME=2000 \
       --set-env=ZK_INIT_LIMIT=5 \
       --set-env=ZK_SYNC_LIMIT=2 \
