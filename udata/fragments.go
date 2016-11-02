@@ -839,34 +839,33 @@ coreos:
     content: |
      [Unit]
      Description=Mesos Master
-     After=docker.service zookeeper.service
-     Requires=docker.service
+     After=zookeeper.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill m3s0s-master
-     ExecStartPre=-/usr/bin/docker rm m3s0s-master
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/master ] || mkdir -p /var/lib/mesos/master"
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
-     ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2"
-     ExecStart=/usr/bin/sh -c "docker run \
-       --privileged \
-       --name m3s0s-master \
-       --net host \
-       --volume /var/lib/mesos:/var/lib/mesos:rw \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 mesos-master \
-       --hostname=master-${KATO_HOST_ID}.$(hostname -d) \
-       --cluster={{.ClusterID}} \
-       --ip=$(hostname -i) \
-       --zk=zk://${KATO_ZK}/mesos \
-       --work_dir=/var/lib/mesos/master \
-       --log_dir=/var/log/mesos \
-       --quorum=$(($KATO_QUORUM_COUNT/2 + 1))"
-     ExecStop=/usr/bin/docker stop -t 5 m3s0s-master
+     ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume data,kind=host,source=/var/lib/mesos/master \
+      --mount volume=data,target=/var/lib/mesos/master \
+      quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
+      --exec mesos-master -- \
+      --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --cluster=${KATO_CLUSTER_ID} \
+      --ip=${KATO_IP} \
+      --zk=zk://${KATO_ZK}/mesos \
+      --work_dir=/var/lib/mesos/master \
+      --log_dir=/var/log/mesos \
+      --quorum=${KATO_QUORUM}
 
      [Install]
      WantedBy=kato.target`,
