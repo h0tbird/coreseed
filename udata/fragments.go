@@ -779,34 +779,35 @@ coreos:
     content: |
      [Unit]
      Description=Zookeeper
-     After=docker.service
-     Requires=docker.service
+     After=network-online.target
+     Requires=network-online.target
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/zookeeper:v3.4.8-4
-     ExecStart=/usr/bin/sh -c 'docker run \
-       --net host \
-       --name %p \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --volume /var/lib/zookeeper:/var/lib/zookeeper:rw \
-       --env ZK_SERVER_ID=${KATO_HOST_ID} \
-       --env ZK_TICK_TIME=2000 \
-       --env ZK_INIT_LIMIT=5 \
-       --env ZK_SYNC_LIMIT=2 \
-       --env ZK_SERVERS=$${KATO_ZK//:2181/} \
-       --env ZK_DATA_DIR=/var/lib/zookeeper \
-       --env ZK_CLIENT_PORT=2181 \
-       --env ZK_CLIENT_PORT_ADDRESS=$(hostname -i) \
-       --env JMXDISABLE=false \
-       quay.io/kato/zookeeper:v3.4.8-4'
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     EnvironmentFile=/etc/environment
+     Environment=IMG=quay.io/kato/zookeeper:v3.4.8-4
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/zookeeper ] || mkdir /var/lib/zookeeper"
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --set-env=ZK_SERVER_ID={{.HostID}} \
+      --set-env=ZK_SERVERS={{.ZkServers}} \
+      --set-env=ZK_CLIENT_PORT_ADDRESS=${COREOS_PRIVATE_IPV4} \
+      --set-env=ZK_TICK_TIME=2000 \
+      --set-env=ZK_INIT_LIMIT=5 \
+      --set-env=ZK_SYNC_LIMIT=2 \
+      --set-env=ZK_DATA_DIR=/var/lib/zookeeper \
+      --set-env=ZK_CLIENT_PORT=2181 \
+      --set-env=JMXDISABLE=false \
+      --volume data,kind=host,source=/var/lib/zookeeper \
+      --mount volume=data,target=/var/lib/zookeeper \
+      ${IMG}
 
      [Install]
      WantedBy=kato.target`,
