@@ -883,40 +883,38 @@ coreos:
     content: |
      [Unit]
      Description=Mesos DNS
-     After=docker.service mesos-master.service go-dnsmasq.service
-     Requires=docker.service
+     After=mesos-master.service go-dnsmasq.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill m3s0s-dns
-     ExecStartPre=-/usr/bin/docker rm m3s0s-dns
+     Environment=IMG=quay.io/kato/mesos-dns:v0.6.0-2
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
-     ExecStartPre=-/usr/bin/docker pull quay.io/kato/mesos-dns:v0.6.0-2
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name m3s0s-dns \
-       --net host \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --env MDNS_ZK=zk://${KATO_ZK}/mesos \
-       --env MDNS_REFRESHSECONDS=45 \
-       --env MDNS_LISTENER=$(hostname -i) \
-       --env MDNS_PORT={{.MesosDNSPort}} \
-       --env MDNS_HTTPON=false \
-       --env MDNS_TTL=45 \
-       --env MDNS_RESOLVERS=8.8.8.8 \
-       --env MDNS_DOMAIN=${KATO_MESOS_DOMAIN} \
-       --env MDNS_IPSOURCE=netinfo \
-       quay.io/kato/mesos-dns:v0.6.0-2"
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --set-env=MDNS_ZK=zk://${KATO_ZK}/mesos \
+      --set-env=MDNS_REFRESHSECONDS=45 \
+      --set-env=MDNS_LISTENER=${KATO_IP} \
+      --set-env=MDNS_PORT=54 \
+      --set-env=MDNS_HTTPON=false \
+      --set-env=MDNS_TTL=45 \
+      --set-env=MDNS_RESOLVERS=8.8.8.8 \
+      --set-env=MDNS_DOMAIN=${KATO_MESOS_DOMAIN} \
+      --set-env=MDNS_IPSOURCE=netinfo \
+      ${IMG}
      ExecStartPost=/usr/bin/sh -c ' \
        echo search ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
      ExecStop=/usr/bin/sh -c ' \
        echo search ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
-     ExecStop=/usr/bin/docker stop -t 5 m3s0s-dns
 
      [Install]
      WantedBy=kato.target`,
