@@ -1398,38 +1398,38 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=docker.service etchost.timer
-     Requires=docker.service
+     After=network-online.target etchost.timer
+     Requires=network-online.target
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/go-dnsmasq:v1.0.7-1
+     Environment=IMG=quay.io/kato/go-dnsmasq:v1.0.7-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/etcdctl ls /hosts/master
      ExecStartPre=/usr/bin/sh -c " \
        { for i in $(etcdctl ls /hosts/master); do \
        etcdctl get $${i} | awk '/master/ {print $1\":{{.MesosDNSPort}}\"}'; done \
        | tr '\n' ','; echo 8.8.8.8; } > /tmp/ns"
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
-       --net host \
-       --volume /etc/resolv.conf:/etc/resolv.conf:rw \
-       --volume /etc/hosts:/etc/hosts:ro \
-       quay.io/kato/go-dnsmasq:v1.0.7-1 \
-       --listen $(hostname -i) \
-       --nameservers $(cat /tmp/ns) \
-       --hostsfile /etc/hosts \
-       --hostsfile-poll 60 \
-       --default-resolver \
-       {{range .StubZones}}--stubzones {{.}} \
-       {{end -}}
-       --search-domains ${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
-       --enable-search"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStart=/usr/bin/sh -c "exec rkt run \
+      --net=host \
+      --hosts-entry=host \
+      --volume dns,kind=host,source=/etc/resolv.conf \
+      --mount volume=dns,target=/etc/resolv.conf \
+      ${IMG} -- \
+      --listen ${KATO_HOST_IP} \
+      --nameservers $(cat /tmp/ns) \
+      --hostsfile /etc/hosts \
+      --hostsfile-poll 60 \
+      --default-resolver \
+      {{range .StubZones}}--stubzones {{.}} \
+      {{end -}}
+      --search-domains ${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
+      --enable-search"
 
      [Install]
      WantedBy=kato.target`,
