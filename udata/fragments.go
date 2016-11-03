@@ -1407,6 +1407,7 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
      ExecStartPre=/usr/bin/docker pull quay.io/kato/go-dnsmasq:v1.0.7-1
@@ -1429,7 +1430,7 @@ coreos:
        {{range .StubZones}}--stubzones {{.}} \
        {{end -}}
        --search-domains ${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
-       --append-search-domains"
+       --enable-search"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
      [Install]
