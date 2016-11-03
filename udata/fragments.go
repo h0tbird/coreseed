@@ -902,7 +902,7 @@ coreos:
       --set-env=MDNS_ZK=zk://${KATO_ZK}/mesos \
       --set-env=MDNS_REFRESHSECONDS=45 \
       --set-env=MDNS_LISTENER=${KATO_IP} \
-      --set-env=MDNS_PORT=54 \
+      --set-env=MDNS_PORT={{.MesosDNSPort}} \
       --set-env=MDNS_HTTPON=false \
       --set-env=MDNS_TTL=45 \
       --set-env=MDNS_RESOLVERS=8.8.8.8 \
@@ -930,33 +930,33 @@ coreos:
     content: |
      [Unit]
      Description=Marathon
-     After=docker.service mesos-master.service
-     Requires=docker.service
+     After=mesos-master.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
+     LimitNOFILE=8192
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
+     Environment=IMG=quay.io/kato/marathon:v1.3.5-1
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/marathon:v1.3.5-1
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
-       --net host \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --env LIBPROCESS_IP=$(hostname -i) \
-       --env LIBPROCESS_PORT=9292 \
-       quay.io/kato/marathon:v1.3.5-1 marathon \
-       --http_address $(hostname -i) \
-       --master zk://${KATO_ZK}/mesos \
-       --zk zk://${KATO_ZK}/marathon \
-       --task_launch_timeout 240000 \
-       --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
-       --checkpoint"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --set-env=LIBPROCESS_IP=${KATO_HOST_IP} \
+      --set-env=LIBPROCESS_PORT=9292 \
+      ${IMG} --exec marathon -- \
+      --no-logger \
+      --http_address ${KATO_HOST_IP} \
+      --master zk://${KATO_ZK}/mesos \
+      --zk zk://${KATO_ZK}/marathon \
+      --task_launch_timeout 240000 \
+      --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --checkpoint
 
      [Install]
      WantedBy=kato.target`,
