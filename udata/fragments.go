@@ -1471,7 +1471,6 @@ coreos:
       --mount volume=docker,target=/var/run/docker.sock \
       --volume data,kind=host,source=/var/lib/mesos \
       --mount volume=data,target=/var/lib/mesos \
-      --insecure-options=all \
       --stage1-name=coreos.com/rkt/stage1-fly \
       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 --exec /usr/sbin/mesos-agent -- \
       --no-systemd_enable_support \
