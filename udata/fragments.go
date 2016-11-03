@@ -1480,8 +1480,8 @@ coreos:
       --containerizers=docker \
       --executor_registration_timeout=2mins \
       --master=zk://${KATO_ZK}/mesos \
-      --work_dir=/var/lib/mesos/node \
-      --log_dir=/var/log/mesos/node \
+      --work_dir=/var/lib/mesos/agent \
+      --log_dir=/var/log/mesos/agent \
       --network_cni_config_dir=/etc/cni \
       --network_cni_plugins_dir=/var/lib/mesos/cni-plugins
 
