@@ -1497,32 +1497,29 @@ coreos:
     content: |
      [Unit]
      Description=Marathon load balancer
-     After=docker.service marathon.service
-     Requires=docker.service
+     After=marathon.service mesos-dns.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
+     KillMode=mixed
+     Environment=IMG=mesosphere/marathon-lb:v1.4.1
      ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
-     ExecStartPre=/usr/bin/docker pull mesosphere/marathon-lb:v1.4.1
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
-       --net host \
-       --privileged \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --env PORTS=9090,9091 \
-       --env HAPROXY_RELOAD_SIGTERM_DELAY=5 \
-       mesosphere/marathon-lb:v1.4.1 sse \
-       --marathon http://marathon:8080 \
-       --health-check \
-       --group external \
-       --group internal \
-       --haproxy-map"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --set-env=PORTS=9090,9091 \
+      --set-env=HAPROXY_RELOAD_SIGTERM_DELAY=5 \
+      docker://${IMG} --exec /marathon-lb/run -- sse \
+      --marathon http://marathon:8080 \
+      --health-check \
+      --group external \
+      --group internal \
+      --haproxy-map
 
      [Install]
      WantedBy=kato.target`,
