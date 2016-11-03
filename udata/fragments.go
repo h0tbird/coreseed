@@ -196,7 +196,7 @@ write_files:`,
     #!/bin/bash
 
     source /etc/kato.env
-    readonly DOMAIN="$(hostname -d)"
+    readonly DOMAIN=${KATO_DOMAIN}
     readonly APIURL='https://api.nsone.net/v1'
     readonly APIKEY='{{.Ns1ApiKey}}'
     readonly IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
@@ -232,7 +232,7 @@ write_files:`,
     PUSH=$(sed 's/ marathon-lb//' /etc/.hosts | grep -v localhost)
     for i in $(echo ${KATO_ROLES}); do
     etcdctl set /hosts/${i}/$(hostname -f) "${PUSH}"; done
-    KEYS=$(etcdctl ls --recursive /hosts | grep $(hostname -d) | \
+    KEYS=$(etcdctl ls --recursive /hosts | grep ${KATO_DOMAIN} | \
     grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
     for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
     cat /etc/.hosts > /etc/hosts
@@ -754,7 +754,8 @@ coreos:
        KATO_SYSTEMD_UNITS=\'{{range .SystemdUnits}}{{.}} {{end}}\'\n\
        KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
        KATO_DOMAIN=$(hostname -d)\n\
-       KATO_IP=$(hostname -i)\n\
+       KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
+       KATO_HOST_IP=$(hostname -i)\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        DOCKER_VERSION=$(docker -v | awk -F\'[ ,]\' \'{print $$3}\')" > /etc/kato.env'
 
@@ -814,7 +815,7 @@ coreos:
       --hosts-entry=host \
       --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
       --set-env=ZK_SERVERS=${KATO_ZK} \
-      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_IP} \
+      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_HOST_IP} \
       --set-env=ZK_TICK_TIME=2000 \
       --set-env=ZK_INIT_LIMIT=5 \
       --set-env=ZK_SYNC_LIMIT=2 \
@@ -839,7 +840,8 @@ coreos:
     content: |
      [Unit]
      Description=Mesos Master
-     After=zookeeper.service
+     After=network-online.target zookeeper.service
+     Requires=network-online.target
 
      [Service]
      Slice=machine.slice
@@ -861,7 +863,7 @@ coreos:
       --exec mesos-master -- \
       --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --cluster=${KATO_CLUSTER_ID} \
-      --ip=${KATO_IP} \
+      --ip=${KATO_HOST_IP} \
       --zk=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/master \
       --log_dir=/var/log/mesos \
@@ -905,14 +907,14 @@ coreos:
        --env MDNS_HTTPON=false \
        --env MDNS_TTL=45 \
        --env MDNS_RESOLVERS=8.8.8.8 \
-       --env MDNS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos \
+       --env MDNS_DOMAIN=${KATO_MESOS_DOMAIN} \
        --env MDNS_IPSOURCE=netinfo \
        quay.io/kato/mesos-dns:v0.6.0-2"
      ExecStartPost=/usr/bin/sh -c ' \
-       echo search $(hostname -d | cut -d. -f-2).mesos $(hostname -d) > /etc/resolv.conf && \
+       echo search ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
      ExecStop=/usr/bin/sh -c ' \
-       echo search $(hostname -d) > /etc/resolv.conf && \
+       echo search ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
      ExecStop=/usr/bin/docker stop -t 5 m3s0s-dns
 
@@ -954,7 +956,7 @@ coreos:
        --master zk://${KATO_ZK}/mesos \
        --zk zk://${KATO_ZK}/marathon \
        --task_launch_timeout 240000 \
-       --hostname master-${KATO_HOST_ID}.$(hostname -d) \
+       --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
        --checkpoint"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
@@ -1058,7 +1060,7 @@ coreos:
        prom/alertmanager:v0.4.2 \
        -log.level=info \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9093 \
-       -web.external-url=http://master-${KATO_HOST_ID}.$(hostname -d):9093 \
+       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9093 \
        -config.file=/etc/alertmanager/config.yml \
        -storage.path=/var/lib/alertmanager"
      ExecStop=/usr/bin/docker stop -t 5 %p
@@ -1101,7 +1103,7 @@ coreos:
        -config.file=/etc/prometheus/prometheus.yml \
        -storage.local.path=/prometheus \
        -alertmanager.url ${KATO_ALERT_MANAGERS} \
-       -web.external-url=http://master-${KATO_HOST_ID}.$(hostname -d):9191 \
+       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
        -web.console.libraries=/etc/prometheus/console_libraries \
        -web.console.templates=/etc/prometheus/consoles \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9191"
@@ -1426,7 +1428,7 @@ coreos:
        --default-resolver \
        {{range .StubZones}}--stubzones {{.}} \
        {{end -}}
-       --search-domains $(hostname -d | cut -d. -f-2).mesos,$(hostname -d) \
+       --search-domains ${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
        --append-search-domains"
      ExecStop=/usr/bin/docker stop -t 5 %p
 
@@ -1471,7 +1473,7 @@ coreos:
        --env MESOS_SYSTEMD_ENABLE_SUPPORT=false \
        quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 mesos-agent \
        --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
-       --hostname=worker-${KATO_HOST_ID}.$(hostname -d) \
+       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
        --ip=$(hostname -i) \
        --containerizers=docker \
        --executor_registration_timeout=2mins \
