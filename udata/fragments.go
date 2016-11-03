@@ -857,8 +857,8 @@ coreos:
       --net=host \
       --dns=host \
       --hosts-entry=host \
-      --volume data,kind=host,source=/var/lib/mesos/master \
-      --mount volume=data,target=/var/lib/mesos/master \
+      --volume data,kind=host,source=/var/lib/mesos \
+      --mount volume=data,target=/var/lib/mesos \
       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
       --exec mesos-master -- \
       --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
