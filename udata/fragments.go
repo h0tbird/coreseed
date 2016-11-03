@@ -1445,43 +1445,46 @@ coreos:
     content: |
      [Unit]
      Description=Mesos agent
-     After=docker.service go-dnsmasq.service
-     Requires=docker.service
+     After=go-dnsmasq.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill m3s0s-agent
-     ExecStartPre=-/usr/bin/docker rm m3s0s-agent
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/agent ] || mkdir -p /var/lib/mesos/agent"
+     ExecStartPre=/usr/bin/sh -c "[ -d /etc/certs ] || mkdir -p /etc/certs"
+     ExecStartPre=/usr/bin/sh -c "[ -d /etc/cni ] || mkdir -p /etc/cni"
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
-     ExecStartPre=/usr/bin/sh -c "docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2"
-     ExecStart=/usr/bin/sh -c "docker run \
-       --privileged \
-       --net host \
-       --pid host \
-       --name m3s0s-agent \
-       --volume /sys:/sys \
-       --volume /etc/cni:/etc/cni:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --volume /etc/certs:/etc/certs:ro \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /var/lib/mesos:/var/lib/mesos:rw \
-       --volume /var/run/docker.sock:/var/run/docker.sock:rw \
-       --env MESOS_SYSTEMD_ENABLE_SUPPORT=false \
-       quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 mesos-agent \
-       --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
-       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
-       --ip=$(hostname -i) \
-       --containerizers=docker \
-       --executor_registration_timeout=2mins \
-       --master=zk://${KATO_ZK}/mesos \
-       --work_dir=/var/lib/mesos/node \
-       --log_dir=/var/log/mesos/node \
-       --network_cni_config_dir=/etc/cni \
-       --network_cni_plugins_dir=/var/lib/mesos/cni-plugins"
-     ExecStop=/usr/bin/docker stop -t 5 m3s0s-agent
+     ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume cni,kind=host,source=/etc/cni \
+      --mount volume=cni,target=/etc/cni \
+      --volume certs,kind=host,source=/etc/certs \
+      --mount volume=certs,target=/etc/certs \
+      --volume docker,kind=host,source=/var/run/docker.sock \
+      --mount volume=docker,target=/var/run/docker.sock \
+      --volume data,kind=host,source=/var/lib/mesos \
+      --mount volume=data,target=/var/lib/mesos \
+      --insecure-options=all \
+      --stage1-name=coreos.com/rkt/stage1-fly \
+      quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 --exec /usr/sbin/mesos-agent -- \
+      --no-systemd_enable_support \
+      --docker_mesos_image=quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2 \
+      --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --ip=${KATO_HOST_IP} \
+      --containerizers=docker \
+      --executor_registration_timeout=2mins \
+      --master=zk://${KATO_ZK}/mesos \
+      --work_dir=/var/lib/mesos/node \
+      --log_dir=/var/log/mesos/node \
+      --network_cni_config_dir=/etc/cni \
+      --network_cni_plugins_dir=/var/lib/mesos/cni-plugins
 
      [Install]
      WantedBy=kato.target`,
