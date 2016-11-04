@@ -1614,17 +1614,17 @@ coreos:
     content: |
      [Unit]
      Description=Get the CNI plugins
-     Requires=docker.service
-     After=docker.service
+     Requires=network-online.target
+     After=network-online.target
      Before=mesos-agent.service
 
      [Service]
      Type=oneshot
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
-       --net host \
-       --volume /var/lib/mesos/cni-plugins:/tmp \
-       quay.io/kato/cni-plugins:v0.3.0-1"
+     ExecStart=/usr/bin/sh -c "[ -d /var/lib/mesos/cni-plugins ] || mkdir -p /var/lib/mesos/cni-plugins"
+     ExecStart=/usr/bin/rkt run \
+       --volume cni,kind=host,source=/var/lib/mesos/cni-plugins \
+       --mount volume=cni,target=/tmp \
+       quay.io/kato/cni-plugins:v0.3.0-1
 
      [Install]
      WantedBy=kato.target`,
