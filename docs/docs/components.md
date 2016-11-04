@@ -68,10 +68,10 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io/docs/alerting/alertmanager">Alertmanager</a></th>
-      <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.4.2">0.4.2</a></td>
+      <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.5.0">0.5.0</a></td>
       <td><a href="">-</a></td>
       <td><a href="">-</a></td>
-      <td><a href="https://hub.docker.com/r/prom/alertmanager"><img src="https://img.shields.io/docker/pulls/prom/alertmanager.svg"></a></td>
+      <td><a href="https://quay.io/repository/prometheus/alertmanager"><img src="https://quay.io/repository/prometheus/alertmanager/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://github.com/janeczku/go-dnsmasq">go-dnsmasq</a></th>

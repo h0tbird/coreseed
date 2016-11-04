@@ -1047,7 +1047,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull prom/alertmanager:v0.4.2
+     ExecStartPre=/usr/bin/docker pull quay.io/prometheus/alertmanager:v0.5.0
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
        --name %p \
@@ -1055,7 +1055,7 @@ coreos:
        --volume /etc/hosts:/etc/hosts:ro \
        --volume /etc/alertmanager:/etc/alertmanager:ro \
        --volume /var/lib/alertmanager:/var/lib/alertmanager:rw \
-       prom/alertmanager:v0.4.2 \
+       quay.io/prometheus/alertmanager:v0.5.0 \
        -log.level=info \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9093 \
        -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9093 \
