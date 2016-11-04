@@ -61,10 +61,10 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io">Prometheus</a></th>
-      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.2.2">1.2.2</a></td>
+      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.2.3">1.2.3</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.20.0">0.20.0</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.19.2">0.19.2</a></td>
-      <td><a href="https://hub.docker.com/r/prom/prometheus"><img src="https://img.shields.io/docker/pulls/prom/prometheus.svg"></a></td>
+      <td><a href="https://quay.io/repository/prometheus/prometheus"><img src="https://quay.io/repository/prometheus/prometheus/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://prometheus.io/docs/alerting/alertmanager">Alertmanager</a></th>
