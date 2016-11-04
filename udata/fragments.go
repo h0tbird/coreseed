@@ -839,7 +839,7 @@ coreos:
     enable: true
     content: |
      [Unit]
-     Description=Mesos Master
+     Description=Mesos master
      After=network-online.target zookeeper.service
      Requires=network-online.target
 
@@ -1459,6 +1459,7 @@ coreos:
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/cni ] || mkdir -p /etc/cni"
      ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
      ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
