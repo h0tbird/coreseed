@@ -1295,24 +1295,23 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus zookeeper exporter
-     After=docker.service zookeeper.service
-     Requires=docker.service zookeeper.service
+     After=zookeeper.service
+     Requires=zookeeper.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
-     ExecStart=/usr/bin/sh -c "docker run --rm \
-       --net host \
-       --name %p \
-       quay.io/kato/exporters:v0.1.0-1 zookeeper_exporter \
-       -web.listen-address :9103 \
-       $(echo ${KATO_ZK} | tr , ' ')"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/sh -c "exec rkt run \
+      --net=host \
+      ${IMG} --exec zookeeper_exporter -- \
+      -web.listen-address :9103 \
+      $(echo ${KATO_ZK} | tr , ' ')"
 
      [Install]
      WantedBy=kato.target`,
