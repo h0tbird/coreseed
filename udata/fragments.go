@@ -1748,23 +1748,23 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus mesos agent exporter
-     After=docker.service mesos-agent.service
-     Requires=docker.service mesos-agent.service
+     After=mesos-agent.service
+     Requires=mesos-agent.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
-     ExecStart=/usr/bin/sh -c "docker run --rm \
-       --net host \
-       --name %p \
-       quay.io/kato/exporters:v0.1.0-1 mesos_exporter \
-       -slave http://$(hostname):5051 \
-       -addr :9105"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     EnvironmentFile=/etc/kato.env
+     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      ${IMG} --exec mesos_exporter -- \
+      -slave http://${KATO_HOST_IP}:5051 \
+      -addr :9105
 
      [Install]
      WantedBy=kato.target`,
