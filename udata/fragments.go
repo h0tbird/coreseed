@@ -1258,22 +1258,22 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus node exporter
-     After=docker.service
-     Requires=docker.service
+     After=network-online.service
+     Requires=network-online.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
-     ExecStart=/usr/bin/sh -c "docker run --rm \
-       --net host \
-       --name %p \
-       quay.io/kato/exporters:v0.1.0-1 node_exporter \
-       -web.listen-address :9101"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     EnvironmentFile=/etc/kato.env
+     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      ${IMG} --exec node_exporter -- \
+      -web.listen-address :9101
 
      [Install]
      WantedBy=kato.target`,
