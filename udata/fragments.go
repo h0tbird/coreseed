@@ -1714,23 +1714,22 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus haproxy exporter
-     After=docker.service marathon-lb.service
-     Requires=docker.service marathon-lb.service
+     After=marathon-lb.service
+     Requires=marathon-lb.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/exporters:v0.1.0-1
-     ExecStart=/usr/bin/sh -c "docker run --rm \
-       --net host \
-       --name %p \
-       quay.io/kato/exporters:v0.1.0-1 haproxy_exporter \
-       -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
-       -web.listen-address :9102"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      ${IMG} --exec haproxy_exporter -- \
+      -haproxy.scrape-uri 'http://localhost:9090/haproxy?stats;csv' \
+      -web.listen-address :9102
 
      [Install]
      WantedBy=kato.target`,
