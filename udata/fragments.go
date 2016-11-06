@@ -186,6 +186,22 @@ write_files:`,
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
+			anyOf: []string{"master", "worker"},
+		},
+		data: `
+ - path: "/opt/bin/zk-alive"
+   permissions: "0755"
+   content: |
+    #!/bin/bash
+    for t in {1..3}; do
+      cnt=0; for i in $(seq ${1}); do
+        echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
+      done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
+    done; exit 1`,
+	})
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"ns1"},
 		},
@@ -851,7 +867,7 @@ coreos:
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/master ] || mkdir -p /var/lib/mesos/master"
-     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
+     ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -893,7 +909,7 @@ coreos:
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/mesos-dns:v0.6.0-2
-     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
+     ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -941,7 +957,7 @@ coreos:
      LimitNOFILE=8192
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/marathon:v1.3.5-1
-     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
+     ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -1456,7 +1472,7 @@ coreos:
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/agent ] || mkdir -p /var/lib/mesos/agent"
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/certs ] || mkdir -p /etc/certs"
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/cni ] || mkdir -p /etc/cni"
-     ExecStartPre=/usr/bin/sh -c "echo ruok | ncat quorum-1 2181 | grep -q imok"
+     ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
      ExecStartPre=/usr/bin/docker pull quay.io/kato/mesos:v1.0.1-${DOCKER_VERSION}-2
      ExecStart=/usr/bin/rkt run \
