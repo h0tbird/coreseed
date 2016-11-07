@@ -1052,32 +1052,35 @@ coreos:
     content: |
      [Unit]
      Description=Alertmanager service
-     After=docker.service
+     After=network-online.target
      Before=prometheus.service
-     Requires=docker.service
+     Requires=network-online.target
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/prometheus/alertmanager:v0.5.0
-     ExecStart=/usr/bin/sh -c "docker run \
-       --net host \
-       --name %p \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --volume /etc/alertmanager:/etc/alertmanager:ro \
-       --volume /var/lib/alertmanager:/var/lib/alertmanager:rw \
-       quay.io/prometheus/alertmanager:v0.5.0 \
-       -log.level=info \
-       -web.listen-address=$(hostname -i | awk '{print $1}'):9093 \
-       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9093 \
-       -config.file=/etc/alertmanager/config.yml \
-       -storage.path=/var/lib/alertmanager"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     Environment=IMG=quay.io/kato/alertmanager:v0.5.0-1
+     ExecStartPre=/usr/bin/sh -c "[ -d /etc/alertmanager ] || mkdir -p /etc/alertmanager"
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/alertmanager ] || mkdir -p /var/lib/alertmanager"
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume etc,kind=host,source=/etc/alertmanager,readOnly=true \
+      --mount volume=etc,target=/etc/alertmanager \
+      --volume lib,kind=host,source=/var/lib/alertmanager \
+      --mount volume=lib,target=/var/lib/alertmanager \
+      ${IMG} -- \
+      -log.level=info \
+      -web.listen-address=${KATO_HOST_IP}:9093 \
+      -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9093 \
+      -config.file=/etc/alertmanager/config.yml \
+      -storage.path=/var/lib/alertmanager
 
      [Install]
      WantedBy=kato.target`,
