@@ -790,8 +790,8 @@ coreos:
     content: |
      [Unit]
      Description=The Káto System
-     After=kato-env.service
-     Requires=kato-env.service
+     After=kato-env.service network-online.target
+     Requires=kato-env.service network-online.target
 
      [Install]
      WantedBy=multi-user.target`,
@@ -812,8 +812,6 @@ coreos:
     content: |
      [Unit]
      Description=Zookeeper
-     After=network-online.target
-     Requires=network-online.target
 
      [Service]
      Slice=machine.slice
@@ -856,8 +854,7 @@ coreos:
     content: |
      [Unit]
      Description=Mesos master
-     After=network-online.target zookeeper.service
-     Requires=network-online.target
+     After=zookeeper.service
 
      [Service]
      Slice=machine.slice
@@ -1052,9 +1049,7 @@ coreos:
     content: |
      [Unit]
      Description=Alertmanager service
-     After=network-online.target
      Before=prometheus.service
-     Requires=network-online.target
 
      [Service]
      Slice=machine.slice
@@ -1416,8 +1411,7 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=network-online.target etchost.timer
-     Requires=network-online.target
+     After=etchost.timer
 
      [Service]
      Slice=machine.slice
@@ -1632,8 +1626,6 @@ coreos:
     content: |
      [Unit]
      Description=Get the CNI plugins
-     Requires=network-online.target
-     After=network-online.target
      Before=mesos-agent.service
 
      [Service]
