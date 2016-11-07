@@ -989,24 +989,24 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight configuration management tool
-     After=docker.service
-     Requires=docker.service
+     After=etcd2.service
+     Requires=etcd2.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/confd:v0.11.0-2
-     ExecStart=/usr/bin/sh -c "docker run --rm \
-       --net host \
-       --name %p \
-       --volume /etc:/etc:rw \
-       quay.io/kato/confd:v0.11.0-2 \
-       -node 127.0.0.1:2379 \
-       -watch"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     Environment=IMG=quay.io/kato/confd:v0.11.0-2
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --volume etc,kind=host,source=/etc \
+      --mount volume=etc,target=/etc \
+      ${IMG} -- \
+      -node 127.0.0.1:2379 \
+      -watch
 
      [Install]
      WantedBy=kato.target`,
