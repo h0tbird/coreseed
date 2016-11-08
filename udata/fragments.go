@@ -1066,10 +1066,8 @@ coreos:
       --net=host \
       --dns=host \
       --hosts-entry=host \
-      --volume etc,kind=host,source=/etc/alertmanager,readOnly=true \
-      --mount volume=etc,target=/etc/alertmanager \
-      --volume lib,kind=host,source=/var/lib/alertmanager \
-      --mount volume=lib,target=/var/lib/alertmanager \
+      --volume volume-etc-alertmanager,kind=host,source=/etc/alertmanager,readOnly=true \
+      --volume volume-var-lib-alertmanager,kind=host,source=/var/lib/alertmanager \
       ${IMG} -- \
       -log.level=info \
       -web.listen-address=${KATO_HOST_IP}:9093 \
