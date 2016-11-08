@@ -71,7 +71,7 @@ title: Components
       <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.5.0">0.5.0</a></td>
       <td><a href="">-</a></td>
       <td><a href="">-</a></td>
-      <td><a href="https://quay.io/repository/prometheus/alertmanager"><img src="https://quay.io/repository/prometheus/alertmanager/status"></a></td>
+      <td><a href="https://quay.io/repository/kato/alertmanager"><img src="https://quay.io/repository/kato/alertmanager/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://github.com/janeczku/go-dnsmasq">go-dnsmasq</a></th>
