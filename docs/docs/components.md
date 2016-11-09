@@ -108,5 +108,12 @@ title: Components
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td></td>
     </tr>
+    <tr>
+      <th><a href="https://github.com/emccode/dvdcli">dvdcli</a></th>
+      <td><a href="https://github.com/emccode/dvdcli/releases/tag/v0.2.0">0.2.0</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="">-</a></td>
+      <td></td>
+    </tr>
   </tbody>
 </table>

@@ -1026,10 +1026,14 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      EnvironmentFile=/etc/rexray/rexray.env
-     ExecStartPre=-/bin/bash -c '\
-       REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.3.3/rexray-Linux-i386-0.3.3.tar.gz; \
-       [ -f /opt/bin/rexray ] || { curl -sL $${REXRAY_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }'
+     Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.3.3/rexray-Linux-i386-0.3.3.tar.gz
+     Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.0/dvdcli-Linux-x86_64-0.2.0.tar.gz
+     ExecStartPre=-/bin/bash -c " \
+       [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; }; \
+       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
+     ExecStartPre=-/bin/bash -c " \
+       [ -f /opt/bin/dvdcli ] || { curl -sL ${DVDCLI_URL} | tar -xz -C /opt/bin; }; \
+       [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
      ExecStart=/opt/bin/rexray start -f
      ExecReload=/bin/kill -HUP $MAINPID
      KillMode=process
