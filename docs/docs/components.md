@@ -95,6 +95,13 @@ title: Components
       <td><a href="https://quay.io/repository/kato/pritunl"><img src="https://quay.io/repository/kato/pritunl/status"></a></td>
     </tr>
     <tr>
+      <th><a href="https://docs.mongodb.com/">MongoDB</a></th>
+      <td><a href="https://github.com/docker-library/mongo/tree/master/3.2">3.2</a></td>
+      <td><a href="https://github.com/docker-library/mongo/tree/master/3.2">3.2</a></td>
+      <td><a href="https://github.com/docker-library/mongo/tree/master/3.2">3.2</a></td>
+      <td><a href="https://hub.docker.com/_/mongo"><img src="https://img.shields.io/docker/pulls/_/mongo.svg"></a></td>
+    </tr>
+    <tr>
       <th><a href="https://github.com/kelseyhightower/confd">confd</a></th>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
