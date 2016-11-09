@@ -1108,10 +1108,10 @@ coreos:
        --volume /etc/resolv.conf:/etc/resolv.conf:ro \
        --volume /etc/hosts:/etc/hosts:ro \
        --volume /etc/prometheus:/etc/prometheus:ro \
-       --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/prometheus:rw \
+       --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/var/lib/prometheus:rw \
        quay.io/kato/prometheus:v1.3.1-1 \
        -config.file=/etc/prometheus/prometheus.yml \
-       -storage.local.path=/prometheus \
+       -storage.local.path=/var/lib/prometheus \
        -alertmanager.url ${KATO_ALERT_MANAGERS} \
        -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
        -web.console.libraries=/usr/share/prometheus/console_libraries \
