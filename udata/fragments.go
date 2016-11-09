@@ -1522,7 +1522,7 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
-     Environment=IMG=mesosphere/marathon-lb:v1.4.1
+     Environment=IMG=mesosphere/marathon-lb:v1.4.2
      ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStart=/usr/bin/rkt run \
