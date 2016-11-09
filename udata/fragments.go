@@ -1114,8 +1114,8 @@ coreos:
        -storage.local.path=/prometheus \
        -alertmanager.url ${KATO_ALERT_MANAGERS} \
        -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
-       -web.console.libraries=/etc/prometheus/console_libraries \
-       -web.console.templates=/etc/prometheus/consoles \
+       -web.console.libraries=/usr/share/prometheus/console_libraries \
+       -web.console.templates=/usr/share/prometheus/consoles \
        -web.listen-address=$(hostname -i | awk '{print $1}'):9191"
      ExecStop=/usr/bin/docker stop -t 60 %p
 
