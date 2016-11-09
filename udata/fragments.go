@@ -1114,7 +1114,7 @@ coreos:
       --hosts-entry=host \
       --volume volume-etc-prometheus,kind=host,source=/etc/prometheus,readOnly=true \
       --volume volume-var-lib-prometheus,kind=host,source=/var/lib/rexray/volumes/${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}/data \
-      ${IMG} -- \
+      ${IMG} --exec /usr/local/bin/prometheus -- \
       -config.file=/etc/prometheus/prometheus.yml \
       -storage.local.path=/var/lib/prometheus \
       -alertmanager.url ${KATO_ALERT_MANAGERS} \
