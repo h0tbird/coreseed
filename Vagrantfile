@@ -5,8 +5,8 @@ Vagrant.require_version ">= 1.6.0"
 #------------------------------------------------------------------------------
 
 $cluster_id     = ENV['KATO_CLUSTER_ID'] || 'vagrant-kato'
-$node_cpus      = ENV['KATO_NODE_CPUS'] || 4
-$node_memory    = ENV['KATO_NODE_MEMORY'] || 8192
+$node_cpus      = ENV['KATO_NODE_CPUS'] || 2
+$node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.0-beta'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
@@ -40,7 +40,6 @@ if ARGV[0].eql?('up')
     "--cluster-state new " +
     "--quorum-count 1 " +
     "--master-count 1 " +
-    "--prometheus " +
     "--host-name %s " +
     "--cluster-id %s " +
     "--domain %s " +
