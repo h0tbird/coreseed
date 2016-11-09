@@ -1100,7 +1100,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      ExecStartPre=-/usr/bin/docker kill %p
      ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/prometheus/prometheus:v1.2.3
+     ExecStartPre=/usr/bin/docker pull quay.io/kato/prometheus:v1.3.1-1
      ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
      ExecStart=/usr/bin/sh -c "docker run \
        --net host \
@@ -1109,7 +1109,7 @@ coreos:
        --volume /etc/hosts:/etc/hosts:ro \
        --volume /etc/prometheus:/etc/prometheus:ro \
        --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/prometheus:rw \
-       quay.io/prometheus/prometheus:v1.2.3 \
+       quay.io/kato/prometheus:v1.3.1-1 \
        -config.file=/etc/prometheus/prometheus.yml \
        -storage.local.path=/prometheus \
        -alertmanager.url ${KATO_ALERT_MANAGERS} \
