@@ -1094,34 +1094,34 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus service
-     After=docker.service rexray.service confd.service
-     Requires=docker.service rexray.service
+     After=rexray.service confd.service
+     Requires=rexray.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/prometheus:v1.3.1-1
-     ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID} -d rexray
-     ExecStart=/usr/bin/sh -c "docker run \
-       --net host \
-       --name %p \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --volume /etc/prometheus:/etc/prometheus:ro \
-       --volume ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}:/var/lib/prometheus:rw \
-       quay.io/kato/prometheus:v1.3.1-1 \
-       -config.file=/etc/prometheus/prometheus.yml \
-       -storage.local.path=/var/lib/prometheus \
-       -alertmanager.url ${KATO_ALERT_MANAGERS} \
-       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
-       -web.console.libraries=/usr/share/prometheus/console_libraries \
-       -web.console.templates=/usr/share/prometheus/consoles \
-       -web.listen-address=$(hostname -i | awk '{print $1}'):9191"
-     ExecStop=/usr/bin/docker stop -t 60 %p
+     Environment=IMG=quay.io/kato/prometheus:v1.3.1-1
+     ExecStartPre=/usr/bin/sh -c "[ -d /etc/prometheus ] || mkdir /etc/prometheus"
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume volume-etc-prometheus,kind=host,source=/etc/prometheus,readOnly=true \
+      --volume volume-var-lib-prometheus,kind=host,source=/var/lib/rexray/volumes/${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}/data \
+      ${IMG} -- \
+      -config.file=/etc/prometheus/prometheus.yml \
+      -storage.local.path=/var/lib/prometheus \
+      -alertmanager.url ${KATO_ALERT_MANAGERS} \
+      -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
+      -web.console.libraries=/usr/share/prometheus/console_libraries \
+      -web.console.templates=/usr/share/prometheus/consoles \
+      -web.listen-address=${KATO_HOST_IP}:9191
 
      [Install]
      WantedBy=kato.target`,
