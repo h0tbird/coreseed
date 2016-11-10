@@ -1387,6 +1387,7 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
+     LimitNOFILE=25000
      Environment=IMG=quay.io/kato/pritunl:v1.25.1126.38-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
