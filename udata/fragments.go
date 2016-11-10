@@ -1394,6 +1394,7 @@ coreos:
       --dns=host \
       --hosts-entry=host \
       --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
+      --stage1-name=coreos.com/rkt/stage1-fly \
       ${IMG}
 
      [Install]
