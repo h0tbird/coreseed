@@ -823,12 +823,12 @@ coreos:
      Environment=IMG=quay.io/kato/zookeeper:v3.4.8-4
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/zookeeper ] || mkdir /var/lib/zookeeper"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/rkt run \
+     ExecStart=/usr/bin/bash -c "exec rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
-      --set-env=ZK_SERVERS=${KATO_ZK} \
+      --set-env=ZK_SERVERS=$${KATO_ZK//:2181/} \
       --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_HOST_IP} \
       --set-env=ZK_TICK_TIME=2000 \
       --set-env=ZK_INIT_LIMIT=5 \
@@ -838,7 +838,7 @@ coreos:
       --set-env=JMXDISABLE=false \
       --volume data,kind=host,source=/var/lib/zookeeper \
       --mount volume=data,target=/var/lib/zookeeper \
-      ${IMG}
+      ${IMG}"
 
      [Install]
      WantedBy=kato.target`,
