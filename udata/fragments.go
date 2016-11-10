@@ -1379,25 +1379,23 @@ coreos:
     content: |
      [Unit]
      Description=Pritunl
-     After=docker.service mongodb.service
-     Requires=docker.service mongodb.service
+     After=mongodb.service
+     Requires=mongodb.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull quay.io/kato/pritunl:v1.25.1126.38-1
-     ExecStart=/usr/bin/sh -c "docker run \
-       --privileged \
-       --name %p \
-       --net host \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-       quay.io/kato/pritunl:v1.25.1126.38-1"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     Environment=IMG=quay.io/kato/pritunl:v1.25.1126.38-1
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
+      ${IMG}
 
      [Install]
      WantedBy=kato.target`,
