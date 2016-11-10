@@ -1521,14 +1521,15 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      Environment=IMG=mesosphere/marathon-lb:v1.4.2
-     ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
+     ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --set-env=PORTS=9090,9091 \
       --set-env=HAPROXY_RELOAD_SIGTERM_DELAY=5 \
+      --stage1-name=coreos.com/rkt/stage1-fly \
       docker://${IMG} --exec /marathon-lb/run -- sse \
       --marathon http://marathon:8080 \
       --health-check \

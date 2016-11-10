@@ -33,7 +33,7 @@ if ARGV[0].eql?('up')
   end
 
   $katoctl = "./katoctl udata " +
-    "--roles quorum,master,worker,border " +
+    "--roles quorum,master,worker " +
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
     "--flannel-backend host-gw " +
