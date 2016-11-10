@@ -33,6 +33,7 @@ if ARGV[0].eql?('up')
   end
 
   $katoctl = "./katoctl udata " +
+    "--roles quorum,master,worker " +
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
     "--flannel-backend host-gw " +
@@ -43,8 +44,7 @@ if ARGV[0].eql?('up')
     "--host-name %s " +
     "--cluster-id %s " +
     "--domain %s " +
-    "--host-id %s " +
-    "--roles %s "
+    "--host-id %s "
 end
 
 #------------------------------------------------------------------------------
@@ -106,10 +106,10 @@ Vagrant.configure("2") do |config|
 
       if $ca_cert
         cmd = $katoctl + " --ca-cert %s > user_data_kato-1"
-        system cmd % [ 'kato', $cluser_id, $domain, 1, 'quorum,master,worker', $ca_cert ]
+        system cmd % [ 'kato', $cluser_id, $domain, 1, $ca_cert ]
       else
         cmd = $katoctl + " > user_data_kato-1"
-        system cmd % [ 'kato', $cluster_id, $domain, 1, 'quorum,master,worker' ]
+        system cmd % [ 'kato', $cluster_id, $domain, 1 ]
       end
 
       if File.exist?("user_data_kato-1")
