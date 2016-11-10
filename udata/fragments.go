@@ -1343,27 +1343,26 @@ coreos:
     content: |
      [Unit]
      Description=MongoDB
-     After=docker.service rexray.service
-     Requires=docker.service rexray.service
+     After=rexray.service
+     Requires=rexray.service
 
      [Service]
+     Slice=machine.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm %p
-     ExecStartPre=/usr/bin/docker pull mongo:3.2
-     ExecStartPre=-/usr/bin/docker volume create --name ${KATO_CLUSTER_ID}-pritunl-mongo -d rexray
-     ExecStart=/usr/bin/sh -c "docker run \
-       --name %p \
-       --net host \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       --volume ${KATO_CLUSTER_ID}-pritunl-mongo:/data/db:rw \
-       mongo:3.2 \
-       --bind_ip 127.0.0.1"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     Environment=IMG=mongo:3.3
+     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
+     ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume volume-data-db,kind=host,source=/var/lib/rexray/volumes/${KATO_CLUSTER_ID}-pritunl-mongo/data \
+      docker://${IMG} -- \
+      --bind_ip 127.0.0.1
 
      [Install]
      WantedBy=kato.target`,
