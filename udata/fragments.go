@@ -896,7 +896,8 @@ coreos:
     content: |
      [Unit]
      Description=Mesos DNS
-     After=mesos-master.service go-dnsmasq.service
+     After=mesos-master.service
+     Before=go-dnsmasq.service
 
      [Service]
      Slice=machine.slice
@@ -922,12 +923,14 @@ coreos:
       --set-env=MDNS_DOMAIN=${KATO_MESOS_DOMAIN} \
       --set-env=MDNS_IPSOURCE=netinfo \
       ${IMG}
+{{- if eq .MesosDNSPort "53" }}
      ExecStartPost=/usr/bin/sh -c ' \
        echo search ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
-       echo "nameserver $(hostname -i)" >> /etc/resolv.conf'
-     ExecStop=/usr/bin/sh -c ' \
+       echo "nameserver ${KATO_HOST_IP}" >> /etc/resolv.conf'
+     ExecStopPost=/usr/bin/sh -c ' \
        echo search ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
+{{- end}}
 
      [Install]
      WantedBy=kato.target`,
