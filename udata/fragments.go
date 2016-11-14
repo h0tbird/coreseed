@@ -814,7 +814,7 @@ coreos:
      Description=Zookeeper
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -857,7 +857,7 @@ coreos:
      After=zookeeper.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -900,7 +900,7 @@ coreos:
      Before=go-dnsmasq.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -949,7 +949,7 @@ coreos:
      After=mesos-master.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -993,7 +993,7 @@ coreos:
      Requires=etcd2.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1025,6 +1025,7 @@ coreos:
      Before=docker.service
 
      [Service]
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1059,7 +1060,7 @@ coreos:
      Before=prometheus.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1101,7 +1102,7 @@ coreos:
      Requires=rexray.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1248,7 +1249,7 @@ coreos:
      Requires=mesos-master.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1281,7 +1282,7 @@ coreos:
      Requires=network-online.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1318,7 +1319,7 @@ coreos:
      Requires=zookeeper.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1350,7 +1351,7 @@ coreos:
      Requires=rexray.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1385,7 +1386,7 @@ coreos:
      Requires=mongodb.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1418,7 +1419,7 @@ coreos:
      After=etchost.timer
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1464,7 +1465,7 @@ coreos:
      After=go-dnsmasq.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1519,7 +1520,7 @@ coreos:
      After=marathon.service mesos-dns.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1734,7 +1735,7 @@ coreos:
      Requires=marathon-lb.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1766,7 +1767,7 @@ coreos:
      Requires=mesos-agent.service
 
      [Service]
-     Slice=machine.slice
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
