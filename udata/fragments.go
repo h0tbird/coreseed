@@ -1496,7 +1496,7 @@ coreos:
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
       --containerizers=docker \
-      --executor_registration_timeout=2mins \
+      --executor_registration_timeout=5mins \
       --master=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/agent \
       --log_dir=/var/log/mesos/agent \
