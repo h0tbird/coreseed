@@ -796,8 +796,7 @@ coreos:
        KATO_DOMAIN=$(hostname -d)\n\
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
        KATO_HOST_IP=$(hostname -i)\n\
-       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
-       DOCKER_VERSION=$(docker -v | awk -F\'[ ,]\' \'{print $$3}\')" > /etc/kato.env'
+       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))" > /etc/kato.env'
 
      [Install]
      WantedBy=multi-user.target`,
@@ -887,16 +886,16 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
+     Environment=IMG=quay.io/kato/mesos-base:v1.1.0-rc3
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/master ] || mkdir -p /var/lib/mesos/master"
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
-     ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.1.0-${DOCKER_VERSION}-rc3
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --volume volume-var-lib-mesos,kind=host,source=/var/lib/mesos \
-      quay.io/kato/mesos:v1.1.0-${DOCKER_VERSION}-rc3 \
-      --exec mesos-master -- \
+      ${IMG} --exec /usr/sbin/mesos-master -- \
       --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --cluster=${KATO_CLUSTER_ID} \
       --ip=${KATO_HOST_IP} \
@@ -1494,14 +1493,17 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
+     Environment=IMG=quay.io/kato/mesos-base:v1.1.0-rc3
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/agent ] || mkdir -p /var/lib/mesos/agent"
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/certs ] || mkdir -p /etc/certs"
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
-     ExecStartPre=/usr/bin/rkt fetch quay.io/kato/mesos:v1.1.0-${DOCKER_VERSION}-rc3
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
+      --volume var,kind=host,source=/var \
+      --mount volume=var,target=/var \
       --volume tmp,kind=host,source=/tmp \
       --mount volume=tmp,target=/tmp \
       --volume run,kind=host,source=/run \
@@ -1510,11 +1512,8 @@ coreos:
       --mount volume=cni,target=/etc/cni \
       --volume certs,kind=host,source=/etc/certs \
       --mount volume=certs,target=/etc/certs \
-      --volume docker,kind=host,source=/var/run/docker.sock \
-      --mount volume=docker,target=/var/run/docker.sock \
-      --volume volume-var-lib-mesos,kind=host,source=/var/lib/mesos \
       --stage1-name=coreos.com/rkt/stage1-fly \
-      quay.io/kato/mesos:v1.1.0-${DOCKER_VERSION}-rc3 --exec /usr/sbin/mesos-agent -- \
+      ${IMG} --exec /usr/sbin/mesos-agent -- \
       --no-systemd_enable_support \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
