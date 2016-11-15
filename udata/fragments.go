@@ -978,7 +978,7 @@ coreos:
      KillMode=mixed
      LimitNOFILE=8192
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/marathon:v1.3.6-1
+     Environment=IMG=quay.io/kato/marathon:v1.3.6-2
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
