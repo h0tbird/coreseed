@@ -59,7 +59,7 @@ write_files:`,
 			anyOf: []string{"worker"},
 		},
 		data: `
- - path: "/etc/cni/devel.json"
+ - path: "/var/lib/mesos/cni-config/devel.json"
    content: |
     {
     "name": "devel",
@@ -1504,12 +1504,8 @@ coreos:
       --hosts-entry=host \
       --volume var,kind=host,source=/var \
       --mount volume=var,target=/var \
-      --volume tmp,kind=host,source=/tmp \
-      --mount volume=tmp,target=/tmp \
       --volume run,kind=host,source=/run \
       --mount volume=run,target=/run \
-      --volume cni,kind=host,source=/etc/cni \
-      --mount volume=cni,target=/etc/cni \
       --volume certs,kind=host,source=/etc/certs \
       --mount volume=certs,target=/etc/certs \
       --stage1-name=coreos.com/rkt/stage1-fly \
@@ -1519,12 +1515,13 @@ coreos:
       --ip=${KATO_HOST_IP} \
       --containerizers=mesos \
       --image_providers=docker \
+      --docker_store_dir=/var/lib/mesos/store/docker \
       --isolation=filesystem/linux,docker/runtime \
       --executor_registration_timeout=5mins \
       --master=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/agent \
       --log_dir=/var/log/mesos/agent \
-      --network_cni_config_dir=/etc/cni \
+      --network_cni_config_dir=/var/lib/mesos/cni-config \
       --network_cni_plugins_dir=/var/lib/mesos/cni-plugins
 
      [Install]
