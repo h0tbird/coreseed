@@ -886,7 +886,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos-base:v1.1.0-rc3
+     Environment=IMG=quay.io/kato/mesos:v1.1.0-rc3
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/master ] || mkdir -p /var/lib/mesos/master"
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
@@ -1493,7 +1493,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos-base:v1.1.0-rc3
+     Environment=IMG=quay.io/kato/mesos:v1.1.0-rc3
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/agent ] || mkdir -p /var/lib/mesos/agent"
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/certs ] || mkdir -p /etc/certs"
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
