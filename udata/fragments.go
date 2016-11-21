@@ -62,17 +62,16 @@ write_files:`,
  - path: "/var/lib/mesos/cni-config/devel.json"
    content: |
     {
-    "name": "devel",
-    "type": "bridge",
-    "bridge": "cni0",
-    "isGateway": true,
-    "ipMasq": true,
-    "ipam": {
+      "name": "devel",
+      "type": "bridge",
+      "bridge": "cni0",
+      "isGateway": true,
+      "ipMasq": true,
+      "ipam": {
         "type": "host-local",
         "subnet": "192.168.0.0/16",
         "routes": [
-        { "dst":
-          "0.0.0.0/0" }
+          { "dst": "0.0.0.0/0" }
         ]
       }
     }`,
@@ -886,23 +885,24 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.1.0-rc3
-     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/master ] || mkdir -p /var/lib/mesos/master"
+     Environment=IMG=quay.io/kato/mesos:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/rkt run \
-      --net=host \
-      --dns=host \
-      --hosts-entry=host \
-      --volume volume-var-lib-mesos,kind=host,source=/var/lib/mesos \
-      ${IMG} --exec /usr/sbin/mesos-master -- \
-      --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
-      --cluster=${KATO_CLUSTER_ID} \
-      --ip=${KATO_HOST_IP} \
-      --zk=zk://${KATO_ZK}/mesos \
-      --work_dir=/var/lib/mesos/master \
-      --log_dir=/var/log/mesos \
-      --quorum=${KATO_QUORUM}
+     ExecStartPre=/usr/bin/rkt run \
+      --volume rootfs,kind=host,source=/ \
+      --mount volume=rootfs,target=/media \
+      ${IMG} --exec cp -- -R /opt /media
+     ExecStart=/usr/bin/bash -c " \
+      PATH=/opt/bin:${PATH} \
+      LD_LIBRARY_PATH=/opt/lib \
+      exec /opt/bin/mesos-master \
+       --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
+       --cluster=${KATO_CLUSTER_ID} \
+       --ip=${KATO_HOST_IP} \
+       --zk=zk://${KATO_ZK}/mesos \
+       --work_dir=/var/lib/mesos/master \
+       --log_dir=/var/log/mesos \
+       --quorum=${KATO_QUORUM}"
 
      [Install]
      WantedBy=kato.target`,
@@ -1493,24 +1493,19 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.1.0-rc3
-     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/mesos/agent ] || mkdir -p /var/lib/mesos/agent"
-     ExecStartPre=/usr/bin/sh -c "[ -d /etc/certs ] || mkdir -p /etc/certs"
+     Environment=IMG=quay.io/kato/mesos:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/rkt run \
-      --net=host \
-      --dns=host \
-      --hosts-entry=host \
-      --volume var,kind=host,source=/var \
-      --mount volume=var,target=/var \
-      --volume run,kind=host,source=/run \
-      --mount volume=run,target=/run \
-      --volume certs,kind=host,source=/etc/certs \
-      --mount volume=certs,target=/etc/certs \
-      --stage1-name=coreos.com/rkt/stage1-fly \
-      ${IMG} --exec /usr/sbin/mesos-agent -- \
+     ExecStartPre=/usr/bin/rkt run \
+      --volume rootfs,kind=host,source=/ \
+      --mount volume=rootfs,target=/media \
+      ${IMG} --exec cp -- -R /opt /media
+     ExecStart=/usr/bin/bash -c " \
+      PATH=/opt/bin:${PATH} \
+      LD_LIBRARY_PATH=/opt/lib \
+      exec /opt/bin/mesos-agent \
       --no-systemd_enable_support \
+      --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/opt/lib\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
       --containerizers=mesos \
@@ -1522,7 +1517,7 @@ coreos:
       --work_dir=/var/lib/mesos/agent \
       --log_dir=/var/log/mesos/agent \
       --network_cni_config_dir=/var/lib/mesos/cni-config \
-      --network_cni_plugins_dir=/var/lib/mesos/cni-plugins
+      --network_cni_plugins_dir=/var/lib/mesos/cni-plugins"
 
      [Install]
      WantedBy=kato.target`,
