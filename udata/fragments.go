@@ -1504,7 +1504,6 @@ coreos:
       PATH=/opt/bin:${PATH} \
       LD_LIBRARY_PATH=/opt/lib \
       exec /opt/bin/mesos-agent \
-      --no-systemd_enable_support \
       --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/opt/lib\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
