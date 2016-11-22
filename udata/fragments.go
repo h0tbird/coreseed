@@ -1421,7 +1421,7 @@ coreos:
       --dns=host \
       --hosts-entry=host \
       --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-      --stage1-name=coreos.com/rkt/stage1-fly \
+      --stage1-from-dir=stage1-fly.aci \
       ${IMG}
 
      [Install]
@@ -1549,7 +1549,7 @@ coreos:
       --hosts-entry=host \
       --set-env=PORTS=9090,9091 \
       --set-env=HAPROXY_RELOAD_SIGTERM_DELAY=5 \
-      --stage1-name=coreos.com/rkt/stage1-fly \
+      --stage1-from-dir=stage1-fly.aci \
       docker://${IMG} --exec /marathon-lb/run -- sse \
       --marathon http://marathon:8080 \
       --health-check \
