@@ -894,7 +894,7 @@ coreos:
       ${IMG} --exec cp -- -R /opt /media
      ExecStart=/usr/bin/bash -c " \
       PATH=/opt/bin:${PATH} \
-      LD_LIBRARY_PATH=/opt/lib \
+      LD_LIBRARY_PATH=/lib64:/opt/lib \
       exec /opt/bin/mesos-master \
        --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
        --cluster=${KATO_CLUSTER_ID} \
@@ -1502,9 +1502,9 @@ coreos:
       ${IMG} --exec cp -- -R /opt /media
      ExecStart=/usr/bin/bash -c " \
       PATH=/opt/bin:${PATH} \
-      LD_LIBRARY_PATH=/opt/lib \
+      LD_LIBRARY_PATH=/lib64:/opt/lib \
       exec /opt/bin/mesos-agent \
-      --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/opt/lib\"}' \
+      --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/lib64:/opt/lib\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
       --containerizers=mesos \
