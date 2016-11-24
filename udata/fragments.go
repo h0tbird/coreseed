@@ -885,7 +885,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.1.0-1
+     Environment=IMG=quay.io/kato/mesos:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
@@ -978,16 +978,20 @@ coreos:
      KillMode=mixed
      LimitNOFILE=8192
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/marathon:v1.3.6-2
+     Environment=IMG=quay.io/kato/marathon:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
+      --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --set-env=LIBPROCESS_IP=${KATO_HOST_IP} \
       --set-env=LIBPROCESS_PORT=9292 \
-      ${IMG} --exec marathon -- \
+      --set-env=MESOS_NATIVE_JAVA_LIBRARY=/opt/lib/libmesos.so \
+      --volume lib,kind=host,source=/opt/lib \
+      --mount volume=lib,target=/opt/lib \
+      ${IMG} -- \
       --no-logger \
       --http_address ${KATO_HOST_IP} \
       --master zk://${KATO_ZK}/mesos \
@@ -1493,7 +1497,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.1.0-1
+     Environment=IMG=quay.io/kato/mesos:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
