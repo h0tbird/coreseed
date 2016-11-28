@@ -122,6 +122,37 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"calico"},
+		},
+		data: `
+ - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+   content: |
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: GnuPG v2
+
+    mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+    PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+    fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+    k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+    4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+    qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+    bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+    YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+    F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+    12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+    I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+    P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+    oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+    nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+    =SBoV
+    -----END PGP PUBLIC KEY BLOCK-----`,
+	})
+
+	//----------------------------------
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"cacert"},
 		},
 		data: `
@@ -723,7 +754,9 @@ coreos:
      - name: 50-network-config.conf
        content: |
         [Service]
-        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'`,
+        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
+        [Install]
+        Alias=flannel.service`,
 	})
 
 	//----------------------------------
@@ -930,6 +963,61 @@ coreos:
       --volume data,kind=host,source=/var/lib/zookeeper \
       --mount volume=data,target=/var/lib/zookeeper \
       ${IMG}"
+
+     [Install]
+     WantedBy=kato.target`,
+	})
+
+	//----------------------------------
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"master", "worker", "border"},
+			allOf: []string{"calico"},
+		},
+		data: `
+  - name: "calico.service"
+    command: "start"
+    content: |
+     [Unit]
+     Description=Calico per-host agent
+     Requires=network-online.target
+     After=network-online.target
+
+     [Service]
+     Slice=kato.slice
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     KillMode=mixed
+     EnvironmentFile=/etc/kato.env
+     Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.4.3
+     Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v0.23.0
+     Environment=CNI_PLUGINS=/var/lib/mesos/cni-plugins
+     Environment=IMG=quay.io/calico/node:v0.23.0
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/bin/bash -c " \
+      [ -f ${CNI_PLUGINS}/calico ] || { curl -sL -o ${CNI_PLUGINS}/calico ${CNI_URL}/calico; }; \
+      [ -x ${CNI_PLUGINS}/calico ] || { chmod +x ${CNI_PLUGINS}/calico; }"
+     ExecStartPre=/bin/bash -c " \
+      [ -f ${CNI_PLUGINS}/calico-ipam ] || { curl -sL -o ${CNI_PLUGINS}/calico-ipam ${CNI_URL}/calico-ipam; }; \
+      [ -x ${CNI_PLUGINS}/calico-ipam ] || { chmod +x ${CNI_PLUGINS}/calico-ipam; }"
+     ExecStartPre=/bin/bash -c " \
+      [ -f /opt/bin/calicoctl ] || { curl -sL -o /opt/bin/calicoctl ${CALICOCTL_URL}/calicoctl; }; \
+      [ -x /opt/bin/calicoctl ] || { chmod +x /opt/bin/calicoctl; }"
+     ExecStart=/usr/bin/rkt run \
+      --net=host \
+      --dns=host \
+      --hosts-entry=host \
+      --volume=modules,kind=host,source=/lib/modules \
+      --mount=volume=modules,target=/lib/modules \
+      --set-env=CALICO_DISABLE_FILE_LOGGING=true \
+      --set-env=HOSTNAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --set-env=IP=${KATO_HOST_IP} \
+      --set-env=CALICO_NETWORKING_BACKEND=bird \
+      --set-env=ETCD_ENDPOINTS=http://172.17.8.11:2379 \
+      --stage1-from-dir=stage1-fly.aci \
+      ${IMG}
 
      [Install]
      WantedBy=kato.target`,

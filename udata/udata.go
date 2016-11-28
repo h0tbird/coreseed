@@ -260,35 +260,27 @@ func (d *Data) systemdUnits() {
 
 		case "master":
 			units = append(units,
-				"etcd2", "docker", "rexray", "mesos-master", "mesos-dns", "marathon",
-				"etchost.timer")
+				"etcd2", d.NetworkBackend, "docker", "rexray", "mesos-master",
+				"mesos-dns", "marathon", "etchost.timer")
 			if d.Prometheus {
 				units = append(units,
 					"cadvisor", "confd", "alertmanager", "prometheus", "node-exporter",
 					"mesos-master-exporter")
 			}
-			if d.NetworkBackend == "flannel" {
-				units = append(units, "flanneld")
-			}
 
 		case "worker":
 			units = append(units,
-				"etcd2", "docker", "rexray", "go-dnsmasq", "mesos-agent", "marathon-lb",
-				"etchost.timer")
+				"etcd2", d.NetworkBackend, "docker", "rexray", "go-dnsmasq",
+				"mesos-agent", "marathon-lb", "etchost.timer")
 			if d.Prometheus {
 				units = append(units,
 					"cadvisor", "mesos-agent-exporter", "node-exporter", "haproxy-exporter")
 			}
-			if d.NetworkBackend == "flannel" {
-				units = append(units, "flanneld")
-			}
 
 		case "border":
 			units = append(units,
-				"etcd2", "docker", "rexray", "mongodb", "pritunl", "etchost.timer")
-			if d.NetworkBackend == "flannel" {
-				units = append(units, "flanneld")
-			}
+				"etcd2", d.NetworkBackend, "docker", "rexray", "mongodb", "pritunl",
+				"etchost.timer")
 
 		default:
 			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
