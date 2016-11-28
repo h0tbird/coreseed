@@ -2,11 +2,13 @@ package udata
 
 import "os"
 
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // func: loadFragments
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 func (d *Data) loadFragments() {
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -16,6 +18,8 @@ func (d *Data) loadFragments() {
 hostname: "{{.HostName}}-{{.HostID}}.{{.Domain}}"
 write_files:`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -30,6 +34,8 @@ write_files:`,
 {{end}}`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -43,6 +49,8 @@ write_files:`,
 {{end}}`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -53,6 +61,8 @@ write_files:`,
     search {{.Domain}}
     nameserver 8.8.8.8`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -76,6 +86,8 @@ write_files:`,
       }
     }`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -105,6 +117,8 @@ write_files:`,
     -----END PGP PUBLIC KEY BLOCK-----`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -115,6 +129,8 @@ write_files:`,
    content: |
     {{.CaCert}}`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -136,6 +152,8 @@ write_files:`,
 {{- end}}`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -153,6 +171,8 @@ write_files:`,
      rexrayTag: kato
 {{- end}}`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -176,6 +196,8 @@ write_files:`,
     export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin'`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -188,6 +210,8 @@ write_files:`,
     [default]
     region = {{.Ec2Region}}`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -207,6 +231,8 @@ write_files:`,
     ChallengeResponseAuthentication no`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker"},
@@ -222,6 +248,8 @@ write_files:`,
       done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
     done; exit 1`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -258,6 +286,8 @@ write_files:`,
     done`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -278,6 +308,8 @@ write_files:`,
     echo "${PULL}" >> /etc/hosts`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -292,6 +324,8 @@ write_files:`,
     for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
     -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -309,6 +343,8 @@ write_files:`,
     quay.io/kato/awscli:v1.10.47-1 "${@}"`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -323,6 +359,8 @@ write_files:`,
     awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
@@ -336,6 +374,8 @@ write_files:`,
     [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
     [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -354,6 +394,8 @@ write_files:`,
       [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
     }; exit 0`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -395,6 +437,8 @@ write_files:`,
         channel: kato{{end}}
 `,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -462,6 +506,8 @@ write_files:`,
           - /etc/prometheus/targets/zookeeper.yml`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
@@ -480,6 +526,8 @@ write_files:`,
         description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
       }`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -643,6 +691,8 @@ write_files:`,
         shard: {{.HostID}}`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -659,6 +709,8 @@ coreos:
 {{- end}}`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
@@ -672,6 +724,8 @@ coreos:
         [Service]
         ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -690,6 +744,8 @@ coreos:
      Type=oneshot
      ExecStart=/opt/bin/custom-ca`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -712,6 +768,8 @@ coreos:
      ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -731,6 +789,8 @@ coreos:
      Where=/var/lib/docker
      Type=ext4`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -753,6 +813,8 @@ coreos:
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf:  []string{"quorum", "master", "worker", "border"},
@@ -768,6 +830,8 @@ coreos:
         After=flanneld.service
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -801,6 +865,8 @@ coreos:
      WantedBy=multi-user.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -818,6 +884,8 @@ coreos:
      [Install]
      WantedBy=multi-user.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -866,6 +934,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
@@ -907,6 +977,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -958,6 +1030,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
@@ -1004,6 +1078,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
@@ -1038,6 +1114,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1071,6 +1149,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1112,6 +1192,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1157,6 +1239,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1197,6 +1281,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1217,6 +1303,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1239,6 +1327,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1259,6 +1349,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1293,6 +1385,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1324,6 +1418,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1363,6 +1459,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"border"},
@@ -1398,6 +1496,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"border"},
@@ -1431,6 +1531,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1477,6 +1579,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1526,6 +1630,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
@@ -1564,6 +1670,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1605,6 +1713,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -1641,6 +1751,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
@@ -1665,6 +1777,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
@@ -1687,6 +1801,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1720,6 +1836,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
@@ -1738,6 +1856,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1770,6 +1890,8 @@ coreos:
      [Install]
      WantedBy=kato.target`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1804,6 +1926,8 @@ coreos:
      WantedBy=kato.target`,
 	})
 
+	//----------------------------------
+
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
@@ -1812,6 +1936,8 @@ coreos:
  flannel:
   interface: $private_ipv4`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
@@ -1827,6 +1953,8 @@ coreos:
   listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
   listen-peer-urls: "http://$private_ipv4:2380"`,
 	})
+
+	//----------------------------------
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
