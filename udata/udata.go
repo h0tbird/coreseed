@@ -49,6 +49,7 @@ type Data struct {
 	CaCert              string
 	EtcdToken           string
 	EtcdServers         string
+	EtcdEndpoints       string
 	ZkServers           string
 	AlertManagers       string
 	MesosDNSPort        string
@@ -167,10 +168,12 @@ func (d *Data) zookeeperURL() {
 func (d *Data) etcdURL() {
 	for i := 1; i <= d.QuorumCount; i++ {
 		d.EtcdServers = d.EtcdServers +
-			"quorum-" + strconv.Itoa(i) + "=http://quorum-" +
-			strconv.Itoa(i) + ":2380"
+			"quorum-" + strconv.Itoa(i) + "=http://quorum-" + strconv.Itoa(i) + ":2380"
+		d.EtcdEndpoints = d.EtcdEndpoints +
+			"http://quorum-" + strconv.Itoa(i) + ":2379"
 		if i != d.QuorumCount {
 			d.EtcdServers = d.EtcdServers + ","
+			d.EtcdEndpoints = d.EtcdEndpoints + ","
 		}
 	}
 }

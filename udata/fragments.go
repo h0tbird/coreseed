@@ -888,6 +888,7 @@ coreos:
        KATO_HOST_NAME={{.HostName}}\n\
        KATO_HOST_ID={{.HostID}}\n\
        KATO_ZK={{.ZkServers}}\n\
+       KATO_ETCD_ENDPOINTS={{.EtcdEndpoints}}\n\
        KATO_SYSTEMD_UNITS=\'{{range .SystemdUnits}}{{.}} {{end}}\'\n\
        KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
        KATO_DOMAIN=$(hostname -d)\n\
@@ -991,11 +992,11 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.4.3
-     Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v0.23.0
+     Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.5.1
+     Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v1.0.0-beta
      Environment=CNI_PLUGINS=/var/lib/mesos/cni-plugins
-     Environment=IMG=quay.io/calico/node:v0.23.0
-     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     Environment=IMG=quay.io/calico/node:v1.0.0-beta
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
      ExecStartPre=/bin/bash -c " \
       [ -f ${CNI_PLUGINS}/calico ] || { curl -sL -o ${CNI_PLUGINS}/calico ${CNI_URL}/calico; }; \
       [ -x ${CNI_PLUGINS}/calico ] || { chmod +x ${CNI_PLUGINS}/calico; }"
@@ -1005,17 +1006,20 @@ coreos:
      ExecStartPre=/bin/bash -c " \
       [ -f /opt/bin/calicoctl ] || { curl -sL -o /opt/bin/calicoctl ${CALICOCTL_URL}/calicoctl; }; \
       [ -x /opt/bin/calicoctl ] || { chmod +x /opt/bin/calicoctl; }"
+     ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --volume=modules,kind=host,source=/lib/modules \
       --mount=volume=modules,target=/lib/modules \
+      --volume=var-run-calico,kind=host,source=/var/run/calico \
+      --mount=volume=var-run-calico,target=/var/run/calico \
       --set-env=CALICO_DISABLE_FILE_LOGGING=true \
       --set-env=HOSTNAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --set-env=IP=${KATO_HOST_IP} \
       --set-env=CALICO_NETWORKING_BACKEND=bird \
-      --set-env=ETCD_ENDPOINTS=http://172.17.8.11:2379 \
+      --set-env=ETCD_ENDPOINTS=${KATO_ETCD_ENDPOINTS} \
       --stage1-from-dir=stage1-fly.aci \
       ${IMG}
 
