@@ -75,6 +75,7 @@ type State struct {
 	SMTPURL          string   `json:"SMTPURL:"`         // deploy |       | add |
 	AdminEmail       string   `json:"AdminEmail:"`      // deploy |       | add |
 	CaCert           string   `json:"CaCert"`           // deploy |       | add |
+	NetworkBackend   string   `json:"NetworkBackend"`   // deploy |       |     |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   // deploy |       | add |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` // deploy |       | add |
 	FlannelSubnetMin string   `json:"FlannelSubnetMin"` // deploy |       | add |
@@ -206,6 +207,7 @@ func (d *Data) Add() {
 		"--ec2-region", d.Region,
 		"--ns1-api-key", d.Ns1ApiKey,
 		"--etcd-token", d.EtcdToken,
+		"--network-backend", d.NetworkBackend,
 		"--flannel-network", d.FlannelNetwork,
 		"--flannel-subnet-len", d.FlannelSubnetLen,
 		"--flannel-subnet-min", d.FlannelSubnetMin,

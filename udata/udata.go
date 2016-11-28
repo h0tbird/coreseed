@@ -52,6 +52,7 @@ type Data struct {
 	ZkServers           string
 	AlertManagers       string
 	MesosDNSPort        string
+	NetworkBackend      string
 	FlannelNetwork      string
 	FlannelSubnetLen    string
 	FlannelSubnetMin    string
@@ -246,7 +247,9 @@ func (d *Data) systemdUnits() {
 
 	// Aggregate units of all roles:
 	for _, i := range d.Roles {
+
 		switch i {
+
 		case "quorum":
 			units = append(units,
 				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer")
@@ -254,27 +257,39 @@ func (d *Data) systemdUnits() {
 				units = append(units,
 					"cadvisor", "node-exporter", "zookeeper-exporter")
 			}
+
 		case "master":
 			units = append(units,
-				"etcd2", "flanneld", "docker", "rexray", "mesos-master", "mesos-dns",
-				"marathon", "etchost.timer")
+				"etcd2", "docker", "rexray", "mesos-master", "mesos-dns", "marathon",
+				"etchost.timer")
 			if d.Prometheus {
 				units = append(units,
 					"cadvisor", "confd", "alertmanager", "prometheus", "node-exporter",
 					"mesos-master-exporter")
 			}
+			if d.NetworkBackend == "flannel" {
+				units = append(units, "flanneld")
+			}
+
 		case "worker":
 			units = append(units,
-				"etcd2", "flanneld", "docker", "rexray", "go-dnsmasq", "mesos-agent",
-				"marathon-lb", "etchost.timer")
+				"etcd2", "docker", "rexray", "go-dnsmasq", "mesos-agent", "marathon-lb",
+				"etchost.timer")
 			if d.Prometheus {
 				units = append(units,
 					"cadvisor", "mesos-agent-exporter", "node-exporter", "haproxy-exporter")
 			}
+			if d.NetworkBackend == "flannel" {
+				units = append(units, "flanneld")
+			}
+
 		case "border":
 			units = append(units,
-				"etcd2", "flanneld", "docker", "rexray", "mongodb", "pritunl",
-				"etchost.timer")
+				"etcd2", "docker", "rexray", "mongodb", "pritunl", "etchost.timer")
+			if d.NetworkBackend == "flannel" {
+				units = append(units, "flanneld")
+			}
+
 		default:
 			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
 		}
@@ -303,6 +318,7 @@ func (d *Data) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
 	tags = append(tags, d.ClusterState)
+	tags = append(tags, d.NetworkBackend)
 
 	if d.CaCert != "" {
 		tags = append(tags, "cacert")

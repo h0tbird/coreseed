@@ -714,6 +714,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
+			allOf: []string{"flannel"},
 		},
 		data: `
   - name: "flanneld.service"
@@ -1931,6 +1932,7 @@ coreos:
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
+			allOf: []string{"flannel"},
 		},
 		data: `
  flannel:

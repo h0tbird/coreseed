@@ -110,6 +110,11 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_VPC_CIDR_BLOCK").
 		String()
 
+	flEc2DeployNetworkBackend = cmdEc2Deploy.Flag("network-backend",
+		"Software defined network: [ flannel | calico | canal ]").
+		Default("flannel").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_NETWORK_BACKEND").
+		Enum("flannel", "calico", "canal")
+
 	flEc2DeployIntSubnetCidr = cmdEc2Deploy.Flag("internal-subnet-cidr",
 		"CIDR for the internal subnet.").
 		Default("10.0.1.0/24").

@@ -81,6 +81,11 @@ var (
 		Default("false").OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
 		Bool()
 
+	flUdataNetworkBackend = cmdUdata.Flag("network-backend",
+		"Software defined network: [ flannel | calico | canal ]").
+		Default("flannel").OverrideDefaultFromEnvar("KATO_UDATA_NETWORK_BACKEND").
+		Enum("flannel", "calico", "canal")
+
 	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network",
 		"Flannel entire overlay network.").
 		Default("10.128.0.0/21").
