@@ -67,24 +67,50 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
+			allOf: []string{"calico"},
 		},
 		data: `
- - path: "/var/lib/mesos/cni-config/devel.json"
+ - path: "/var/lib/mesos/cni-config/devel.conf"
    content: |
     {
       "name": "devel",
-      "type": "bridge",
-      "bridge": "cni0",
-      "isGateway": true,
-      "ipMasq": true,
+      "type": "calico",
       "ipam": {
-        "type": "host-local",
-        "subnet": "192.168.0.0/16",
-        "routes": [
-          { "dst": "0.0.0.0/0" }
-        ]
-      }
+        "type": "calico-ipam"
+      },
+      "etcd_endpoints": "{{.EtcdEndpoints}}"
+    }
+ - path: "/var/lib/mesos/cni-config/prod.conf"
+   content: |
+    {
+      "name": "prod",
+      "type": "calico",
+      "ipam": {
+        "type": "calico-ipam"
+      },
+      "etcd_endpoints": "{{.EtcdEndpoints}}"
     }`,
+	})
+
+	//----------------------------------
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"worker"},
+			allOf: []string{"calico"},
+		},
+		data: `
+ - path: "/etc/calico/resources.yaml"
+   content: |
+    apiVersion: v1
+    kind: ipPool
+    metadata:
+      cidr: {{.FlannelNetwork}}
+    spec:
+      ipip:
+        enabled: false
+      nat-outgoing: true
+      disabled: false`,
 	})
 
 	//----------------------------------
@@ -994,6 +1020,7 @@ coreos:
      Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v1.0.0-beta
      Environment=CNI_PLUGINS=/var/lib/mesos/cni-plugins
      Environment=IMG=quay.io/calico/node:v1.0.0-beta
+     ExecStartPre=/usr/sbin/sysctl -w net.netfilter.nf_conntrack_max=1000000
      ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
      ExecStartPre=/bin/bash -c " \
       [ -f ${CNI_PLUGINS}/calico ] || { curl -sL -o ${CNI_PLUGINS}/calico ${CNI_URL}/calico; }; \
@@ -1005,6 +1032,7 @@ coreos:
       [ -f /opt/bin/calicoctl ] || { curl -sL -o /opt/bin/calicoctl ${CALICOCTL_URL}/calicoctl; }; \
       [ -x /opt/bin/calicoctl ] || { chmod +x /opt/bin/calicoctl; }"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/opt/bin/calicoctl create --skip-exists -f /etc/calico/resources.yaml
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --dns=host \
@@ -1018,6 +1046,7 @@ coreos:
       --set-env=IP=${KATO_HOST_IP} \
       --set-env=CALICO_NETWORKING_BACKEND=bird \
       --set-env=ETCD_ENDPOINTS=${KATO_ETCD_ENDPOINTS} \
+      --set-env=NO_DEFAULT_POOLS=true \
       --stage1-from-dir=stage1-fly.aci \
       ${IMG}
 
