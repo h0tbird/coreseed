@@ -102,15 +102,27 @@ write_files:`,
 		data: `
  - path: "/etc/calico/resources.yaml"
    content: |
-    apiVersion: v1
-    kind: ipPool
-    metadata:
-      cidr: {{.FlannelNetwork}}
-    spec:
-      ipip:
-        enabled: false
-      nat-outgoing: true
-      disabled: false`,
+    - apiVersion: v1
+      kind: ipPool
+      metadata:
+        cidr: {{.FlannelNetwork}}
+      spec:
+        ipip:
+          enabled: false
+        nat-outgoing: true
+        disabled: false
+    - apiVersion: v1
+      kind: policy
+      metadata:
+        name: mesos-agent
+      spec:
+        order: 1
+        egress:
+        - action: allow
+          protocol: tcp
+          destination:
+            ports:
+            - 5051`,
 	})
 
 	//----------------------------------
