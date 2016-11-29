@@ -105,7 +105,7 @@ write_files:`,
     - apiVersion: v1
       kind: ipPool
       metadata:
-        cidr: {{.FlannelNetwork}}
+        cidr: {{.CalicoIPPool}}
       spec:
         ipip:
           enabled: false

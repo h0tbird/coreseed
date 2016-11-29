@@ -37,7 +37,6 @@ if ARGV[0].eql?('up')
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
     "--network-backend calico " +
-    "--flannel-backend host-gw " +
     "--iaas-provider vbox " +
     "--cluster-state new " +
     "--quorum-count 1 " +

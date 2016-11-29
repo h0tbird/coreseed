@@ -54,6 +54,7 @@ type Data struct {
 	AlertManagers       string
 	MesosDNSPort        string
 	NetworkBackend      string
+	CalicoIPPool        string
 	FlannelNetwork      string
 	FlannelSubnetLen    string
 	FlannelSubnetMin    string

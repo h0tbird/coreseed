@@ -76,6 +76,7 @@ type State struct {
 	AdminEmail       string   `json:"AdminEmail:"`      // deploy |       | add |
 	CaCert           string   `json:"CaCert"`           // deploy |       | add |
 	NetworkBackend   string   `json:"NetworkBackend"`   // deploy |       |     |
+	CalicoIPPool     string   `json:"CalicoIPPool"`     // deploy |       |     |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   // deploy |       | add |
 	FlannelSubnetLen string   `json:"FlannelSubnetLen"` // deploy |       | add |
 	FlannelSubnetMin string   `json:"FlannelSubnetMin"` // deploy |       | add |
@@ -208,6 +209,7 @@ func (d *Data) Add() {
 		"--ns1-api-key", d.Ns1ApiKey,
 		"--etcd-token", d.EtcdToken,
 		"--network-backend", d.NetworkBackend,
+		"--calico-ip-pool", d.CalicoIPPool,
 		"--flannel-network", d.FlannelNetwork,
 		"--flannel-subnet-len", d.FlannelSubnetLen,
 		"--flannel-subnet-min", d.FlannelSubnetMin,
