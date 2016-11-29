@@ -96,7 +96,7 @@ write_files:`,
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
-			anyOf: []string{"worker"},
+			anyOf: []string{"master", "worker", "border"},
 			allOf: []string{"calico"},
 		},
 		data: `
