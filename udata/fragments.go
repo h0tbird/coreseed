@@ -978,12 +978,10 @@ coreos:
 		},
 		data: `
   - name: "calico.service"
-    command: "start"
+    enable: true
     content: |
      [Unit]
      Description=Calico per-host agent
-     Requires=network-online.target
-     After=network-online.target
 
      [Service]
      Slice=kato.slice
