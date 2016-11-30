@@ -70,7 +70,7 @@ write_files:`,
 			allOf: []string{"calico"},
 		},
 		data: `
- - path: "/var/lib/mesos/cni-config/devel.conf"
+ - path: "/etc/cni/net.d/10-devel.conf"
    content: |
     {
       "name": "devel",
@@ -80,7 +80,7 @@ write_files:`,
       },
       "etcd_endpoints": "{{.EtcdEndpoints}}"
     }
- - path: "/var/lib/mesos/cni-config/prod.conf"
+ - path: "/etc/cni/net.d/10-prod.conf"
    content: |
     {
       "name": "prod",
@@ -1007,7 +1007,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.5.1
      Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v1.0.0-beta
-     Environment=CNI_PLUGINS=/var/lib/mesos/cni-plugins
+     Environment=CNI_PLUGINS=/var/lib/cni-plugins
      Environment=IMG=quay.io/calico/node:v1.0.0-beta
      ExecStartPre=/usr/sbin/sysctl -w net.netfilter.nf_conntrack_max=1000000
      ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
@@ -1732,8 +1732,8 @@ coreos:
       --master=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/agent \
       --log_dir=/var/log/mesos/agent \
-      --network_cni_config_dir=/var/lib/mesos/cni-config \
-      --network_cni_plugins_dir=/var/lib/mesos/cni-plugins"
+      --network_cni_config_dir=/etc/cni/net.d \
+      --network_cni_plugins_dir=/var/lib/cni-plugins"
 
      [Install]
      WantedBy=kato.target`,
@@ -1876,9 +1876,9 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/usr/bin/sh -c "[ -d /var/lib/mesos/cni-plugins ] || mkdir -p /var/lib/mesos/cni-plugins"
+     ExecStart=/usr/bin/sh -c "[ -d /var/lib/cni-plugins ] || mkdir -p /var/lib/cni-plugins"
      ExecStart=/usr/bin/rkt run \
-       --volume cni,kind=host,source=/var/lib/mesos/cni-plugins \
+       --volume cni,kind=host,source=/var/lib/cni-plugins \
        --mount volume=cni,target=/tmp \
        quay.io/kato/cni-plugins:v0.3.0-1
 
