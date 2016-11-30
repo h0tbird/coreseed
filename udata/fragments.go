@@ -821,7 +821,7 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
+			anyOf: []string{"master", "worker"},
 			allOf: []string{"ec2"},
 		},
 		data: `
@@ -844,21 +844,21 @@ coreos:
 
 	d.frags = append(d.frags, fragment{
 		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
+			anyOf: []string{"master", "worker"},
 			allOf: []string{"ec2"},
 		},
 		data: `
-  - name: "var-lib-docker.mount"
+  - name: "var-lib-mesos.mount"
     command: "start"
     content: |
      [Unit]
-     Description=Mount ephemeral to /var/lib/docker
+     Description=Mount ephemeral to /var/lib/mesos
      Requires=format-ephemeral.service
      After=format-ephemeral.service
 
      [Mount]
      What=/dev/xvdb
-     Where=/var/lib/docker
+     Where=/var/lib/mesos
      Type=ext4`,
 	})
 
@@ -872,34 +872,11 @@ coreos:
 		data: `
   - name: "docker.service"
     drop-ins:
-     - name: "10-var-lib-docker.conf"
-       content: |
-        [Unit]
-        After=var-lib-docker.mount
-        Requires=var-lib-docker.mount
      - name: "20-docker-opts.conf"
        content: |
         [Unit]
         After=flanneld.service
         [Service]
-        Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
-	})
-
-	//----------------------------------
-
-	d.frags = append(d.frags, fragment{
-		filter: filter{
-			anyOf:  []string{"quorum", "master", "worker", "border"},
-			noneOf: []string{"ec2"},
-		},
-		data: `
-  - name: "docker.service"
-    drop-ins:
-     - name: "20-docker-opts.conf"
-       content: |
-        [Service]
-        [Unit]
-        After=flanneld.service
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
 
@@ -1034,10 +1011,10 @@ coreos:
      Environment=IMG=quay.io/calico/node:v1.0.0-beta
      ExecStartPre=/usr/sbin/sysctl -w net.netfilter.nf_conntrack_max=1000000
      ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
-     ExecStartPre=/bin/bash -c " \
+     ExecStartPre=-/bin/bash -c " \
       [ -f ${CNI_PLUGINS}/calico ] || { curl -sL -o ${CNI_PLUGINS}/calico ${CNI_URL}/calico; }; \
       [ -x ${CNI_PLUGINS}/calico ] || { chmod +x ${CNI_PLUGINS}/calico; }"
-     ExecStartPre=/bin/bash -c " \
+     ExecStartPre=-/bin/bash -c " \
       [ -f ${CNI_PLUGINS}/calico-ipam ] || { curl -sL -o ${CNI_PLUGINS}/calico-ipam ${CNI_URL}/calico-ipam; }; \
       [ -x ${CNI_PLUGINS}/calico-ipam ] || { chmod +x ${CNI_PLUGINS}/calico-ipam; }"
      ExecStartPre=/bin/bash -c " \
