@@ -1731,7 +1731,7 @@ coreos:
       --containerizers=mesos \
       --image_providers=docker \
       --docker_store_dir=/var/lib/mesos/store/docker \
-      --isolation=filesystem/linux,docker/runtime \
+      --isolation=filesystem/linux,docker/runtime,docker/volume \
       --executor_registration_timeout=5mins \
       --master=zk://${KATO_ZK}/mesos \
       --work_dir=/var/lib/mesos/agent \
