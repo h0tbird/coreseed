@@ -109,6 +109,13 @@ title: Components
       <td><a href="https://quay.io/repository/kato/confd"><img src="https://quay.io/repository/kato/confd/status"></a></td>
     </tr>
     <tr>
+      <th><a href="https://github.com/projectcalico">Calico</a></th>
+      <td><a href="http://docs.projectcalico.org/v2.0">2.0-beta</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="https://quay.io/repository/calico/node"><img src="https://quay.io/repository/calico/node/status"></a></td>
+    </tr>
+    <tr>
       <th><a href="http://rexray.readthedocs.io/en/stable">REX-Ray</a></th>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
