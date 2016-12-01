@@ -146,7 +146,7 @@ func main() {
 		ec2 := ec2.Data{
 			State: ec2.State{
 				ClusterID:        *flEc2DeployClusterID,
-				Channel:          *flEc2DeployChannel,
+				CoreOSChannel:    *flEc2DeployCoreOSChannel,
 				KeyPair:          *flEc2DeployKeyPair,
 				EtcdToken:        *flEc2DeployEtcdToken,
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,

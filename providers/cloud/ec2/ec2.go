@@ -66,7 +66,7 @@ type State struct {
 	StubZones        []string `json:"StubZones"`        // deploy |       | add |
 	QuorumCount      int      `json:"QuorumCount"`      // deploy |       | add |
 	MasterCount      int      `json:"MasterCount"`      // deploy |       | add |
-	Channel          string   `json:"Channel"`          // deploy |       | add |
+	CoreOSChannel    string   `json:"CoreOSChannel"`    // deploy |       | add |
 	EtcdToken        string   `json:"EtcdToken"`        // deploy |       | add |
 	Ns1ApiKey        string   `json:"Ns1ApiKey"`        // deploy |       | add |
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` // deploy |       | add |
@@ -523,7 +523,7 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 
 	// Send the request:
 	res, err := http.
-		Get("https://coreos.com/dist/aws/aws-" + d.Channel + ".json")
+		Get("https://coreos.com/dist/aws/aws-" + d.CoreOSChannel + ".json")
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
@@ -551,7 +551,7 @@ func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
 
 	// Log this action:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.AmiID}).
-		Info("Latest CoreOS " + d.Channel + " AMI located")
+		Info("Latest CoreOS " + d.CoreOSChannel + " AMI located")
 }
 
 //-----------------------------------------------------------------------------

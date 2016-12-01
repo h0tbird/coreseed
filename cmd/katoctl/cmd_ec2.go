@@ -45,10 +45,10 @@ var (
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
 
-	flEc2DeployChannel = cmdEc2Deploy.Flag("channel",
+	flEc2DeployCoreOSChannel = cmdEc2Deploy.Flag("coreos-channel",
 		"CoreOS release channel [ stable | beta | alpha ]").
-		Default("stable").PlaceHolder("KATO_EC2_DEPLOY_CHANNEL").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CHANNEL").
+		Default("stable").PlaceHolder("KATO_EC2_DEPLOY_COREOS_CHANNEL").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_COREOS_CHANNEL").
 		Enum("stable", "beta", "alpha")
 
 	flEc2DeployEtcdToken = cmdEc2Deploy.Flag("etcd-token",
