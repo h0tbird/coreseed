@@ -236,6 +236,9 @@ write_files:`,
     rexray:
      storageDrivers:
      - {{.RexrayStorageDriver}}
+    volume:
+     unmount:
+      ignoreusedcount: true
     aws:
      rexrayTag: kato
 {{- end}}`,
@@ -1181,6 +1184,7 @@ coreos:
       --zk zk://${KATO_ZK}/marathon \
       --task_launch_timeout 240000 \
       --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --enable_features external_volumes \
       --checkpoint
 
      [Install]
