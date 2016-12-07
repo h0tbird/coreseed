@@ -110,7 +110,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/projectcalico">Calico</a></th>
-      <td><a href="http://docs.projectcalico.org/v2.0">2.0-beta</a></td>
+      <td><a href="http://docs.projectcalico.org/v2.0">2.0-rc2</a></td>
       <td><a href="">-</a></td>
       <td><a href="">-</a></td>
       <td><a href="https://quay.io/repository/calico/node"><img src="https://quay.io/repository/calico/node/status"></a></td>
