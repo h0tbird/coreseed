@@ -215,7 +215,7 @@ func (d *Data) Add() {
 		"--flannel-subnet-min", d.FlannelSubnetMin,
 		"--flannel-subnet-max", d.FlannelSubnetMax,
 		"--flannel-backend", d.FlannelBackend,
-		"--rexray-storage-driver", "ec2",
+		"--rexray-storage-driver", "ebs",
 		"--iaas-provider", "ec2",
 		"--prometheus",
 		"--gzip-udata",

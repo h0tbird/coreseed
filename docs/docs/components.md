@@ -117,7 +117,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://rexray.readthedocs.io/en/stable">REX-Ray</a></th>
-      <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
+      <td><a href="https://github.com/emccode/rexray/releases/tag/v0.6.2">0.6.2</a></td>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td></td>

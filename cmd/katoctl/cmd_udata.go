@@ -121,10 +121,10 @@ var (
 		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
 
 	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver",
-		"REX-Ray storage driver: [ ec2 | virtualbox ]").
+		"REX-Ray storage driver: [ ebs | virtualbox ]").
 		PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").
 		OverrideDefaultFromEnvar("KATO_UDATA_REXRAY_STORAGE_DRIVER").
-		Enum("virtualbox", "ec2")
+		Enum("virtualbox", "ebs")
 
 	flUdataRexrayEndpointIP = cmdUdata.Flag("rexray-endpoint-ip",
 		"REX-Ray endpoint IP address.").

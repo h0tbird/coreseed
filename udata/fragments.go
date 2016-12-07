@@ -204,43 +204,30 @@ write_files:`,
 	d.frags = append(d.frags, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"vbox"},
 		},
 		data: `
  - path: "/etc/rexray/rexray.env"
  - path: "/etc/rexray/config.yml"
-{{- if .RexrayStorageDriver }}
    content: |
     rexray:
-     storageDrivers:
-     - {{.RexrayStorageDriver}}
-    virtualbox:
-     endpoint: http://` + d.RexrayEndpointIP + `:18083
-     volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-     controllerName: SATA
-{{- end}}`,
-	})
-
-	//----------------------------------
-
-	d.frags = append(d.frags, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"ec2"},
-		},
-		data: `
- - path: "/etc/rexray/rexray.env"
- - path: "/etc/rexray/config.yml"
+     logLevel: warn
 {{- if .RexrayStorageDriver }}
-   content: |
-    rexray:
-     storageDrivers:
-     - {{.RexrayStorageDriver}}
+    libstorage:
+     embedded: true
+     service: {{.RexrayStorageDriver}}
+     server:
+      services:
+       {{.RexrayStorageDriver}}:
+        driver: {{.RexrayStorageDriver}}
+{{- if eq .RexrayStorageDriver "virtualbox" }}
+        virtualbox:
+         endpoint: http://` + d.RexrayEndpointIP + `:18083
+         volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+         controllerName: SATA
+{{- end}}
     volume:
      unmount:
       ignoreusedcount: true
-    aws:
-     rexrayTag: kato
 {{- end}}`,
 	})
 
@@ -1246,8 +1233,9 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     KillMode=process
      EnvironmentFile=/etc/rexray/rexray.env
-     Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.3.3/rexray-Linux-i386-0.3.3.tar.gz
+     Environment=REXRAY_URL=https://dl.bintray.com/emccode/rexray/stable/0.6.2/rexray-Linux-x86_64-0.6.2.tar.gz
      Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.0/dvdcli-Linux-x86_64-0.2.0.tar.gz
      ExecStartPre=-/bin/bash -c " \
        [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; }; \
@@ -1257,7 +1245,6 @@ coreos:
        [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
      ExecStart=/opt/bin/rexray start -f
      ExecReload=/bin/kill -HUP $MAINPID
-     KillMode=process
 
      [Install]
      WantedBy=kato.target`,
