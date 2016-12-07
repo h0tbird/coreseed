@@ -83,7 +83,7 @@ type ExtData struct {
 }
 
 type intData struct {
-	buffer   *bytes.Buffer
+	userData *bytes.Buffer
 	frags    []fragment
 	template string
 }
@@ -387,8 +387,8 @@ func (d *Data) renderTemplate() {
 	}
 
 	// Apply parsed template to data object:
-	d.buffer = bytes.NewBuffer(make([]byte, 0, 65536))
-	if err = t.Execute(d.buffer, d); err != nil {
+	d.userData = bytes.NewBuffer(make([]byte, 0, 65536))
+	if err = t.Execute(d.userData, d); err != nil {
 		log.WithField("cmd", "udata").Fatal(err)
 	}
 }
@@ -401,7 +401,7 @@ func (d *Data) validateUserData() {
 
 	errors := []string{}
 
-	report, err := validate.Validate(d.buffer.Bytes())
+	report, err := validate.Validate(d.userData.Bytes())
 	if err != nil {
 		errors = append(errors, fmt.Sprintf("%v", err))
 	}
@@ -423,14 +423,14 @@ func (d *Data) outputUserData() {
 		log.WithFields(log.Fields{"cmd": "udata", "id": d.HostName + "-" + d.HostID}).
 			Info("Generating gzipped cloud-config user data")
 		w := gzip.NewWriter(os.Stdout)
-		if _, err := d.buffer.WriteTo(w); err != nil {
+		if _, err := d.userData.WriteTo(w); err != nil {
 			_ = w.Close()
 			log.WithField("cmd", "udata").Fatal(err)
 		}
 		_ = w.Close()
 	} else {
 		log.WithField("cmd", "udata").Info("Generating plain text cloud-config user data")
-		if _, err := d.buffer.WriteTo(os.Stdout); err != nil {
+		if _, err := d.userData.WriteTo(os.Stdout); err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
 	}
