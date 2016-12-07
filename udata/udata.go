@@ -34,8 +34,8 @@ type fragment struct {
 	data string
 }
 
-// Data contains variables to be interpolated in templates.
-type Data struct {
+// ExtData contains variables to be interpolated in templates.
+type ExtData struct {
 	QuorumCount         int
 	MasterCount         int
 	GzipUdata           bool
@@ -73,12 +73,21 @@ type Data struct {
 	SMTPUser            string
 	SMTPPass            string
 	AdminEmail          string
-	template            string
 	Roles               []string
 	Aliases             []string
 	SystemdUnits        []string
 	StubZones           []string
-	frags               []fragment
+}
+
+type intData struct {
+	frags    []fragment
+	template string
+}
+
+// Data struct
+type Data struct {
+	ExtData
+	intData
 }
 
 //-----------------------------------------------------------------------------
