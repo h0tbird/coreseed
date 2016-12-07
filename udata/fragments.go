@@ -899,7 +899,8 @@ coreos:
        KATO_DOMAIN=$(hostname -d)\n\
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
        KATO_HOST_IP=$(hostname -i)\n\
-       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))" > /etc/kato.env'
+       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
+       KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
 
      [Install]
      WantedBy=multi-user.target`,
@@ -1325,7 +1326,7 @@ coreos:
       --dns=host \
       --hosts-entry=host \
       --volume volume-etc-prometheus,kind=host,source=/etc/prometheus,readOnly=true \
-      --volume volume-var-lib-prometheus,kind=host,source=/var/lib/rexray/volumes/${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}/data \
+      --volume volume-var-lib-prometheus,kind=host,source=${KATO_VOLUMES}/${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}/data \
       ${IMG} --exec /usr/local/bin/prometheus -- \
       -config.file=/etc/prometheus/prometheus.yml \
       -storage.local.path=/var/lib/prometheus \
@@ -1588,7 +1589,7 @@ coreos:
       --net=host \
       --dns=host \
       --hosts-entry=host \
-      --volume volume-data-db,kind=host,source=/var/lib/rexray/volumes/${KATO_CLUSTER_ID}-pritunl-mongo/data \
+      --volume volume-data-db,kind=host,source=${KATO_VOLUMES}/${KATO_CLUSTER_ID}-pritunl-mongo/data \
       docker://${IMG} -- \
       --bind_ip 127.0.0.1
 
