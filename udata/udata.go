@@ -7,7 +7,9 @@ package udata
 import (
 
 	// Stdlib:
+	"bytes"
 	"compress/gzip"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -17,6 +19,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
+	"github.com/coreos/coreos-cloudinit/config/validate"
 )
 
 //-----------------------------------------------------------------------------
@@ -80,6 +83,7 @@ type ExtData struct {
 }
 
 type intData struct {
+	buffer   *bytes.Buffer
 	frags    []fragment
 	template string
 }
@@ -370,23 +374,10 @@ func (d *Data) composeTemplate() {
 }
 
 //-----------------------------------------------------------------------------
-// func: Render
+// func: renderTemplate
 //-----------------------------------------------------------------------------
 
-// Render takes a Data structure and outputs valid CoreOS cloud-config
-// in YAML format to stdout.
-func (d *Data) Render() {
-
-	d.caCertificate()   // Retrieve the CA certificate.
-	d.zookeeperURL()    // Forge the Zookeeper URL.
-	d.etcdURL()         // Initial etcd cluster URL.
-	d.alertmanagerURL() // Comma separated alertmanagers.
-	d.smtpURL()         // Split URL into its components.
-	d.mesosDNSPort()    // One of 53 or 54.
-	d.hostnameAliases() // Hostname aliases array.
-	d.systemdUnits()    // Systemd units array.
-	d.loadFragments()   // Load the fragments array.
-	d.composeTemplate() // Compose the template.
+func (d *Data) renderTemplate() {
 
 	// Template parsing:
 	t := template.New("udata")
@@ -396,19 +387,79 @@ func (d *Data) Render() {
 	}
 
 	// Apply parsed template to data object:
+	d.buffer = bytes.NewBuffer(make([]byte, 0, 65536))
+	if err = t.Execute(d.buffer, d); err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: validateUserData
+//-----------------------------------------------------------------------------
+
+func (d *Data) validateUserData() {
+
+	errors := []string{}
+
+	report, err := validate.Validate(d.buffer.Bytes())
+	if err != nil {
+		errors = append(errors, fmt.Sprintf("%v", err))
+	}
+	for _, entry := range report.Entries() {
+		errors = append(errors, fmt.Sprintf("%v", entry))
+	}
+	if len(errors) > 0 {
+		log.WithField("cmd", "udata").Fatal(errors)
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: outputUserData
+//-----------------------------------------------------------------------------
+
+func (d *Data) outputUserData() {
+
 	if d.GzipUdata {
 		log.WithFields(log.Fields{"cmd": "udata", "id": d.HostName + "-" + d.HostID}).
-			Info("Rendering gzipped cloud-config template")
+			Info("Generating gzipped cloud-config user data")
 		w := gzip.NewWriter(os.Stdout)
-		if err = t.Execute(w, d); err != nil {
+		if _, err := d.buffer.WriteTo(w); err != nil {
 			_ = w.Close()
 			log.WithField("cmd", "udata").Fatal(err)
 		}
 		_ = w.Close()
 	} else {
-		log.WithField("cmd", "udata").Info("Rendering plain text cloud-config template")
-		if err = t.Execute(os.Stdout, d); err != nil {
+		log.WithField("cmd", "udata").Info("Generating plain text cloud-config user data")
+		if _, err := d.buffer.WriteTo(os.Stdout); err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: Generate
+//-----------------------------------------------------------------------------
+
+// Generate takes a Data structure and outputs valid CoreOS cloud-config
+// user data in YAML format to stdout.
+func (d *Data) Generate() {
+
+	// Variables:
+	d.caCertificate()   // Retrieve the CA certificate.
+	d.zookeeperURL()    // Forge the Zookeeper URL.
+	d.etcdURL()         // Initial etcd cluster URL.
+	d.alertmanagerURL() // Comma separated alertmanagers.
+	d.smtpURL()         // Split URL into its components.
+	d.mesosDNSPort()    // One of 53 or 54.
+	d.hostnameAliases() // Hostname aliases array.
+	d.systemdUnits()    // Systemd units array.
+
+	// Template:
+	d.loadFragments()   // Load the fragments array.
+	d.composeTemplate() // Compose the template.
+	d.renderTemplate()  // Render the template into memory.
+
+	// User data:
+	d.validateUserData() // Validate the generated user data.
+	d.outputUserData()   // Output user data to stdout.
 }

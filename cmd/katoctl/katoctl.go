@@ -101,7 +101,7 @@ func main() {
 			},
 		}
 
-		udata.Render()
+		udata.Generate()
 
 	//--------------------
 	// katoctl pkt deploy
