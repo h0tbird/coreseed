@@ -1,4 +1,4 @@
-# The Káto system
+# The Káto System
 
 [![Version Widget]][Version] [![License Widget]][License] [![GoReportCard Widget]][GoReportCard] [![Travis Widget]][Travis]
 
@@ -16,8 +16,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-<img src="https://raw.githubusercontent.com/katosys/kato/master/imgs/kato.png"
- align="right" width="69%" height="69%"/>
+<img src="http://kato.one/img/kato.png" width="70%" height="70%" align="right">
 
 **Distinctive attributes**
 

@@ -1239,10 +1239,10 @@ coreos:
      Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.0/dvdcli-Linux-x86_64-0.2.0.tar.gz
      ExecStartPre=-/bin/bash -c " \
        [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
+       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; chown root:root /opt/bin/rexray; }"
      ExecStartPre=-/bin/bash -c " \
        [ -f /opt/bin/dvdcli ] || { curl -sL ${DVDCLI_URL} | tar -xz -C /opt/bin; }; \
-       [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
+       [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; chown root:root /opt/bin/dvdcli; }"
      ExecStart=/opt/bin/rexray start -f
      ExecReload=/bin/kill -HUP $MAINPID
 
