@@ -1348,6 +1348,32 @@ coreos:
 			allOf: []string{"prometheus"},
 		},
 		data: `
+  - name: "rkt-api.service"
+    enable: true
+    content: |
+     [Unit]
+     Description=Rocket API service
+     Before=cadvisor.service
+
+     [Service]
+     Restart=always
+     RestartSec=10
+     TimeoutStartSec=0
+     KillMode=mixed
+     ExecStart=/usr/bin/rkt api-service
+
+     [Install]
+     WantedBy=kato.target`,
+	})
+
+	//----------------------------------
+
+	d.frags = append(d.frags, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"prometheus"},
+		},
+		data: `
   - name: "cadvisor.service"
     enable: true
     content: |
