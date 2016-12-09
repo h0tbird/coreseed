@@ -1360,23 +1360,24 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
-     ExecStartPre=-/usr/bin/docker kill %p
-     ExecStartPre=-/usr/bin/docker rm -f %p
-     ExecStartPre=/usr/bin/docker pull google/cadvisor:v0.24.1
-     ExecStart=/usr/bin/sh -c "docker run \
-       --net host \
-       --name %p \
-       --volume /:/rootfs:ro \
-       --volume /var/run:/var/run:rw \
-       --volume /sys:/sys:ro \
-       --volume /var/lib/docker/:/var/lib/docker:ro \
-       --volume /etc/resolv.conf:/etc/resolv.conf:ro \
-       --volume /etc/hosts:/etc/hosts:ro \
-       google/cadvisor:v0.24.1 \
-       --listen_ip $(hostname -i) \
-       --logtostderr \
-       --port=4194"
-     ExecStop=/usr/bin/docker stop -t 5 %p
+     KillMode=mixed
+     EnvironmentFile=/etc/kato.env
+     Environment=IMG=google/cadvisor:v0.24.1
+     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
+     ExecStart=/usr/bin/rkt run --insecure-options=paths \
+      --net=host \
+      --volume root,kind=host,source=/,readOnly=true \
+      --mount volume=root,target=/rootfs \
+      --volume run,kind=host,source=/var/run \
+      --mount volume=run,target=/var/run \
+      --volume sys,kind=host,source=/sys,readOnly=true \
+      --mount volume=sys,target=/sys \
+      --volume docker,kind=host,source=/var/lib/docker,readOnly=true \
+      --mount volume=docker,target=/var/lib/docker \
+      docker://${IMG} -- \
+      --listen_ip ${KATO_HOST_IP} \
+      --logtostderr \
+      --port=4194
 
      [Install]
      WantedBy=kato.target`,
