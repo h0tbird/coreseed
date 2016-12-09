@@ -1013,7 +1013,7 @@ coreos:
       [ -x /opt/bin/calicoctl ] || { chmod +x /opt/bin/calicoctl; }"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/opt/bin/calicoctl create --skip-exists -f /etc/calico/resources.yaml
-     ExecStart=/usr/bin/rkt run \
+     ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
       --net=host \
       --dns=host \
       --hosts-entry=host \
@@ -1027,7 +1027,6 @@ coreos:
       --set-env=CALICO_NETWORKING_BACKEND=bird \
       --set-env=ETCD_ENDPOINTS=${KATO_ETCD_ENDPOINTS} \
       --set-env=NO_DEFAULT_POOLS=true \
-      --stage1-from-dir=stage1-fly.aci \
       ${IMG}
 
      [Install]
@@ -1353,9 +1352,9 @@ coreos:
     content: |
      [Unit]
      Description=Rocket API service
-     Before=cadvisor.service
 
      [Service]
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
@@ -1379,8 +1378,7 @@ coreos:
     content: |
      [Unit]
      Description=cAdvisor service
-     After=docker.service
-     Requires=docker.service
+     After=docker.service rkt-api.service
 
      [Service]
      Restart=always
@@ -1392,12 +1390,14 @@ coreos:
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStart=/usr/bin/rkt run --insecure-options=paths \
       --net=host \
-      --volume root,kind=host,source=/,readOnly=true \
-      --mount volume=root,target=/rootfs \
+      --volume rootfs,kind=host,source=/,readOnly=true \
+      --mount volume=rootfs,target=/rootfs \
       --volume run,kind=host,source=/var/run \
       --mount volume=run,target=/var/run \
       --volume sys,kind=host,source=/sys,readOnly=true \
       --mount volume=sys,target=/sys \
+      --volume rkt,kind=host,source=/var/lib/rkt,readOnly=true \
+      --mount volume=rkt,target=/var/lib/rkt \
       --volume docker,kind=host,source=/var/lib/docker,readOnly=true \
       --mount volume=docker,target=/var/lib/docker \
       docker://${IMG} -- \
@@ -1648,12 +1648,11 @@ coreos:
      LimitNOFILE=25000
      Environment=IMG=quay.io/kato/pritunl:v1.25.1126.38-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/rkt run \
+     ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-      --stage1-from-dir=stage1-fly.aci \
       ${IMG}
 
      [Install]
@@ -1781,13 +1780,12 @@ coreos:
      Environment=IMG=mesosphere/marathon-lb:v1.4.3
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStartPre=/usr/bin/sh -c "until host marathon; do sleep 3; done"
-     ExecStart=/usr/bin/rkt run \
+     ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
       --net=host \
       --dns=host \
       --hosts-entry=host \
       --set-env=PORTS=9090,9091 \
       --set-env=HAPROXY_RELOAD_SIGTERM_DELAY=5 \
-      --stage1-from-dir=stage1-fly.aci \
       docker://${IMG} --exec /marathon-lb/run -- sse \
       --marathon http://marathon:8080 \
       --health-check \

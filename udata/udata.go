@@ -272,7 +272,7 @@ func (d *Data) systemdUnits() {
 				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer")
 			if d.Prometheus {
 				units = append(units,
-					"cadvisor", "node-exporter", "zookeeper-exporter")
+					"rkt-api", "cadvisor", "node-exporter", "zookeeper-exporter")
 			}
 
 		case "master":
@@ -281,8 +281,8 @@ func (d *Data) systemdUnits() {
 				"mesos-dns", "marathon", "etchost.timer")
 			if d.Prometheus {
 				units = append(units,
-					"cadvisor", "confd", "alertmanager", "prometheus", "node-exporter",
-					"mesos-master-exporter")
+					"rkt-api", "cadvisor", "confd", "alertmanager", "prometheus",
+					"node-exporter", "mesos-master-exporter")
 			}
 
 		case "worker":
@@ -291,7 +291,8 @@ func (d *Data) systemdUnits() {
 				"mesos-agent", "marathon-lb", "etchost.timer")
 			if d.Prometheus {
 				units = append(units,
-					"cadvisor", "mesos-agent-exporter", "node-exporter", "haproxy-exporter")
+					"rkt-api", "cadvisor", "mesos-agent-exporter", "node-exporter",
+					"haproxy-exporter")
 			}
 
 		case "border":
