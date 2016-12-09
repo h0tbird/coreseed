@@ -1381,26 +1381,17 @@ coreos:
      After=docker.service rkt-api.service
 
      [Service]
+     Slice=kato.slice
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=google/cadvisor:v0.24.1
-     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
-     ExecStart=/usr/bin/rkt run --insecure-options=paths \
-      --net=host \
-      --volume rootfs,kind=host,source=/,readOnly=true \
-      --mount volume=rootfs,target=/rootfs \
-      --volume run,kind=host,source=/var/run \
-      --mount volume=run,target=/var/run \
-      --volume sys,kind=host,source=/sys,readOnly=true \
-      --mount volume=sys,target=/sys \
-      --volume rkt,kind=host,source=/var/lib/rkt,readOnly=true \
-      --mount volume=rkt,target=/var/lib/rkt \
-      --volume docker,kind=host,source=/var/lib/docker,readOnly=true \
-      --mount volume=docker,target=/var/lib/docker \
-      docker://${IMG} -- \
+     Environment=URL=https://github.com/google/cadvisor/releases/download/v0.24.1
+     ExecStartPre=/bin/bash -c " \
+      [ -f /opt/bin/cadvisor ] || { curl -sL -o /opt/bin/cadvisor ${URL}/cadvisor; }; \
+      [ -x /opt/bin/cadvisor ] || { chmod +x /opt/bin/cadvisor; }"
+     ExecStart=/opt/bin/cadvisor \
       --listen_ip ${KATO_HOST_IP} \
       --logtostderr \
       --port=4194
