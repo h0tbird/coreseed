@@ -901,6 +901,7 @@ coreos:
        KATO_HOST_IP=$(hostname -i)\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
+     ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
 
      [Install]
      WantedBy=multi-user.target`,
@@ -1151,7 +1152,7 @@ coreos:
      KillMode=mixed
      LimitNOFILE=8192
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/marathon:v1.3.6-3
+     Environment=IMG=quay.io/kato/marathon:latest
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
@@ -1166,13 +1167,13 @@ coreos:
       --mount volume=lib,target=/opt/lib \
       ${IMG} -- \
       --no-logger \
+      --checkpoint \
       --http_address ${KATO_HOST_IP} \
       --master zk://${KATO_ZK}/mesos \
       --zk zk://${KATO_ZK}/marathon \
       --task_launch_timeout 240000 \
       --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
-      --enable_features external_volumes \
-      --checkpoint
+      --enable_features external_volumes
 
      [Install]
      WantedBy=kato.target`,
