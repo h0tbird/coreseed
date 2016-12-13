@@ -26,7 +26,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://mesos.apache.org">Mesos</a></th>
-      <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=1.1.0">1.1.0</a></td>
+      <td><a href="https://github.com/apache/mesos">master</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
       <td><a href="https://git-wip-us.apache.org/repos/asf?p=mesos.git;a=blob_plain;f=CHANGELOG;hb=0.28.1">0.28.1</a></td>
       <td><a href="https://quay.io/repository/kato/mesos"><img src="https://quay.io/repository/kato/mesos/status"></a></td>
