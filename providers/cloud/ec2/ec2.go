@@ -765,14 +765,17 @@ func (d *Data) setupVPCNetwork(wg *sync.WaitGroup) {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
-	// Create a NAT gateway:
-	if err := d.createNatGateway(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
+	if d.IntSubnetCidr != "" {
 
-	// Create a default route via NAT GW (int):
-	if err := d.createNatGatewayRoute(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		// Create a NAT gateway:
+		if err := d.createNatGateway(); err != nil {
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		}
+
+		// Create a default route via NAT GW (int):
+		if err := d.createNatGatewayRoute(); err != nil {
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		}
 	}
 }
 
@@ -1033,29 +1036,32 @@ func (d *Data) createSubnets() error {
 	// For each subnet:
 	for k, v := range nets {
 
-		// Forge the subnet request:
-		params := &ec2.CreateSubnetInput{
-			CidrBlock:        aws.String(v["SubnetCidr"]),
-			VpcId:            aws.String(d.VpcID),
-			AvailabilityZone: aws.String(d.Region + d.Zone),
-			DryRun:           aws.Bool(false),
-		}
+		if v["SubnetCidr"] != "" {
 
-		// Send the subnet request:
-		resp, err := d.ec2.CreateSubnet(params)
-		if err != nil {
-			log.WithField("cmd", "ec2:"+d.command).Error(err)
-			return err
-		}
+			// Forge the subnet request:
+			params := &ec2.CreateSubnetInput{
+				CidrBlock:        aws.String(v["SubnetCidr"]),
+				VpcId:            aws.String(d.VpcID),
+				AvailabilityZone: aws.String(d.Region + d.Zone),
+				DryRun:           aws.Bool(false),
+			}
 
-		// Locally store the subnet ID:
-		v["SubnetID"] = *resp.Subnet.SubnetId
-		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["SubnetID"]}).
-			Info("New " + k + " subnet")
+			// Send the subnet request:
+			resp, err := d.ec2.CreateSubnet(params)
+			if err != nil {
+				log.WithField("cmd", "ec2:"+d.command).Error(err)
+				return err
+			}
 
-		// Tag the subnet:
-		if err = d.tag(v["SubnetID"], "Name", k); err != nil {
-			return err
+			// Locally store the subnet ID:
+			v["SubnetID"] = *resp.Subnet.SubnetId
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": v["SubnetID"]}).
+				Info("New " + k + " subnet")
+
+			// Tag the subnet:
+			if err = d.tag(v["SubnetID"], "Name", k); err != nil {
+				return err
+			}
 		}
 	}
 

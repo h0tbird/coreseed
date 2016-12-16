@@ -123,7 +123,6 @@ var (
 
 	flEc2DeployIntSubnetCidr = cmdEc2Deploy.Flag("internal-subnet-cidr",
 		"CIDR for the internal subnet.").
-		Default("10.0.1.0/24").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR").
 		String()
 
