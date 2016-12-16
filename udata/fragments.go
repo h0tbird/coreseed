@@ -110,19 +110,7 @@ write_files:`,
         ipip:
           enabled: false
         nat-outgoing: true
-        disabled: false
-    - apiVersion: v1
-      kind: policy
-      metadata:
-        name: mesos-agent
-      spec:
-        order: 1
-        egress:
-        - action: allow
-          protocol: tcp
-          destination:
-            ports:
-            - 5051`,
+        disabled: false`,
 	})
 
 	//----------------------------------
