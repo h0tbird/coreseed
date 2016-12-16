@@ -98,9 +98,9 @@ Vagrant.configure("2") do |config|
 
     if ARGV[0].eql?('up')
 
-      system 'sudo bash -c "echo %s quorum-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
-      system 'sudo bash -c "echo %s master-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
-      system 'sudo bash -c "echo %s worker-1.%s >> /etc/hosts"' % [ $ip_address, $domain ]
+      system 'sudo bash -c "echo %s quorum-1.%s quorum-1 >> /etc/hosts"' % [ $ip_address, $domain ]
+      system 'sudo bash -c "echo %s master-1.%s master-1 >> /etc/hosts"' % [ $ip_address, $domain ]
+      system 'sudo bash -c "echo %s worker-1.%s worker-1 >> /etc/hosts"' % [ $ip_address, $domain ]
 
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 

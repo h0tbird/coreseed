@@ -81,8 +81,7 @@ Congratulations! You have now deployed an all-in-one local *Káto* system. Use t
 ```bash
 git clone --recursive https://github.com/katosys/the-voting-app.git
 cd the-voting-app
-export MARATHON_URL='http://master-1.cell-1.dc-1.kato:8080'
-./bin/marathon start
+./bin/deploy
 sudo bash -c "echo 172.17.8.11 vote.thevotingapp.com >> /etc/hosts"
 sudo bash -c "echo 172.17.8.11 results.thevotingapp.com >> /etc/hosts"
 ```
