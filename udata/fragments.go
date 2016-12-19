@@ -1481,7 +1481,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     Environment=IMG=quay.io/kato/exporters:v0.2.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -1516,7 +1516,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     Environment=IMG=quay.io/kato/exporters:v0.2.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -1555,7 +1555,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     Environment=IMG=quay.io/kato/exporters:v0.2.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/sh -c "exec rkt run \
       --net=host \
@@ -1985,7 +1985,7 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
-     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     Environment=IMG=quay.io/kato/exporters:v0.2.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
@@ -2020,7 +2020,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/exporters:v0.1.0-1
+     Environment=IMG=quay.io/kato/exporters:v0.2.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
