@@ -76,10 +76,10 @@ Congratulations! You have now deployed an all-in-one local *Káto* system. Use t
 
 ## Deploy a sample application
 
-[The Voting App](https://github.com/katosys/the-voting-app) is a sample application. The original demo was designed to run on top of a *Swarm* scheduler with docker compose. This one has been modified to run on top of a *Mesos/Marathon* scheduler. Click on the links below to access the vote and results websites.
+[The Voting App](https://github.com/h0tbird/the-voting-app) is a sample application. The original demo was designed to run on top of a *Swarm* scheduler with docker compose. This one has been modified to run on top of a *Mesos/Marathon* scheduler. Click on the links below to access the vote and results websites.
 
 ```bash
-git clone --recursive https://github.com/katosys/the-voting-app.git
+git clone --recursive https://github.com/h0tbird/the-voting-app.git
 cd the-voting-app
 ./bin/deploy
 sudo bash -c "echo 172.17.8.11 vote.thevotingapp.com >> /etc/hosts"
