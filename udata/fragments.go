@@ -1589,7 +1589,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=mongo:3.3
+     Environment=IMG=mongo:3.4
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
      ExecStart=/usr/bin/rkt run \
@@ -1626,7 +1626,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      LimitNOFILE=25000
-     Environment=IMG=quay.io/kato/pritunl:v1.25.1126.38-1
+     Environment=IMG=quay.io/kato/pritunl:v1.26.1188.41-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
       --net=host \

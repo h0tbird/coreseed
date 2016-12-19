@@ -89,14 +89,14 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://pritunl.com">Pritunl</a></th>
-      <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.25.1126.38">1.25</a></td>
+      <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.26.1188.41">1.26</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.21.954.48">1.21</a></td>
       <td><a href="https://quay.io/repository/kato/pritunl"><img src="https://quay.io/repository/kato/pritunl/status"></a></td>
     </tr>
     <tr>
       <th><a href="https://docs.mongodb.com/">MongoDB</a></th>
-      <td><a href="https://github.com/docker-library/mongo/tree/master/3.3">3.3</a></td>
+      <td><a href="https://github.com/docker-library/mongo/tree/master/3.4">3.4</a></td>
       <td><a href="https://github.com/docker-library/mongo/tree/master/3.2">3.2</a></td>
       <td><a href="https://github.com/docker-library/mongo/tree/master/3.2">3.2</a></td>
       <td><a href="https://hub.docker.com/_/mongo"><img src="https://img.shields.io/docker/pulls/_/mongo.svg"></a></td>
