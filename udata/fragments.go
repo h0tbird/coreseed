@@ -110,7 +110,18 @@ write_files:`,
         ipip:
           enabled: false
         nat-outgoing: true
-        disabled: false`,
+        disabled: false
+    - apiVersion: v1
+      kind: policy
+      metadata:
+        name: permissive
+      spec:
+        order: 0
+        ingress:
+        - action: allow
+          protocol: icmp
+        egress:
+        - action: allow`,
 	})
 
 	//----------------------------------
@@ -1011,7 +1022,7 @@ coreos:
       --volume=var-run-calico,kind=host,source=/var/run/calico \
       --mount=volume=var-run-calico,target=/var/run/calico \
       --set-env=CALICO_DISABLE_FILE_LOGGING=true \
-      --set-env=HOSTNAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
+      --set-env=NODENAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --set-env=IP=${KATO_HOST_IP} \
       --set-env=CALICO_NETWORKING_BACKEND=bird \
       --set-env=ETCD_ENDPOINTS=${KATO_ETCD_ENDPOINTS} \
