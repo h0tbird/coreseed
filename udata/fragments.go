@@ -112,14 +112,33 @@ write_files:`,
         nat-outgoing: true
         disabled: false
     - apiVersion: v1
+      kind: hostEndpoint
+      metadata:
+        name: host-endpoint
+        node: {{.HostName}}-{{.HostID}}.{{.Domain}}
+        labels:
+          endpoint: host
+      spec:
+        expectedIPs:
+        - $private_ipv4
+    - apiVersion: v1
       kind: policy
       metadata:
-        name: permissive
+        name: host-ingress
       spec:
+        selector: endpoint == 'host'
         order: 0
         ingress:
         - action: allow
-          protocol: icmp
+          protocol: tcp
+          destination:
+            ports: [22,80,443,2379,5050,5051,8080,9090]
+    - apiVersion: v1
+      kind: policy
+      metadata:
+        name: allow-egress
+      spec:
+        order: 0
         egress:
         - action: allow`,
 	})
