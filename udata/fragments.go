@@ -3,6 +3,71 @@ package udata
 import "os"
 
 //-----------------------------------------------------------------------------
+// Typedefs:
+//-----------------------------------------------------------------------------
+
+type filter struct {
+	anyOf  []string
+	noneOf []string
+	allOf  []string
+}
+
+type fragment struct {
+	filter
+	data string
+}
+
+//-----------------------------------------------------------------------------
+// func: anyOf
+//-----------------------------------------------------------------------------
+
+func (f *fragment) anyOf(tags []string) bool {
+	for _, tag := range tags {
+		for _, filter := range f.filter.anyOf {
+			if tag == filter {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+//-----------------------------------------------------------------------------
+// func: noneOf
+//-----------------------------------------------------------------------------
+
+func (f *fragment) noneOf(tags []string) bool {
+	for _, tag := range tags {
+		for _, filter := range f.filter.noneOf {
+			if tag == filter {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+//-----------------------------------------------------------------------------
+// func: allOf
+//-----------------------------------------------------------------------------
+
+func (f *fragment) allOf(tags []string) bool {
+	for _, filter := range f.filter.allOf {
+		present := false
+		for _, tag := range tags {
+			if tag == filter {
+				present = true
+				break
+			}
+		}
+		if !present {
+			return false
+		}
+	}
+	return true
+}
+
+//-----------------------------------------------------------------------------
 // func: loadFragments
 //-----------------------------------------------------------------------------
 

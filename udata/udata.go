@@ -26,18 +26,13 @@ import (
 // Typedefs:
 //-----------------------------------------------------------------------------
 
-type filter struct {
-	anyOf  []string
-	noneOf []string
-	allOf  []string
+// Data struct
+type Data struct {
+	ExtData
+	intData
 }
 
-type fragment struct {
-	filter
-	data string
-}
-
-// ExtData contains variables to be interpolated in templates.
+// ExtData contains template variables
 type ExtData struct {
 	QuorumCount         int
 	MasterCount         int
@@ -86,62 +81,6 @@ type intData struct {
 	userData *bytes.Buffer
 	frags    []fragment
 	template string
-}
-
-// Data struct
-type Data struct {
-	ExtData
-	intData
-}
-
-//-----------------------------------------------------------------------------
-// func: anyOf
-//-----------------------------------------------------------------------------
-
-func (f *fragment) anyOf(tags []string) bool {
-	for _, tag := range tags {
-		for _, filter := range f.filter.anyOf {
-			if tag == filter {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-//-----------------------------------------------------------------------------
-// func: noneOf
-//-----------------------------------------------------------------------------
-
-func (f *fragment) noneOf(tags []string) bool {
-	for _, tag := range tags {
-		for _, filter := range f.filter.noneOf {
-			if tag == filter {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-//-----------------------------------------------------------------------------
-// func: allOf
-//-----------------------------------------------------------------------------
-
-func (f *fragment) allOf(tags []string) bool {
-	for _, filter := range f.filter.allOf {
-		present := false
-		for _, tag := range tags {
-			if tag == filter {
-				present = true
-				break
-			}
-		}
-		if !present {
-			return false
-		}
-	}
-	return true
 }
 
 //-----------------------------------------------------------------------------
@@ -316,6 +255,53 @@ func (d *Data) systemdUnits() {
 			return false
 		}(unit, d.SystemdUnits) {
 			d.SystemdUnits = append(d.SystemdUnits, unit)
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: servicePorts
+//-----------------------------------------------------------------------------
+
+func (d *Data) servicePorts() {
+
+	// Ports shared by all roles:
+	tcpPorts := []string{"22", "2379", "7979"}
+	udpPorts := []string{}
+
+	if d.Prometheus {
+		tcpPorts = append(tcpPorts, "4194", "9101")
+	}
+
+	// Aggregate porst of all roles:
+	for _, i := range d.Roles {
+
+		switch i {
+
+		case "quorum":
+			tcpPorts = append(tcpPorts, "2181", "2380", "2888", "3888")
+			if d.Prometheus {
+				tcpPorts = append(tcpPorts, "9103")
+			}
+
+		case "master":
+			tcpPorts = append(tcpPorts, "53", "5050", "8080", "9292")
+			if d.Prometheus {
+				tcpPorts = append(tcpPorts, "9093", "9104", "9191")
+			}
+
+		case "worker":
+			tcpPorts = append(tcpPorts, "53", "80", "443", "5051", "9090", "9091")
+			if d.Prometheus {
+				tcpPorts = append(tcpPorts, "9102", "9105")
+			}
+
+		case "border":
+			tcpPorts = append(tcpPorts, "80", "443", "9756", "27017")
+			udpPorts = append(udpPorts, "18443")
+
+		default:
+			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
 		}
 	}
 }
