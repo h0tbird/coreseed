@@ -78,9 +78,11 @@ type ExtData struct {
 }
 
 type intData struct {
-	userData *bytes.Buffer
 	frags    []fragment
+	roles    []role
+	services []service
 	template string
+	userData *bytes.Buffer
 }
 
 //-----------------------------------------------------------------------------
