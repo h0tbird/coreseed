@@ -82,10 +82,10 @@ type Postproc struct {
 
 // SMTP structure
 type SMTP struct {
-	SMTPHost string
-	SMTPPort string
-	SMTPUser string
-	SMTPPass string
+	Host string
+	Port string
+	User string
+	Pass string
 }
 
 // Internal logic data
@@ -179,10 +179,10 @@ func smtpURLSplit(smtpURL string) (smtp SMTP) {
 	if smtpURL != "" {
 		r, _ := regexp.Compile("^smtp://(.+):(.+)@(.+):(\\d+)$")
 		if sub := r.FindStringSubmatch(smtpURL); sub != nil {
-			smtp.SMTPUser = sub[1]
-			smtp.SMTPPass = sub[2]
-			smtp.SMTPHost = sub[3]
-			smtp.SMTPPort = sub[4]
+			smtp.User = sub[1]
+			smtp.Pass = sub[2]
+			smtp.Host = sub[3]
+			smtp.Port = sub[4]
 		} else {
 			log.WithFields(log.Fields{"cmd": "udata", "id": smtpURL}).
 				Fatal("Invalid SMTP URL format.")

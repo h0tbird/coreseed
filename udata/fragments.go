@@ -554,10 +554,10 @@ write_files:`,
    content: |
     global:
 {{- if .SMTPURL}}
-      smtp_smarthost: {{.SMTPHost}}:{{.SMTPPort}}
+      smtp_smarthost: {{.SMTP.Host}}:{{.SMTP.Port}}
       smtp_from: alertmanager@{{.Domain}}
-      smtp_auth_username: {{.SMTPUser}}
-      smtp_auth_password: {{.SMTPPass}}{{end}}
+      smtp_auth_username: {{.SMTP.User}}
+      smtp_auth_password: {{.SMTP.Pass}}{{end}}
 {{- if .SlackWebhook}}
       slack_api_url: {{.SlackWebhook}}{{end}}
 
