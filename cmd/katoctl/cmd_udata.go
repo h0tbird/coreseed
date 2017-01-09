@@ -64,10 +64,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
 		String()
 
-	flUdataCaCert = cmdUdata.Flag("ca-cert",
+	flUdataCaCertPath = cmdUdata.Flag("ca-cert-path",
 		"Path to CA certificate.").
-		PlaceHolder("KATO_UDATA_CA_CERT").
-		OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT").
+		PlaceHolder("KATO_UDATA_CA_CERT_PATH").
+		OverrideDefaultFromEnvar("KATO_UDATA_CA_CERT_PATH").
 		ExistingFile()
 
 	flUdataEtcdToken = cmdUdata.Flag("etcd-token",

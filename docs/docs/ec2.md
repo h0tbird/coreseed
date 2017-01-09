@@ -88,7 +88,7 @@ If you want to reuse existing *EBS* volumes you must target the `--region` and `
    --sysdig-access-key &lt;sysdig-access-key&gt; <span class="se">\</span>
    --datadog-api-key &lt;datadog-api-key&gt; <span class="se">\</span>
    --slack-webhook &lt;slack-webhook-url&gt; <span class="se">\</span>
-   --ca-cert &lt;path-to-crt-pem&gt; <span class="se">\</span>
+   --ca-cert-path &lt;path-to-crt-pem&gt; <span class="se">\</span>
    --stub-zone foo.demo.lan/192.168.1.201:53,192.168.1.202:53 <span class="se">\</span>
    --stub-zone bar.demo.lan/192.168.2.201:53,192.168.2.202:53 <span class="se">\</span>
    --domain &lt;managed-public-domain&gt; <span class="se">\</span>

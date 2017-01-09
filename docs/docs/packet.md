@@ -90,7 +90,7 @@ for i in $(seq 1); do
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
   --ns1-api-key ${NS1_API_KEY} \
-  --ca-cert ${CA_CERT} \
+  --ca-cert-path ${CA_CERT_PATH} \
   --etcd-token ${ETCD_TOKEN} |
 
   katoctl pkt run \

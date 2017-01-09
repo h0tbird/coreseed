@@ -66,42 +66,42 @@ func main() {
 
 	case cmdUdata.FullCommand():
 
-		udata := udata.Data{
-			ExtData: udata.ExtData{
-				QuorumCount:         *flUdataQuorumCount,
-				MasterCount:         *flUdataMasterCount,
+		udata := udata.CmdData{
+			CmdFlags: udata.CmdFlags{
+				AdminEmail:          *flUdataAdminEmail,
+				CaCertPath:          *flUdataCaCertPath,
+				CalicoIPPool:        *flUdataCalicoIPPool,
 				ClusterID:           *flUdataClusterID,
 				ClusterState:        *flUdataClusterState,
-				HostName:            *flUdataHostName,
-				HostID:              *flUdataHostID,
+				DatadogAPIKey:       *flUdataDatadogAPIKey,
 				Domain:              *flUdataDomain,
-				Roles:               strings.Split(*flUdataRoles, ","),
-				Ns1ApiKey:           *flUdataNs1Apikey,
-				CaCert:              *flUdataCaCert,
+				Ec2Region:           *flUdataEc2Region,
 				EtcdToken:           *flUdataEtcdToken,
-				GzipUdata:           *flUdataGzipUdata,
-				NetworkBackend:      *flUdataNetworkBackend,
-				CalicoIPPool:        *flUdataCalicoIPPool,
+				FlannelBackend:      *flUdataFlannelBackend,
 				FlannelNetwork:      *flUdataFlannelNetwork,
 				FlannelSubnetLen:    *flUdataFlannelSubnetLen,
-				FlannelSubnetMin:    *flUdataFlannelSubnetMin,
 				FlannelSubnetMax:    *flUdataFlannelSubnetMax,
-				FlannelBackend:      *flUdataFlannelBackend,
-				RexrayStorageDriver: *flUdataRexrayStorageDriver,
-				RexrayEndpointIP:    *flUdataRexrayEndpointIP,
-				Ec2Region:           *flUdataEc2Region,
+				FlannelSubnetMin:    *flUdataFlannelSubnetMin,
+				GzipUdata:           *flUdataGzipUdata,
+				HostID:              *flUdataHostID,
+				HostName:            *flUdataHostName,
 				IaasProvider:        *flUdataIaasProvider,
-				SlackWebhook:        *flUdataSlackWebhook,
-				SysdigAccessKey:     *flUdataSysdigAccessKey,
-				DatadogAPIKey:       *flUdataDatadogAPIKey,
-				StubZones:           *flUdataStubZones,
+				MasterCount:         *flUdataMasterCount,
+				NetworkBackend:      *flUdataNetworkBackend,
+				Ns1ApiKey:           *flUdataNs1Apikey,
 				Prometheus:          *flUdataPrometheus,
+				QuorumCount:         *flUdataQuorumCount,
+				RexrayEndpointIP:    *flUdataRexrayEndpointIP,
+				RexrayStorageDriver: *flUdataRexrayStorageDriver,
+				Roles:               strings.Split(*flUdataRoles, ","),
+				SlackWebhook:        *flUdataSlackWebhook,
 				SMTPURL:             *flUdataSMTPURL,
-				AdminEmail:          *flUdataAdminEmail,
+				StubZones:           *flUdataStubZones,
+				SysdigAccessKey:     *flUdataSysdigAccessKey,
 			},
 		}
 
-		udata.Generate()
+		udata.CmdRun()
 
 	//--------------------
 	// katoctl pkt deploy
@@ -154,7 +154,7 @@ func main() {
 				Ns1ApiKey:        *flEc2DeployNs1ApiKey,
 				SysdigAccessKey:  *flEc2DeploySysdigAccessKey,
 				DatadogAPIKey:    *flEc2DeployDatadogAPIKey,
-				CaCert:           *flEc2DeployCaCert,
+				CaCertPath:       *flEc2DeployCaCertPath,
 				Domain:           *flEc2DeployDomain,
 				Region:           *flEc2DeployRegion,
 				Zone:             *flEc2DeployZone,

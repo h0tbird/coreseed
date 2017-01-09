@@ -75,7 +75,7 @@ func (f *fragment) allOf(tags []string) bool {
 // func: loadFragments
 //-----------------------------------------------------------------------------
 
-func (d *Data) loadFragments() {
+func (d *CmdData) loadFragments() {
 
 	//----------------------------------
 
@@ -1204,7 +1204,7 @@ coreos:
       --set-env=MDNS_DOMAIN=${KATO_MESOS_DOMAIN} \
       --set-env=MDNS_IPSOURCE=netinfo \
       ${IMG}
-{{- if eq .MesosDNSPort "53" }}
+{{- if eq .MesosDNSPort 53 }}
      ExecStartPost=/usr/bin/sh -c ' \
        echo search ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver ${KATO_HOST_IP}" >> /etc/resolv.conf'

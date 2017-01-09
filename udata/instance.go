@@ -38,7 +38,7 @@ func serviceLink(s *[]service, n string) *service {
 // func: loadServices
 //-----------------------------------------------------------------------------
 
-func (d *Data) loadServices() {
+func (d *CmdData) loadServices() {
 
 	//---------------------------------------------
 
@@ -153,7 +153,7 @@ func (d *Data) loadServices() {
 // func: loadRoles
 //-----------------------------------------------------------------------------
 
-func (d *Data) loadRoles() {
+func (d *CmdData) loadRoles() {
 
 	//---------------------------------------------
 

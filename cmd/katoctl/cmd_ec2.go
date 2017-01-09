@@ -74,10 +74,10 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DATADOG_API_KEY").
 		String()
 
-	flEc2DeployCaCert = cmdEc2Deploy.Flag("ca-cert",
+	flEc2DeployCaCertPath = cmdEc2Deploy.Flag("ca-cert-path",
 		"Path to CA certificate.").
-		PlaceHolder("KATO_EC2_DEPLOY_CA_CET").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CA_CET").
+		PlaceHolder("KATO_EC2_DEPLOY_CA_CERT_PATH").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CA_CERT_PATH").
 		ExistingFile()
 
 	flEc2DeployRegion = cmdEc2Deploy.Flag("region",

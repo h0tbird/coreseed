@@ -26,57 +26,69 @@ import (
 // Typedefs:
 //-----------------------------------------------------------------------------
 
-// Data struct
-type Data struct {
-	ExtData
-	intData
+// CmdData holds the data used by the udata sub-command
+type CmdData struct {
+	CmdFlags // Command-line flags
+	Postproc // Post-processed data
+	intData  // Internal logic data
 }
 
-// ExtData contains template variables
-type ExtData struct {
-	QuorumCount         int
-	MasterCount         int
-	GzipUdata           bool
-	Prometheus          bool
-	ClusterID           string
-	ClusterState        string
-	HostName            string
-	HostID              string
-	Domain              string
-	Ns1ApiKey           string
-	CaCert              string
-	EtcdToken           string
-	EtcdServers         string
-	EtcdEndpoints       string
-	ZkServers           string
-	AlertManagers       string
-	MesosDNSPort        string
-	NetworkBackend      string
-	CalicoIPPool        string
-	FlannelNetwork      string
-	FlannelSubnetLen    string
-	FlannelSubnetMin    string
-	FlannelSubnetMax    string
-	FlannelBackend      string
-	RexrayStorageDriver string
-	RexrayEndpointIP    string
-	Ec2Region           string
-	IaasProvider        string
-	SlackWebhook        string
-	SysdigAccessKey     string
-	DatadogAPIKey       string
-	SMTPURL             string
-	SMTPHost            string
-	SMTPPort            string
-	SMTPUser            string
-	SMTPPass            string
-	AdminEmail          string
-	Roles               []string
-	Aliases             []string
-	SystemdUnits        []string
-	StubZones           []string
+// CmdFlags honored by the udata sub-command
+type CmdFlags struct {
+	AdminEmail          string   // --admin-email
+	CaCertPath          string   // --ca-cert-path
+	CalicoIPPool        string   // --calico-ip-pool
+	ClusterID           string   // --cluster-id
+	ClusterState        string   // --cluster-state
+	DatadogAPIKey       string   // --datadog-api-key
+	Domain              string   // --domain
+	Ec2Region           string   // --ec2-region
+	EtcdToken           string   // --etcd-token
+	FlannelBackend      string   // --flannel-backend
+	FlannelNetwork      string   // --flannel-network
+	FlannelSubnetLen    string   // --flannel-subnet-len
+	FlannelSubnetMax    string   // --flannel-subnet-max
+	FlannelSubnetMin    string   // --flannel-subnet-min
+	GzipUdata           bool     // --gzip-udata
+	HostID              string   // --host-id
+	HostName            string   // --host-name
+	IaasProvider        string   // --iaas-provider
+	MasterCount         int      // --master-count
+	NetworkBackend      string   // --network-backend
+	Ns1ApiKey           string   // --ns1-api-key
+	Prometheus          bool     // --prometheus
+	QuorumCount         int      // --quorum-count
+	RexrayEndpointIP    string   // --rexray-endpoint-ip
+	RexrayStorageDriver string   // --rexray-storage-driver
+	Roles               []string // --roles
+	SlackWebhook        string   // --slack-webhook
+	SMTPURL             string   // --smtp-url
+	StubZones           []string // --stub-zone
+	SysdigAccessKey     string   // --sysdig-access-key
 }
 
+// Postproc data based on previous flags
+type Postproc struct {
+	AlertManagers string
+	Aliases       []string
+	CaCert        string
+	EtcdEndpoints string
+	EtcdServers   string
+	MesosDNSPort  int
+	SMTP
+	SystemdUnits []string
+	ZkServers    string
+}
+
+// SMTP structure
+type SMTP struct {
+	SMTPHost string
+	SMTPPort string
+	SMTPUser string
+	SMTPPass string
+}
+
+// Internal logic data
 type intData struct {
 	frags    []fragment
 	roles    []role
@@ -86,141 +98,157 @@ type intData struct {
 }
 
 //-----------------------------------------------------------------------------
-// func: caCertificate
+// func: caCert
 //-----------------------------------------------------------------------------
 
-func (d *Data) caCertificate() {
-
-	if d.CaCert != "" {
-
-		data, err := ioutil.ReadFile(d.CaCert)
+func caCert(path string) (cert string) {
+	if path != "" {
+		data, err := ioutil.ReadFile(path)
 		if err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
-
-		d.CaCert = strings.TrimSpace(strings.
+		cert = strings.TrimSpace(strings.
 			Replace(string(data), "\n", "\n    ", -1))
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
-// func: zookeeperURL
+// func: zkServers
 //-----------------------------------------------------------------------------
 
-func (d *Data) zookeeperURL() {
-	for i := 1; i <= d.QuorumCount; i++ {
-		d.ZkServers = d.ZkServers + "quorum-" + strconv.Itoa(i) + ":2181"
-		if i != d.QuorumCount {
-			d.ZkServers = d.ZkServers + ","
+func zkServers(quorumCount int) (zkServers string) {
+	for i := 1; i <= quorumCount; i++ {
+		zkServers = zkServers + "quorum-" + strconv.Itoa(i) + ":2181"
+		if i != quorumCount {
+			zkServers = zkServers + ","
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
-// func: etcdURL
+// func: etcdServers
 //-----------------------------------------------------------------------------
 
-func (d *Data) etcdURL() {
-	for i := 1; i <= d.QuorumCount; i++ {
-		d.EtcdServers = d.EtcdServers +
+func etcdServers(quorumCount int) (etcdServers string) {
+	for i := 1; i <= quorumCount; i++ {
+		etcdServers = etcdServers +
 			"quorum-" + strconv.Itoa(i) + "=http://quorum-" + strconv.Itoa(i) + ":2380"
-		d.EtcdEndpoints = d.EtcdEndpoints +
+		if i != quorumCount {
+			etcdServers = etcdServers + ","
+		}
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
+// func: etcdEndpoints
+//-----------------------------------------------------------------------------
+
+func etcdEndpoints(quorumCount int) (etcdEndpoints string) {
+	for i := 1; i <= quorumCount; i++ {
+		etcdEndpoints = etcdEndpoints +
 			"http://quorum-" + strconv.Itoa(i) + ":2379"
-		if i != d.QuorumCount {
-			d.EtcdServers = d.EtcdServers + ","
-			d.EtcdEndpoints = d.EtcdEndpoints + ","
+		if i != quorumCount {
+			etcdEndpoints = etcdEndpoints + ","
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
-// func: alertmanagerURL
+// func: alertManagers
 //-----------------------------------------------------------------------------
 
-func (d *Data) alertmanagerURL() {
-	for i := 1; i <= d.MasterCount; i++ {
-		d.AlertManagers = d.AlertManagers + "http://master-" + strconv.Itoa(i) + ":9093"
-		if i != d.MasterCount {
-			d.AlertManagers = d.AlertManagers + ","
+func alertManagers(masterCount int) (alertManagers string) {
+	for i := 1; i <= masterCount; i++ {
+		alertManagers = alertManagers + "http://master-" + strconv.Itoa(i) + ":9093"
+		if i != masterCount {
+			alertManagers = alertManagers + ","
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
-// func: smtpURL
+// func: smtpURLSplit
 //-----------------------------------------------------------------------------
 
-func (d *Data) smtpURL() {
-	if d.SMTPURL != "" {
+func smtpURLSplit(smtpURL string) (smtp SMTP) {
+	if smtpURL != "" {
 		r, _ := regexp.Compile("^smtp://(.+):(.+)@(.+):(\\d+)$")
-		if sub := r.FindStringSubmatch(d.SMTPURL); sub != nil {
-			d.SMTPUser = sub[1]
-			d.SMTPPass = sub[2]
-			d.SMTPHost = sub[3]
-			d.SMTPPort = sub[4]
+		if sub := r.FindStringSubmatch(smtpURL); sub != nil {
+			smtp.SMTPUser = sub[1]
+			smtp.SMTPPass = sub[2]
+			smtp.SMTPHost = sub[3]
+			smtp.SMTPPort = sub[4]
 		} else {
-			log.WithFields(log.Fields{"cmd": "udata", "id": d.SMTPURL}).
+			log.WithFields(log.Fields{"cmd": "udata", "id": smtpURL}).
 				Fatal("Invalid SMTP URL format.")
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
 // func: mesosDNSPort
 //-----------------------------------------------------------------------------
 
-func (d *Data) mesosDNSPort() {
-	d.MesosDNSPort = "53"
-	for _, role := range d.Roles {
+func mesosDNSPort(roles []string) (mesosDNSPort int) {
+	mesosDNSPort = 53
+	for _, role := range roles {
 		if role == "master" {
-			for _, role := range d.Roles {
+			for _, role := range roles {
 				if role == "worker" {
-					d.MesosDNSPort = "54"
+					mesosDNSPort = 54
 					return
 				}
 			}
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
-// func: hostnameAliases
+// func: aliases
 //-----------------------------------------------------------------------------
 
-func (d *Data) hostnameAliases() {
-	for _, i := range d.Roles {
-		if i != d.HostName {
-			d.Aliases = append(d.Aliases, i)
+func aliases(roles []string, hostName string) (aliases []string) {
+	for _, i := range roles {
+		if i != hostName {
+			aliases = append(aliases, i)
 		}
 	}
+	return
 }
 
 //-----------------------------------------------------------------------------
 // func: systemdUnits
 //-----------------------------------------------------------------------------
 
-func (d *Data) systemdUnits() {
+func systemdUnits(roles []string, prometheus bool, networkBackend string) []string {
 
-	units := []string{}
+	var units, systemdUnits []string
 
 	// Aggregate units of all roles:
-	for _, i := range d.Roles {
+	for _, i := range roles {
 
 		switch i {
 
 		case "quorum":
 			units = append(units,
 				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer")
-			if d.Prometheus {
+			if prometheus {
 				units = append(units,
 					"rkt-api", "cadvisor", "node-exporter", "zookeeper-exporter")
 			}
 
 		case "master":
 			units = append(units,
-				"etcd2", d.NetworkBackend, "docker", "rexray", "mesos-master",
+				"etcd2", networkBackend, "docker", "rexray", "mesos-master",
 				"mesos-dns", "marathon", "etchost.timer")
-			if d.Prometheus {
+			if prometheus {
 				units = append(units,
 					"rkt-api", "cadvisor", "confd", "alertmanager", "prometheus",
 					"node-exporter", "mesos-master-exporter")
@@ -228,9 +256,9 @@ func (d *Data) systemdUnits() {
 
 		case "worker":
 			units = append(units,
-				"etcd2", d.NetworkBackend, "docker", "rexray", "go-dnsmasq",
+				"etcd2", networkBackend, "docker", "rexray", "go-dnsmasq",
 				"mesos-agent", "marathon-lb", "etchost.timer")
-			if d.Prometheus {
+			if prometheus {
 				units = append(units,
 					"rkt-api", "cadvisor", "mesos-agent-exporter", "node-exporter",
 					"haproxy-exporter")
@@ -238,7 +266,7 @@ func (d *Data) systemdUnits() {
 
 		case "border":
 			units = append(units,
-				"etcd2", d.NetworkBackend, "docker", "rexray", "mongodb", "pritunl",
+				"etcd2", networkBackend, "docker", "rexray", "mongodb", "pritunl",
 				"etchost.timer")
 
 		default:
@@ -255,17 +283,19 @@ func (d *Data) systemdUnits() {
 				}
 			}
 			return false
-		}(unit, d.SystemdUnits) {
-			d.SystemdUnits = append(d.SystemdUnits, unit)
+		}(unit, systemdUnits) {
+			systemdUnits = append(systemdUnits, unit)
 		}
 	}
+
+	return systemdUnits
 }
 
 //-----------------------------------------------------------------------------
 // func: servicePorts
 //-----------------------------------------------------------------------------
 
-func (d *Data) servicePorts() {
+func (d *CmdData) servicePorts() {
 
 	// Ports shared by all roles:
 	tcpPorts := []string{"22", "2379", "7979"}
@@ -312,7 +342,7 @@ func (d *Data) servicePorts() {
 // func: listOfTags
 //-----------------------------------------------------------------------------
 
-func (d *Data) listOfTags() (tags []string) {
+func (d *CmdData) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
 	tags = append(tags, d.ClusterState)
@@ -345,7 +375,7 @@ func (d *Data) listOfTags() (tags []string) {
 // func: composeTemplate
 //-----------------------------------------------------------------------------
 
-func (d *Data) composeTemplate() {
+func (d *CmdData) composeTemplate() {
 
 	// Tags used to filter template fragments:
 	tags := d.listOfTags()
@@ -366,7 +396,7 @@ func (d *Data) composeTemplate() {
 // func: renderTemplate
 //-----------------------------------------------------------------------------
 
-func (d *Data) renderTemplate() {
+func (d *CmdData) renderTemplate() {
 
 	// Template parsing:
 	t := template.New("udata")
@@ -386,7 +416,7 @@ func (d *Data) renderTemplate() {
 // func: validateUserData
 //-----------------------------------------------------------------------------
 
-func (d *Data) validateUserData() {
+func (d *CmdData) validateUserData() {
 
 	errors := []string{}
 
@@ -406,7 +436,7 @@ func (d *Data) validateUserData() {
 // func: outputUserData
 //-----------------------------------------------------------------------------
 
-func (d *Data) outputUserData() {
+func (d *CmdData) outputUserData() {
 
 	if d.GzipUdata {
 		log.WithFields(log.Fields{"cmd": "udata", "id": d.HostName + "-" + d.HostID}).
@@ -426,22 +456,24 @@ func (d *Data) outputUserData() {
 }
 
 //-----------------------------------------------------------------------------
-// func: Generate
+// func: CmdRun
 //-----------------------------------------------------------------------------
 
-// Generate takes a Data structure and outputs valid CoreOS cloud-config
-// user data in YAML format to stdout.
-func (d *Data) Generate() {
+// CmdRun takes data from CmdData and outputs valid CoreOS cloud-config user
+// data in YAML format to stdout.
+func (d *CmdData) CmdRun() {
 
 	// Variables:
-	d.caCertificate()   // Retrieve the CA certificate.
-	d.zookeeperURL()    // Forge the Zookeeper URL.
-	d.etcdURL()         // Initial etcd cluster URL.
-	d.alertmanagerURL() // Comma separated alertmanagers.
-	d.smtpURL()         // Split URL into its components.
-	d.mesosDNSPort()    // One of 53 or 54.
-	d.hostnameAliases() // Hostname aliases array.
-	d.systemdUnits()    // Systemd units array.
+	d.CaCert = caCert(d.CaCertPath)                // Retrieve the CA certificate.
+	d.ZkServers = zkServers(d.QuorumCount)         // Forge the Zookeeper URL.
+	d.EtcdServers = etcdServers(d.QuorumCount)     // Initial etcd servers URL.
+	d.EtcdEndpoints = etcdEndpoints(d.QuorumCount) // Initial etcd endpoints URL.
+	d.AlertManagers = alertManagers(d.MasterCount) // Comma separated alertmanagers.
+	d.SMTP = smtpURLSplit(d.SMTPURL)               // Split URL into its components.
+	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
+	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
+	d.SystemdUnits = systemdUnits(d.Roles,         // Systemd units array.
+		d.Prometheus, d.NetworkBackend)
 
 	// Template:
 	d.loadFragments()   // Load the fragments array.

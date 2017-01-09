@@ -74,7 +74,7 @@ type State struct {
 	SlackWebhook     string   `json:"SlackWebhook:"`    // deploy |       | add |
 	SMTPURL          string   `json:"SMTPURL:"`         // deploy |       | add |
 	AdminEmail       string   `json:"AdminEmail:"`      // deploy |       | add |
-	CaCert           string   `json:"CaCert"`           // deploy |       | add |
+	CaCertPath       string   `json:"CaCertPath"`       // deploy |       | add |
 	NetworkBackend   string   `json:"NetworkBackend"`   // deploy |       |     |
 	CalicoIPPool     string   `json:"CalicoIPPool"`     // deploy |       |     |
 	FlannelNetwork   string   `json:"FlannelNetwork"`   // deploy |       | add |
@@ -236,9 +236,9 @@ func (d *Data) Add() {
 		argsUdata = append(argsUdata, "--slack-webhook", d.SlackWebhook)
 	}
 
-	// Append the --ca-cert flag if cert is present:
-	if d.CaCert != "" {
-		argsUdata = append(argsUdata, "--ca-cert", d.CaCert)
+	// Append the --ca-cert-path flag if present:
+	if d.CaCertPath != "" {
+		argsUdata = append(argsUdata, "--ca-cert-path", d.CaCertPath)
 	}
 
 	// Append --stub-zone flags if present:
