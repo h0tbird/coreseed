@@ -52,8 +52,8 @@ title: Services and ports
   <table class="table">
    <thead><tr> <th>Service</th> <th>Ports</th> <th>Protocol</th> <th>Access</th> <th>Roles</th> </tr></thead>
    <tbody>
-   <tr> <td>haproxy</td> <td>9090,9091</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
-   <tr> <td>haproxy</td> <td>80,443</td> <td>tcp</td> <td><font color="green">external</font></td> <td>worker</td> </tr>
+   <tr> <td>marathon-lb</td> <td>9090,9091</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
+   <tr> <td>marathon-lb</td> <td>80,443</td> <td>tcp</td> <td><font color="green">external</font></td> <td>worker</td> </tr>
    <tr> <td>go-dnsmasq</td> <td>53</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
    <tr> <td>mesos-slave</td> <td>5051</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
    <tr> <td>haproxy-exporter</td> <td>9102</td> <td>tcp</td> <td>internal</td> <td>worker</td> </tr>
@@ -70,7 +70,7 @@ title: Services and ports
    <tr> <td>mongodb</td> <td>27017</td> <td>tcp</td> <td>internal</td> <td>border</td> </tr>
    <tr> <td>pritunl</td> <td>9756</td> <td>tcp</td> <td>internal</td> <td>border</td> </tr>
    <tr> <td>pritunl</td> <td>18443</td> <td>udp</td> <td><font color="green">external</font></td> <td>border</td> </tr>
-   <tr> <td>pritunl-web</td> <td>80,443</td> <td>tcp</td> <td><font color="green">external</font></td> <td>border</td> </tr>
+   <tr> <td>pritunl</td> <td>80,443</td> <td>tcp</td> <td><font color="green">external</font></td> <td>border</td> </tr>
    </tbody>
   </table>
 </div>
