@@ -29,7 +29,7 @@ import (
 // CmdData holds the data used by the udata sub-command
 type CmdData struct {
 	CmdFlags // Command-line flags
-	Postproc // Post-processed data
+	PostProc // Post-processed data
 	intData  // Internal logic data
 }
 
@@ -67,8 +67,8 @@ type CmdFlags struct {
 	SysdigAccessKey     string   // --sysdig-access-key
 }
 
-// Postproc data based on previous flags
-type Postproc struct {
+// PostProc data based on previous flags
+type PostProc struct {
 	AlertManagers string
 	Aliases       []string
 	CaCert        string
@@ -90,9 +90,9 @@ type SMTP struct {
 
 // Internal logic data
 type intData struct {
-	frags    []fragment
-	template string
-	userData *bytes.Buffer
+	fragments []fragment
+	template  string
+	userData  *bytes.Buffer
 }
 
 //-----------------------------------------------------------------------------
@@ -386,7 +386,7 @@ func (d *CmdData) composeTemplate() {
 	tags := d.listOfTags()
 
 	// Apply the filter:
-	for _, frag := range d.frags {
+	for _, frag := range d.fragments {
 		if frag.anyOf(tags) {
 			if frag.noneOf(tags) {
 				if frag.allOf(tags) {

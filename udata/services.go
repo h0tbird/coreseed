@@ -17,13 +17,13 @@ type port struct {
 	ingress  string
 }
 
-type svcMap map[string]service
+type serviceMap map[string]service
 
 //-----------------------------------------------------------------------------
 // Globals:
 //-----------------------------------------------------------------------------
 
-var services = svcMap{
+var services = serviceMap{
 
 	//---------------------
 	// Base service group:
