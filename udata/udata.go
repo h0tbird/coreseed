@@ -229,66 +229,73 @@ func aliases(roles []string, hostName string) (aliases []string) {
 
 func systemdUnits(roles []string, prometheus bool, networkBackend string) []string {
 
-	var units, systemdUnits []string
+	// Map of units:
+	m := make(map[string]bool)
 
-	// Aggregate units of all roles:
-	for _, i := range roles {
+	// Add units to map:
+	for _, role := range roles {
 
-		switch i {
+		switch role {
 
 		case "quorum":
-			units = append(units,
-				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer")
+			for _, svc := range []string{
+				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer"} {
+				m[svc] = true
+			}
 			if prometheus {
-				units = append(units,
-					"rkt-api", "cadvisor", "node-exporter", "zookeeper-exporter")
+				for _, svc := range []string{
+					"rkt-api", "cadvisor", "node-exporter", "zookeeper-exporter"} {
+					m[svc] = true
+				}
 			}
 
 		case "master":
-			units = append(units,
+			for _, svc := range []string{
 				"etcd2", networkBackend, "docker", "rexray", "mesos-master",
-				"mesos-dns", "marathon", "etchost.timer")
+				"mesos-dns", "marathon", "etchost.timer"} {
+				m[svc] = true
+			}
 			if prometheus {
-				units = append(units,
+				for _, svc := range []string{
 					"rkt-api", "cadvisor", "confd", "alertmanager", "prometheus",
-					"node-exporter", "mesos-master-exporter")
+					"node-exporter", "mesos-master-exporter"} {
+					m[svc] = true
+				}
 			}
 
 		case "worker":
-			units = append(units,
+			for _, svc := range []string{
 				"etcd2", networkBackend, "docker", "rexray", "go-dnsmasq",
-				"mesos-agent", "marathon-lb", "etchost.timer")
+				"mesos-agent", "marathon-lb", "etchost.timer"} {
+				m[svc] = true
+			}
 			if prometheus {
-				units = append(units,
+				for _, svc := range []string{
 					"rkt-api", "cadvisor", "mesos-agent-exporter", "node-exporter",
-					"haproxy-exporter")
+					"haproxy-exporter"} {
+					m[svc] = true
+				}
 			}
 
 		case "border":
-			units = append(units,
+			for _, svc := range []string{
 				"etcd2", networkBackend, "docker", "rexray", "mongodb", "pritunl",
-				"etchost.timer")
+				"etchost.timer"} {
+				m[svc] = true
+			}
 
 		default:
-			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
+			log.WithField("cmd", "udata").Fatal("Invalid role: " + role)
 		}
 	}
 
-	// Delete duplicated units:
-	for _, unit := range units {
-		if !func(str string, list []string) bool {
-			for _, v := range list {
-				if v == str {
-					return true
-				}
-			}
-			return false
-		}(unit, systemdUnits) {
-			systemdUnits = append(systemdUnits, unit)
-		}
+	// Slice of keys from map:
+	units := make([]string, 0, len(m))
+	for unit := range m {
+		units = append(units, unit)
 	}
 
-	return systemdUnits
+	return units
 }
 
 //-----------------------------------------------------------------------------
