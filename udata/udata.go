@@ -90,7 +90,8 @@ type SMTP struct {
 
 // Internal logic data
 type intData struct {
-	fragments []fragment
+	fragments fragmentSlice
+	services  serviceMap
 	template  string
 	userData  *bytes.Buffer
 }
@@ -469,6 +470,7 @@ func (d *CmdData) outputUserData() {
 func (d *CmdData) CmdRun() {
 
 	// Variables:
+	d.services.load()                              // Predefined services map.
 	d.CaCert = caCert(d.CaCertPath)                // Retrieve the CA certificate.
 	d.ZkServers = zkServers(d.QuorumCount)         // Forge the Zookeeper URL.
 	d.EtcdServers = etcdServers(d.QuorumCount)     // Initial etcd servers URL.
@@ -481,7 +483,7 @@ func (d *CmdData) CmdRun() {
 		d.Prometheus, d.NetworkBackend)
 
 	// Template:
-	d.loadFragments()   // Load the fragments array.
+	d.fragments.load()  // Predefined template fragments.
 	d.composeTemplate() // Compose the template.
 	d.renderTemplate()  // Render the template into memory.
 

@@ -21,6 +21,8 @@ type fragment struct {
 	data string
 }
 
+type fragmentSlice []fragment
+
 //-----------------------------------------------------------------------------
 // func: anyOf
 //-----------------------------------------------------------------------------
@@ -72,14 +74,14 @@ func (f *fragment) allOf(tags []string) bool {
 }
 
 //-----------------------------------------------------------------------------
-// func: loadFragments
+// func: load
 //-----------------------------------------------------------------------------
 
-func (d *CmdData) loadFragments() {
+func (fragments fragmentSlice) load() {
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -90,7 +92,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -105,7 +107,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -120,7 +122,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -133,7 +135,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 			allOf: []string{"calico"},
@@ -163,7 +165,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
 			allOf: []string{"calico"},
@@ -214,7 +216,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -244,7 +246,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"calico"},
@@ -275,7 +277,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"cacert"},
@@ -288,7 +290,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -308,7 +310,7 @@ write_files:`,
         driver: {{.RexrayStorageDriver}}
 {{- if eq .RexrayStorageDriver "virtualbox" }}
         virtualbox:
-         endpoint: http://` + d.RexrayEndpointIP + `:18083
+         endpoint: http://{{.RexrayEndpointIP}}:18083
          volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
          controllerName: SATA
 {{- end}}
@@ -320,7 +322,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -344,7 +346,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -359,7 +361,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -379,7 +381,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker"},
 		},
@@ -397,7 +399,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"ns1"},
@@ -434,7 +436,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -456,7 +458,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -473,7 +475,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -491,7 +493,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -507,7 +509,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 			allOf: []string{"cacert"},
@@ -523,7 +525,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"cacert"},
@@ -543,7 +545,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -586,7 +588,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -654,7 +656,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -675,7 +677,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -839,7 +841,7 @@ write_files:`,
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -857,7 +859,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
 			allOf: []string{"flannel"},
@@ -876,7 +878,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"cacert"},
@@ -896,7 +898,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker"},
 			allOf: []string{"ec2"},
@@ -919,7 +921,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker"},
 			allOf: []string{"ec2"},
@@ -941,7 +943,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"ec2"},
@@ -959,7 +961,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -996,7 +998,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -1016,7 +1018,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum"},
 		},
@@ -1065,7 +1067,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
 			allOf: []string{"calico"},
@@ -1123,7 +1125,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 		},
@@ -1167,7 +1169,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 		},
@@ -1219,7 +1221,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 		},
@@ -1268,7 +1270,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -1304,7 +1306,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -1340,7 +1342,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -1383,7 +1385,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -1429,7 +1431,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"prometheus"},
@@ -1455,7 +1457,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"prometheus"},
@@ -1490,7 +1492,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"ns1"},
@@ -1513,7 +1515,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -1536,7 +1538,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
@@ -1559,7 +1561,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
@@ -1594,7 +1596,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"prometheus"},
@@ -1628,7 +1630,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum"},
 			allOf: []string{"prometheus"},
@@ -1668,7 +1670,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"border"},
 		},
@@ -1705,7 +1707,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"border"},
 		},
@@ -1740,7 +1742,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -1788,7 +1790,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -1838,7 +1840,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -1878,7 +1880,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"sysdig"},
@@ -1920,7 +1922,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"datadog"},
@@ -1958,7 +1960,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -1984,7 +1986,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 			allOf: []string{"cacert"},
@@ -2009,7 +2011,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -2043,7 +2045,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 		},
@@ -2064,7 +2066,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 			allOf: []string{"prometheus"},
@@ -2098,7 +2100,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
 			allOf: []string{"prometheus"},
@@ -2133,7 +2135,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
 			allOf: []string{"flannel"},
@@ -2145,7 +2147,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum"},
 		},
@@ -2162,7 +2164,7 @@ coreos:
 
 	//----------------------------------
 
-	d.fragments = append(d.fragments, fragment{
+	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf:  []string{"master", "worker", "border"},
 			noneOf: []string{"quorum"},
