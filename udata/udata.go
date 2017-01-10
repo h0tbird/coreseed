@@ -91,7 +91,6 @@ type SMTP struct {
 // Internal logic data
 type intData struct {
 	frags    []fragment
-	services svcMap
 	template string
 	userData *bytes.Buffer
 }
@@ -470,7 +469,6 @@ func (d *CmdData) outputUserData() {
 func (d *CmdData) CmdRun() {
 
 	// Variables:
-	d.services.init()
 	d.CaCert = caCert(d.CaCertPath)                // Retrieve the CA certificate.
 	d.ZkServers = zkServers(d.QuorumCount)         // Forge the Zookeeper URL.
 	d.EtcdServers = etcdServers(d.QuorumCount)     // Initial etcd servers URL.
