@@ -138,7 +138,6 @@ write_files:`,
 	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"worker"},
-			allOf: []string{"calico"},
 		},
 		data: `
  - path: "/etc/cni/net.d/10-devel.conf"
@@ -168,7 +167,6 @@ write_files:`,
 	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
-			allOf: []string{"calico"},
 		},
 		data: `
  - path: "/etc/calico/resources.yaml"
@@ -249,7 +247,6 @@ write_files:`,
 	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"calico"},
 		},
 		data: `
  - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
@@ -1049,7 +1046,6 @@ coreos:
 	fragments = append(fragments, fragment{
 		filter: filter{
 			anyOf: []string{"master", "worker", "border"},
-			allOf: []string{"calico"},
 		},
 		data: `
   - name: "calico.service"
