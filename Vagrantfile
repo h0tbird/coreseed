@@ -36,7 +36,6 @@ if ARGV[0].eql?('up')
     "--roles quorum,master,worker " +
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
-    "--network-backend calico " +
     "--iaas-provider vbox " +
     "--cluster-state new " +
     "--quorum-count 1 " +
