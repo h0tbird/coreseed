@@ -75,10 +75,6 @@ If you want to reuse existing *EBS* volumes you must target the `--region` and `
  <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_VPC_CIDR_BLOCK</span><span class="o">=</span><span class="s1">'10.136.0.0/16'</span>
  <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_INTERNAL_SUBNET_CIDR</span><span class="o">=</span><span class="s1">'10.136.0.0/18'</span>
  <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_EXTERNAL_SUBNET_CIDR</span><span class="o">=</span><span class="s1">'10.136.64.0/18'</span>
- <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_NETWORK</span><span class="o">=</span><span class="s1">'10.136.128.0/18'</span>
- <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_MIN</span><span class="o">=</span><span class="s1">'10.136.128.0'</span>
- <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_MAX</span><span class="o">=</span><span class="s1">'10.136.191.192'</span>
- <span class="nb">export </span><span class="nv">KATO_EC2_DEPLOY_FLANNEL_SUBNET_LEN</span><span class="o">=</span><span class="s1">'26'</span>
 
  katoctl ec2 deploy <span class="se">\</span>
    --cluster-id &lt;cluster-id&gt; <span class="se">\</span>

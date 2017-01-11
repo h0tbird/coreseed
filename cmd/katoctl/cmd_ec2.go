@@ -127,34 +127,6 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_EXTERNAL_SUBNET_CIDR").
 		String()
 
-	flEc2DeployFlannelNetwork = cmdEc2Deploy.Flag("flannel-network",
-		"Flannel entire overlay network.").
-		Default("10.128.0.0/21").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_NETWORK").
-		String()
-
-	flEc2DeployFlannelSubnetLen = cmdEc2Deploy.Flag("flannel-subnet-len",
-		"Subnet len to llocate to each host.").
-		Default("27").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_SUBNET_LEN").
-		String()
-
-	flEc2DeployFlannelSubnetMin = cmdEc2Deploy.Flag("flannel-subnet-min",
-		"Minimum subnet IP addresses.").
-		Default("10.128.0.192").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_SUBNET_MIN").
-		String()
-
-	flEc2DeployFlannelSubnetMax = cmdEc2Deploy.Flag("flannel-subnet-max",
-		"Maximum subnet IP addresses.").
-		Default("10.128.7.224").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_SUBNET_MAX").
-		String()
-
-	flEc2DeployFlannelBackend = cmdEc2Deploy.Flag("flannel-backend",
-		"Flannel backend type: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-		Default("host-gw").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_FLANNEL_BACKEND").
-		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
-
 	flEc2DeployStubZones = cmdEc2Deploy.Flag("stub-zone",
 		"Use different nameservers for given domains.").
 		PlaceHolder("KATO_EC2_DEPLOY_STUB_ZONE").

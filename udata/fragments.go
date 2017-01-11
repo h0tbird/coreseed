@@ -861,25 +861,6 @@ coreos:
 
 	fragments = append(fragments, fragment{
 		filter: filter{
-			anyOf: []string{"master", "worker", "border"},
-			allOf: []string{"flannel"},
-		},
-		data: `
-  - name: "flanneld.service"
-    command: "start"
-    drop-ins:
-     - name: 50-network-config.conf
-       content: |
-        [Service]
-        ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "{{.FlannelNetwork}}","SubnetLen":{{.FlannelSubnetLen}} ,"SubnetMin": "{{.FlannelSubnetMin}}","SubnetMax": "{{.FlannelSubnetMax}}","Backend": {"Type": "{{.FlannelBackend}}"} }'
-        [Install]
-        Alias=flannel.service`,
-	})
-
-	//----------------------------------
-
-	fragments = append(fragments, fragment{
-		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"cacert"},
 		},
@@ -953,8 +934,6 @@ coreos:
     drop-ins:
      - name: "20-docker-opts.conf"
        content: |
-        [Unit]
-        After=flanneld.service
         [Service]
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
 	})
@@ -2131,18 +2110,6 @@ coreos:
 
      [Install]
      WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	fragments = append(fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master", "worker", "border"},
-			allOf: []string{"flannel"},
-		},
-		data: `
- flannel:
-  interface: $private_ipv4`,
 	})
 
 	//----------------------------------

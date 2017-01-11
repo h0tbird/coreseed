@@ -48,7 +48,7 @@ type Instance struct {
 	Roles        string `json:"Roles"`        //        | add |
 	ClusterState string `json:"ClusterState"` //        | add |
 	InstanceType string `json:"InstanceType"` //        | add | run
-	SrcDstCheck  string `json:"SrcDstCheck"`  //        | add | run
+	SrcDstCheck  string `json:"SrcDstCheck"`  //        |     | run
 	InstanceID   string `json:"InstanceID"`   //        |     | run
 	SubnetID     string `json:"SubnetID"`     //        |     | run
 	SecGrpIDs    string `json:"SecGrpIDs"`    //        |     | run
@@ -76,11 +76,6 @@ type State struct {
 	AdminEmail       string   `json:"AdminEmail:"`      // deploy |       | add |
 	CaCertPath       string   `json:"CaCertPath"`       // deploy |       | add |
 	CalicoIPPool     string   `json:"CalicoIPPool"`     // deploy |       |     |
-	FlannelNetwork   string   `json:"FlannelNetwork"`   // deploy |       | add |
-	FlannelSubnetLen string   `json:"FlannelSubnetLen"` // deploy |       | add |
-	FlannelSubnetMin string   `json:"FlannelSubnetMin"` // deploy |       | add |
-	FlannelSubnetMax string   `json:"FlannelSubnetMax"` // deploy |       | add |
-	FlannelBackend   string   `json:"FlannelBackend"`   // deploy |       | add |
 	Domain           string   `json:"Domain"`           // deploy | setup | add |
 	ClusterID        string   `json:"ClusterID"`        // deploy | setup | add |
 	Region           string   `json:"Region"`           // deploy | setup | add | run
@@ -172,13 +167,6 @@ func (d *Data) Add() {
 		d.retrieveCoreosAmiID(nil)
 	}
 
-	// Whether or not to source-dest-check:
-	if d.FlannelBackend == "host-gw" {
-		d.SrcDstCheck = "false"
-	} else {
-		d.SrcDstCheck = "true"
-	}
-
 	// Security group IDs:
 	var securityGroupIDs []string
 	for _, role := range strings.Split(d.Roles, ",") {
@@ -208,11 +196,6 @@ func (d *Data) Add() {
 		"--ns1-api-key", d.Ns1ApiKey,
 		"--etcd-token", d.EtcdToken,
 		"--calico-ip-pool", d.CalicoIPPool,
-		"--flannel-network", d.FlannelNetwork,
-		"--flannel-subnet-len", d.FlannelSubnetLen,
-		"--flannel-subnet-min", d.FlannelSubnetMin,
-		"--flannel-subnet-max", d.FlannelSubnetMax,
-		"--flannel-backend", d.FlannelBackend,
 		"--rexray-storage-driver", "ebs",
 		"--iaas-provider", "ec2",
 		"--prometheus",
@@ -265,7 +248,7 @@ func (d *Data) Add() {
 		"--subnet-id", d.ExtSubnetID,
 		"--security-group-ids", strings.Join(securityGroupIDs, ","),
 		"--iam-role", "kato",
-		"--source-dest-check", d.SrcDstCheck,
+		"--source-dest-check", "false",
 		"--public-ip", "true",
 	}
 

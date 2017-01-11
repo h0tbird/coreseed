@@ -87,34 +87,6 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_CALICO_IP_POOL").
 		String()
 
-	flUdataFlannelNetwork = cmdUdata.Flag("flannel-network",
-		"Flannel entire overlay network.").
-		Default("10.128.0.0/21").
-		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_NETWORK").
-		String()
-
-	flUdataFlannelSubnetLen = cmdUdata.Flag("flannel-subnet-len",
-		"Subnet len to llocate to each host.").
-		Default("27").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_LEN").
-		String()
-
-	flUdataFlannelSubnetMin = cmdUdata.Flag("flannel-subnet-min",
-		"Minimum subnet IP addresses.").
-		Default("10.128.0.192").
-		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MIN").
-		String()
-
-	flUdataFlannelSubnetMax = cmdUdata.Flag("flannel-subnet-max",
-		"Maximum subnet IP addresses.").
-		Default("10.128.7.224").
-		OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_SUBNET_MAX").
-		String()
-
-	flUdataFlannelBackend = cmdUdata.Flag("flannel-backend",
-		"Flannel backend: [ udp | vxlan | host-gw | gce | aws-vpc | alloc ]").
-		Default("vxlan").OverrideDefaultFromEnvar("KATO_UDATA_FLANNEL_BACKEND").
-		Enum("udp", "vxlan", "host-gw", "gce", "aws-vpc", "alloc")
-
 	flUdataRexrayStorageDriver = cmdUdata.Flag("rexray-storage-driver",
 		"REX-Ray storage driver: [ ebs | virtualbox ]").
 		PlaceHolder("KATO_UDATA_REXRAY_STORAGE_DRIVER").

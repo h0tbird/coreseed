@@ -44,11 +44,6 @@ type CmdFlags struct {
 	Domain              string   // --domain
 	Ec2Region           string   // --ec2-region
 	EtcdToken           string   // --etcd-token
-	FlannelBackend      string   // --flannel-backend
-	FlannelNetwork      string   // --flannel-network
-	FlannelSubnetLen    string   // --flannel-subnet-len
-	FlannelSubnetMax    string   // --flannel-subnet-max
-	FlannelSubnetMin    string   // --flannel-subnet-min
 	GzipUdata           bool     // --gzip-udata
 	HostID              string   // --host-id
 	HostName            string   // --host-name

@@ -9,7 +9,6 @@ Let's destroy the elected master and recreate it from scratch. I have 1 `border`
 ```
 core@master-1 ~ $ katostat
 LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
-LoadState=loaded  ActiveState=active  SubState=running  Id=flanneld.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master.service
@@ -123,7 +122,6 @@ A few minutes later I can ssh into `master-1` again:
 ```
 core@master-1 ~ $ katostat
 LoadState=loaded  ActiveState=active  SubState=running  Id=etcd2.service
-LoadState=loaded  ActiveState=active  SubState=running  Id=flanneld.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=docker.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=rexray.service
 LoadState=loaded  ActiveState=active  SubState=running  Id=mesos-master.service
