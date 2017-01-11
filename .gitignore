@@ -1,5 +1,5 @@
 *.swp
-cmd/katoctl/katoctl
+katoctl
 user_data_*
 .idea
 .vagrant
