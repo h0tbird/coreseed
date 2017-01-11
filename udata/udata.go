@@ -54,7 +54,6 @@ type CmdFlags struct {
 	HostName            string   // --host-name
 	IaasProvider        string   // --iaas-provider
 	MasterCount         int      // --master-count
-	NetworkBackend      string   // --network-backend
 	Ns1ApiKey           string   // --ns1-api-key
 	Prometheus          bool     // --prometheus
 	QuorumCount         int      // --quorum-count
@@ -226,7 +225,7 @@ func aliases(roles []string, hostName string) (aliases []string) {
 // func: systemdUnits
 //-----------------------------------------------------------------------------
 
-func systemdUnits(roles []string, prometheus bool, networkBackend string) []string {
+func systemdUnits(roles []string, prometheus bool) []string {
 
 	// Map of units:
 	m := make(map[string]bool)
@@ -250,7 +249,7 @@ func systemdUnits(roles []string, prometheus bool, networkBackend string) []stri
 
 		case "master":
 			for _, svc := range []string{
-				"etcd2", networkBackend, "docker", "rexray", "mesos-master",
+				"etcd2", "calico", "docker", "rexray", "mesos-master",
 				"mesos-dns", "marathon", "etchost.timer"} {
 				m[svc] = true
 			}
@@ -264,7 +263,7 @@ func systemdUnits(roles []string, prometheus bool, networkBackend string) []stri
 
 		case "worker":
 			for _, svc := range []string{
-				"etcd2", networkBackend, "docker", "rexray", "go-dnsmasq",
+				"etcd2", "calico", "docker", "rexray", "go-dnsmasq",
 				"mesos-agent", "marathon-lb", "etchost.timer"} {
 				m[svc] = true
 			}
@@ -278,7 +277,7 @@ func systemdUnits(roles []string, prometheus bool, networkBackend string) []stri
 
 		case "border":
 			for _, svc := range []string{
-				"etcd2", networkBackend, "docker", "rexray", "mongodb", "pritunl",
+				"etcd2", "calico", "docker", "rexray", "mongodb", "pritunl",
 				"etchost.timer"} {
 				m[svc] = true
 			}
@@ -352,7 +351,6 @@ func (d *CmdData) listOfTags() (tags []string) {
 
 	tags = append(d.Roles, d.IaasProvider)
 	tags = append(tags, d.ClusterState)
-	tags = append(tags, d.NetworkBackend)
 
 	if d.CaCert != "" {
 		tags = append(tags, "cacert")
@@ -480,7 +478,7 @@ func (d *CmdData) CmdRun() {
 	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
 	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
 	d.SystemdUnits = systemdUnits(d.Roles,         // Systemd units array.
-		d.Prometheus, d.NetworkBackend)
+		d.Prometheus)
 
 	// Template:
 	d.fragments.load()  // Predefined template fragments.

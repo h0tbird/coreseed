@@ -81,11 +81,6 @@ var (
 		Default("false").OverrideDefaultFromEnvar("KATO_UDATA_GZIP_UDATA").
 		Bool()
 
-	flUdataNetworkBackend = cmdUdata.Flag("network-backend",
-		"Software defined network: [ flannel | calico | canal ]").
-		Default("flannel").OverrideDefaultFromEnvar("KATO_UDATA_NETWORK_BACKEND").
-		Enum("flannel", "calico", "canal")
-
 	flUdataCalicoIPPool = cmdUdata.Flag("calico-ip-pool",
 		"IP pool from which Calico expects endpoint IPs to be assigned.").
 		Default("10.128.0.0/21").

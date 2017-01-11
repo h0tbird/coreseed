@@ -110,11 +110,6 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_VPC_CIDR_BLOCK").
 		String()
 
-	flEc2DeployNetworkBackend = cmdEc2Deploy.Flag("network-backend",
-		"Software defined network: [ flannel | calico | canal ]").
-		Default("flannel").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_NETWORK_BACKEND").
-		Enum("flannel", "calico", "canal")
-
 	flEc2DeployCalicoIPPool = cmdEc2Deploy.Flag("calico-ip-pool",
 		"IP pool from which Calico expects endpoint IPs to be assigned.").
 		Default("10.128.0.0/21").
