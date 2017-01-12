@@ -959,7 +959,7 @@ coreos:
        KATO_HOST_ID={{.HostID}}\n\
        KATO_ZK={{.ZkServers}}\n\
        KATO_ETCD_ENDPOINTS={{.EtcdEndpoints}}\n\
-       KATO_SYSTEMD_UNITS=\'{{range .SystemdUnits}}{{.}} {{end}}\'\n\
+       KATO_SYSTEMD_UNITS=\'{{range $k, $v := .SystemdUnits}}{{if $k}} {{end}}{{$v}}{{end}}\'\n\
        KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
        KATO_DOMAIN=$(hostname -d)\n\
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
