@@ -23,6 +23,45 @@ type serviceMap struct {
 }
 
 //-----------------------------------------------------------------------------
+// func: findOne
+//-----------------------------------------------------------------------------
+
+func findOne(src, dst []string) bool {
+	for _, i := range src {
+		for _, j := range dst {
+			if i == j {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+//-----------------------------------------------------------------------------
+// func: list
+//-----------------------------------------------------------------------------
+
+func (s *serviceMap) list(roles, groups []string) (list []string) {
+
+	// Map as set:
+	m := map[string]struct{}{}
+	for _, role := range roles {
+		for _, service := range s.roleServices[role] {
+			if findOne(s.serviceConfig[service].groups, groups) {
+				m[s.serviceConfig[service].name] = struct{}{}
+			}
+		}
+	}
+
+	// Set to slice:
+	for k := range m {
+		list = append(list, k)
+	}
+
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: load
 //-----------------------------------------------------------------------------
 

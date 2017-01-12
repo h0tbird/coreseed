@@ -217,81 +217,6 @@ func aliases(roles []string, hostName string) (aliases []string) {
 }
 
 //-----------------------------------------------------------------------------
-// func: systemdUnits
-//-----------------------------------------------------------------------------
-
-func systemdUnits(roles []string, prometheus bool) []string {
-
-	// Map of units:
-	m := make(map[string]bool)
-
-	// Add units to map:
-	for _, role := range roles {
-
-		switch role {
-
-		case "quorum":
-			for _, svc := range []string{
-				"etcd2", "docker", "zookeeper", "rexray", "etchost.timer"} {
-				m[svc] = true
-			}
-			if prometheus {
-				for _, svc := range []string{
-					"rkt-api", "cadvisor", "node-exporter", "zookeeper-exporter"} {
-					m[svc] = true
-				}
-			}
-
-		case "master":
-			for _, svc := range []string{
-				"etcd2", "calico", "docker", "rexray", "mesos-master",
-				"mesos-dns", "marathon", "etchost.timer"} {
-				m[svc] = true
-			}
-			if prometheus {
-				for _, svc := range []string{
-					"rkt-api", "cadvisor", "confd", "alertmanager", "prometheus",
-					"node-exporter", "mesos-master-exporter"} {
-					m[svc] = true
-				}
-			}
-
-		case "worker":
-			for _, svc := range []string{
-				"etcd2", "calico", "docker", "rexray", "go-dnsmasq",
-				"mesos-agent", "marathon-lb", "etchost.timer"} {
-				m[svc] = true
-			}
-			if prometheus {
-				for _, svc := range []string{
-					"rkt-api", "cadvisor", "mesos-agent-exporter", "node-exporter",
-					"haproxy-exporter"} {
-					m[svc] = true
-				}
-			}
-
-		case "border":
-			for _, svc := range []string{
-				"etcd2", "calico", "docker", "rexray", "mongodb", "pritunl",
-				"etchost.timer"} {
-				m[svc] = true
-			}
-
-		default:
-			log.WithField("cmd", "udata").Fatal("Invalid role: " + role)
-		}
-	}
-
-	// Slice of keys from map:
-	units := make([]string, 0, len(m))
-	for unit := range m {
-		units = append(units, unit)
-	}
-
-	return units
-}
-
-//-----------------------------------------------------------------------------
 // func: servicePorts
 //-----------------------------------------------------------------------------
 
@@ -472,8 +397,7 @@ func (d *CmdData) CmdRun() {
 	d.SMTP = smtpURLSplit(d.SMTPURL)               // Split URL into its components.
 	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
 	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
-	d.SystemdUnits = systemdUnits(d.Roles,         // Systemd units array.
-		d.Prometheus)
+	d.SystemdUnits = d.services.list(d.Roles, []string{"base", "insight"})
 
 	// Template:
 	d.fragments.load()  // Predefined template fragments.
