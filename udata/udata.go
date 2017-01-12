@@ -217,53 +217,6 @@ func aliases(roles []string, hostName string) (aliases []string) {
 }
 
 //-----------------------------------------------------------------------------
-// func: servicePorts
-//-----------------------------------------------------------------------------
-
-func (d *CmdData) servicePorts() {
-
-	// Ports shared by all roles:
-	tcpPorts := []string{"22", "2379", "7979"}
-	udpPorts := []string{}
-
-	if d.Prometheus {
-		tcpPorts = append(tcpPorts, "4194", "9101")
-	}
-
-	// Aggregate porst of all roles:
-	for _, i := range d.Roles {
-
-		switch i {
-
-		case "quorum":
-			tcpPorts = append(tcpPorts, "2181", "2380", "2888", "3888")
-			if d.Prometheus {
-				tcpPorts = append(tcpPorts, "9103")
-			}
-
-		case "master":
-			tcpPorts = append(tcpPorts, "53", "5050", "8080", "9292")
-			if d.Prometheus {
-				tcpPorts = append(tcpPorts, "9093", "9104", "9191")
-			}
-
-		case "worker":
-			tcpPorts = append(tcpPorts, "53", "80", "443", "5051", "9090", "9091")
-			if d.Prometheus {
-				tcpPorts = append(tcpPorts, "9102", "9105")
-			}
-
-		case "border":
-			tcpPorts = append(tcpPorts, "80", "443", "9756", "27017")
-			udpPorts = append(udpPorts, "18443")
-
-		default:
-			log.WithField("cmd", "udata").Fatal("Invalid role: " + i)
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // func: listOfTags
 //-----------------------------------------------------------------------------
 
