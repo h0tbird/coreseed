@@ -17,23 +17,44 @@ type port struct {
 	ingress  string
 }
 
-type serviceMap map[string]service
+type serviceMap struct {
+	roleServices  map[string][]string
+	serviceConfig map[string]service
+}
 
 //-----------------------------------------------------------------------------
 // func: load
 //-----------------------------------------------------------------------------
 
-func (services serviceMap) load() {
+func (s *serviceMap) load() {
 
-	services = serviceMap{
+	// Map roles to services:
+	s.roleServices = map[string][]string{
 
-		//---------------------
-		// Base service group:
-		//---------------------
+		"quorum": []string{
+			"docker", "rexray", "etchost", "zookeeper", "etcd-master", "rkt-api",
+			"cadvisor", "node-exporter", "zookeeper-exporter"},
+
+		"master": []string{
+			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mesos-dns",
+			"mesos-master", "marathon", "rkt-api", "cadvisor", "node-exporter",
+			"mesos-master-exporter", "confd", "alertmanager", "prometheus"},
+
+		"worker": []string{
+			"docker", "rexray", "etchost", "etcd-proxy", "calico", "go-dnsmasq",
+			"marathon-lb", "mesos-agent", "rkt-api", "cadvisor", "node-exporter",
+			"mesos-agent-exporter", "haproxy-exporter"},
+
+		"border": []string{
+			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mongodb",
+			"pritunl", "rkt-api", "cadvisor", "node-exporter"},
+	}
+
+	// Map services to config:
+	s.serviceConfig = map[string]service{
 
 		"docker": {
 			name:   "docker.service",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 2375, protocol: "tcp", ingress: ""},
@@ -42,7 +63,6 @@ func (services serviceMap) load() {
 
 		"rexray": {
 			name:   "rexray.service",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 7979, protocol: "tcp", ingress: ""},
@@ -51,13 +71,11 @@ func (services serviceMap) load() {
 
 		"etchost": {
 			name:   "etchost.timer",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"base"},
 		},
 
 		"etcd-proxy": {
 			name:   "etcd2.service",
-			roles:  []string{"master", "worker", "border"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 2379, protocol: "tcp", ingress: ""},
@@ -66,13 +84,11 @@ func (services serviceMap) load() {
 
 		"calico": {
 			name:   "calico.service",
-			roles:  []string{"master", "worker", "border"},
 			groups: []string{"base"},
 		},
 
 		"zookeeper": {
 			name:   "zookeeper.service",
-			roles:  []string{"quorum"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 2181, protocol: "tcp", ingress: ""},
@@ -83,7 +99,6 @@ func (services serviceMap) load() {
 
 		"etcd-master": {
 			name:   "etcd2.service",
-			roles:  []string{"quorum"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 2379, protocol: "tcp", ingress: ""},
@@ -93,7 +108,6 @@ func (services serviceMap) load() {
 
 		"mesos-dns": {
 			name:   "mesos-dns.service",
-			roles:  []string{"master"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 53, protocol: "tcp", ingress: ""},
@@ -103,7 +117,6 @@ func (services serviceMap) load() {
 
 		"mesos-master": {
 			name:   "mesos-master.service",
-			roles:  []string{"master"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 5050, protocol: "tcp", ingress: ""},
@@ -112,7 +125,6 @@ func (services serviceMap) load() {
 
 		"marathon": {
 			name:   "marathon.service",
-			roles:  []string{"master"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 8080, protocol: "tcp", ingress: ""},
@@ -122,7 +134,6 @@ func (services serviceMap) load() {
 
 		"go-dnsmasq": {
 			name:   "go-dnsmasq.service",
-			roles:  []string{"worker"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 53, protocol: "tcp", ingress: ""},
@@ -131,7 +142,6 @@ func (services serviceMap) load() {
 
 		"marathon-lb": {
 			name:   "marathon-lb.service",
-			roles:  []string{"worker"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 80, protocol: "tcp", ingress: ""},
@@ -143,7 +153,6 @@ func (services serviceMap) load() {
 
 		"mesos-agent": {
 			name:   "mesos-agent.service",
-			roles:  []string{"worker"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 5051, protocol: "tcp", ingress: ""},
@@ -152,7 +161,6 @@ func (services serviceMap) load() {
 
 		"mongodb": {
 			name:   "mongodb.service",
-			roles:  []string{"border"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 27017, protocol: "tcp", ingress: ""},
@@ -161,7 +169,6 @@ func (services serviceMap) load() {
 
 		"pritunl": {
 			name:   "pritunl.service",
-			roles:  []string{"border"},
 			groups: []string{"base"},
 			ports: []port{
 				{num: 80, protocol: "tcp", ingress: ""},
@@ -171,67 +178,53 @@ func (services serviceMap) load() {
 			},
 		},
 
-		//------------------------
-		// Insight service group:
-		//------------------------
-
 		"rkt-api": {
 			name:   "rkt-api.service",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"insight"},
 		},
 
 		"cadvisor": {
 			name:   "cadvisor.service",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"insight"},
 		},
 
 		"node-exporter": {
 			name:   "node-exporter.service",
-			roles:  []string{"quorum", "master", "worker", "border"},
 			groups: []string{"insight"},
 		},
 
 		"zookeeper-exporter": {
 			name:   "zookeeper-exporter.service",
-			roles:  []string{"quorum"},
 			groups: []string{"insight"},
 		},
 
 		"mesos-master-exporter": {
 			name:   "mesos-master-exporter.service",
-			roles:  []string{"master"},
 			groups: []string{"insight"},
 		},
 
 		"mesos-agent-exporter": {
 			name:   "mesos-agent-exporter.service",
-			roles:  []string{"worker"},
 			groups: []string{"insight"},
 		},
 
 		"haproxy-exporter": {
 			name:   "haproxy-exporter.service",
-			roles:  []string{"worker"},
 			groups: []string{"insight"},
 		},
 
 		"confd": {
 			name:   "confd.service",
-			roles:  []string{"master"},
 			groups: []string{"insight"},
 		},
 
 		"alertmanager": {
 			name:   "alertmanager.service",
-			roles:  []string{"master"},
 			groups: []string{"insight"},
 		},
 
 		"prometheus": {
 			name:   "prometheus.service",
-			roles:  []string{"master"},
 			groups: []string{"insight"},
 		},
 	}
