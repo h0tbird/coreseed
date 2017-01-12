@@ -68,6 +68,7 @@ type PostProc struct {
 	CaCert        string
 	EtcdEndpoints string
 	EtcdServers   string
+	ServiceGroups []string
 	MesosDNSPort  int
 	SMTP
 	SystemdUnits []string
@@ -217,6 +218,18 @@ func aliases(roles []string, hostName string) (aliases []string) {
 }
 
 //-----------------------------------------------------------------------------
+// func: serviceGroups
+//-----------------------------------------------------------------------------
+
+func serviceGroups(prometheus bool) (groups []string) {
+	groups = []string{"base"}
+	if prometheus {
+		groups = append(groups, "insight")
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: listOfTags
 //-----------------------------------------------------------------------------
 
@@ -350,7 +363,9 @@ func (d *CmdData) CmdRun() {
 	d.SMTP = smtpURLSplit(d.SMTPURL)               // Split URL into its components.
 	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
 	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
-	d.SystemdUnits = d.services.list(d.Roles, []string{"base", "insight"})
+	d.ServiceGroups = serviceGroups(d.Prometheus)  // Slice of service groups.
+	d.SystemdUnits = d.services.list(d.Roles,      // Systemd units array.
+		d.ServiceGroups)
 
 	// Template:
 	d.fragments.load()  // Predefined template fragments.
