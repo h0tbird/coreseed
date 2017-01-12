@@ -1008,9 +1008,9 @@ func (d *Data) createSubnets() error {
 
 	// Map to iterate:
 	nets := map[string]map[string]string{
-		"internal": map[string]string{
+		"internal": {
 			"SubnetCidr": d.IntSubnetCidr, "SubnetID": ""},
-		"external": map[string]string{
+		"external": {
 			"SubnetCidr": d.ExtSubnetCidr, "SubnetID": ""},
 	}
 

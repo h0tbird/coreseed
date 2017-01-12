@@ -70,21 +70,21 @@ func (s *serviceMap) load() {
 	// Map roles to services:
 	s.roleServices = map[string][]string{
 
-		"quorum": []string{
+		"quorum": {
 			"docker", "rexray", "etchost", "zookeeper", "etcd-master", "rkt-api",
 			"cadvisor", "node-exporter", "zookeeper-exporter"},
 
-		"master": []string{
+		"master": {
 			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mesos-dns",
 			"mesos-master", "marathon", "rkt-api", "cadvisor", "node-exporter",
 			"mesos-master-exporter", "confd", "alertmanager", "prometheus"},
 
-		"worker": []string{
+		"worker": {
 			"docker", "rexray", "etchost", "etcd-proxy", "calico", "go-dnsmasq",
 			"marathon-lb", "mesos-agent", "rkt-api", "cadvisor", "node-exporter",
 			"mesos-agent-exporter", "haproxy-exporter"},
 
-		"border": []string{
+		"border": {
 			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mongodb",
 			"pritunl", "rkt-api", "cadvisor", "node-exporter"},
 	}
