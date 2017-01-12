@@ -1,6 +1,12 @@
 package udata
 
 //-----------------------------------------------------------------------------
+// Import statements:
+//-----------------------------------------------------------------------------
+
+import "sort"
+
+//-----------------------------------------------------------------------------
 // Typedefs:
 //-----------------------------------------------------------------------------
 
@@ -38,10 +44,10 @@ func findOne(src, dst []string) bool {
 }
 
 //-----------------------------------------------------------------------------
-// func: list
+// func: listUnits
 //-----------------------------------------------------------------------------
 
-func (s *serviceMap) list(roles, groups []string) (list []string) {
+func (s *serviceMap) listUnits(roles, groups []string) (list []string) {
 
 	// Map as set:
 	m := map[string]struct{}{}
@@ -58,6 +64,38 @@ func (s *serviceMap) list(roles, groups []string) (list []string) {
 		list = append(list, k)
 	}
 
+	// Sort and return:
+	sort.Strings(list)
+	return
+}
+
+//-----------------------------------------------------------------------------
+// func: listPorts
+//-----------------------------------------------------------------------------
+
+func (s *serviceMap) listPorts(roles, groups []string, protocol string) (list []int) {
+
+	// Map as set:
+	m := map[int]struct{}{22: struct{}{}}
+	for _, role := range roles {
+		for _, service := range s.roleServices[role] {
+			if findOne(s.serviceConfig[service].groups, groups) {
+				for _, port := range s.serviceConfig[service].ports {
+					if port.protocol == protocol {
+						m[port.num] = struct{}{}
+					}
+				}
+			}
+		}
+	}
+
+	// Set to slice:
+	for k := range m {
+		list = append(list, k)
+	}
+
+	// Sort and return:
+	sort.Ints(list)
 	return
 }
 

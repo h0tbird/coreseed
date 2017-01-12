@@ -68,8 +68,10 @@ type PostProc struct {
 	CaCert        string
 	EtcdEndpoints string
 	EtcdServers   string
-	ServiceGroups []string
+	HostTCPPorts  []int
+	HostUDPPorts  []int
 	MesosDNSPort  int
+	ServiceGroups []string
 	SMTP
 	SystemdUnits []string
 	ZkServers    string
@@ -364,8 +366,9 @@ func (d *CmdData) CmdRun() {
 	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
 	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
 	d.ServiceGroups = serviceGroups(d.Prometheus)  // Slice of service groups.
-	d.SystemdUnits = d.services.list(d.Roles,      // Systemd units array.
-		d.ServiceGroups)
+	d.SystemdUnits = d.services.listUnits(d.Roles, d.ServiceGroups)
+	d.HostTCPPorts = d.services.listPorts(d.Roles, d.ServiceGroups, "tcp")
+	d.HostUDPPorts = d.services.listPorts(d.Roles, d.ServiceGroups, "udp")
 
 	// Template:
 	d.fragments.load()  // Predefined template fragments.

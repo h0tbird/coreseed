@@ -201,7 +201,7 @@ write_files:`,
         - action: allow
           protocol: tcp
           destination:
-            ports: [22,80,443,2379,5050,5051,8080,9090]
+            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]
     - apiVersion: v1
       kind: policy
       metadata:
