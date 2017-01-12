@@ -263,6 +263,9 @@ func (s *serviceMap) load() {
 		"cadvisor": {
 			name:   "cadvisor.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 4194, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"node-exporter": {
@@ -298,11 +301,17 @@ func (s *serviceMap) load() {
 		"alertmanager": {
 			name:   "alertmanager.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9093, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"prometheus": {
 			name:   "prometheus.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9191, protocol: "tcp", ingress: ""},
+			},
 		},
 	}
 }
