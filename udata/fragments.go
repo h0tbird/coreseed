@@ -183,28 +183,30 @@ write_files:`,
     - apiVersion: v1
       kind: hostEndpoint
       metadata:
-        name: host-endpoint
+        name: {{.HostName}}-{{.HostID}}
         node: {{.HostName}}-{{.HostID}}.{{.Domain}}
         labels:
-          endpoint: host
+          endpoint: {{.HostName}}
       spec:
         expectedIPs:
         - $private_ipv4
     - apiVersion: v1
       kind: policy
       metadata:
-        name: host-ingress
+        name: {{.HostName}}
       spec:
-        selector: endpoint == 'host'
+        selector: endpoint == '{{.HostName}}'
         ingress:
+{{- if .HostTCPPorts}}
         - action: allow
           protocol: tcp
           destination:
-            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]
+            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]{{end}}
+{{- if .HostUDPPorts}}
         - action: allow
           protocol: udp
           destination:
-            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]
+            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]{{end}}
     - apiVersion: v1
       kind: policy
       metadata:
