@@ -23,10 +23,7 @@ type port struct {
 	ingress  string
 }
 
-type serviceMap struct {
-	roleServices  map[string][]string
-	serviceConfig map[string]service
-}
+type serviceMap map[string]service
 
 //-----------------------------------------------------------------------------
 // func: findOne
@@ -47,16 +44,12 @@ func findOne(src, dst []string) bool {
 // func: listUnits
 //-----------------------------------------------------------------------------
 
-func (s *serviceMap) listUnits(roles, groups []string) (list []string) {
+func (s *serviceMap) listUnits() (list []string) {
 
 	// Map as set:
 	m := map[string]struct{}{}
-	for _, role := range roles {
-		for _, service := range s.roleServices[role] {
-			if findOne(s.serviceConfig[service].groups, groups) {
-				m[s.serviceConfig[service].name] = struct{}{}
-			}
-		}
+	for _, service := range *s {
+		m[service.name] = struct{}{}
 	}
 
 	// Set to slice:
@@ -73,18 +66,14 @@ func (s *serviceMap) listUnits(roles, groups []string) (list []string) {
 // func: listPorts
 //-----------------------------------------------------------------------------
 
-func (s *serviceMap) listPorts(roles, groups []string, protocol string) (list []int) {
+func (s *serviceMap) listPorts(protocol string) (list []int) {
 
 	// Map as set:
 	m := map[int]struct{}{22: struct{}{}}
-	for _, role := range roles {
-		for _, service := range s.roleServices[role] {
-			if findOne(s.serviceConfig[service].groups, groups) {
-				for _, port := range s.serviceConfig[service].ports {
-					if port.protocol == protocol {
-						m[port.num] = struct{}{}
-					}
-				}
+	for _, service := range *s {
+		for _, port := range service.ports {
+			if port.protocol == protocol {
+				m[port.num] = struct{}{}
 			}
 		}
 	}
@@ -103,10 +92,10 @@ func (s *serviceMap) listPorts(roles, groups []string, protocol string) (list []
 // func: load
 //-----------------------------------------------------------------------------
 
-func (s *serviceMap) load() {
+func (s *serviceMap) load(roles, groups []string) {
 
 	// Map roles to services:
-	s.roleServices = map[string][]string{
+	roleServices := map[string][]string{
 
 		"quorum": {
 			"docker", "rexray", "etchost", "zookeeper", "etcd-master", "rkt-api",
@@ -128,7 +117,7 @@ func (s *serviceMap) load() {
 	}
 
 	// Map services to config:
-	s.serviceConfig = map[string]service{
+	serviceConfig := map[string]service{
 
 		"docker": {
 			name:   "docker.service",
@@ -313,5 +302,15 @@ func (s *serviceMap) load() {
 				{num: 9191, protocol: "tcp", ingress: ""},
 			},
 		},
+	}
+
+	// Filter my services:
+	*s = serviceMap{}
+	for _, role := range roles {
+		for _, service := range roleServices[role] {
+			if findOne(serviceConfig[service].groups, groups) {
+				(*s)[service] = serviceConfig[service]
+			}
+		}
 	}
 }

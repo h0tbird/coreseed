@@ -71,7 +71,6 @@ type PostProc struct {
 	HostTCPPorts  []int
 	HostUDPPorts  []int
 	MesosDNSPort  int
-	ServiceGroups []string
 	SMTP
 	SystemdUnits []string
 	ZkServers    string
@@ -220,10 +219,10 @@ func aliases(roles []string, hostName string) (aliases []string) {
 }
 
 //-----------------------------------------------------------------------------
-// func: serviceGroups
+// func: groups
 //-----------------------------------------------------------------------------
 
-func serviceGroups(prometheus bool) (groups []string) {
+func groups(prometheus bool) (groups []string) {
 	groups = []string{"base"}
 	if prometheus {
 		groups = append(groups, "insight")
@@ -356,7 +355,7 @@ func (d *CmdData) outputUserData() {
 func (d *CmdData) CmdRun() {
 
 	// Variables:
-	d.services.load()                              // Predefined services map.
+	d.services.load(d.Roles, groups(d.Prometheus)) // Predefined services map.
 	d.CaCert = caCert(d.CaCertPath)                // Retrieve the CA certificate.
 	d.ZkServers = zkServers(d.QuorumCount)         // Forge the Zookeeper URL.
 	d.EtcdServers = etcdServers(d.QuorumCount)     // Initial etcd servers URL.
@@ -365,10 +364,9 @@ func (d *CmdData) CmdRun() {
 	d.SMTP = smtpURLSplit(d.SMTPURL)               // Split URL into its components.
 	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
 	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
-	d.ServiceGroups = serviceGroups(d.Prometheus)  // Slice of service groups.
-	d.SystemdUnits = d.services.listUnits(d.Roles, d.ServiceGroups)
-	d.HostTCPPorts = d.services.listPorts(d.Roles, d.ServiceGroups, "tcp")
-	d.HostUDPPorts = d.services.listPorts(d.Roles, d.ServiceGroups, "udp")
+	d.SystemdUnits = d.services.listUnits()
+	d.HostTCPPorts = d.services.listPorts("tcp")
+	d.HostUDPPorts = d.services.listPorts("udp")
 
 	// Template:
 	d.fragments.load()  // Predefined template fragments.
