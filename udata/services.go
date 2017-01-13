@@ -68,8 +68,13 @@ func (s *serviceMap) listUnits() (list []string) {
 
 func (s *serviceMap) listPorts(protocol string) (list []int) {
 
+	// Default ports:
+	m := map[int]struct{}{}
+	if protocol == "tcp" {
+		m[22] = struct{}{}
+	}
+
 	// Map as set:
-	m := map[int]struct{}{22: struct{}{}}
 	for _, service := range *s {
 		for _, port := range service.ports {
 			if port.protocol == protocol {

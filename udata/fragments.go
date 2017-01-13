@@ -196,7 +196,6 @@ write_files:`,
         name: host-ingress
       spec:
         selector: endpoint == 'host'
-        order: 0
         ingress:
         - action: allow
           protocol: tcp
