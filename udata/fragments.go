@@ -202,6 +202,10 @@ write_files:`,
           protocol: tcp
           destination:
             ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]
+        - action: allow
+          protocol: udp
+          destination:
+            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]
     - apiVersion: v1
       kind: policy
       metadata:
