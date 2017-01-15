@@ -936,7 +936,6 @@ func (d *Data) createVPC() error {
 	// Forge the VPC request:
 	params := &ec2.CreateVpcInput{
 		CidrBlock:       aws.String(d.VpcCidrBlock),
-		DryRun:          aws.Bool(false),
 		InstanceTenancy: aws.String("default"),
 	}
 
@@ -968,7 +967,6 @@ func (d *Data) retrieveMainRouteTableID() error {
 
 	// Forge the description request:
 	params := &ec2.DescribeRouteTablesInput{
-		DryRun: aws.Bool(false),
 		Filters: []*ec2.Filter{
 			{
 				Name: aws.String("association.main"),
@@ -1025,7 +1023,6 @@ func (d *Data) createSubnets() error {
 				CidrBlock:        aws.String(v["SubnetCidr"]),
 				VpcId:            aws.String(d.VpcID),
 				AvailabilityZone: aws.String(d.Region + d.Zone),
-				DryRun:           aws.Bool(false),
 			}
 
 			// Send the subnet request:
@@ -1062,8 +1059,7 @@ func (d *Data) createRouteTable() error {
 
 	// Forge the route table request:
 	params := &ec2.CreateRouteTableInput{
-		VpcId:  aws.String(d.VpcID),
-		DryRun: aws.Bool(false),
+		VpcId: aws.String(d.VpcID),
 	}
 
 	// Send the route table request:
@@ -1091,7 +1087,6 @@ func (d *Data) associateRouteTable() error {
 	params := &ec2.AssociateRouteTableInput{
 		RouteTableId: aws.String(d.RouteTableID),
 		SubnetId:     aws.String(d.ExtSubnetID),
-		DryRun:       aws.Bool(false),
 	}
 
 	// Send the association request:
@@ -1115,9 +1110,7 @@ func (d *Data) associateRouteTable() error {
 func (d *Data) createInternetGateway() error {
 
 	// Forge the internet gateway request:
-	params := &ec2.CreateInternetGatewayInput{
-		DryRun: aws.Bool(false),
-	}
+	params := &ec2.CreateInternetGatewayInput{}
 
 	// Send the internet gateway request:
 	resp, err := d.ec2.CreateInternetGateway(params)
@@ -1145,7 +1138,6 @@ func (d *Data) attachInternetGateway() error {
 	params := &ec2.AttachInternetGatewayInput{
 		InternetGatewayId: aws.String(d.InetGatewayID),
 		VpcId:             aws.String(d.VpcID),
-		DryRun:            aws.Bool(false),
 	}
 
 	// Send the attachement request:
@@ -1170,7 +1162,6 @@ func (d *Data) createInternetGatewayRoute() error {
 	params := &ec2.CreateRouteInput{
 		DestinationCidrBlock: aws.String("0.0.0.0/0"),
 		RouteTableId:         aws.String(d.RouteTableID),
-		DryRun:               aws.Bool(false),
 		GatewayId:            aws.String(d.InetGatewayID),
 	}
 
@@ -1195,7 +1186,6 @@ func (d *Data) allocateElasticIP() error {
 	// Forge the allocation request:
 	params := &ec2.AllocateAddressInput{
 		Domain: aws.String("vpc"),
-		DryRun: aws.Bool(false),
 	}
 
 	// Send the allocation request:
@@ -1231,7 +1221,6 @@ func (d *Data) associateElasticIP() error {
 	params := &ec2.AssociateAddressInput{
 		AllocationId:       aws.String(d.AllocationID),
 		AllowReassociation: aws.Bool(true),
-		DryRun:             aws.Bool(false),
 		NetworkInterfaceId: aws.String(d.InterfaceID),
 	}
 
@@ -1327,7 +1316,6 @@ func (d *Data) createNatGatewayRoute() error {
 	params := &ec2.CreateRouteInput{
 		DestinationCidrBlock: aws.String("0.0.0.0/0"),
 		RouteTableId:         aws.String(d.MainRouteTableID),
-		DryRun:               aws.Bool(false),
 		NatGatewayId:         aws.String(d.NatGatewayID),
 	}
 
@@ -1578,7 +1566,6 @@ func (d *Data) createSecurityGroup(name string, id *string) error {
 	params := &ec2.CreateSecurityGroupInput{
 		Description: aws.String(d.Domain + " " + name),
 		GroupName:   aws.String(name),
-		DryRun:      aws.Bool(false),
 		VpcId:       aws.String(d.VpcID),
 	}
 
@@ -1964,7 +1951,6 @@ func (d *Data) tag(resource, key, value string) error {
 				Value: aws.String(value),
 			},
 		},
-		DryRun: aws.Bool(false),
 	}
 
 	// Send the tag request:
