@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
@@ -1967,9 +1968,16 @@ func (d *Data) tag(resource, key, value string) error {
 	}
 
 	// Send the tag request:
-	if _, err := d.ec2.CreateTags(params); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+	for i := 0; i < 5; i++ {
+		if _, err := d.ec2.CreateTags(params); err != nil {
+			ec2err, ok := err.(awserr.Error)
+			if ok && strings.Contains(ec2err.Code(), ".NotFound") {
+				time.Sleep(1e9)
+				continue
+			}
+			log.WithField("cmd", "ec2:"+d.command).Error(err)
+			return err
+		}
 	}
 
 	return nil
