@@ -265,26 +265,41 @@ func (s *serviceMap) load(roles, groups []string) {
 		"node-exporter": {
 			name:   "node-exporter.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9101, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"zookeeper-exporter": {
 			name:   "zookeeper-exporter.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9103, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"mesos-master-exporter": {
 			name:   "mesos-master-exporter.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9104, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"mesos-agent-exporter": {
 			name:   "mesos-agent-exporter.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9105, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"haproxy-exporter": {
 			name:   "haproxy-exporter.service",
 			groups: []string{"insight"},
+			ports: []port{
+				{num: 9102, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"confd": {
