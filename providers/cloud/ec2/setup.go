@@ -88,10 +88,10 @@ func (d *Data) setupAPIEndpoints() {
 
 func (d *Data) createVPC() error {
 
-	// Return if already exists:
+	// Return if already defined:
 	if d.VpcID != "" {
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.VpcID}).
-			Info("Using existing VPC")
+			Info("Using defined VPC")
 		return nil
 	}
 
@@ -292,11 +292,11 @@ func (d *Data) createSubnets() error {
 
 func (d *Data) createRouteTable() error {
 
-	// Return if already exists:
+	// Return if already defined:
 	if d.RouteTableID != "" {
 		log.WithFields(
 			log.Fields{"cmd": "ec2:" + d.command, "id": d.RouteTableID}).
-			Info("Using existing route table")
+			Info("Using defined route table")
 		return nil
 	}
 
@@ -352,11 +352,11 @@ func (d *Data) associateRouteTable() error {
 
 func (d *Data) createInternetGateway() error {
 
-	// Return if already exists:
+	// Return if already defined:
 	if d.InetGatewayID != "" {
 		log.WithFields(log.Fields{
 			"cmd": "ec2:" + d.command, "id": d.InetGatewayID}).
-			Info("Using existing internet gateway")
+			Info("Using defined internet gateway")
 		return nil
 	}
 
@@ -447,11 +447,11 @@ func (d *Data) createInternetGatewayRoute() error {
 
 func (d *Data) allocateElasticIP() error {
 
-	// Return if already exists:
+	// Return if already defined:
 	if d.AllocationID != "" {
 		log.WithFields(
 			log.Fields{"cmd": "ec2:" + d.command, "id": d.AllocationID}).
-			Info("Using existing elastic IP")
+			Info("Using defined elastic IP")
 		return nil
 	}
 
@@ -857,10 +857,10 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 
 func (d *Data) createSecurityGroup(name string, id *string) error {
 
-	// Return if already exists:
+	// Return if already defined:
 	if *id != "" {
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *id}).
-			Info("Using existing " + name + " security group")
+			Info("Using defined " + name + " security group")
 		return nil
 	}
 
