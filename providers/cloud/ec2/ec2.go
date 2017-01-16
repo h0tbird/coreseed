@@ -951,6 +951,14 @@ func (d *Data) createVPC() error {
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.VpcID}).
 		Info("New EC2 VPC created")
 
+	// Wait until VPC is available:
+	if err := d.ec2.WaitUntilVpcAvailable(&ec2.DescribeVpcsInput{
+		VpcIds: []*string{aws.String(d.VpcID)},
+	}); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		return err
+	}
+
 	// Tag the VPC:
 	if err = d.tag(d.VpcID, "Name", d.Domain); err != nil {
 		return err
