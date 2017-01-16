@@ -149,7 +149,6 @@ func (d *Data) loadState() error {
 	// Load raw data from state file:
 	raw, err := katool.LoadState(d.ClusterID)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 

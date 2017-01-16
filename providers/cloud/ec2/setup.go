@@ -30,15 +30,14 @@ func (d *Data) Setup() {
 
 	// Set current command:
 	d.command = "setup"
+	d.setupAPIEndpoints()
 
-	// Log this acction:
-	log.WithField("cmd", "ec2:"+d.command).
-		Info("Connecting to region " + d.Region)
-
-	// Connect and authenticate to the API endpoints:
-	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-	d.iam = iam.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
-	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	// Load state from state file (if any):
+	if err := d.loadState(); err != nil {
+		if !strings.Contains(err.Error(), "no such file or directory") {
+			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		}
+	}
 
 	// Create the VPC:
 	if err := d.createVPC(); err != nil {
@@ -64,6 +63,22 @@ func (d *Data) Setup() {
 	if err := d.dumpState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: setupAPIEndpoints
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupAPIEndpoints() {
+
+	// Log this acction:
+	log.WithField("cmd", "ec2:"+d.command).
+		Info("Connecting to region " + d.Region)
+
+	// Connect and authenticate to the API endpoints:
+	d.ec2 = ec2.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.iam = iam.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
+	d.elb = elb.New(session.New(&aws.Config{Region: aws.String(d.Region)}))
 }
 
 //-----------------------------------------------------------------------------
