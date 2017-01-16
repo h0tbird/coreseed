@@ -224,10 +224,12 @@ func (d *Data) retrieveMainRouteTableID() error {
 	}
 
 	// Store the main route table ID:
-	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
-	log.WithFields(log.Fields{
-		"cmd": "ec2:" + d.command, "id": d.MainRouteTableID}).
-		Info("VPC main route table acquired")
+	if len(resp.RouteTables) > 0 {
+		d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
+		log.WithFields(log.Fields{
+			"cmd": "ec2:" + d.command, "id": d.MainRouteTableID}).
+			Info("VPC main route table acquired")
+	}
 
 	return nil
 }
