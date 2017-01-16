@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
@@ -86,6 +87,13 @@ func (d *Data) setupAPIEndpoints() {
 //-----------------------------------------------------------------------------
 
 func (d *Data) createVPC() error {
+
+	// Return if already exists:
+	if d.VpcID != "" {
+		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.VpcID}).
+			Info("Using existing VPC")
+		return nil
+	}
 
 	// Forge the VPC request:
 	params := &ec2.CreateVpcInput{
@@ -219,7 +227,7 @@ func (d *Data) retrieveMainRouteTableID() error {
 	d.MainRouteTableID = *resp.RouteTables[0].RouteTableId
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": d.MainRouteTableID}).
-		Info("New main route table added")
+		Info("VPC main route table acquired")
 
 	return nil
 }
@@ -233,15 +241,15 @@ func (d *Data) createSubnets() error {
 	// Map to iterate:
 	nets := map[string]map[string]string{
 		"internal": {
-			"SubnetCidr": d.IntSubnetCidr, "SubnetID": ""},
+			"SubnetCidr": d.IntSubnetCidr, "SubnetID": d.IntSubnetID},
 		"external": {
-			"SubnetCidr": d.ExtSubnetCidr, "SubnetID": ""},
+			"SubnetCidr": d.ExtSubnetCidr, "SubnetID": d.ExtSubnetID},
 	}
 
 	// For each subnet:
 	for k, v := range nets {
 
-		if v["SubnetCidr"] != "" {
+		if v["SubnetCidr"] != "" && v["SubnetID"] == "" {
 
 			// Forge the subnet request:
 			params := &ec2.CreateSubnetInput{
@@ -281,6 +289,14 @@ func (d *Data) createSubnets() error {
 //-----------------------------------------------------------------------------
 
 func (d *Data) createRouteTable() error {
+
+	// Return if already exists:
+	if d.RouteTableID != "" {
+		log.WithFields(
+			log.Fields{"cmd": "ec2:" + d.command, "id": d.RouteTableID}).
+			Info("Using existing route table")
+		return nil
+	}
 
 	// Forge the route table request:
 	params := &ec2.CreateRouteTableInput{
@@ -323,7 +339,7 @@ func (d *Data) associateRouteTable() error {
 
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
-		Info("New route table association")
+		Info("Route table association")
 
 	return nil
 }
@@ -333,6 +349,14 @@ func (d *Data) associateRouteTable() error {
 //-----------------------------------------------------------------------------
 
 func (d *Data) createInternetGateway() error {
+
+	// Return if already exists:
+	if d.InetGatewayID != "" {
+		log.WithFields(log.Fields{
+			"cmd": "ec2:" + d.command, "id": d.InetGatewayID}).
+			Info("Using existing internet gateway")
+		return nil
+	}
 
 	// Forge the internet gateway request:
 	params := &ec2.CreateInternetGatewayInput{}
@@ -366,9 +390,22 @@ func (d *Data) attachInternetGateway() error {
 	}
 
 	// Send the attachement request:
-	if _, err := d.ec2.AttachInternetGateway(params); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
+	for i := 0; i < 5; i++ {
+		if _, err := d.ec2.AttachInternetGateway(params); err != nil {
+			if ec2err, ok := err.(awserr.Error); ok {
+				switch ec2err.Code() {
+				case "InvalidInternetGatewayID.NotFound":
+					time.Sleep(1e9)
+					continue
+				case "Resource.AlreadyAssociated":
+					log.WithField("cmd", "ec2:"+d.command).
+						Info("Internet gateway already attached to VPC")
+					return nil
+				}
+			}
+			log.WithField("cmd", "ec2:"+d.command).Error(err)
+			return err
+		}
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
@@ -397,7 +434,7 @@ func (d *Data) createInternetGatewayRoute() error {
 	}
 
 	log.WithField("cmd", "ec2:"+d.command).
-		Info("New default route added via internet GW")
+		Info("Default route added via internet GW")
 
 	return nil
 }
@@ -407,6 +444,14 @@ func (d *Data) createInternetGatewayRoute() error {
 //-----------------------------------------------------------------------------
 
 func (d *Data) allocateElasticIP() error {
+
+	// Return if already exists:
+	if d.AllocationID != "" {
+		log.WithFields(
+			log.Fields{"cmd": "ec2:" + d.command, "id": d.AllocationID}).
+			Info("Using existing elastic IP")
+		return nil
+	}
 
 	// Forge the allocation request:
 	params := &ec2.AllocateAddressInput{
@@ -810,6 +855,13 @@ func (d *Data) setupEC2Firewall(wg *sync.WaitGroup) {
 
 func (d *Data) createSecurityGroup(name string, id *string) error {
 
+	// Return if already exists:
+	if *id != "" {
+		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": *id}).
+			Info("Using existing " + name + " security group")
+		return nil
+	}
+
 	// Forge the group request:
 	params := &ec2.CreateSecurityGroupInput{
 		Description: aws.String(d.Domain + " " + name),
@@ -868,8 +920,13 @@ func (d *Data) firewallQuorum() error {
 	}
 
 	// Send the rule request:
-	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
-	if err != nil {
+	if _, err := d.ec2.AuthorizeSecurityGroupIngress(params); err != nil {
+		ec2err, ok := err.(awserr.Error)
+		if ok && strings.Contains(ec2err.Code(), ".Duplicate") {
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "quorum"}).
+				Info("Using existing firewall rules")
+			return nil
+		}
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
@@ -911,8 +968,13 @@ func (d *Data) firewallMaster() error {
 	}
 
 	// Send the rule request:
-	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
-	if err != nil {
+	if _, err := d.ec2.AuthorizeSecurityGroupIngress(params); err != nil {
+		ec2err, ok := err.(awserr.Error)
+		if ok && strings.Contains(ec2err.Code(), ".Duplicate") {
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "master"}).
+				Info("Using existing firewall rules")
+			return nil
+		}
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
@@ -974,8 +1036,13 @@ func (d *Data) firewallWorker() error {
 	}
 
 	// Send the rule request:
-	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
-	if err != nil {
+	if _, err := d.ec2.AuthorizeSecurityGroupIngress(params); err != nil {
+		ec2err, ok := err.(awserr.Error)
+		if ok && strings.Contains(ec2err.Code(), ".Duplicate") {
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "worker"}).
+				Info("Using existing firewall rules")
+			return nil
+		}
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
@@ -1057,8 +1124,13 @@ func (d *Data) firewallBorder() error {
 	}
 
 	// Send the rule request:
-	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
-	if err != nil {
+	if _, err := d.ec2.AuthorizeSecurityGroupIngress(params); err != nil {
+		ec2err, ok := err.(awserr.Error)
+		if ok && strings.Contains(ec2err.Code(), ".Duplicate") {
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "border"}).
+				Info("Using existing firewall rules")
+			return nil
+		}
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
@@ -1184,8 +1256,13 @@ func (d *Data) firewallELB() error {
 	}
 
 	// Send the rule request:
-	_, err := d.ec2.AuthorizeSecurityGroupIngress(params)
-	if err != nil {
+	if _, err := d.ec2.AuthorizeSecurityGroupIngress(params); err != nil {
+		ec2err, ok := err.(awserr.Error)
+		if ok && strings.Contains(ec2err.Code(), ".Duplicate") {
+			log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": "elb"}).
+				Info("Using existing firewall rules")
+			return nil
+		}
 		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
