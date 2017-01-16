@@ -40,6 +40,7 @@ title: Services and ports
    <tr> <td>mesos-exporter</td> <td>9104</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>marathon</td> <td>8080,9292</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-dns</td> <td>53</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
+   <tr> <td>mesos-dns</td> <td>53</td> <td>udp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>mesos-master</td> <td>5050</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>prometheus</td> <td>9191</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>
    <tr> <td>alertmanager</td> <td>9093</td> <td>tcp</td> <td>internal</td> <td>master</td> </tr>

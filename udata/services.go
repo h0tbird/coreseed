@@ -182,7 +182,9 @@ func (s *serviceMap) load(roles, groups []string) {
 			groups: []string{"base"},
 			ports: []port{
 				{num: 53, protocol: "tcp", ingress: ""},
+				{num: 53, protocol: "udp", ingress: ""},
 				{num: 54, protocol: "tcp", ingress: ""},
+				{num: 54, protocol: "udp", ingress: ""},
 			},
 		},
 
