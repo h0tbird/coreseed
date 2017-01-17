@@ -156,6 +156,9 @@ func (s *serviceMap) load(roles, groups []string) {
 		"calico": {
 			name:   "calico.service",
 			groups: []string{"base"},
+			ports: []port{
+				{num: 179, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"zookeeper": {
