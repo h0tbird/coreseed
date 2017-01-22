@@ -173,8 +173,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "etcd2.service",
 			groups: []string{"base"},
 			ports: []port{
-				{startEnd: "2379", protocol: "tcp", ingress: ""},
-				{startEnd: "2380", protocol: "tcp", ingress: ""},
+				{startEnd: "2379:2380", protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -182,10 +181,8 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-dns.service",
 			groups: []string{"base"},
 			ports: []port{
-				{startEnd: "53", protocol: "tcp", ingress: ""},
-				{startEnd: "53", protocol: "udp", ingress: ""},
-				{startEnd: "54", protocol: "tcp", ingress: ""},
-				{startEnd: "54", protocol: "udp", ingress: ""},
+				{startEnd: "53:54", protocol: "tcp", ingress: ""},
+				{startEnd: "53:54", protocol: "udp", ingress: ""},
 			},
 		},
 
@@ -220,8 +217,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			ports: []port{
 				{startEnd: "80", protocol: "tcp", ingress: ""},
 				{startEnd: "443", protocol: "tcp", ingress: ""},
-				{startEnd: "9090", protocol: "tcp", ingress: ""},
-				{startEnd: "9091", protocol: "tcp", ingress: ""},
+				{startEnd: "9090:9091", protocol: "tcp", ingress: ""},
 				{startEnd: "10000:10100", protocol: "tcp", ingress: ""},
 			},
 		},
