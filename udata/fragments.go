@@ -201,12 +201,12 @@ write_files:`,
         - action: allow
           protocol: tcp
           destination:
-            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]{{end}}
+            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
 {{- if .HostUDPPorts}}
         - action: allow
           protocol: udp
           destination:
-            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}{{$v}}{{end}}]{{end}}
+            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
     - apiVersion: v1
       kind: policy
       metadata:

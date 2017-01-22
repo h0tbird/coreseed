@@ -68,8 +68,8 @@ type PostProc struct {
 	CaCert        string
 	EtcdEndpoints string
 	EtcdServers   string
-	HostTCPPorts  []int
-	HostUDPPorts  []int
+	HostTCPPorts  []string
+	HostUDPPorts  []string
 	MesosDNSPort  int
 	SMTP
 	SystemdUnits []string
