@@ -71,16 +71,8 @@ func (s *serviceMap) listUnits() (list []string) {
 
 func (s *serviceMap) listPorts(protocol string) (list []string) {
 
-	// Initialize the maps:
-	portRange := map[string]struct{ from, to int }{}
-	singlePort := map[int]struct{}{}
-
-	// Default ports:
-	if protocol == "tcp" {
-		singlePort[22] = struct{}{}
-	}
-
 	// Port range map:
+	portRange := map[string]struct{ from, to int }{}
 	for _, service := range *s {
 		for _, port := range service.ports {
 			if port.protocol == protocol && port.to != 0 {
@@ -94,6 +86,7 @@ func (s *serviceMap) listPorts(protocol string) (list []string) {
 	}
 
 	// Single port map:
+	singlePort := map[int]struct{}{}
 	for _, service := range *s {
 	next:
 		for _, port := range service.ports {
@@ -108,12 +101,10 @@ func (s *serviceMap) listPorts(protocol string) (list []string) {
 		}
 	}
 
-	// Append port ranges:
+	// Append to list:
 	for k := range portRange {
 		list = append(list, k)
 	}
-
-	// Append single ports:
 	for k := range singlePort {
 		list = append(list, strconv.Itoa(k))
 	}
@@ -171,6 +162,9 @@ func (s *serviceMap) load(roles, groups []string) {
 		"etchost": {
 			name:   "etchost.timer",
 			groups: []string{"base"},
+			ports: []portRange{
+				{from: 22, protocol: "tcp", ingress: ""},
+			},
 		},
 
 		"etcd-proxy": {
