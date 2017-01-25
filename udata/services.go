@@ -21,12 +21,34 @@ type service struct {
 }
 
 type portRange struct {
-	from, to int
+	interval startEnd
 	protocol string
 	ingress  string
 }
 
+type startEnd struct {
+	start, end int
+}
+
 type serviceMap map[string]service
+
+//-----------------------------------------------------------------------------
+// Custom sort:
+//-----------------------------------------------------------------------------
+
+type byStart []startEnd
+
+func (a byStart) Len() int {
+	return len(a)
+}
+
+func (a byStart) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a byStart) Less(i, j int) bool {
+	return a[i].start > a[j].start
+}
 
 //-----------------------------------------------------------------------------
 // func: findOne
@@ -66,47 +88,76 @@ func (s *serviceMap) listUnits() (list []string) {
 }
 
 //-----------------------------------------------------------------------------
+// func: min, max
+//-----------------------------------------------------------------------------
+
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+//-----------------------------------------------------------------------------
 // func: listPorts
 //-----------------------------------------------------------------------------
 
 func (s *serviceMap) listPorts(protocol string) (list []string) {
 
-	// Port range map:
-	portRange := map[string]struct{ from, to int }{}
+	// Initialize the intervals:
+	arr := []startEnd{}
 	for _, service := range *s {
 		for _, port := range service.ports {
-			if port.protocol == protocol && port.to != 0 {
-				from := strconv.Itoa(port.from)
-				to := strconv.Itoa(port.to)
-				portRange[from+":"+to] = struct{ from, to int }{
-					from: port.from, to: port.to,
-				}
+			if port.protocol == protocol {
+				arr = append(arr, port.interval)
 			}
 		}
 	}
 
-	// Single port map:
-	singlePort := map[int]struct{}{}
-	for _, service := range *s {
-	next:
-		for _, port := range service.ports {
-			if port.protocol == protocol && port.to == 0 {
-				for _, r := range portRange {
-					if port.from >= r.from && port.from <= r.to {
-						continue next
-					}
-				}
-				singlePort[port.from] = struct{}{}
+	// Sort the intervals array:
+	sort.Sort(byStart(arr))
+	i := 0
+
+	// Merge the intervals:
+	for _, v := range arr {
+
+		// Overlap
+		if i != 0 && arr[i-1].start <= v.end {
+			for i != 0 && arr[i-1].start <= v.end {
+				arr[i-1].end = max(arr[i-1].end, v.end)
+				arr[i-1].start = min(arr[i-1].start, v.start)
+				i--
 			}
+
+			// Adjacent
+		} else if i != 0 && arr[i-1].end == v.start+1 {
+			arr[i-1].start = v.start
+			arr[i-1].end = max(arr[i-1].end, v.end)
+			i--
+
+			// Outlying
+		} else {
+			arr[i] = v
 		}
+
+		i++
 	}
 
-	// Append to list:
-	for k := range portRange {
-		list = append(list, k)
-	}
-	for k := range singlePort {
-		list = append(list, strconv.Itoa(k))
+	// Append to the list:
+	for j := 0; j < i; j++ {
+		if arr[j].start == arr[j].end {
+			list = append(list, strconv.Itoa(arr[j].start))
+		} else {
+			list = append(list,
+				strconv.Itoa(arr[j].start)+":"+strconv.Itoa(arr[j].end))
+		}
 	}
 
 	return
@@ -147,7 +198,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "docker.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 2375, protocol: "tcp", ingress: ""},
+				{interval: startEnd{2375, 2375}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -155,7 +206,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "rexray.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 7979, protocol: "tcp", ingress: ""},
+				{interval: startEnd{7979, 7979}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -163,7 +214,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "etchost.timer",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 22, protocol: "tcp", ingress: ""},
+				{interval: startEnd{22, 22}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -171,7 +222,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "etcd2.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 2379, protocol: "tcp", ingress: ""},
+				{interval: startEnd{2379, 2379}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -179,7 +230,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "calico.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 179, protocol: "tcp", ingress: ""},
+				{interval: startEnd{179, 179}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -187,9 +238,9 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "zookeeper.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 2181, protocol: "tcp", ingress: ""},
-				{from: 2888, protocol: "tcp", ingress: ""},
-				{from: 3888, protocol: "tcp", ingress: ""},
+				{interval: startEnd{2181, 2181}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{2888, 2888}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{3888, 3888}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -197,7 +248,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "etcd2.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 2379, to: 2380, protocol: "tcp", ingress: ""},
+				{interval: startEnd{2379, 2380}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -205,8 +256,8 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-dns.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 53, to: 54, protocol: "tcp", ingress: ""},
-				{from: 53, to: 54, protocol: "udp", ingress: ""},
+				{interval: startEnd{53, 54}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{53, 54}, protocol: "udp", ingress: ""},
 			},
 		},
 
@@ -214,7 +265,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-master.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 5050, protocol: "tcp", ingress: ""},
+				{interval: startEnd{5050, 5050}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -222,8 +273,8 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "marathon.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 8080, protocol: "tcp", ingress: ""},
-				{from: 9292, protocol: "tcp", ingress: ""},
+				{interval: startEnd{8080, 8080}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9292, 9292}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -231,7 +282,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "go-dnsmasq.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 53, protocol: "tcp", ingress: ""},
+				{interval: startEnd{53, 53}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -239,10 +290,10 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "marathon-lb.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 80, protocol: "tcp", ingress: ""},
-				{from: 443, protocol: "tcp", ingress: ""},
-				{from: 9090, to: 9091, protocol: "tcp", ingress: ""},
-				{from: 10000, to: 10100, protocol: "tcp", ingress: ""},
+				{interval: startEnd{80, 80}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{443, 443}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9090, 9091}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{10000, 10100}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -250,7 +301,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-agent.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 5051, protocol: "tcp", ingress: ""},
+				{interval: startEnd{5051, 5051}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -258,7 +309,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mongodb.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 27017, protocol: "tcp", ingress: ""},
+				{interval: startEnd{27017, 27017}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -266,10 +317,10 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "pritunl.service",
 			groups: []string{"base"},
 			ports: []portRange{
-				{from: 80, protocol: "tcp", ingress: ""},
-				{from: 443, protocol: "tcp", ingress: ""},
-				{from: 9756, protocol: "tcp", ingress: ""},
-				{from: 18443, protocol: "udp", ingress: ""},
+				{interval: startEnd{80, 80}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{443, 443}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9756, 9756}, protocol: "tcp", ingress: ""},
+				{interval: startEnd{18443, 18443}, protocol: "udp", ingress: ""},
 			},
 		},
 
@@ -282,7 +333,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "cadvisor.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 4194, protocol: "tcp", ingress: ""},
+				{interval: startEnd{4194, 4194}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -290,7 +341,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "node-exporter.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9101, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9101, 9101}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -298,7 +349,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "zookeeper-exporter.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9103, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9103, 9103}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -306,7 +357,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-master-exporter.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9104, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9104, 9104}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -314,7 +365,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "mesos-agent-exporter.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9105, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9105, 9105}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -322,7 +373,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "haproxy-exporter.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9102, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9102, 9102}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -335,7 +386,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "alertmanager.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9093, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9093, 9093}, protocol: "tcp", ingress: ""},
 			},
 		},
 
@@ -343,7 +394,7 @@ func (s *serviceMap) load(roles, groups []string) {
 			name:   "prometheus.service",
 			groups: []string{"insight"},
 			ports: []portRange{
-				{from: 9191, protocol: "tcp", ingress: ""},
+				{interval: startEnd{9191, 9191}, protocol: "tcp", ingress: ""},
 			},
 		},
 	}
