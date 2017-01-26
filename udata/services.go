@@ -106,45 +106,51 @@ func (s *serviceMap) listUnits() (list []string) {
 }
 
 //-----------------------------------------------------------------------------
+// func: listIvals
+//-----------------------------------------------------------------------------
+
+func (s *serviceMap) listIvals(protocol string) (list []startEnd) {
+	for _, service := range *s {
+		for _, port := range service.ports {
+			if port.protocol == protocol {
+				list = append(list, port.interval)
+			}
+		}
+	}
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: listPorts
 //-----------------------------------------------------------------------------
 
 func (s *serviceMap) listPorts(protocol string) (list []string) {
 
-	// Initialize the intervals:
-	arr := []startEnd{}
-	for _, service := range *s {
-		for _, port := range service.ports {
-			if port.protocol == protocol {
-				arr = append(arr, port.interval)
-			}
-		}
-	}
-
 	// Sort the intervals array:
-	sort.Sort(byStart(arr))
+	ival := s.listIvals(protocol)
+	sort.Sort(byStart(ival))
 	i := 0
 
 	// Merge the intervals:
-	for _, v := range arr {
+	for _, v := range ival {
 
 		// Overlap
-		if i != 0 && arr[i-1].start <= v.end {
-			for i != 0 && arr[i-1].start <= v.end {
-				arr[i-1].end = maxInt(arr[i-1].end, v.end)
-				arr[i-1].start = minInt(arr[i-1].start, v.start)
+		if i != 0 && ival[i-1].start <= v.end {
+			for i != 0 && ival[i-1].start <= v.end {
+				ival[i-1].end = maxInt(ival[i-1].end, v.end)
+				ival[i-1].start = minInt(ival[i-1].start, v.start)
 				i--
 			}
 
 			// Adjacent
-		} else if i != 0 && arr[i-1].end == v.start+1 {
-			arr[i-1].start = v.start
-			arr[i-1].end = maxInt(arr[i-1].end, v.end)
+		} else if i != 0 && ival[i-1].end == v.start+1 {
+			ival[i-1].start = v.start
+			ival[i-1].end = maxInt(ival[i-1].end, v.end)
 			i--
 
 			// Outlying
 		} else {
-			arr[i] = v
+			ival[i] = v
 		}
 
 		i++
@@ -152,11 +158,11 @@ func (s *serviceMap) listPorts(protocol string) (list []string) {
 
 	// Append to the list:
 	for j := 0; j < i; j++ {
-		if arr[j].start == arr[j].end {
-			list = append(list, strconv.Itoa(arr[j].start))
+		if ival[j].start == ival[j].end {
+			list = append(list, strconv.Itoa(ival[j].start))
 		} else {
 			list = append(list,
-				strconv.Itoa(arr[j].start)+":"+strconv.Itoa(arr[j].end))
+				strconv.Itoa(ival[j].start)+":"+strconv.Itoa(ival[j].end))
 		}
 	}
 
