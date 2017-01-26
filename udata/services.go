@@ -66,6 +66,24 @@ func findOne(src, dst []string) bool {
 }
 
 //-----------------------------------------------------------------------------
+// func: minInt, maxInt
+//-----------------------------------------------------------------------------
+
+func minInt(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func maxInt(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+//-----------------------------------------------------------------------------
 // func: listUnits
 //-----------------------------------------------------------------------------
 
@@ -85,24 +103,6 @@ func (s *serviceMap) listUnits() (list []string) {
 	// Sort and return:
 	sort.Strings(list)
 	return
-}
-
-//-----------------------------------------------------------------------------
-// func: min, max
-//-----------------------------------------------------------------------------
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
 }
 
 //-----------------------------------------------------------------------------
@@ -131,15 +131,15 @@ func (s *serviceMap) listPorts(protocol string) (list []string) {
 		// Overlap
 		if i != 0 && arr[i-1].start <= v.end {
 			for i != 0 && arr[i-1].start <= v.end {
-				arr[i-1].end = max(arr[i-1].end, v.end)
-				arr[i-1].start = min(arr[i-1].start, v.start)
+				arr[i-1].end = maxInt(arr[i-1].end, v.end)
+				arr[i-1].start = minInt(arr[i-1].start, v.start)
 				i--
 			}
 
 			// Adjacent
 		} else if i != 0 && arr[i-1].end == v.start+1 {
 			arr[i-1].start = v.start
-			arr[i-1].end = max(arr[i-1].end, v.end)
+			arr[i-1].end = maxInt(arr[i-1].end, v.end)
 			i--
 
 			// Outlying
