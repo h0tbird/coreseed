@@ -1188,7 +1188,7 @@ coreos:
       ${IMG}
 {{- if eq .MesosDNSPort 53 }}
      ExecStartPost=/usr/bin/sh -c ' \
-       echo search ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
+       echo search marathon.${KATO_MESOS_DOMAIN} ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver ${KATO_HOST_IP}" >> /etc/resolv.conf'
      ExecStopPost=/usr/bin/sh -c ' \
        echo search ${KATO_DOMAIN} > /etc/resolv.conf && \
@@ -1761,7 +1761,7 @@ coreos:
       --default-resolver \
       {{range .StubZones}}--stubzones {{.}} \
       {{end -}}
-      --search-domains ${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
+      --search-domains marathon.${KATO_MESOS_DOMAIN},${KATO_MESOS_DOMAIN},${KATO_DOMAIN} \
       --enable-search"
 
      [Install]
