@@ -513,8 +513,9 @@ write_files:`,
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"worker"},
-			allOf: []string{"cacert"},
+			anyOf:  []string{"worker"},
+			allOf:  []string{"cacert"},
+			noneOf: []string{"vbox"},
 		},
 		data: `
  - path: "/opt/bin/getcerts"
@@ -1968,8 +1969,9 @@ coreos:
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"worker"},
-			allOf: []string{"cacert"},
+			anyOf:  []string{"worker"},
+			allOf:  []string{"cacert"},
+			noneOf: []string{"vbox"},
 		},
 		data: `
   - name: "getcerts.service"

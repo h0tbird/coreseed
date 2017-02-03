@@ -14,6 +14,7 @@ $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
 $ca_cert_path   = ENV['KATO_CA_CERT_PATH']
+$certs_path     = ENV['KATO_CERTS_PATH']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 
 #------------------------------------------------------------------------------
@@ -111,9 +112,14 @@ Vagrant.configure("2") do |config|
         system cmd % [ 'kato', $cluster_id, $domain, 1 ]
       end
 
+      if $certs_path
+        conf.vm.provision :file, :source => $certs_path, :destination => "/tmp/certs.tar.bz2"
+        conf.vm.provision :shell, :inline => "mkdir /etc/certs; mv /tmp/certs.tar.bz2 /etc/certs", :privileged => true
+      end
+
       if File.exist?("user_data_kato-1")
         conf.vm.provision :file, :source => "user_data_kato-1", :destination => "/tmp/vagrantfile-user-data"
-        conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+        conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant", :privileged => true
       end
 
     end
