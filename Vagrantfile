@@ -13,7 +13,7 @@ $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
-$ca_cert        = ENV['KATO_CA_CERT']
+$ca_cert_path   = ENV['KATO_CA_CERT_PATH']
 $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 
 #------------------------------------------------------------------------------
@@ -103,9 +103,9 @@ Vagrant.configure("2") do |config|
 
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
-      if $ca_cert
-        cmd = $katoctl + " --ca-cert %s > user_data_kato-1"
-        system cmd % [ 'kato', $cluser_id, $domain, 1, $ca_cert ]
+      if $ca_cert_path
+        cmd = $katoctl + " --ca-cert-path %s > user_data_kato-1"
+        system cmd % [ 'kato', $cluster_id, $domain, 1, $ca_cert_path ]
       else
         cmd = $katoctl + " > user_data_kato-1"
         system cmd % [ 'kato', $cluster_id, $domain, 1 ]
