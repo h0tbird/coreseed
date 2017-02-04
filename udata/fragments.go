@@ -140,6 +140,16 @@ write_files:`,
 			anyOf: []string{"worker"},
 		},
 		data: `
+ - path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"worker"},
+		},
+		data: `
  - path: "/etc/cni/net.d/10-devel.conf"
    content: |
     {
@@ -1848,6 +1858,8 @@ coreos:
       --hosts-entry=host \
       --set-env=PORTS=9090,9091 \
       --set-env=HAPROXY_RELOAD_SIGTERM_DELAY=5 \
+      --volume templates,kind=host,source=/etc/marathon-lb/templates \
+      --mount volume=templates,target=/marathon-lb/templates \
       docker://${IMG} --exec /marathon-lb/run -- sse \
       --marathon http://marathon:8080 \
       --health-check \
