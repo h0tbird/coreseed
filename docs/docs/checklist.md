@@ -84,9 +84,9 @@ This is not really an error, you can:
 Try to teardown the unexpected framework ID:
 
 ```
-curl \
-  -sX POST http://master.mesos:5050/master/teardown \
-  -d 'frameworkId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffff'
+curl -H "Content-Type: application/json" -X POST \
+  -d 'frameworkId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee-ffff' \
+  -v -L http://master:5050/teardown
 ```
 
 <br>
