@@ -1814,7 +1814,7 @@ coreos:
       --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/lib64:/opt/lib\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_HOST_IP} \
-      --containerizers=mesos \
+      --containerizers=mesos,docker \
       --image_providers=docker \
       --docker_store_dir=/var/lib/mesos/store/docker \
       --isolation=filesystem/linux,docker/runtime,docker/volume \
