@@ -1397,9 +1397,9 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/prometheus:v1.4.1-1
+     Environment=IMG=quay.io/kato/prometheus:v1.5.2-1
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/prometheus ] || mkdir /etc/prometheus"
-     ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}
      ExecStart=/usr/bin/rkt run \
       --net=host \

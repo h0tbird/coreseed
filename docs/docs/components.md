@@ -61,7 +61,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io">Prometheus</a></th>
-      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.4.1">1.4.1</a></td>
+      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.5.2">1.5.2</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.20.0">0.20.0</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.19.2">0.19.2</a></td>
       <td><a href="https://quay.io/repository/kato/prometheus"><img src="https://quay.io/repository/kato/prometheus/status"></a></td>
