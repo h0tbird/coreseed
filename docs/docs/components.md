@@ -61,7 +61,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io">Prometheus</a></th>
-      <td><a href="https://github.com/prometheus/prometheus/releases/tag/1.5.2">1.5.2</a></td>
+      <td><a href="https://github.com/prometheus/prometheus/releases/tag/v1.5.2">1.5.2</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.20.0">0.20.0</a></td>
       <td><a href="https://github.com/prometheus/prometheus/releases/tag/0.19.2">0.19.2</a></td>
       <td><a href="https://quay.io/repository/kato/prometheus"><img src="https://quay.io/repository/kato/prometheus/status"></a></td>
@@ -110,7 +110,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/projectcalico">Calico</a></th>
-      <td><a href="http://docs.projectcalico.org/v2.0">2.0.2</a></td>
+      <td><a href="http://docs.projectcalico.org/v2.0/releases">2.0.2</a></td>
       <td><a href="">-</a></td>
       <td><a href="">-</a></td>
       <td><a href="https://quay.io/repository/calico/node"><img src="https://quay.io/repository/calico/node/status"></a></td>
