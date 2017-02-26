@@ -41,7 +41,6 @@ if ARGV[0].eql?('up')
     "--cluster-state new " +
     "--quorum-count 1 " +
     "--master-count 1 " +
-    "--prometheus " +
     "--host-name %s " +
     "--cluster-id %s " +
     "--domain %s " +
