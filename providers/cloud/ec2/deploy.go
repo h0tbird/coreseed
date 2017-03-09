@@ -18,7 +18,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/katosys/kato/katool"
+	"github.com/katosys/kato/pkg/tools"
 )
 
 //-----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 
 	// Request the token:
 	if d.EtcdToken == "auto" {
-		if d.EtcdToken, err = katool.EtcdToken(d.QuorumCount); err != nil {
+		if d.EtcdToken, err = tools.EtcdToken(d.QuorumCount); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).

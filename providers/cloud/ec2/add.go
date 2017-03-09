@@ -13,7 +13,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/katosys/kato/katool"
+	"github.com/katosys/kato/pkg/tools"
 )
 
 //-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ func (d *Data) Add() {
 	// Append the --private-ip if master:
 	if strings.Contains(d.Roles, "master") {
 		i, _ := strconv.Atoi(d.HostID)
-		argsRun = append(argsRun, "--private-ip", katool.OffsetIP(d.ExtSubnetCidr, 10+i))
+		argsRun = append(argsRun, "--private-ip", tools.OffsetIP(d.ExtSubnetCidr, 10+i))
 	}
 
 	// Append the --elb-name if worker:
@@ -137,7 +137,7 @@ func (d *Data) Add() {
 	cmdRun := exec.Command("katoctl", argsRun...)
 
 	// Execute the pipeline:
-	if err := katool.ExecutePipeline(cmdUdata, cmdRun); err != nil {
+	if err := tools.ExecutePipeline(cmdUdata, cmdRun); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }

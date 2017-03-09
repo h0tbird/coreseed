@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/imdario/mergo"
-	"github.com/katosys/kato/katool"
+	"github.com/katosys/kato/pkg/tools"
 )
 
 //-----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ func (d *Data) dumpState() error {
 func (d *Data) loadState() error {
 
 	// Load raw data from state file:
-	raw, err := katool.LoadState(d.ClusterID)
+	raw, err := tools.LoadState(d.ClusterID)
 	if err != nil {
 		return err
 	}
