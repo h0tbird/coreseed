@@ -16,9 +16,9 @@ import (
 
 	// Local:
 	"github.com/katosys/kato/pkg/ec2"
+	"github.com/katosys/kato/pkg/ns1"
 	"github.com/katosys/kato/pkg/pkt"
 	"github.com/katosys/kato/pkg/udata"
-	"github.com/katosys/kato/providers/dns/ns1"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
