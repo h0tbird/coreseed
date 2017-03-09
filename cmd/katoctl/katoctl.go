@@ -1,4 +1,4 @@
-package main
+package katoctl
 
 //-----------------------------------------------------------------------------
 // Package factored import statement:

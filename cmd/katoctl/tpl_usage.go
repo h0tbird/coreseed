@@ -1,4 +1,4 @@
-package main
+package katoctl
 
 var usageTemplate = `{{define "FormatCommand"}}\
 {{if .FlagSummary}} {{.FlagSummary}}{{end}}\

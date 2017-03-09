@@ -1,4 +1,4 @@
-package main
+package katoctl
 
 //-----------------------------------------------------------------------------
 // 'katoctl ec2' command flags definitions:

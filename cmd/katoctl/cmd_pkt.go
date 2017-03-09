@@ -1,4 +1,4 @@
-package main
+package katoctl
 
 //-----------------------------------------------------------------------------
 // 'katoctl pkt' command flags definitions:

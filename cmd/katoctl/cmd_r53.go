@@ -1,4 +1,4 @@
-package main
+package katoctl
 
 //-----------------------------------------------------------------------------
 // 'katoctl r53' command flags definitions:
