@@ -1971,7 +1971,7 @@ coreos:
      ExecStart=/usr/bin/rkt run \
        --volume cni,kind=host,source=/var/lib/cni-plugins \
        --mount volume=cni,target=/tmp \
-       quay.io/kato/cni-plugins:v0.3.0-1
+       quay.io/kato/cni-plugins:v0.5.0-1
 
      [Install]
      WantedBy=kato.target`,
