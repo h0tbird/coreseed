@@ -124,14 +124,14 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://rexray.readthedocs.io/en/stable">REX-Ray</a></th>
-      <td><a href="https://github.com/emccode/rexray/releases/tag/v0.7.0">0.7.0</a></td>
+      <td><a href="https://github.com/emccode/rexray/releases/tag/v0.8.1">0.8.1</a></td>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td><a href="https://github.com/emccode/rexray/releases/tag/v0.3.3">0.3.3</a></td>
       <td></td>
     </tr>
     <tr>
       <th><a href="https://github.com/emccode/dvdcli">dvdcli</a></th>
-      <td><a href="https://github.com/emccode/dvdcli/releases/tag/v0.2.0">0.2.0</a></td>
+      <td><a href="https://github.com/emccode/dvdcli/releases/tag/v0.2.1">0.2.1</a></td>
       <td><a href="">-</a></td>
       <td><a href="">-</a></td>
       <td></td>

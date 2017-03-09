@@ -1317,7 +1317,7 @@ coreos:
      KillMode=process
      EnvironmentFile=/etc/rexray/rexray.env
      Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.8.1/rexray-Linux-x86_64-0.8.1.tar.gz
-     Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.0/dvdcli-Linux-x86_64-0.2.0.tar.gz
+     Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.1/dvdcli-Linux-x86_64-0.2.1.tar.gz
      ExecStartPre=-/bin/bash -c " \
        [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/rexray; }; \
        [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
