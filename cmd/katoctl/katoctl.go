@@ -15,8 +15,8 @@ import (
 	"strings"
 
 	// Local:
+	"github.com/katosys/kato/pkg/ec2"
 	"github.com/katosys/kato/pkg/udata"
-	"github.com/katosys/kato/providers/cloud/ec2"
 	"github.com/katosys/kato/providers/cloud/pkt"
 	"github.com/katosys/kato/providers/dns/ns1"
 
