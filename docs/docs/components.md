@@ -109,6 +109,13 @@ title: Components
       <td><a href="https://quay.io/repository/kato/confd"><img src="https://quay.io/repository/kato/confd/status"></a></td>
     </tr>
     <tr>
+      <th><a href="https://github.com/containernetworking/cni">CNI</a></th>
+      <td><a href="https://github.com/containernetworking/cni/releases/tag/v0.3.0">0.3.0</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="">-</a></td>
+      <td><a href="https://quay.io/repository/kato/cni-plugins"><img src="https://quay.io/repository/kato/cni-plugins/status"></a></td>
+    </tr>
+    <tr>
       <th><a href="https://github.com/projectcalico">Calico</a></th>
       <td><a href="http://docs.projectcalico.org/v2.0/releases">2.0.2</a></td>
       <td><a href="">-</a></td>
