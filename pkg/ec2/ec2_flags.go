@@ -18,7 +18,8 @@ var (
 	// EC2 instances, regions and zones:
 	//-----------------------------------
 
-	ec2Instances = []string{
+	// Ec2Instances is a slice of EC2 instances types:
+	Ec2Instances = []string{
 		"c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c3.large", "c3.xlarge", "cc2.8xlarge",
 		"cg1.4xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge", "d2.xlarge", "g2.2xlarge",
 		"g2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge",
@@ -30,11 +31,9 @@ var (
 		"us-east-1", "us-west-1", "us-west-2", "eu-west-1", "eu-central-1", "ap-northeast-1",
 		"ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "sa-east-1"}
 
-	ec2Zones = []string{
+	// Ec2Zones is a slice of EC2 zones:
+	Ec2Zones = []string{
 		"a", "b", "c", "d"}
-
-	katoRoles = []string{
-		"quorum", "master", "worker", "border"}
 
 	//------------------------
 	// ec2: top level command
@@ -99,7 +98,7 @@ var (
 		"Amazon EC2 availability zone.").
 		Default("a").PlaceHolder("KATO_EC2_DEPLOY_ZONE").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ZONE").
-		Enum(ec2Zones...)
+		Enum(Ec2Zones...)
 
 	flEc2DeployDomain = cmdEc2Deploy.Flag("domain",
 		"Used to identify the VPC.").
@@ -160,7 +159,7 @@ var (
 
 	arEc2DeployQuadruplet = cli.Quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
-		Required(), ec2Instances, katoRoles)
+		Required(), Ec2Instances, cli.KatoRoles)
 
 	//---------------------------
 	// ec2 setup: nested command
@@ -190,7 +189,7 @@ var (
 		"EC2 availability zone.").
 		Default("a").PlaceHolder("KATO_EC2_SETUP_ZONE").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_ZONE").
-		Enum(ec2Zones...)
+		Enum(Ec2Zones...)
 
 	flEc2SetupVpcCidrBlock = cmdEc2Setup.Flag("vpc-cidr-block",
 		"IPs to be used by the VPC.").
@@ -249,7 +248,7 @@ var (
 		"EC2 instance type.").
 		Required().PlaceHolder("KATO_EC2_ADD_INSTANCE_TYPE").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_INSTANCE_TYPE").
-		Enum(ec2Instances...)
+		Enum(Ec2Instances...)
 
 	flEc2AddClusterState = cmdEc2Add.Flag("cluster-state",
 		"Initial cluster state [ new | existing ]").
@@ -279,7 +278,7 @@ var (
 		"EC2 availability zone.").
 		Default("a").PlaceHolder("KATO_EC2_RUN_ZONE").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_ZONE").
-		Enum(ec2Zones...)
+		Enum(Ec2Zones...)
 
 	flEc2RunAmiID = cmdEc2Run.Flag("ami-id",
 		"EC2 AMI ID.").
@@ -291,7 +290,7 @@ var (
 		"EC2 instance type.").
 		Required().PlaceHolder("KATO_EC2_RUN_INSTANCE_TYPE").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_INSTANCE_TYPE").
-		Enum(ec2Instances...)
+		Enum(Ec2Instances...)
 
 	flEc2RunKeyPair = cmdEc2Run.Flag("key-pair",
 		"EC2 key pair.").

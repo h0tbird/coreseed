@@ -1,7 +1,7 @@
 package cli
 
 //-----------------------------------------------------------------------------
-// Import:
+// Package factored import statement:
 //-----------------------------------------------------------------------------
 
 import (
@@ -17,11 +17,17 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-// katoctl root level command:
+// Package factored var statement:
 //-----------------------------------------------------------------------------
 
-// App contains flags, arguments and commands for an application:
-var App = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastructure.")
+var (
+
+	// App contains flags, arguments and commands for an application:
+	App = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastructure.")
+
+	// KatoRoles is a slice of valid Káto roles:
+	KatoRoles = []string{"quorum", "master", "worker", "border"}
+)
 
 //----------------------------------------------------------------------------
 // func init() is called after all the variable declarations in the package
