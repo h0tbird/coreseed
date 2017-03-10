@@ -40,7 +40,7 @@ var app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastruct
 func init() {
 
 	// Customize kingpin:
-	app.Version("v0.1.0-beta").Author("Marc Villacorta Morera")
+	app.Version("0.1.0").Author("Marc Villacorta Morera")
 	app.UsageTemplate(usageTemplate)
 	app.HelpFlag.Short('h')
 
