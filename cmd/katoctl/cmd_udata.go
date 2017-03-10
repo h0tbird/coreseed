@@ -146,12 +146,12 @@ var (
 		Default("false").OverrideDefaultFromEnvar("KATO_UDATA_PROMETHEUS").
 		Bool()
 
-	flUdataSMTPURL = regexpMatch(cmdUdata.Flag("smtp-url",
+	flUdataSMTPURL = cli.RegexpMatch(cmdUdata.Flag("smtp-url",
 		"SMTP server URL: <smtp://user:pass@host:port>").
 		PlaceHolder("KATO_UDATA_SMTP_URL").
 		OverrideDefaultFromEnvar("KATO_UDATA_SMTP_URL"), "^smtp://(.+):(.+)@(.+):(\\d+)$")
 
-	flUdataAdminEmail = regexpMatch(cmdUdata.Flag("admin-email",
+	flUdataAdminEmail = cli.RegexpMatch(cmdUdata.Flag("admin-email",
 		"Administrator e-mail for cluster notifications.").
 		PlaceHolder("KATO_UDATA_ADMIN_EMAIL").
 		OverrideDefaultFromEnvar("KATO_UDATA_ADMIN_EMAIL"), "^[\\w-.+]+@[\\w-.+]+\\.[a-z]{2,4}$")

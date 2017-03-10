@@ -46,7 +46,7 @@ var (
 	cmdEc2Deploy = cmdEc2.Command("deploy",
 		"Deploy Káto's infrastructure on Amazon EC2.")
 
-	flEc2DeployClusterID = regexpMatch(cmdEc2Deploy.Flag("cluster-id",
+	flEc2DeployClusterID = cli.RegexpMatch(cmdEc2Deploy.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_DEPLOY_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
@@ -155,7 +155,7 @@ var (
 		PlaceHolder("KATO_EC2_DEPLOY_ADMIN_EMAIL").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ADMIN_EMAIL"), "^[\\w-.+]+@[\\w-.+]+\\.[a-z]{2,4}$")
 
-	arEc2DeployQuadruplet = quadruplets(cmdEc2Deploy.Arg("quadruplet",
+	arEc2DeployQuadruplet = cli.Quadruplets(cmdEc2Deploy.Arg("quadruplet",
 		"<number_of_instances>:<instance_type>:<host_name>:<comma_separated_list_of_roles>").
 		Required(), ec2Instances, katoRoles)
 
