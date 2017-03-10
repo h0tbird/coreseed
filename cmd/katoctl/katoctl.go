@@ -50,50 +50,11 @@ func main() {
 	command := kingpin.MustParse(cli.App.Parse(os.Args[1:]))
 
 	switch {
+	case udata.RunCmd(command):
 	case ec2.RunCmd(command):
 	case pkt.RunCmd(command):
 	case ns1.RunCmd(command):
 	case r53.RunCmd(command):
-	}
-
-	switch command {
-
-	//---------------
-	// katoctl udata
-	//---------------
-
-	case cmdUdata.FullCommand():
-
-		udata := udata.CmdData{
-			CmdFlags: udata.CmdFlags{
-				AdminEmail:          *flUdataAdminEmail,
-				CaCertPath:          *flUdataCaCertPath,
-				CalicoIPPool:        *flUdataCalicoIPPool,
-				ClusterID:           *flUdataClusterID,
-				ClusterState:        *flUdataClusterState,
-				DatadogAPIKey:       *flUdataDatadogAPIKey,
-				Domain:              *flUdataDomain,
-				Ec2Region:           *flUdataEc2Region,
-				EtcdToken:           *flUdataEtcdToken,
-				GzipUdata:           *flUdataGzipUdata,
-				HostID:              *flUdataHostID,
-				HostName:            *flUdataHostName,
-				IaasProvider:        *flUdataIaasProvider,
-				MasterCount:         *flUdataMasterCount,
-				Ns1ApiKey:           *flUdataNs1Apikey,
-				Prometheus:          *flUdataPrometheus,
-				QuorumCount:         *flUdataQuorumCount,
-				RexrayEndpointIP:    *flUdataRexrayEndpointIP,
-				RexrayStorageDriver: *flUdataRexrayStorageDriver,
-				Roles:               strings.Split(*flUdataRoles, ","),
-				SlackWebhook:        *flUdataSlackWebhook,
-				SMTPURL:             *flUdataSMTPURL,
-				StubZones:           *flUdataStubZones,
-				SysdigAccessKey:     *flUdataSysdigAccessKey,
-			},
-		}
-
-		udata.CmdRun()
 	}
 }
 

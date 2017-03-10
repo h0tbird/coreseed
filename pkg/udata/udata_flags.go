@@ -1,10 +1,15 @@
-package main
+package udata
 
 //-----------------------------------------------------------------------------
 // Package factored import statement:
 //-----------------------------------------------------------------------------
 
 import (
+
+	// Stdlib:
+	"strings"
+
+	// Local:
 	"github.com/katosys/kato/pkg/cli"
 	"github.com/katosys/kato/pkg/ec2"
 )
@@ -159,3 +164,52 @@ var (
 		PlaceHolder("KATO_UDATA_ADMIN_EMAIL").
 		OverrideDefaultFromEnvar("KATO_UDATA_ADMIN_EMAIL"), "^[\\w-.+]+@[\\w-.+]+\\.[a-z]{2,4}$")
 )
+
+//-----------------------------------------------------------------------------
+// RunCmd:
+//-----------------------------------------------------------------------------
+
+// RunCmd runs the cmd if owned by this package.
+func RunCmd(cmd string) bool {
+
+	switch cmd {
+
+	// katoctl udata
+	case cmdUdata.FullCommand():
+		d := CmdData{
+			CmdFlags: CmdFlags{
+				AdminEmail:          *flUdataAdminEmail,
+				CaCertPath:          *flUdataCaCertPath,
+				CalicoIPPool:        *flUdataCalicoIPPool,
+				ClusterID:           *flUdataClusterID,
+				ClusterState:        *flUdataClusterState,
+				DatadogAPIKey:       *flUdataDatadogAPIKey,
+				Domain:              *flUdataDomain,
+				Ec2Region:           *flUdataEc2Region,
+				EtcdToken:           *flUdataEtcdToken,
+				GzipUdata:           *flUdataGzipUdata,
+				HostID:              *flUdataHostID,
+				HostName:            *flUdataHostName,
+				IaasProvider:        *flUdataIaasProvider,
+				MasterCount:         *flUdataMasterCount,
+				Ns1ApiKey:           *flUdataNs1Apikey,
+				Prometheus:          *flUdataPrometheus,
+				QuorumCount:         *flUdataQuorumCount,
+				RexrayEndpointIP:    *flUdataRexrayEndpointIP,
+				RexrayStorageDriver: *flUdataRexrayStorageDriver,
+				Roles:               strings.Split(*flUdataRoles, ","),
+				SlackWebhook:        *flUdataSlackWebhook,
+				SMTPURL:             *flUdataSMTPURL,
+				StubZones:           *flUdataStubZones,
+				SysdigAccessKey:     *flUdataSysdigAccessKey,
+			},
+		}
+		d.CmdRun()
+
+	// Nothing to do:
+	default:
+		return false
+	}
+
+	return true
+}
