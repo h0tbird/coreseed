@@ -1,10 +1,12 @@
-package katoctl
+package pkt
 
 //-----------------------------------------------------------------------------
-// Import:
+// Package factored import statement:
 //-----------------------------------------------------------------------------
 
-import "github.com/katosys/kato/pkg/cli"
+import (
+	"github.com/katosys/kato/pkg/cli"
+)
 
 //-----------------------------------------------------------------------------
 // 'katoctl pkt' command flags definitions:
@@ -78,3 +80,43 @@ var (
 		Default("hourly").OverrideDefaultFromEnvar("KATO_PKT_RUN_BILLING").
 		Enum("hourly", "monthly")
 )
+
+//-----------------------------------------------------------------------------
+// RunCmd:
+//-----------------------------------------------------------------------------
+
+// RunCmd runs the cmd if owned by this package.
+func RunCmd(cmd string) bool {
+
+	switch cmd {
+
+	// katoctl pkt deploy:
+	case cmdPktDeploy.FullCommand():
+		d := Data{}
+		d.Deploy()
+
+	// katoctl pkt setup:
+	case cmdPktSetup.FullCommand():
+		d := Data{}
+		d.Setup()
+
+	// katoctl pkt run:
+	case cmdPktRun.FullCommand():
+		d := Data{
+			APIKey:    *flPktRunAPIKey,
+			HostName:  *flPktRunHostName,
+			ProjectID: *flPktRunProjectID,
+			Plan:      *flPktRunPlan,
+			OS:        *flPktRunOS,
+			Facility:  *flPktRunFacility,
+			Billing:   *flPktRunBilling,
+		}
+		d.Run()
+
+	// Nothing to do:
+	default:
+		return false
+	}
+
+	return true
+}

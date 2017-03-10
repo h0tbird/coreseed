@@ -53,6 +53,7 @@ func main() {
 
 	// New way:
 	switch {
+	case pkt.RunCmd(command):
 	case ns1.RunCmd(command):
 	case r53.RunCmd(command):
 	}
@@ -96,42 +97,6 @@ func main() {
 		}
 
 		udata.CmdRun()
-
-	//--------------------
-	// katoctl pkt deploy
-	//--------------------
-
-	case cmdPktDeploy.FullCommand():
-
-		pkt := pkt.Data{}
-		pkt.Deploy()
-
-	//-------------------
-	// katoctl pkt setup
-	//-------------------
-
-	case cmdPktSetup.FullCommand():
-
-		pkt := pkt.Data{}
-		pkt.Setup()
-
-	//-----------------
-	// katoctl pkt run
-	//-----------------
-
-	case cmdPktRun.FullCommand():
-
-		pkt := pkt.Data{
-			APIKey:    *flPktRunAPIKey,
-			HostName:  *flPktRunHostName,
-			ProjectID: *flPktRunProjectID,
-			Plan:      *flPktRunPlan,
-			OS:        *flPktRunOS,
-			Facility:  *flPktRunFacility,
-			Billing:   *flPktRunBilling,
-		}
-
-		pkt.Run()
 
 	//--------------------
 	// katoctl ec2 deploy
