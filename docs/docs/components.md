@@ -20,7 +20,7 @@ title: Components
     <tr>
       <th><a href="https://coreos.com">CoreOS</a></th>
       <td><a href="https://coreos.com/releases/">alpha</a></td>
-      <td><a href="https://coreos.com/releases/">alpha</a></td>
+      <td><a href="https://coreos.com/releases/">stable</a></td>
       <td><a href="https://coreos.com/releases/">stable</a></td>
       <td></td>
     </tr>
