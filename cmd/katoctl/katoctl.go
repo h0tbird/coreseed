@@ -51,6 +51,7 @@ func main() {
 
 	// New way:
 	switch {
+	case ec2.RunCmd(command):
 	case pkt.RunCmd(command):
 	case ns1.RunCmd(command):
 	case r53.RunCmd(command):
@@ -95,109 +96,6 @@ func main() {
 		}
 
 		udata.CmdRun()
-
-	//--------------------
-	// katoctl ec2 deploy
-	//--------------------
-
-	case cmdEc2Deploy.FullCommand():
-
-		ec2 := ec2.Data{
-			State: ec2.State{
-				ClusterID:       *flEc2DeployClusterID,
-				CoreOSChannel:   *flEc2DeployCoreOSChannel,
-				KeyPair:         *flEc2DeployKeyPair,
-				EtcdToken:       *flEc2DeployEtcdToken,
-				Ns1ApiKey:       *flEc2DeployNs1ApiKey,
-				SysdigAccessKey: *flEc2DeploySysdigAccessKey,
-				DatadogAPIKey:   *flEc2DeployDatadogAPIKey,
-				CaCertPath:      *flEc2DeployCaCertPath,
-				Domain:          *flEc2DeployDomain,
-				Region:          *flEc2DeployRegion,
-				Zone:            *flEc2DeployZone,
-				VpcCidrBlock:    *flEc2DeployVpcCidrBlock,
-				CalicoIPPool:    *flEc2DeployCalicoIPPool,
-				IntSubnetCidr:   *flEc2DeployIntSubnetCidr,
-				ExtSubnetCidr:   *flEc2DeployExtSubnetCidr,
-				StubZones:       *flEc2DeployStubZones,
-				SlackWebhook:    *flEc2DeploySlackWebhook,
-				SMTPURL:         *flEc2DeploySMTPURL,
-				AdminEmail:      *flEc2DeployAdminEmail,
-				Quadruplets:     *arEc2DeployQuadruplet,
-			},
-		}
-
-		ec2.Deploy()
-
-	//-------------------
-	// katoctl ec2 setup
-	//-------------------
-
-	case cmdEc2Setup.FullCommand():
-
-		ec2 := ec2.Data{
-			State: ec2.State{
-				ClusterID:     *flEc2SetupClusterID,
-				Domain:        *flEc2SetupDomain,
-				Region:        *flEc2SetupRegion,
-				Zone:          *flEc2SetupZone,
-				VpcCidrBlock:  *flEc2SetupVpcCidrBlock,
-				IntSubnetCidr: *flEc2SetupIntSubnetCidr,
-				ExtSubnetCidr: *flEc2SetupExtSubnetCidr,
-			},
-		}
-
-		ec2.Setup()
-
-	//-----------------
-	// katoctl ec2 add
-	//-----------------
-
-	case cmdEc2Add.FullCommand():
-
-		ec2 := ec2.Data{
-			State: ec2.State{
-				ClusterID: *flEc2AddCluserID,
-			},
-			Instance: ec2.Instance{
-				Roles:        *flEc2AddRoles,
-				HostName:     *flEc2AddHostName,
-				HostID:       *flEc2AddHostID,
-				AmiID:        *flEc2AddAmiID,
-				InstanceType: *flEc2AddInsanceType,
-				ClusterState: *flEc2AddClusterState,
-			},
-		}
-
-		ec2.Add()
-
-	//-----------------
-	// katoctl ec2 run
-	//-----------------
-
-	case cmdEc2Run.FullCommand():
-
-		ec2 := ec2.Data{
-			State: ec2.State{
-				Region:  *flEc2RunRegion,
-				Zone:    *flEc2RunZone,
-				KeyPair: *flEc2RunKeyPair,
-			},
-			Instance: ec2.Instance{
-				SubnetID:     *flEc2RunSubnetID,
-				SecGrpIDs:    *flEc2RunSecGrpIDs,
-				InstanceType: *flEc2RunInstanceType,
-				TagName:      *flEc2RunTagName,
-				PublicIP:     *flEc2RunPublicIP,
-				IAMRole:      *flEc2RunIAMRole,
-				SrcDstCheck:  *flEc2RunSrcDstCheck,
-				AmiID:        *flEc2RunAmiID,
-				ELBName:      *flEc2RunELBName,
-				PrivateIP:    *flEc2RunPrivateIP,
-			},
-		}
-
-		ec2.Run()
 	}
 }
 

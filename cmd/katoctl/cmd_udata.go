@@ -1,10 +1,13 @@
 package katoctl
 
 //-----------------------------------------------------------------------------
-// Import:
+// Package factored import statement:
 //-----------------------------------------------------------------------------
 
-import "github.com/katosys/kato/pkg/cli"
+import (
+	"github.com/katosys/kato/pkg/cli"
+	"github.com/katosys/kato/pkg/ec2"
+)
 
 //-----------------------------------------------------------------------------
 // 'katoctl udata' command flags definitions:
@@ -109,7 +112,7 @@ var (
 		"EC2 region.").
 		Default("eu-west-1").PlaceHolder("KATO_UDATA_EC2_REGION").
 		OverrideDefaultFromEnvar("KATO_UDATA_EC2_REGION").
-		Enum(ec2Regions...)
+		Enum(ec2.Ec2Regions...)
 
 	flUdataIaasProvider = cmdUdata.Flag("iaas-provider",
 		"IaaS provider [ vbox | ec2 | pkt ]").
