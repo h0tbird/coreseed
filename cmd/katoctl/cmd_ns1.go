@@ -1,6 +1,12 @@
 package katoctl
 
 //-----------------------------------------------------------------------------
+// Import:
+//-----------------------------------------------------------------------------
+
+import "github.com/katosys/kato/pkg/cli"
+
+//-----------------------------------------------------------------------------
 // 'katoctl ns1' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -10,7 +16,7 @@ var (
 	// ns1: top level command
 	//------------------------
 
-	cmdNs1 = app.Command("ns1", "Manages NS1 zones and records.")
+	cmdNs1 = cli.App.Command("ns1", "Manages NS1 zones and records.")
 
 	flNs1APIKey = cmdNs1.Flag("api-key",
 		"NS1 private API key").Required().String()

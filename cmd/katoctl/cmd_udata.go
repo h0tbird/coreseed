@@ -1,6 +1,12 @@
 package katoctl
 
 //-----------------------------------------------------------------------------
+// Import:
+//-----------------------------------------------------------------------------
+
+import "github.com/katosys/kato/pkg/cli"
+
+//-----------------------------------------------------------------------------
 // 'katoctl udata' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -10,7 +16,7 @@ var (
 	// udata: top level command
 	//--------------------------
 
-	cmdUdata = app.Command("udata", "Generate CoreOS cloud-config user-data.")
+	cmdUdata = cli.App.Command("udata", "Generate CoreOS cloud-config user-data.")
 
 	flUdataQuorumCount = cmdUdata.Flag("quorum-count",
 		"Number of initial quorum nodes [ 1 | 3 | 5 ]").

@@ -1,6 +1,12 @@
 package katoctl
 
 //-----------------------------------------------------------------------------
+// Import:
+//-----------------------------------------------------------------------------
+
+import "github.com/katosys/kato/pkg/cli"
+
+//-----------------------------------------------------------------------------
 // 'katoctl pkt' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -10,7 +16,7 @@ var (
 	// pkt: top level command
 	//------------------------
 
-	cmdPkt = app.Command("pkt", "Kato's Packet.net provider.")
+	cmdPkt = cli.App.Command("pkt", "Kato's Packet.net provider.")
 
 	//----------------------------
 	// pkt deploy: nested command

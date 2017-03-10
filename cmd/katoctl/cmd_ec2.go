@@ -1,6 +1,12 @@
 package katoctl
 
 //-----------------------------------------------------------------------------
+// Import:
+//-----------------------------------------------------------------------------
+
+import "github.com/katosys/kato/pkg/cli"
+
+//-----------------------------------------------------------------------------
 // 'katoctl ec2' command flags definitions:
 //-----------------------------------------------------------------------------
 
@@ -31,7 +37,7 @@ var (
 	// ec2: top level command
 	//------------------------
 
-	cmdEc2 = app.Command("ec2", "This is the Káto EC2 provider.")
+	cmdEc2 = cli.App.Command("ec2", "This is the Káto EC2 provider.")
 
 	//----------------------------
 	// ec2 deploy: nested command

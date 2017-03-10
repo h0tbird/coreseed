@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	// Local:
+	"github.com/katosys/kato/pkg/cli"
 	"github.com/katosys/kato/pkg/ec2"
 	"github.com/katosys/kato/pkg/ns1"
 	"github.com/katosys/kato/pkg/pkt"
@@ -25,12 +26,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-//-----------------------------------------------------------------------------
-// katoctl root level command:
-//-----------------------------------------------------------------------------
-
-var app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastructure.")
-
 //----------------------------------------------------------------------------
 // func init() is called after all the variable declarations in the package
 // have evaluated their initializers, and those are evaluated only after all
@@ -38,11 +33,6 @@ var app = kingpin.New("katoctl", "Katoctl defines and deploys Kato's infrastruct
 //----------------------------------------------------------------------------
 
 func init() {
-
-	// Customize kingpin:
-	app.Version("0.1.0").Author("Marc Villacorta Morera")
-	app.UsageTemplate(usageTemplate)
-	app.HelpFlag.Short('h')
 
 	// Customize the default logger:
 	log.SetFormatter(&log.TextFormatter{ForceColors: true})
@@ -58,7 +48,7 @@ func init() {
 func main() {
 
 	// Sub-command selector:
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	switch kingpin.MustParse(cli.App.Parse(os.Args[1:])) {
 
 	//---------------
 	// katoctl udata
