@@ -46,10 +46,9 @@ func init() {
 
 func main() {
 
-	// Sub-command selector:
+	// Command parse and switch:
 	command := kingpin.MustParse(cli.App.Parse(os.Args[1:]))
 
-	// New way:
 	switch {
 	case ec2.RunCmd(command):
 	case pkt.RunCmd(command):
@@ -57,7 +56,6 @@ func main() {
 	case r53.RunCmd(command):
 	}
 
-	// Old way:
 	switch command {
 
 	//---------------
