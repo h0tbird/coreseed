@@ -145,12 +145,12 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SLACK_WEBHOOK").
 		String()
 
-	flEc2DeploySMTPURL = regexpMatch(cmdEc2Deploy.Flag("smtp-url",
+	flEc2DeploySMTPURL = cli.RegexpMatch(cmdEc2Deploy.Flag("smtp-url",
 		"SMTP server URL: <smtp://user:pass@host:port>").
 		PlaceHolder("KATO_EC2_DEPLOY_SMTP_URL").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SMTP_URL"), "^smtp://(.+):(.+)@(.+):(\\d+)$")
 
-	flEc2DeployAdminEmail = regexpMatch(cmdEc2Deploy.Flag("admin-email",
+	flEc2DeployAdminEmail = cli.RegexpMatch(cmdEc2Deploy.Flag("admin-email",
 		"Administrator e-mail for cluster notifications.").
 		PlaceHolder("KATO_EC2_DEPLOY_ADMIN_EMAIL").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ADMIN_EMAIL"), "^[\\w-.+]+@[\\w-.+]+\\.[a-z]{2,4}$")
@@ -166,7 +166,7 @@ var (
 	cmdEc2Setup = cmdEc2.Command("setup",
 		"Setup IAM, VPC and EC2 components.")
 
-	flEc2SetupClusterID = regexpMatch(cmdEc2Setup.Flag("cluster-id",
+	flEc2SetupClusterID = cli.RegexpMatch(cmdEc2Setup.Flag("cluster-id",
 		"Cluster ID for later reference.").
 		Required().PlaceHolder("KATO_EC2_SETUP_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_SETUP_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
@@ -213,7 +213,7 @@ var (
 	cmdEc2Add = cmdEc2.Command("add",
 		"Adds a new instance to an existing Káto cluster on EC2.")
 
-	flEc2AddCluserID = regexpMatch(cmdEc2Add.Flag("cluster-id",
+	flEc2AddCluserID = cli.RegexpMatch(cmdEc2Add.Flag("cluster-id",
 		"Cluster ID").
 		Required().PlaceHolder("KATO_EC2_ADD_CLUSTER_ID").
 		OverrideDefaultFromEnvar("KATO_EC2_ADD_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
@@ -323,7 +323,7 @@ var (
 		Default("true").OverrideDefaultFromEnvar("KATO_EC2_RUN_SOURCE_DEST_CHECK").
 		Enum("true", "false")
 
-	flEc2RunELBName = regexpMatch(cmdEc2Run.Flag("elb-name",
+	flEc2RunELBName = cli.RegexpMatch(cmdEc2Run.Flag("elb-name",
 		"Register with existing ELB by name").
 		OverrideDefaultFromEnvar("KATO_EC2_RUN_ELB_NAME"), "^[a-zA-Z0-9-]+$")
 
