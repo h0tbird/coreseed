@@ -4,7 +4,7 @@ title: Installing Káto
 
 # 1. Install katoctl
 
-All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*. If you are a end user just grab the latest stable release. If you are a *Káto* developer or you want to test the latest code you can get the go-getable version which follows the master branch (and might be broken). Also, you can optionally setup shell completion.
+All you need to deploy *Káto* is the `katoctl` binary available in your *PATH*. If you are an end user just grab the latest stable release. If you are a *Káto* developer or you want to test the latest code you can get the go-getable version which follows the master branch (and might be broken). Also, you can optionally setup shell completion.
 
 <div class="col-xs-12" style="height:10px;"></div>
 
