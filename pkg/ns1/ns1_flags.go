@@ -1,10 +1,12 @@
-package katoctl
+package ns1
 
 //-----------------------------------------------------------------------------
 // Import:
 //-----------------------------------------------------------------------------
 
-import "github.com/katosys/kato/pkg/cli"
+import (
+	"github.com/katosys/kato/pkg/cli"
+)
 
 //-----------------------------------------------------------------------------
 // 'katoctl ns1' command flags definitions:
@@ -58,3 +60,38 @@ var (
 		"List of ip:type:dns records.").
 		Required().Strings()
 )
+
+//-----------------------------------------------------------------------------
+// RunCmd:
+//-----------------------------------------------------------------------------
+
+// RunCmd runs the cmd if owned by this package.
+func RunCmd(cmd string) bool {
+
+	switch cmd {
+
+	// katoctl ns1 zone add:
+	case cmdNs1ZoneAdd.FullCommand():
+		d := Data{
+			APIKey: *flNs1APIKey,
+			Link:   *flNs1ZoneAddLink,
+			Zones:  *arNs1ZoneAddName,
+		}
+		d.AddZones()
+
+	// katoctl ns1 record add:
+	case cmdNs1RecordAdd.FullCommand():
+		d := Data{
+			APIKey:  *flNs1APIKey,
+			Zone:    *flNs1RecordAddZone,
+			Records: *arNs1RecordAddName,
+		}
+		d.AddRecords()
+
+	// Nothing to do:
+	default:
+		return false
+	}
+
+	return true
+}

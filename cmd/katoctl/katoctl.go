@@ -48,7 +48,15 @@ func init() {
 func main() {
 
 	// Sub-command selector:
-	switch kingpin.MustParse(cli.App.Parse(os.Args[1:])) {
+	command := kingpin.MustParse(cli.App.Parse(os.Args[1:]))
+
+	// New way:
+	switch {
+	case ns1.RunCmd(command):
+	}
+
+	// Old way:
+	switch command {
 
 	//---------------
 	// katoctl udata
@@ -225,34 +233,6 @@ func main() {
 		}
 
 		ec2.Run()
-
-	//----------------------
-	// katoctl ns1 zone add
-	//----------------------
-
-	case cmdNs1ZoneAdd.FullCommand():
-
-		ns1 := ns1.Data{
-			APIKey: *flNs1APIKey,
-			Link:   *flNs1ZoneAddLink,
-			Zones:  *arNs1ZoneAddName,
-		}
-
-		ns1.AddZones()
-
-	//------------------------
-	// katoctl ns1 record add
-	//------------------------
-
-	case cmdNs1RecordAdd.FullCommand():
-
-		ns1 := ns1.Data{
-			APIKey:  *flNs1APIKey,
-			Zone:    *flNs1RecordAddZone,
-			Records: *arNs1RecordAddName,
-		}
-
-		ns1.AddRecords()
 	}
 }
 
