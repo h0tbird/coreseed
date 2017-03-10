@@ -19,6 +19,7 @@ import (
 	"github.com/katosys/kato/pkg/ec2"
 	"github.com/katosys/kato/pkg/ns1"
 	"github.com/katosys/kato/pkg/pkt"
+	"github.com/katosys/kato/pkg/r53"
 	"github.com/katosys/kato/pkg/udata"
 
 	// Community:
@@ -53,6 +54,7 @@ func main() {
 	// New way:
 	switch {
 	case ns1.RunCmd(command):
+	case r53.RunCmd(command):
 	}
 
 	// Old way:
