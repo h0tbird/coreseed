@@ -1137,6 +1137,8 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     LimitNOFILE=infinity
+     TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/mesos:v1.2.0-1
@@ -1802,6 +1804,8 @@ coreos:
      Restart=always
      RestartSec=10
      TimeoutStartSec=0
+     LimitNOFILE=infinity
+     TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/mesos:v1.2.0-1
