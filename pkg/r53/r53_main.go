@@ -44,16 +44,33 @@ func (d *Data) AddZones() {
 	// For each requested zone:
 	for _, zone := range d.Zones {
 
-		// Forge the zone request:
-		params := &route53.CreateHostedZoneInput{
-			CallerReference: aws.String(time.Now().Format(time.RFC3339Nano)),
-			Name:            aws.String(zone),
+		// Forge the list request:
+		pList := &route53.ListHostedZonesByNameInput{
+			DNSName:  aws.String(zone),
+			MaxItems: aws.String("1"),
 		}
 
-		// Send the zone request:
-		if _, err := r53.CreateHostedZone(params); err != nil {
+		// Send the list request:
+		resp, err := r53.ListHostedZonesByName(pList)
+		if err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 				Fatal(err)
+		}
+
+		// If zone doesn't exist:
+		if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
+
+			// Forge the new zone request:
+			pZone := &route53.CreateHostedZoneInput{
+				CallerReference: aws.String(time.Now().Format(time.RFC3339Nano)),
+				Name:            aws.String(zone),
+			}
+
+			// Send the new zone request:
+			if _, err := r53.CreateHostedZone(pZone); err != nil {
+				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+					Fatal(err)
+			}
 		}
 
 		// Log zone creation:
