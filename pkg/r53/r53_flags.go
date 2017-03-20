@@ -18,8 +18,10 @@ var (
 	cmdR53 = cli.App.Command("r53", "Manages Route 53 zones and records.")
 
 	// r53 zone add
-	cmdR53Zone    = cmdR53.Command("zone", "Manage Route 53 zones.")
-	cmdR53ZoneAdd = cmdR53Zone.Command("add", "Adds Route 53 zones.")
+	cmdR53Zone       = cmdR53.Command("zone", "Manage Route 53 zones.")
+	cmdR53ZoneAdd    = cmdR53Zone.Command("add", "Adds Route 53 zones.")
+	arR53ZoneAddName = cmdR53ZoneAdd.Arg("fqdn",
+		"List of zones to publish").Required().Strings()
 
 	// r53 record add
 	cmdR53Record    = cmdR53.Command("record", "Manage Route 53 records.")
@@ -37,7 +39,9 @@ func RunCmd(cmd string) bool {
 
 	// katoctl r53 zone add:
 	case cmdR53ZoneAdd.FullCommand():
-		d := Data{}
+		d := Data{
+			Zones: *arR53ZoneAddName,
+		}
 		d.AddZones()
 
 	// katoctl r53 record add:

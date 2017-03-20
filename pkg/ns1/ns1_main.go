@@ -57,7 +57,8 @@ func (d *Data) AddZones() {
 		// Send the new zone request:
 		if _, err := client.Zones.Create(z); err != nil {
 			if err != api.ErrZoneExists {
-				log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).Fatal(err)
+				log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).
+					Fatal(err)
 			}
 		}
 
