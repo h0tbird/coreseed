@@ -24,11 +24,11 @@ import (
 // Data struct for NS1 information.
 type Data struct {
 	command string
-	Link    string   // zone:add |
-	Zones   []string // zone:add |
-	APIKey  string   // zone:add | record:add
-	Zone    string   //          | record:add
-	Records []string //          | record:add
+	Link    string
+	Zones   []string
+	APIKey  string
+	Zone    string
+	Records []string
 }
 
 //-----------------------------------------------------------------------------
@@ -66,6 +66,14 @@ func (d *Data) AddZones() {
 		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).
 			Info("New DNS zone created")
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: DelZones
+//-----------------------------------------------------------------------------
+
+// DelZones deletes one or more zones from NS1.
+func (d *Data) DelZones() {
 }
 
 //-----------------------------------------------------------------------------

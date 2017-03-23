@@ -14,22 +14,22 @@ import (
 
 var (
 
-	// r53 zone/record
+	// r53 zone/record:
 	cmdR53       = cli.App.Command("r53", "Manages Route 53 zones and records.")
 	cmdR53Zone   = cmdR53.Command("zone", "Manage Route 53 zones.")
 	cmdR53Record = cmdR53.Command("record", "Manage Route 53 records.")
 
-	// r53 zone add
+	// r53 zone add:
 	cmdR53ZoneAdd    = cmdR53Zone.Command("add", "Adds Route 53 zones.")
 	arR53ZoneAddName = cmdR53ZoneAdd.Arg("fqdn",
 		"List of zones to publish").Required().Strings()
 
-	// r53 zone del
+	// r53 zone del:
 	cmdR53ZoneDel    = cmdR53Zone.Command("del", "Deletes Route 53 zones.")
 	arR53ZoneDelName = cmdR53ZoneDel.Arg("fqdn",
 		"List of zones to delete").Required().Strings()
 
-	// r53 record add
+	// r53 record add:
 	cmdR53RecordAdd    = cmdR53Record.Command("add", "Adds records to Route 53 zones.")
 	flR53RecordAddZone = cmdR53RecordAdd.Flag("zone",
 		"DNS zone where records are added.").Required().String()
