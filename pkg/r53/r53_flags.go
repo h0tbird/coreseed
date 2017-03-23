@@ -30,7 +30,11 @@ var (
 		"List of zones to delete").Required().Strings()
 
 	// r53 record add
-	cmdR53RecordAdd = cmdR53Record.Command("add", "Adds records to Route 53 zones.")
+	cmdR53RecordAdd    = cmdR53Record.Command("add", "Adds records to Route 53 zones.")
+	flR53RecordAddZone = cmdR53RecordAdd.Flag("zone",
+		"DNS zone where records are added.").Required().String()
+	arR53RecordAddName = cmdR53RecordAdd.Arg("record",
+		"List of ip:type:dns records.").Required().Strings()
 )
 
 //-----------------------------------------------------------------------------
@@ -58,7 +62,10 @@ func RunCmd(cmd string) bool {
 
 	// katoctl r53 record add:
 	case cmdR53RecordAdd.FullCommand():
-		d := Data{}
+		d := Data{
+			Zone:    *flR53RecordAddZone,
+			Records: *arR53RecordAddName,
+		}
 		d.AddRecords()
 
 	// Nothing to do:

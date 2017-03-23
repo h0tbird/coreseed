@@ -7,6 +7,7 @@ package r53
 import (
 
 	// Stdlib:
+	"strings"
 	"time"
 
 	// AWS SDK:
@@ -26,7 +27,9 @@ import (
 type Data struct {
 	r53     *route53.Route53
 	command string
-	Zones   []string // zone:add | zone:del
+	Zone    string
+	Zones   []string
+	Records []string
 }
 
 //-----------------------------------------------------------------------------
@@ -137,4 +140,57 @@ func (d *Data) DelZones() {
 //-----------------------------------------------------------------------------
 
 // AddRecords adds one or more records to a Route 53 zone.
-func (d *Data) AddRecords() {}
+func (d *Data) AddRecords() {
+
+	// Set the current command:
+	d.command = "record:add"
+
+	// Create the service handler:
+	d.r53 = route53.New(session.Must(session.NewSession()))
+
+	// Get the zone ID:
+	zoneID, exist := d.getZoneID(d.Zone)
+	if !exist {
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Zone}).
+			Fatal("This zone does not exist")
+	}
+
+	// For each requested record:
+	for _, record := range d.Records {
+
+		// New record handler:
+		s := strings.Split(record, ":")
+
+		// Forge the change request:
+		params := &route53.ChangeResourceRecordSetsInput{
+			HostedZoneId: aws.String(zoneID),
+			ChangeBatch: &route53.ChangeBatch{
+				Changes: []*route53.Change{
+					{
+						Action: aws.String("UPSERT"),
+						ResourceRecordSet: &route53.ResourceRecordSet{
+							Name: aws.String(s[2] + "." + d.Zone),
+							Type: aws.String(s[1]),
+							TTL:  aws.Int64(300),
+							ResourceRecords: []*route53.ResourceRecord{
+								{
+									Value: aws.String(s[0]),
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		// Send the change request:
+		if _, err := d.r53.ChangeResourceRecordSets(params); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
+				Fatal(err)
+		}
+
+		// Log record creation:
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
+			Info("New DNS record created")
+	}
+}
