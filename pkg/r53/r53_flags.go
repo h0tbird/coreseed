@@ -14,17 +14,22 @@ import (
 
 var (
 
-	// r53:
-	cmdR53 = cli.App.Command("r53", "Manages Route 53 zones and records.")
+	// r53 zone/record
+	cmdR53       = cli.App.Command("r53", "Manages Route 53 zones and records.")
+	cmdR53Zone   = cmdR53.Command("zone", "Manage Route 53 zones.")
+	cmdR53Record = cmdR53.Command("record", "Manage Route 53 records.")
 
 	// r53 zone add
-	cmdR53Zone       = cmdR53.Command("zone", "Manage Route 53 zones.")
 	cmdR53ZoneAdd    = cmdR53Zone.Command("add", "Adds Route 53 zones.")
 	arR53ZoneAddName = cmdR53ZoneAdd.Arg("fqdn",
 		"List of zones to publish").Required().Strings()
 
+	// r53 zone del
+	cmdR53ZoneDel    = cmdR53Zone.Command("del", "Deletes Route 53 zones.")
+	arR53ZoneDelName = cmdR53ZoneDel.Arg("fqdn",
+		"List of zones to delete").Required().Strings()
+
 	// r53 record add
-	cmdR53Record    = cmdR53.Command("record", "Manage Route 53 records.")
 	cmdR53RecordAdd = cmdR53Record.Command("add", "Adds records to Route 53 zones.")
 )
 
@@ -43,6 +48,13 @@ func RunCmd(cmd string) bool {
 			Zones: *arR53ZoneAddName,
 		}
 		d.AddZones()
+
+	// katoctl r53 zone del:
+	case cmdR53ZoneDel.FullCommand():
+		d := Data{
+			Zones: *arR53ZoneDelName,
+		}
+		d.DelZones()
 
 	// katoctl r53 record add:
 	case cmdR53RecordAdd.FullCommand():
