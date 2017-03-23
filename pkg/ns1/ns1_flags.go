@@ -16,7 +16,7 @@ var (
 
 	// ns1 zone/record:
 	cmdNs1       = cli.App.Command("ns1", "Manages NS1 zones and records.")
-	flNs1APIKey  = cmdNs1.Flag("api-key", "NS1 private API key").Required().String()
+	flNs1APIKey  = cmdNs1.Flag("api-key", "NS1 private API key.").Required().String()
 	cmdNs1Zone   = cmdNs1.Command("zone", "Manage NS1 zones.")
 	cmdNs1Record = cmdNs1.Command("record", "Manage NS1 records.")
 
@@ -25,12 +25,12 @@ var (
 	flNs1ZoneAddLink = cmdNs1ZoneAdd.Flag("link",
 		"Links the added zone to the link zone.").String()
 	arNs1ZoneAddName = cmdNs1ZoneAdd.Arg("fqdn",
-		"List of zones to publish").Required().Strings()
+		"List of zones to publish.").Required().Strings()
 
 	// ns1 zone del:
 	cmdNs1ZoneDel    = cmdNs1Zone.Command("del", "Deletes NS1 zones.")
 	arNs1ZoneDelName = cmdNs1ZoneDel.Arg("fqdn",
-		"List of zones to delete").Required().Strings()
+		"List of zones to delete.").Required().Strings()
 
 	// ns1 record add:
 	cmdNs1RecordAdd    = cmdNs1Record.Command("add", "Adds records to NS1 zones.")

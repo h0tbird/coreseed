@@ -22,12 +22,12 @@ var (
 	// r53 zone add:
 	cmdR53ZoneAdd    = cmdR53Zone.Command("add", "Adds Route 53 zones.")
 	arR53ZoneAddName = cmdR53ZoneAdd.Arg("fqdn",
-		"List of zones to publish").Required().Strings()
+		"List of zones to publish.").Required().Strings()
 
 	// r53 zone del:
 	cmdR53ZoneDel    = cmdR53Zone.Command("del", "Deletes Route 53 zones.")
 	arR53ZoneDelName = cmdR53ZoneDel.Arg("fqdn",
-		"List of zones to delete").Required().Strings()
+		"List of zones to delete.").Required().Strings()
 
 	// r53 record add:
 	cmdR53RecordAdd    = cmdR53Record.Command("add", "Adds records to Route 53 zones.")
