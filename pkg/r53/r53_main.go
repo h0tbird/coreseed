@@ -36,7 +36,7 @@ type Data struct {
 // func: getZoneID
 //-----------------------------------------------------------------------------
 
-func (d *Data) getZoneID(zone string) (string, bool) {
+func (d *Data) getZoneID(zone string) (string, error) {
 
 	// Forge the list request:
 	pList := &route53.ListHostedZonesByNameInput{
@@ -47,17 +47,16 @@ func (d *Data) getZoneID(zone string) (string, bool) {
 	// Send the list request:
 	resp, err := d.r53.ListHostedZonesByName(pList)
 	if err != nil {
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Fatal(err)
+		return "", err
 	}
 
 	// Zone does not exist:
 	if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
-		return "", false
+		return "", nil
 	}
 
 	// Return the zone ID:
-	return *resp.HostedZones[0].Id, true
+	return *resp.HostedZones[0].Id, nil
 }
 
 //-----------------------------------------------------------------------------
@@ -76,8 +75,15 @@ func (d *Data) AddZones() {
 	// For each requested zone:
 	for _, zone := range d.Zones {
 
-		// If zone doesn't exist:
-		if _, exist := d.getZoneID(zone); !exist {
+		// Get the zone ID:
+		zoneID, err := d.getZoneID(zone)
+		if err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+
+		// If the zone is missing:
+		if zoneID == "" {
 
 			// Forge the new zone request:
 			pZone := &route53.CreateHostedZoneInput{
@@ -90,11 +96,17 @@ func (d *Data) AddZones() {
 				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 					Fatal(err)
 			}
+
+			// Log the new zone creation:
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Info("New DNS zone created")
+
+			return
 		}
 
-		// Log zone creation:
+		// Log zone already exists:
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("New DNS zone created")
+			Info("DNS zone already exists")
 	}
 }
 
@@ -115,7 +127,14 @@ func (d *Data) DelZones() {
 	for _, zone := range d.Zones {
 
 		// Get the zone ID:
-		if zoneID, exist := d.getZoneID(zone); exist {
+		zoneID, err := d.getZoneID(zone)
+		if err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+
+		// If the zone exists:
+		if zoneID != "" {
 
 			// Forge the delete zone request:
 			params := &route53.DeleteHostedZoneInput{
@@ -127,11 +146,17 @@ func (d *Data) DelZones() {
 				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 					Fatal(err)
 			}
+
+			// Log zone deletion:
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Info("DNS zone deleted")
+
+			return
 		}
 
-		// Log zone deletion:
+		// Log zone already gone:
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("DNS zone deleted")
+			Info("Ops! this zone does not exist")
 	}
 }
 
@@ -149,10 +174,16 @@ func (d *Data) AddRecords() {
 	d.r53 = route53.New(session.Must(session.NewSession()))
 
 	// Get the zone ID:
-	zoneID, exist := d.getZoneID(d.Zone)
-	if !exist {
+	zoneID, err := d.getZoneID(d.Zone)
+	if err != nil {
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Zone}).
-			Fatal("This zone does not exist")
+			Fatal(err)
+	}
+
+	// Return if zone is missing:
+	if zoneID == "" {
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Zone}).
+			Fatal("Ops! This zone does not exist")
 	}
 
 	// For each requested record:
@@ -191,6 +222,6 @@ func (d *Data) AddRecords() {
 
 		// Log record creation:
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
-			Info("New DNS record created")
+			Info("DNS record created/updated")
 	}
 }
