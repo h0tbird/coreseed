@@ -23,7 +23,7 @@ import (
 // Typedefs:
 //-----------------------------------------------------------------------------
 
-// Data struct for Route 53 information.
+// Data struct for Route 53.
 type Data struct {
 	r53     *route53.Route53
 	command string
@@ -39,13 +39,13 @@ type Data struct {
 func (d *Data) getZoneID(zone string) (string, error) {
 
 	// Forge the list request:
-	pList := &route53.ListHostedZonesByNameInput{
+	params := &route53.ListHostedZonesByNameInput{
 		DNSName:  aws.String(zone),
 		MaxItems: aws.String("1"),
 	}
 
 	// Send the list request:
-	resp, err := d.r53.ListHostedZonesByName(pList)
+	resp, err := d.r53.ListHostedZonesByName(params)
 	if err != nil {
 		return "", err
 	}
@@ -86,13 +86,13 @@ func (d *Data) AddZones() {
 		if zoneID == "" {
 
 			// Forge the new zone request:
-			pZone := &route53.CreateHostedZoneInput{
+			params := &route53.CreateHostedZoneInput{
 				CallerReference: aws.String(time.Now().Format(time.RFC3339Nano)),
 				Name:            aws.String(zone),
 			}
 
 			// Send the new zone request:
-			if _, err := d.r53.CreateHostedZone(pZone); err != nil {
+			if _, err := d.r53.CreateHostedZone(params); err != nil {
 				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 					Fatal(err)
 			}
