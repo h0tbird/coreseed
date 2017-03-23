@@ -74,6 +74,27 @@ func (d *Data) AddZones() {
 
 // DelZones deletes one or more zones from NS1.
 func (d *Data) DelZones() {
+
+	// Set the current command:
+	d.command = "zone:del"
+
+	// Create an NS1 API client:
+	httpClient := &http.Client{Timeout: time.Second * 10}
+	client := api.NewClient(httpClient, api.SetAPIKey(d.APIKey))
+
+	// For each requested zone:
+	for _, zone := range d.Zones {
+
+		// Send the delete zone request:
+		if _, err := client.Zones.Delete(zone); err != nil {
+			log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+
+		// Log zone deletion:
+		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": zone}).
+			Info("DNS zone deleted")
+	}
 }
 
 //-----------------------------------------------------------------------------
