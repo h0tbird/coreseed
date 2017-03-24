@@ -17,6 +17,28 @@ import (
 )
 
 //-----------------------------------------------------------------------------
+// func: securityGroupIDs
+//-----------------------------------------------------------------------------
+
+func (d *Data) securityGroupIDs(roles string) (list []string) {
+
+	for _, role := range strings.Split(roles, ",") {
+		switch role {
+		case "quorum":
+			list = append(list, d.QuorumSecGrp)
+		case "master":
+			list = append(list, d.MasterSecGrp)
+		case "worker":
+			list = append(list, d.WorkerSecGrp)
+		case "border":
+			list = append(list, d.BorderSecGrp)
+		}
+	}
+
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: Add
 //-----------------------------------------------------------------------------
 
@@ -34,21 +56,6 @@ func (d *Data) Add() {
 	// Discover CoreOS AMI (for standalone runs):
 	if d.AmiID == "" {
 		d.retrieveCoreosAmiID(nil)
-	}
-
-	// Security group IDs:
-	var securityGroupIDs []string
-	for _, role := range strings.Split(d.Roles, ",") {
-		switch role {
-		case "quorum":
-			securityGroupIDs = append(securityGroupIDs, d.QuorumSecGrp)
-		case "master":
-			securityGroupIDs = append(securityGroupIDs, d.MasterSecGrp)
-		case "worker":
-			securityGroupIDs = append(securityGroupIDs, d.WorkerSecGrp)
-		case "border":
-			securityGroupIDs = append(securityGroupIDs, d.BorderSecGrp)
-		}
 	}
 
 	// Udata arguments bundle:
@@ -115,7 +122,7 @@ func (d *Data) Add() {
 		"--instance-type", d.InstanceType,
 		"--key-pair", d.KeyPair,
 		"--subnet-id", d.ExtSubnetID,
-		"--security-group-ids", strings.Join(securityGroupIDs, ","),
+		"--security-group-ids", strings.Join(d.securityGroupIDs(d.Roles), ","),
 		"--iam-role", "kato",
 		"--source-dest-check", "false",
 		"--public-ip", "true",
