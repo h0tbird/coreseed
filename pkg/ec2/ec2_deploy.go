@@ -7,9 +7,6 @@ package ec2
 import (
 
 	// Stdlib:
-	"encoding/json"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -38,7 +35,6 @@ func (d *Data) Deploy() {
 	go d.setupEC2(&wg)
 	go d.createDNSZones(&wg)
 	go d.retrieveEtcdToken(&wg)
-	go d.retrieveCoreosAmiID(&wg)
 	wg.Wait()
 
 	// Dump state to file (II):
@@ -177,50 +173,6 @@ func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
 		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
 			Info("New etcd bootstrap token requested")
 	}
-}
-
-//-----------------------------------------------------------------------------
-// func: retrieveCoreosAmiID
-//-----------------------------------------------------------------------------
-
-func (d *Data) retrieveCoreosAmiID(wg *sync.WaitGroup) {
-
-	// Decrement:
-	if wg != nil {
-		defer wg.Done()
-	}
-
-	// Send the request:
-	res, err := http.
-		Get("https://coreos.com/dist/aws/aws-" + d.CoreOSChannel + ".json")
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Retrieve the data:
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Close the handler:
-	if err = res.Body.Close(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Decode JSON into Go values:
-	var jsonData map[string]interface{}
-	if err := json.Unmarshal(data, &jsonData); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Store the AMI ID:
-	amis := jsonData[d.Region].(map[string]interface{})
-	d.AmiID = amis["hvm"].(string)
-
-	// Log this action:
-	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.AmiID}).
-		Info("Latest CoreOS " + d.CoreOSChannel + " AMI located")
 }
 
 //-----------------------------------------------------------------------------

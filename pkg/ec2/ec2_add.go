@@ -7,6 +7,9 @@ package ec2
 import (
 
 	// Stdlib:
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -21,7 +24,6 @@ import (
 //-----------------------------------------------------------------------------
 
 func (d *Data) securityGroupIDs(roles string) (list []string) {
-
 	for _, role := range strings.Split(roles, ",") {
 		switch role {
 		case "quorum":
@@ -34,8 +36,49 @@ func (d *Data) securityGroupIDs(roles string) (list []string) {
 			list = append(list, d.BorderSecGrp)
 		}
 	}
-
 	return
+}
+
+//-----------------------------------------------------------------------------
+// func: retrieveCoreOSAmiID
+//-----------------------------------------------------------------------------
+
+func (d *Data) retrieveCoreOSAmiID() (string, error) {
+
+	// Send the request:
+	res, err := http.Get("https://coreos.com/dist/aws/aws-" +
+		d.CoreOSChannel + ".json")
+	if err != nil {
+		return "", err
+	}
+
+	// Retrieve the data:
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Close the handler:
+	if err = res.Body.Close(); err != nil {
+		return "", err
+	}
+
+	// Decode JSON into Go values:
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(data, &jsonData); err != nil {
+		return "", err
+	}
+
+	// Store the AMI ID:
+	amis := jsonData[d.Region].(map[string]interface{})
+	amiID := amis["hvm"].(string)
+
+	// Log this action:
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": amiID}).
+		Info("Latest CoreOS " + d.CoreOSChannel + " AMI located")
+
+	// Return the AMI ID:
+	return amiID, nil
 }
 
 //-----------------------------------------------------------------------------
@@ -54,8 +97,9 @@ func (d *Data) Add() {
 	}
 
 	// Discover CoreOS AMI (for standalone runs):
-	if d.AmiID == "" {
-		d.retrieveCoreosAmiID(nil)
+	var err error
+	if d.AmiID, err = d.retrieveCoreOSAmiID(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Udata arguments bundle:
