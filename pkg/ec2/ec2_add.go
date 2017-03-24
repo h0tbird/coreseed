@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -44,6 +45,11 @@ func (d *Data) Add() {
 	if err := tools.ExecutePipeline(
 		d.forgeUdataCommand(), d.forgeRunCommand()); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Publish DNS records:
+	if err := publishDNSRecords("instanceID", d.Roles); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Warning(err)
 	}
 }
 
@@ -195,4 +201,21 @@ func (d *Data) securityGroupIDs(roles string) (list []string) {
 		}
 	}
 	return
+}
+
+//-----------------------------------------------------------------------------
+// func: publishDNSRecords
+//-----------------------------------------------------------------------------
+
+func publishDNSRecords(instance, roles string) error {
+
+	// Retrieve the instance IPs:
+
+	// For every role in this instance:
+	for _, role := range strings.Split(roles, ",") {
+		fmt.Println(role)
+	}
+
+	// Success:
+	return nil
 }

@@ -99,7 +99,6 @@ func (d *Data) runInstance(udata []byte) error {
 	// Send the instance request:
 	resp, err := d.ec2.RunInstances(params)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
@@ -172,7 +171,6 @@ func (d *Data) modifyInstanceAttribute() error {
 	// Variable transformation:
 	SrcDstCheck, err := strconv.ParseBool(d.SrcDstCheck)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
@@ -187,7 +185,6 @@ func (d *Data) modifyInstanceAttribute() error {
 	// Send the attribute modification request:
 	_, err = d.ec2.ModifyInstanceAttribute(params)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
@@ -202,9 +199,7 @@ func (d *Data) associateElasticIP() error {
 
 	// Wait until instance is running:
 	if err := d.ec2.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
-		InstanceIds: []*string{aws.String(d.InstanceID)},
-	}); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		InstanceIds: []*string{aws.String(d.InstanceID)}}); err != nil {
 		return err
 	}
 
@@ -218,10 +213,10 @@ func (d *Data) associateElasticIP() error {
 	// Send the association request:
 	resp, err := d.ec2.AssociateAddress(params)
 	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
 		return err
 	}
 
+	// Log to stderr:
 	log.WithFields(log.Fields{
 		"cmd": "ec2:" + d.command, "id": *resp.AssociationId}).
 		Info("New elastic IP association")
@@ -246,9 +241,7 @@ func (d *Data) registerWithELB() error {
 	}
 
 	// Send the register request:
-	_, err := d.elb.RegisterInstancesWithLoadBalancer(params)
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
+	if _, err := d.elb.RegisterInstancesWithLoadBalancer(params); err != nil {
 		return err
 	}
 
