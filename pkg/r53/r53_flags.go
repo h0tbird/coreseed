@@ -16,6 +16,7 @@ var (
 
 	// r53 zone/record:
 	cmdR53       = cli.App.Command("r53", "Manages Route 53 zones and records.")
+	flR53APIKey  = cmdR53.Flag("api-key", "R53 private API key.").String()
 	cmdR53Zone   = cmdR53.Command("zone", "Manage Route 53 zones.")
 	cmdR53Record = cmdR53.Command("record", "Manage Route 53 records.")
 
@@ -49,20 +50,23 @@ func RunCmd(cmd string) bool {
 	// katoctl r53 zone add:
 	case cmdR53ZoneAdd.FullCommand():
 		d := Data{
-			Zones: *arR53ZoneAddName,
+			APIKey: *flR53APIKey,
+			Zones:  *arR53ZoneAddName,
 		}
 		d.AddZones()
 
 	// katoctl r53 zone del:
 	case cmdR53ZoneDel.FullCommand():
 		d := Data{
-			Zones: *arR53ZoneDelName,
+			APIKey: *flR53APIKey,
+			Zones:  *arR53ZoneDelName,
 		}
 		d.DelZones()
 
 	// katoctl r53 record add:
 	case cmdR53RecordAdd.FullCommand():
 		d := Data{
+			APIKey:  *flR53APIKey,
 			Zone:    *flR53RecordAddZone,
 			Records: *arR53RecordAddName,
 		}

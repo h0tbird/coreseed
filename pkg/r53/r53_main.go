@@ -23,10 +23,11 @@ import (
 // Typedefs:
 //-----------------------------------------------------------------------------
 
-// Data struct for Route 53.
+// Data struct for Route53.
 type Data struct {
 	r53     *route53.Route53
 	command string
+	APIKey  string
 	Zone    string
 	Zones   []string
 	Records []string

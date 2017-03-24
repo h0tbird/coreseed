@@ -22,8 +22,6 @@ var (
 
 	// ns1 zone add:
 	cmdNs1ZoneAdd    = cmdNs1Zone.Command("add", "Adds NS1 zones.")
-	flNs1ZoneAddLink = cmdNs1ZoneAdd.Flag("link",
-		"Links the added zone to the link zone.").String()
 	arNs1ZoneAddName = cmdNs1ZoneAdd.Arg("fqdn",
 		"List of zones to publish.").Required().Strings()
 
@@ -53,7 +51,6 @@ func RunCmd(cmd string) bool {
 	case cmdNs1ZoneAdd.FullCommand():
 		d := Data{
 			APIKey: *flNs1APIKey,
-			Link:   *flNs1ZoneAddLink,
 			Zones:  *arNs1ZoneAddName,
 		}
 		d.AddZones()

@@ -21,10 +21,9 @@ import (
 // Typedefs:
 //-----------------------------------------------------------------------------
 
-// Data struct for NS1 information.
+// Data struct for NS1.
 type Data struct {
 	command string
-	Link    string
 	Zones   []string
 	APIKey  string
 	Zone    string
@@ -50,9 +49,6 @@ func (d *Data) AddZones() {
 
 		// New zone handler:
 		z := dns.NewZone(zone)
-		if d.Link != "" {
-			z.LinkTo(d.Link)
-		}
 
 		// Send the new zone request:
 		if _, err := client.Zones.Create(z); err != nil {
