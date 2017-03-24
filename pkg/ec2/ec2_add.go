@@ -20,23 +20,31 @@ import (
 )
 
 //-----------------------------------------------------------------------------
-// func: securityGroupIDs
+// func: Add
 //-----------------------------------------------------------------------------
 
-func (d *Data) securityGroupIDs(roles string) (list []string) {
-	for _, role := range strings.Split(roles, ",") {
-		switch role {
-		case "quorum":
-			list = append(list, d.QuorumSecGrp)
-		case "master":
-			list = append(list, d.MasterSecGrp)
-		case "worker":
-			list = append(list, d.WorkerSecGrp)
-		case "border":
-			list = append(list, d.BorderSecGrp)
-		}
+// Add a new instance to the cluster.
+func (d *Data) Add() {
+
+	// Set current command:
+	d.command = "add"
+
+	// Load state from state file:
+	if err := d.loadState(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
-	return
+
+	// Retrieve the CoreOS AMI ID:
+	var err error
+	if d.AmiID, err = d.retrieveCoreOSAmiID(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
+
+	// Execute the udata|run pipeline:
+	if err := tools.ExecutePipeline(
+		d.forgeUdataCommand(), d.forgeRunCommand()); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -82,28 +90,13 @@ func (d *Data) retrieveCoreOSAmiID() (string, error) {
 }
 
 //-----------------------------------------------------------------------------
-// func: Add
+// func: forgeUdataCommand
 //-----------------------------------------------------------------------------
 
-// Add a new instance to the cluster.
-func (d *Data) Add() {
-
-	// Set current command:
-	d.command = "add"
-
-	// Load state from state file:
-	if err := d.loadState(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Discover CoreOS AMI (for standalone runs):
-	var err error
-	if d.AmiID, err = d.retrieveCoreOSAmiID(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
+func (d *Data) forgeUdataCommand() *exec.Cmd {
 
 	// Udata arguments bundle:
-	argsUdata := []string{"udata",
+	args := []string{"udata",
 		"--roles", d.Roles,
 		"--cluster-id", d.ClusterID,
 		"--cluster-state", d.ClusterState,
@@ -122,43 +115,41 @@ func (d *Data) Add() {
 		"--gzip-udata",
 	}
 
-	// Append the --sysdig-access-key if present:
+	// Append flags if present:
 	if d.SysdigAccessKey != "" {
-		argsUdata = append(argsUdata, "--sysdig-access-key", d.SysdigAccessKey)
+		args = append(args, "--sysdig-access-key", d.SysdigAccessKey)
 	}
-
-	// Append the --datadog-api-key if present:
 	if d.DatadogAPIKey != "" {
-		argsUdata = append(argsUdata, "--datadog-api-key", d.DatadogAPIKey)
+		args = append(args, "--datadog-api-key", d.DatadogAPIKey)
 	}
-
-	// Append the --slack-webhook if present:
 	if d.SlackWebhook != "" {
-		argsUdata = append(argsUdata, "--slack-webhook", d.SlackWebhook)
+		args = append(args, "--slack-webhook", d.SlackWebhook)
 	}
-
-	// Append the --ca-cert-path flag if present:
 	if d.CaCertPath != "" {
-		argsUdata = append(argsUdata, "--ca-cert-path", d.CaCertPath)
+		args = append(args, "--ca-cert-path", d.CaCertPath)
 	}
-
-	// Append --stub-zone flags if present:
 	for _, z := range d.StubZones {
-		argsUdata = append(argsUdata, "--stub-zone", z)
+		args = append(args, "--stub-zone", z)
 	}
-
-	// Append --smtp-url flags if present:
 	if d.SMTPURL != "" {
-		argsUdata = append(argsUdata, "--smtp-url", d.SMTPURL)
+		args = append(args, "--smtp-url", d.SMTPURL)
+	}
+	if d.AdminEmail != "" {
+		args = append(args, "--admin-email", d.AdminEmail)
 	}
 
-	// Append --admin-email flags if present:
-	if d.AdminEmail != "" {
-		argsUdata = append(argsUdata, "--admin-email", d.AdminEmail)
-	}
+	// Forge the command and return:
+	return exec.Command("katoctl", args...)
+}
+
+//-----------------------------------------------------------------------------
+// func: forgeRunCommand
+//-----------------------------------------------------------------------------
+
+func (d *Data) forgeRunCommand() *exec.Cmd {
 
 	// Ec2 run arguments bundle:
-	argsRun := []string{"ec2", "run",
+	args := []string{"ec2", "run",
 		"--tag-name", d.HostName + "-" + d.HostID + "." + d.Domain,
 		"--region", d.Region,
 		"--zone", d.Zone,
@@ -172,23 +163,35 @@ func (d *Data) Add() {
 		"--public-ip", "true",
 	}
 
-	// Append the --private-ip if master:
+	// Append flags if present:
 	if strings.Contains(d.Roles, "master") {
 		i, _ := strconv.Atoi(d.HostID)
-		argsRun = append(argsRun, "--private-ip", tools.OffsetIP(d.ExtSubnetCidr, 10+i))
+		args = append(args, "--private-ip", tools.OffsetIP(d.ExtSubnetCidr, 10+i))
 	}
-
-	// Append the --elb-name if worker:
 	if strings.Contains(d.Roles, "worker") {
-		argsRun = append(argsRun, "--elb-name", d.ClusterID)
+		args = append(args, "--elb-name", d.ClusterID)
 	}
 
-	// Forge the commands:
-	cmdUdata := exec.Command("katoctl", argsUdata...)
-	cmdRun := exec.Command("katoctl", argsRun...)
+	// Forge the command and return:
+	return exec.Command("katoctl", args...)
+}
 
-	// Execute the pipeline:
-	if err := tools.ExecutePipeline(cmdUdata, cmdRun); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+//-----------------------------------------------------------------------------
+// func: securityGroupIDs
+//-----------------------------------------------------------------------------
+
+func (d *Data) securityGroupIDs(roles string) (list []string) {
+	for _, role := range strings.Split(roles, ",") {
+		switch role {
+		case "quorum":
+			list = append(list, d.QuorumSecGrp)
+		case "master":
+			list = append(list, d.MasterSecGrp)
+		case "worker":
+			list = append(list, d.WorkerSecGrp)
+		case "border":
+			list = append(list, d.BorderSecGrp)
+		}
 	}
+	return
 }
