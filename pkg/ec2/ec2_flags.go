@@ -66,7 +66,7 @@ var (
 
 	flEc2DeployDNSProvider = cmdEc2Deploy.Flag("dns-provider",
 		"DNS provider [ none | ns1 | r53 ]").
-		Default("none").PlaceHolder("KATO_EC2_DEPLOY_DNS_PROVIDER").
+		Default("r53").PlaceHolder("KATO_EC2_DEPLOY_DNS_PROVIDER").
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DNS_PROVIDER").
 		Enum("none", "ns1", "r53")
 

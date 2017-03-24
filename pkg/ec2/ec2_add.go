@@ -106,6 +106,7 @@ func (d *Data) forgeUdataCommand() *exec.Cmd {
 		"--host-id", d.HostID,
 		"--domain", d.Domain,
 		"--ec2-region", d.Region,
+		"--dns-provider", d.DNSProvider,
 		"--dns-api-key", d.DNSApiKey,
 		"--etcd-token", d.EtcdToken,
 		"--calico-ip-pool", d.CalicoIPPool,
