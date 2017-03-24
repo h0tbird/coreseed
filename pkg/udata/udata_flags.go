@@ -72,10 +72,16 @@ var (
 		OverrideDefaultFromEnvar("KATO_UDATA_ROLES").
 		String()
 
-	flUdataNs1Apikey = cmdUdata.Flag("ns1-api-key",
-		"NS1 private API key.").
-		PlaceHolder("KATO_UDATA_NS1_API_KEY").
-		OverrideDefaultFromEnvar("KATO_UDATA_NS1_API_KEY").
+	flUdataDNSProvider = cmdUdata.Flag("dns-provider",
+		"DNS provider [ none | ns1 | r53 ]").
+		Default("none").PlaceHolder("KATO_UDATA_DNS_PROVIDER").
+		OverrideDefaultFromEnvar("KATO_UDATA_DNS_PROVIDER").
+		Enum("none", "ns1", "r53")
+
+	flUdataDNSApikey = cmdUdata.Flag("dns-api-key",
+		"DNS private API key.").
+		PlaceHolder("KATO_UDATA_DNS_API_KEY").
+		OverrideDefaultFromEnvar("KATO_UDATA_DNS_API_KEY").
 		String()
 
 	flUdataCaCertPath = cmdUdata.Flag("ca-cert-path",
@@ -192,7 +198,8 @@ func RunCmd(cmd string) bool {
 				HostName:            *flUdataHostName,
 				IaasProvider:        *flUdataIaasProvider,
 				MasterCount:         *flUdataMasterCount,
-				Ns1ApiKey:           *flUdataNs1Apikey,
+				DNSProvider:         *flUdataDNSProvider,
+				DNSApiKey:           *flUdataDNSApikey,
 				Prometheus:          *flUdataPrometheus,
 				QuorumCount:         *flUdataQuorumCount,
 				RexrayEndpointIP:    *flUdataRexrayEndpointIP,

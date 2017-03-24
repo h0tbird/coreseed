@@ -64,10 +64,16 @@ var (
 		Default("auto").OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_ETCD_TOKEN").
 		HintOptions("auto").String()
 
-	flEc2DeployNs1ApiKey = cmdEc2Deploy.Flag("ns1-api-key",
-		"NS1 private API key.").
-		Required().PlaceHolder("KATO_EC2_DEPLOY_NS1_API_KEY").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_NS1_API_KEY").
+	flEc2DeployDNSProvider = cmdEc2Deploy.Flag("dns-provider",
+		"DNS provider [ none | ns1 | r53 ]").
+		Default("none").PlaceHolder("KATO_EC2_DEPLOY_DNS_PROVIDER").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DNS_PROVIDER").
+		Enum("none", "ns1", "r53")
+
+	flEc2DeployDNSApiKey = cmdEc2Deploy.Flag("dns-api-key",
+		"DNS private API key.").
+		PlaceHolder("KATO_EC2_DEPLOY_DNS_API_KEY").
+		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DNS_API_KEY").
 		String()
 
 	flEc2DeploySysdigAccessKey = cmdEc2Deploy.Flag("sysdig-access-key",
@@ -351,7 +357,8 @@ func RunCmd(cmd string) bool {
 				CoreOSChannel:   *flEc2DeployCoreOSChannel,
 				KeyPair:         *flEc2DeployKeyPair,
 				EtcdToken:       *flEc2DeployEtcdToken,
-				Ns1ApiKey:       *flEc2DeployNs1ApiKey,
+				DNSProvider:     *flEc2DeployDNSProvider,
+				DNSApiKey:       *flEc2DeployDNSApiKey,
 				SysdigAccessKey: *flEc2DeploySysdigAccessKey,
 				DatadogAPIKey:   *flEc2DeployDatadogAPIKey,
 				CaCertPath:      *flEc2DeployCaCertPath,

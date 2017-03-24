@@ -429,7 +429,7 @@ write_files:`,
     source /etc/kato.env
     readonly DOMAIN=${KATO_DOMAIN}
     readonly APIURL='https://api.nsone.net/v1'
-    readonly APIKEY='{{.Ns1ApiKey}}'
+    readonly APIKEY='{{.DNSApiKey}}'
     readonly IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
     readonly IP_PRI="$(hostname -i)"
     declare -A IP=(['ext']="${IP_PUB}" ['int']="${IP_PRI}")

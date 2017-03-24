@@ -31,7 +31,7 @@ func (d *Data) Deploy() {
 	d.countNodes()
 
 	// Setup the environment (I):
-	wg.Add(4)
+	wg.Add(3)
 	go d.setupEC2(&wg)
 	go d.createDNSZones(&wg)
 	go d.retrieveEtcdToken(&wg)
@@ -123,34 +123,14 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 	// Decrement:
 	defer wg.Done()
 
-	// Return if no API key is provided:
-	if d.Ns1ApiKey == "" {
-		return
-	}
-
 	// Forge the zone command:
-	cmdZoneSetup := exec.Command("katoctl", "ns1",
-		"--api-key", d.Ns1ApiKey,
-		"zone", "add",
-		"int."+d.Domain,
-		"ext."+d.Domain)
+	cmdZoneSetup := exec.Command("katoctl", d.DNSProvider,
+		"--api-key", d.DNSApiKey, "zone", "add",
+		"int."+d.Domain, "ext."+d.Domain)
 
 	// Execute the zone command:
 	cmdZoneSetup.Stderr = os.Stderr
 	if err := cmdZoneSetup.Run(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-
-	// Forge the linked zone command:
-	cmdLinkedZoneSetup := exec.Command("katoctl", "ns1",
-		"--api-key", d.Ns1ApiKey,
-		"zone", "add",
-		"--link", "int."+d.Domain,
-		d.Domain)
-
-	// Execute the linked zone command:
-	cmdLinkedZoneSetup.Stderr = os.Stderr
-	if err := cmdLinkedZoneSetup.Run(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }

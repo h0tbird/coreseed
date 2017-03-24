@@ -63,7 +63,8 @@ type State struct {
 	MasterCount      int      `json:"MasterCount"`      // deploy |       | add |
 	CoreOSChannel    string   `json:"CoreOSChannel"`    // deploy |       | add |
 	EtcdToken        string   `json:"EtcdToken"`        // deploy |       | add |
-	Ns1ApiKey        string   `json:"Ns1ApiKey"`        // deploy |       | add |
+	DNSProvider      string   `json:"DNSProvider"`      // deploy |       | add |
+	DNSApiKey        string   `json:"DNSApiKey"`        // deploy |       | add |
 	SysdigAccessKey  string   `json:"SysdigAccessKey:"` // deploy |       | add |
 	DatadogAPIKey    string   `json:"DatadogAPIKey:"`   // deploy |       | add |
 	SlackWebhook     string   `json:"SlackWebhook:"`    // deploy |       | add |

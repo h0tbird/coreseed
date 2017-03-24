@@ -49,7 +49,8 @@ type CmdFlags struct {
 	HostName            string   // --host-name
 	IaasProvider        string   // --iaas-provider
 	MasterCount         int      // --master-count
-	Ns1ApiKey           string   // --ns1-api-key
+	DNSProvider         string   // --dns-provider
+	DNSApiKey           string   // --dns-api-key
 	Prometheus          bool     // --prometheus
 	QuorumCount         int      // --quorum-count
 	RexrayEndpointIP    string   // --rexray-endpoint-ip
@@ -243,8 +244,8 @@ func (d *CmdData) listOfTags() (tags []string) {
 		tags = append(tags, "cacert")
 	}
 
-	if d.Ns1ApiKey != "" {
-		tags = append(tags, "ns1")
+	if d.DNSProvider != "none" {
+		tags = append(tags, d.DNSProvider)
 	}
 
 	if d.SysdigAccessKey != "" {

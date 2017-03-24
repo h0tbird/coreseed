@@ -14,9 +14,10 @@ title: Deploy on Packet
 #!/bin/bash
 
 CLUSTER_ID='<unique-cluster-id>'
-DOMAIN='<ns1-managed-public-domain>'
+DOMAIN='<managed-public-domain>'
 EC2_REGION='<ec2-region>'
-NS1_API_KEY='<ns1-private-key>'
+DNS_PROVIDER='<ns1|r53>'
+DNS_API_KEY='<dns-private-key>'
 ETCD_TOKEN=$(curl -s https://discovery.etcd.io/new?size=3 | awk -F '/' '{print $NF}')
 API_KEY='<packet-private-api-key>'
 PROJECT_ID='<packet-project-id>'
@@ -35,7 +36,8 @@ for i in $(seq 3); do
   --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
-  --ns1-api-key ${NS1_API_KEY} \
+  --dns-provider ${DNS_PROVIDER} \
+  --dns-api-key ${DNS_API_KEY} \
   --etcd-token ${ETCD_TOKEN} |
 
   katoctl pkt run \
@@ -62,7 +64,8 @@ for i in $(seq 2); do
   --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
-  --ns1-api-key ${NS1_API_KEY} \
+  --dns-provider ${DNS_PROVIDER} \
+  --dns-api-key ${DNS_API_KEY} \
   --etcd-token ${ETCD_TOKEN} |
 
   katoctl pkt run \
@@ -89,7 +92,8 @@ for i in $(seq 1); do
   --host-id ${i} \
   --domain ${DOMAIN} \
   --ec2-region ${EC2_REGION} \
-  --ns1-api-key ${NS1_API_KEY} \
+  --dns-provider ${DNS_PROVIDER} \
+  --dns-api-key ${DNS_API_KEY} \
   --ca-cert-path ${CA_CERT_PATH} \
   --etcd-token ${ETCD_TOKEN} |
 
