@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -63,6 +64,11 @@ func (d *Data) Run() {
 		if err := d.registerWithELB(); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
+	}
+
+	// Output IP addresses to stdout:
+	if err := d.outputIPs(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Warning(err)
 	}
 }
 
@@ -260,6 +266,46 @@ func (d *Data) registerWithELB() error {
 	// Log this action:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.ELBName}).
 		Info("Instance registered with ELB")
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: outputIPs
+//-----------------------------------------------------------------------------
+
+func (d *Data) outputIPs() error {
+
+	// Forge the describe request:
+	params := &ec2.DescribeNetworkInterfacesInput{
+		NetworkInterfaceIds: []*string{
+			aws.String(d.InterfaceID),
+		},
+	}
+
+	// Send the describe request:
+	resp, err := d.ec2.DescribeNetworkInterfaces(params)
+	if err != nil {
+		return err
+	}
+
+	// Extract data from response:
+	if len(resp.NetworkInterfaces) > 0 && len(resp.NetworkInterfaces[0].PrivateIpAddresses) > 0 {
+
+		// Internal IP address:
+		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress != nil {
+			intIP := *resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress
+			fmt.Println("internal: " + intIP)
+		}
+
+		// External IP address:
+		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association != nil {
+			if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp != nil {
+				extIP := *resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp
+				fmt.Println("external: " + extIP)
+			}
+		}
+	}
 
 	return nil
 }
