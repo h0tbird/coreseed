@@ -42,7 +42,7 @@ func (d *Data) Add() {
 	}
 
 	// Execute the udata|run pipeline:
-	if err := tools.ExecutePipeline(
+	if _, err := tools.ExecutePipeline(
 		d.forgeUdataCommand(), d.forgeRunCommand()); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}

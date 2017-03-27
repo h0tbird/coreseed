@@ -21,8 +21,8 @@ import (
 //-----------------------------------------------------------------------------
 
 // ExecutePipeline takes two commands and pipes the stdout of the first one
-// into the stdin of the second one.
-func ExecutePipeline(cmd1, cmd2 *exec.Cmd) error {
+// into the stdin of the second one. Returns the output as []byte.
+func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 
 	var err error
 
@@ -33,22 +33,35 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) error {
 	// Connect both commands:
 	cmd2.Stdin, err = cmd1.StdoutPipe()
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	// Get cmd2 stdout:
+	stdout, err := cmd2.StdoutPipe()
+	if err != nil {
+		return nil, err
 	}
 
 	// Execute the pipeline:
-	if err := cmd2.Start(); err != nil {
-		return err
+	if err = cmd2.Start(); err != nil {
+		return nil, err
 	}
-	if err := cmd1.Run(); err != nil {
-		return err
-	}
-	if err := cmd2.Wait(); err != nil {
-		return err
+	if err = cmd1.Run(); err != nil {
+		return nil, err
 	}
 
-	// Return on success:
-	return nil
+	// Read the cmd2 output:
+	out, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		return nil, err
+	}
+
+	// Wait and return:
+	if err = cmd2.Wait(); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 //-----------------------------------------------------------------------------
