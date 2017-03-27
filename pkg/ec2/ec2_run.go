@@ -53,14 +53,7 @@ func (d *Data) Run() {
 
 	// Setup an elastic IP:
 	if d.PublicIP == "elastic" {
-
-		// Allocate an elastic IP address:
-		if err := d.allocateElasticIP(); err != nil {
-			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-		}
-
-		// Associate the elastic IP:
-		if err := d.associateElasticIP(); err != nil {
+		if err := d.setupElasticIP(); err != nil {
 			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 		}
 	}
@@ -185,6 +178,25 @@ func (d *Data) modifyInstanceAttribute() error {
 	// Send the attribute modification request:
 	_, err = d.ec2.ModifyInstanceAttribute(params)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: setupElasticIP
+//-----------------------------------------------------------------------------
+
+func (d *Data) setupElasticIP() error {
+
+	// Allocate an elastic IP address:
+	if err := d.allocateElasticIP(); err != nil {
+		return err
+	}
+
+	// Associate the elastic IP:
+	if err := d.associateElasticIP(); err != nil {
 		return err
 	}
 
