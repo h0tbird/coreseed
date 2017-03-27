@@ -8,7 +8,6 @@ import (
 
 	// Stdlib:
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -42,13 +41,13 @@ func (d *Data) Add() {
 	}
 
 	// Execute the udata|run pipeline:
-	if _, err := tools.ExecutePipeline(
-		d.forgeUdataCommand(), d.forgeRunCommand()); err != nil {
+	out, err := tools.ExecutePipeline(d.forgeUdataCommand(), d.forgeRunCommand())
+	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
 	// Publish DNS records:
-	if err := publishDNSRecords("instanceID", d.Roles); err != nil {
+	if err := d.publishDNSRecords(d.Roles, out); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Warning(err)
 	}
 }
@@ -207,15 +206,29 @@ func (d *Data) securityGroupIDs(roles string) (list []string) {
 // func: publishDNSRecords
 //-----------------------------------------------------------------------------
 
-func publishDNSRecords(instance, roles string) error {
+func (d *Data) publishDNSRecords(roles string, out []byte) error {
 
 	// Retrieve the instance IPs:
+	var dat map[string]string
+	if err := json.Unmarshal(out, &dat); err != nil {
+		return err
+	}
 
 	// For every role in this instance:
 	for _, role := range strings.Split(roles, ",") {
-		fmt.Println(role)
+
+		log.Info("katoctl " + d.DNSProvider +
+			"--api-key " + d.DNSApiKey +
+			"record add --zone " + "int." +
+			d.Domain + " " + dat["internal"] +
+			":A:" + role + "-" + d.HostID)
+
+		log.Info("katoctl " + d.DNSProvider +
+			"--api-key " + d.DNSApiKey +
+			"record add --zone " + "ext." +
+			d.Domain + " " + dat["external"] +
+			":A:" + role + "-" + d.HostID)
 	}
 
-	// Success:
 	return nil
 }
