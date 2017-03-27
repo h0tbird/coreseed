@@ -8,6 +8,7 @@ import (
 
 	// Stdlib:
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -67,7 +68,7 @@ func (d *Data) Run() {
 	}
 
 	// Output IP addresses to stdout:
-	if err := d.outputIPs(); err != nil {
+	if err := d.stdoutIPs(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Warning(err)
 	}
 }
@@ -271,10 +272,10 @@ func (d *Data) registerWithELB() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: outputIPs
+// func: stdoutIPs
 //-----------------------------------------------------------------------------
 
-func (d *Data) outputIPs() error {
+func (d *Data) stdoutIPs() error {
 
 	// Forge the describe request:
 	params := &ec2.DescribeNetworkInterfacesInput{
@@ -289,23 +290,32 @@ func (d *Data) outputIPs() error {
 		return err
 	}
 
+	// Map to store the output:
+	m := make(map[string]string)
+
 	// Extract data from response:
 	if len(resp.NetworkInterfaces) > 0 && len(resp.NetworkInterfaces[0].PrivateIpAddresses) > 0 {
 
 		// Internal IP address:
 		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress != nil {
-			intIP := *resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress
-			fmt.Println("internal: " + intIP)
+			m["internal"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress
 		}
 
 		// External IP address:
 		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association != nil {
 			if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp != nil {
-				extIP := *resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp
-				fmt.Println("external: " + extIP)
+				m["external"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp
 			}
 		}
 	}
 
+	// JSON encode:
+	jsn, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+
+	// Print and return:
+	fmt.Println(string(jsn))
 	return nil
 }
