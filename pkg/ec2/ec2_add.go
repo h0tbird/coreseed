@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -217,17 +218,31 @@ func (d *Data) publishDNSRecords(roles string, out []byte) error {
 	// For every role in this instance:
 	for _, role := range strings.Split(roles, ",") {
 
-		log.Info("katoctl " + d.DNSProvider +
-			"--api-key " + d.DNSApiKey +
-			"record add --zone " + "int." +
-			d.Domain + " " + dat["internal"] +
-			":A:" + role + "-" + d.HostID)
+		// Forge the internal record command:
+		cmdInt := exec.Command("katoctl", d.DNSProvider,
+			"--api-key", d.DNSApiKey,
+			"record", "add",
+			"--zone", "int."+d.Domain,
+			dat["internal"]+":A:"+role+"-"+d.HostID)
 
-		log.Info("katoctl " + d.DNSProvider +
-			"--api-key " + d.DNSApiKey +
-			"record add --zone " + "ext." +
-			d.Domain + " " + dat["external"] +
-			":A:" + role + "-" + d.HostID)
+		// Execute the internal record command:
+		cmdInt.Stderr = os.Stderr
+		if err := cmdInt.Run(); err != nil {
+			return err
+		}
+
+		// Forge the external record command:
+		cmdExt := exec.Command("katoctl", d.DNSProvider,
+			"--api-key", d.DNSApiKey,
+			"record", "add",
+			"--zone", "ext."+d.Domain,
+			dat["external"]+":A:"+role+"-"+d.HostID)
+
+		// Execute the external record command:
+		cmdExt.Stderr = os.Stderr
+		if err := cmdExt.Run(); err != nil {
+			return err
+		}
 	}
 
 	return nil
