@@ -431,7 +431,7 @@ write_files:`,
     readonly APIURL='https://api.nsone.net/v1'
     readonly APIKEY='{{.DNSApiKey}}'
     readonly IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-    readonly IP_PRI="$(hostname -i)"
+    readonly IP_PRI=${KATO_HOST_IP}
     declare -A IP=(['ext']="${IP_PUB}" ['int']="${IP_PRI}")
 
     for ROLE in ${KATO_ROLES}; do
@@ -974,7 +974,7 @@ coreos:
      ExecStart=/usr/bin/sh -c 'echo -e "\
        KATO_CLUSTER_ID={{.ClusterID}}\n\
        KATO_QUORUM_COUNT={{.QuorumCount}}\n\
-       KATO_ROLES=\'{{range .Roles}}{{.}} {{end}}\'\n\
+       KATO_ROLES=\'{{range $k, $v := .Roles}}{{if $k}} {{end}}{{$v}}{{end}}\'\n\
        KATO_HOST_NAME={{.HostName}}\n\
        KATO_HOST_ID={{.HostID}}\n\
        KATO_ZK={{.ZkServers}}\n\
@@ -983,7 +983,7 @@ coreos:
        KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
        KATO_DOMAIN=$(hostname -d)\n\
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
-       KATO_HOST_IP=$(hostname -i)\n\
+       KATO_HOST_IP=$private_ipv4\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
      ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
