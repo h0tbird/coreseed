@@ -61,6 +61,49 @@ func (d *Data) getZoneID(zone string) (string, error) {
 }
 
 //-----------------------------------------------------------------------------
+// func: delegateZone
+//-----------------------------------------------------------------------------
+
+func (d *Data) delegateZone(zone string) (bool, error) {
+
+	var err error
+	var zoneID, parent string
+
+	// Split the given zone:
+	split := strings.Split(zone, ".")
+
+	// Iterate over parent zones:
+	for i := len(split) - 1; i > 1; i-- {
+
+		// Get the parent zone ID (if any):
+		parent = strings.Join(split[len(split)-i:], ".")
+		zoneID, err = d.getZoneID(parent)
+		if err != nil {
+			return false, err
+		}
+
+		// Break if found:
+		if zoneID != "" {
+			break
+		}
+	}
+
+	// Not found:
+	if zoneID == "" {
+		return false, nil
+	}
+
+	// Parent found:
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zoneID}).
+		Info("Parent zone is " + parent)
+
+	// Add/update the NS records:
+	// TODO
+
+	return true, nil
+}
+
+//-----------------------------------------------------------------------------
 // func: AddZones
 //-----------------------------------------------------------------------------
 
@@ -102,12 +145,18 @@ func (d *Data) AddZones() {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 				Info("New DNS zone created")
 
-			return
+		} else {
+
+			// Log zone already exists:
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Info("DNS zone already exists")
 		}
 
-		// Log zone already exists:
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("DNS zone already exists")
+		// Setup zone delegation:
+		if _, err := d.delegateZone(zone); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
 	}
 }
 
@@ -192,6 +241,8 @@ func (d *Data) AddRecords() {
 
 		// New record handler:
 		s := strings.Split(record, ":")
+
+		// d1,d2,d3:type:name
 
 		// Forge the change request:
 		params := &route53.ChangeResourceRecordSetsInput{
