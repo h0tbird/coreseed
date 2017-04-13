@@ -104,113 +104,6 @@ func (d *Data) delegateZone(zone string) (bool, error) {
 }
 
 //-----------------------------------------------------------------------------
-// func: AddZones
-//-----------------------------------------------------------------------------
-
-// AddZones adds one or more zones to Route 53.
-func (d *Data) AddZones() {
-
-	// Set the current command:
-	d.command = "zone:add"
-
-	// Create the service handler:
-	d.r53 = route53.New(session.Must(session.NewSession()))
-
-	// For each requested zone:
-	for _, zone := range d.Zones {
-
-		// Get the zone ID:
-		zoneID, err := d.getZoneID(zone)
-		if err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Fatal(err)
-		}
-
-		// If the zone is missing:
-		if zoneID == "" {
-
-			// Forge the new zone request:
-			params := &route53.CreateHostedZoneInput{
-				CallerReference: aws.String(time.Now().Format(time.RFC3339Nano)),
-				Name:            aws.String(zone),
-			}
-
-			// Send the new zone request:
-			if _, err := d.r53.CreateHostedZone(params); err != nil {
-				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-					Fatal(err)
-			}
-
-			// Log the new zone creation:
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Info("New DNS zone created")
-
-		} else {
-
-			// Log zone already exists:
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Info("DNS zone already exists")
-		}
-
-		// Setup zone delegation:
-		if _, err := d.delegateZone(zone); err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Fatal(err)
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// func: DelZones
-//-----------------------------------------------------------------------------
-
-// DelZones deletes one or more zones from Route 53.
-func (d *Data) DelZones() {
-
-	// Set the current command:
-	d.command = "zone:del"
-
-	// Create the service handler:
-	d.r53 = route53.New(session.Must(session.NewSession()))
-
-	// For each requested zone:
-	for _, zone := range d.Zones {
-
-		// Get the zone ID:
-		zoneID, err := d.getZoneID(zone)
-		if err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Fatal(err)
-		}
-
-		// If the zone exists:
-		if zoneID != "" {
-
-			// Forge the delete zone request:
-			params := &route53.DeleteHostedZoneInput{
-				Id: aws.String(zoneID),
-			}
-
-			// Send the delete zone request:
-			if _, err := d.r53.DeleteHostedZone(params); err != nil {
-				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-					Fatal(err)
-			}
-
-			// Log zone deletion:
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-				Info("DNS zone deleted")
-
-			return
-		}
-
-		// Log zone already gone:
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("Ops! this zone does not exist")
-	}
-}
-
-//-----------------------------------------------------------------------------
 // func: AddRecords
 //-----------------------------------------------------------------------------
 
@@ -276,4 +169,137 @@ func (d *Data) AddRecords() {
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
 			Info("DNS record created/updated")
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: AddZones
+//-----------------------------------------------------------------------------
+
+// AddZones adds one or more zones to Route 53.
+func (d *Data) AddZones() {
+
+	// Set the current command:
+	d.command = "zone:add"
+
+	// Create the service handler:
+	d.r53 = route53.New(session.Must(session.NewSession()))
+
+	// For each requested zone:
+	for _, zone := range d.Zones {
+
+		// Add the zone:
+		if err := d.addZone(zone); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+
+		// Setup delegation:
+		if _, err := d.delegateZone(zone); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: DelZones
+//-----------------------------------------------------------------------------
+
+// DelZones deletes one or more zones from Route 53.
+func (d *Data) DelZones() {
+
+	// Set the current command:
+	d.command = "zone:del"
+
+	// Create the service handler:
+	d.r53 = route53.New(session.Must(session.NewSession()))
+
+	// For each requested zone:
+	for _, zone := range d.Zones {
+
+		// Delete the zone:
+		if err := d.delZone(zone); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+				Fatal(err)
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// func: addZone
+//-----------------------------------------------------------------------------
+
+func (d *Data) addZone(zone string) error {
+
+	// Get the zone ID:
+	id, err := d.getZoneID(zone)
+	if err != nil {
+		return err
+	}
+
+	// If the zone is missing:
+	if id == "" {
+
+		// Forge the new zone request:
+		params := &route53.CreateHostedZoneInput{
+			CallerReference: aws.String(time.Now().Format(time.RFC3339Nano)),
+			Name:            aws.String(zone),
+		}
+
+		// Send the new zone request:
+		if _, err := d.r53.CreateHostedZone(params); err != nil {
+			return err
+		}
+
+		// Log the new zone creation:
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+			Info("New DNS zone created")
+
+	} else {
+
+		// Log zone already exists:
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+			Info("DNS zone already exists")
+	}
+
+	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: delZone
+//-----------------------------------------------------------------------------
+
+func (d *Data) delZone(zone string) error {
+
+	// Get the zone ID:
+	id, err := d.getZoneID(zone)
+	if err != nil {
+		return err
+	}
+
+	// If the zone exists:
+	if id != "" {
+
+		// Forge the delete zone request:
+		params := &route53.DeleteHostedZoneInput{
+			Id: aws.String(id),
+		}
+
+		// Send the delete zone request:
+		if _, err := d.r53.DeleteHostedZone(params); err != nil {
+			return err
+		}
+
+		// Log zone deletion:
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+			Info("DNS zone deleted")
+
+		return nil
+	}
+
+	// Log zone already gone:
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+		Info("Ops! this zone does not exist")
+
+	return nil
 }
