@@ -132,42 +132,11 @@ func (d *Data) AddRecords() {
 	// For each requested record:
 	for _, record := range d.Records {
 
-		// New record handler:
-		s := strings.Split(record, ":")
-
-		// d1,d2,d3:type:name
-
-		// Forge the change request:
-		params := &route53.ChangeResourceRecordSetsInput{
-			HostedZoneId: aws.String(zoneID),
-			ChangeBatch: &route53.ChangeBatch{
-				Changes: []*route53.Change{
-					{
-						Action: aws.String("UPSERT"),
-						ResourceRecordSet: &route53.ResourceRecordSet{
-							Name: aws.String(s[2] + "." + d.Zone),
-							Type: aws.String(s[1]),
-							TTL:  aws.Int64(300),
-							ResourceRecords: []*route53.ResourceRecord{
-								{
-									Value: aws.String(s[0]),
-								},
-							},
-						},
-					},
-				},
-			},
-		}
-
-		// Send the change request:
-		if _, err := d.r53.ChangeResourceRecordSets(params); err != nil {
+		// Create the record:
+		if err := d.addRecord(record, zoneID); err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
 				Fatal(err)
 		}
-
-		// Log record creation:
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
-			Info("DNS record created/updated")
 	}
 }
 
@@ -223,6 +192,51 @@ func (d *Data) DelZones() {
 				Fatal(err)
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: addRecord
+//-----------------------------------------------------------------------------
+
+func (d *Data) addRecord(record, zoneID string) error {
+
+	// New record handler:
+	s := strings.Split(record, ":")
+
+	// d1,d2,d3:type:name
+
+	// Forge the change request:
+	params := &route53.ChangeResourceRecordSetsInput{
+		HostedZoneId: aws.String(zoneID),
+		ChangeBatch: &route53.ChangeBatch{
+			Changes: []*route53.Change{
+				{
+					Action: aws.String("UPSERT"),
+					ResourceRecordSet: &route53.ResourceRecordSet{
+						Name: aws.String(s[2] + "." + d.Zone),
+						Type: aws.String(s[1]),
+						TTL:  aws.Int64(300),
+						ResourceRecords: []*route53.ResourceRecord{
+							{
+								Value: aws.String(s[0]),
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Send the change request:
+	if _, err := d.r53.ChangeResourceRecordSets(params); err != nil {
+		return err
+	}
+
+	// Log record creation:
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
+		Info("DNS record created/updated")
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------
