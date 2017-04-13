@@ -34,76 +34,6 @@ type Data struct {
 }
 
 //-----------------------------------------------------------------------------
-// func: getZoneID
-//-----------------------------------------------------------------------------
-
-func (d *Data) getZoneID(zone string) (string, error) {
-
-	// Forge the list request:
-	params := &route53.ListHostedZonesByNameInput{
-		DNSName:  aws.String(zone),
-		MaxItems: aws.String("1"),
-	}
-
-	// Send the list request:
-	resp, err := d.r53.ListHostedZonesByName(params)
-	if err != nil {
-		return "", err
-	}
-
-	// Zone does not exist:
-	if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
-		return "", nil
-	}
-
-	// Return the zone ID:
-	return *resp.HostedZones[0].Id, nil
-}
-
-//-----------------------------------------------------------------------------
-// func: delegateZone
-//-----------------------------------------------------------------------------
-
-func (d *Data) delegateZone(zone string) (bool, error) {
-
-	var err error
-	var zoneID, parent string
-
-	// Split the given zone:
-	split := strings.Split(zone, ".")
-
-	// Iterate over parent zones:
-	for i := len(split) - 1; i > 1; i-- {
-
-		// Get the parent zone ID (if any):
-		parent = strings.Join(split[len(split)-i:], ".")
-		zoneID, err = d.getZoneID(parent)
-		if err != nil {
-			return false, err
-		}
-
-		// Break if found:
-		if zoneID != "" {
-			break
-		}
-	}
-
-	// Not found:
-	if zoneID == "" {
-		return false, nil
-	}
-
-	// Parent found:
-	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zoneID}).
-		Info("Parent zone is " + parent)
-
-	// Add/update the NS records:
-	// TODO
-
-	return true, nil
-}
-
-//-----------------------------------------------------------------------------
 // func: AddRecords
 //-----------------------------------------------------------------------------
 
@@ -316,4 +246,74 @@ func (d *Data) delZone(zone string) error {
 		Info("Ops! this zone does not exist")
 
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: delegateZone
+//-----------------------------------------------------------------------------
+
+func (d *Data) delegateZone(zone string) (bool, error) {
+
+	var err error
+	var zoneID, parent string
+
+	// Split the given zone:
+	split := strings.Split(zone, ".")
+
+	// Iterate over parent zones:
+	for i := len(split) - 1; i > 1; i-- {
+
+		// Get the parent zone ID (if any):
+		parent = strings.Join(split[len(split)-i:], ".")
+		zoneID, err = d.getZoneID(parent)
+		if err != nil {
+			return false, err
+		}
+
+		// Break if found:
+		if zoneID != "" {
+			break
+		}
+	}
+
+	// Not found:
+	if zoneID == "" {
+		return false, nil
+	}
+
+	// Parent found:
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zoneID}).
+		Info("Parent zone is " + parent)
+
+	// Add/update the NS records:
+	// TODO
+
+	return true, nil
+}
+
+//-----------------------------------------------------------------------------
+// func: getZoneID
+//-----------------------------------------------------------------------------
+
+func (d *Data) getZoneID(zone string) (string, error) {
+
+	// Forge the list request:
+	params := &route53.ListHostedZonesByNameInput{
+		DNSName:  aws.String(zone),
+		MaxItems: aws.String("1"),
+	}
+
+	// Send the list request:
+	resp, err := d.r53.ListHostedZonesByName(params)
+	if err != nil {
+		return "", err
+	}
+
+	// Zone does not exist:
+	if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
+		return "", nil
+	}
+
+	// Return the zone ID:
+	return *resp.HostedZones[0].Id, nil
 }
