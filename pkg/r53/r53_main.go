@@ -145,17 +145,15 @@ func (d *Data) addRecord(record, zoneID string) error {
 	}
 
 	// Changes (middle matryoshka):
-	changes := []*route53.Change{
-		{
-			Action: aws.String("UPSERT"),
-			ResourceRecordSet: &route53.ResourceRecordSet{
-				Name:            aws.String(resourceName + "." + d.Zone),
-				Type:            aws.String(resourceType),
-				TTL:             aws.Int64(300),
-				ResourceRecords: resourceRecords,
-			},
+	changes := []*route53.Change{{
+		Action: aws.String("UPSERT"),
+		ResourceRecordSet: &route53.ResourceRecordSet{
+			Name:            aws.String(resourceName + "." + d.Zone),
+			Type:            aws.String(resourceType),
+			TTL:             aws.Int64(300),
+			ResourceRecords: resourceRecords,
 		},
-	}
+	}}
 
 	// Forge the change request (outermost matryoshka):
 	params := &route53.ChangeResourceRecordSetsInput{
