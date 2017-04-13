@@ -130,30 +130,38 @@ func (d *Data) DelZones() {
 
 func (d *Data) addRecord(record, zoneID string) error {
 
-	// New record handler:
+	// Split into data:type:name
 	s := strings.Split(record, ":")
+	resourceName := s[2]
+	resourceType := s[1]
+	resourceData := s[0]
 
-	// d1,d2,d3:type:name
+	// Resource records (innermost matryoshka):
+	resourceRecords := []*route53.ResourceRecord{}
+	for _, resource := range strings.Split(resourceData, ",") {
+		resourceRecords = append(resourceRecords, &route53.ResourceRecord{
+			Value: aws.String(resource),
+		})
+	}
 
-	// Forge the change request:
+	// Changes (middle matryoshka):
+	changes := []*route53.Change{
+		{
+			Action: aws.String("UPSERT"),
+			ResourceRecordSet: &route53.ResourceRecordSet{
+				Name:            aws.String(resourceName + "." + d.Zone),
+				Type:            aws.String(resourceType),
+				TTL:             aws.Int64(300),
+				ResourceRecords: resourceRecords,
+			},
+		},
+	}
+
+	// Forge the change request (outermost matryoshka):
 	params := &route53.ChangeResourceRecordSetsInput{
 		HostedZoneId: aws.String(zoneID),
 		ChangeBatch: &route53.ChangeBatch{
-			Changes: []*route53.Change{
-				{
-					Action: aws.String("UPSERT"),
-					ResourceRecordSet: &route53.ResourceRecordSet{
-						Name: aws.String(s[2] + "." + d.Zone),
-						Type: aws.String(s[1]),
-						TTL:  aws.Int64(300),
-						ResourceRecords: []*route53.ResourceRecord{
-							{
-								Value: aws.String(s[0]),
-							},
-						},
-					},
-				},
-			},
+			Changes: changes,
 		},
 	}
 
