@@ -132,9 +132,9 @@ func (d *Data) addRecord(record, zoneID string) error {
 
 	// Split into data:type:name
 	s := strings.Split(record, ":")
-	resourceName := s[2]
+	resourceName := s[0]
 	resourceType := s[1]
-	resourceData := s[0]
+	resourceData := s[2]
 
 	// Resource records (innermost matryoshka):
 	resourceRecords := []*route53.ResourceRecord{}

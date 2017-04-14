@@ -35,7 +35,7 @@ var (
 	flR53RecordAddZone = cmdR53RecordAdd.Flag("zone",
 		"DNS zone where records are added.").Required().String()
 	arR53RecordAddName = cmdR53RecordAdd.Arg("record",
-		"List of ip:type:dns records.").Required().Strings()
+		"List of name:type:data records.").Required().Strings()
 )
 
 //-----------------------------------------------------------------------------
