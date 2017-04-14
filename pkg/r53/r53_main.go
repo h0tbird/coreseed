@@ -28,9 +28,10 @@ type Data struct {
 	r53     *route53.Route53
 	command string
 	APIKey  string
+	Record  string
 	Zone    string
-	Zones   []string
 	Records []string
+	Zones   []string
 }
 
 //-----------------------------------------------------------------------------
@@ -60,11 +61,9 @@ func (d *Data) AddRecords() {
 	}
 
 	// For each requested record:
-	for _, record := range d.Records {
-
-		// Create the record:
-		if err := d.addRecord(record, zoneID); err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
+	for _, d.Record = range d.Records {
+		if err := d.addRecord(zoneID); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Record}).
 				Fatal(err)
 		}
 	}
@@ -134,8 +133,6 @@ func (d *Data) DelZones() {
 
 	// For each requested zone:
 	for _, d.Zone = range d.Zones {
-
-		// Delete the zone:
 		if err := d.delZone(); err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Zone}).
 				Fatal(err)
@@ -147,10 +144,10 @@ func (d *Data) DelZones() {
 // func: addRecord
 //-----------------------------------------------------------------------------
 
-func (d *Data) addRecord(record, zoneID string) error {
+func (d *Data) addRecord(zoneID string) error {
 
 	// Split into data:type:name
-	s := strings.Split(record, ":")
+	s := strings.Split(d.Record, ":")
 	resourceName := s[0]
 	resourceType := s[1]
 	resourceData := s[2]
@@ -188,7 +185,7 @@ func (d *Data) addRecord(record, zoneID string) error {
 	}
 
 	// Log record creation:
-	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Record}).
 		Info("DNS record created/updated")
 
 	return nil
