@@ -5,6 +5,7 @@ package r53
 //-----------------------------------------------------------------------------
 
 import (
+	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/katosys/kato/pkg/cli"
 )
 
@@ -66,8 +67,12 @@ func RunCmd(cmd string) bool {
 	// katoctl r53 record add:
 	case cmdR53RecordAdd.FullCommand():
 		d := Data{
-			APIKey:  *flR53APIKey,
-			Zone:    *flR53RecordAddZone,
+			APIKey: *flR53APIKey,
+			Zone: zoneData{
+				HostedZone: route53.HostedZone{
+					Name: flR53RecordAddZone,
+				},
+			},
 			Records: *arR53RecordAddName,
 		}
 		d.AddRecords()
