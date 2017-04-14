@@ -84,18 +84,37 @@ func (d *Data) AddZones() {
 	d.r53 = route53.New(session.Must(session.NewSession()))
 
 	// For each requested zone:
-	for _, zone := range d.Zones {
+	for _, childZone := range d.Zones {
 
-		// Add the zone:
-		if err := d.addZone(zone); err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+		// Add the child zone:
+		childZoneID, err := d.addZone(childZone)
+		if err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": childZone}).
 				Fatal(err)
 		}
 
-		// Setup delegation:
-		if _, err := d.delegateZone(zone); err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
+		// Get the parent zone ID...
+		parentZoneID, err := d.getParentZoneID(childZone)
+		if err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": childZone}).
 				Fatal(err)
+		}
+
+		// ...if any:
+		if parentZoneID != "" {
+
+			// Get child's zone name servers:
+			nameServers, err := d.getNameServers(childZone, childZoneID)
+			if err != nil {
+				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": childZone}).
+					Fatal(err)
+			}
+
+			// Setup parent's NS delegation:
+			if err := d.delegateZone(childZone, parentZoneID, nameServers); err != nil {
+				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": childZone}).
+					Fatal(err)
+			}
 		}
 	}
 }
@@ -179,12 +198,12 @@ func (d *Data) addRecord(record, zoneID string) error {
 // func: addZone
 //-----------------------------------------------------------------------------
 
-func (d *Data) addZone(zone string) error {
+func (d *Data) addZone(zone string) (string, error) {
 
 	// Get the zone ID:
 	id, err := d.getZoneID(zone)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// If the zone is missing:
@@ -197,22 +216,28 @@ func (d *Data) addZone(zone string) error {
 		}
 
 		// Send the new zone request:
-		if _, err := d.r53.CreateHostedZone(params); err != nil {
-			return err
+		resp, err := d.r53.CreateHostedZone(params)
+		if err != nil {
+			return "", err
+		}
+
+		// Get the zone ID:
+		if resp.HostedZone != nil && resp.HostedZone.Id != nil {
+			id = *resp.HostedZone.Id
 		}
 
 		// Log the new zone creation:
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("New DNS zone created")
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": id}).
+			Info("New " + zone + " zone created")
 
 	} else {
 
 		// Log zone already exists:
-		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
-			Info("DNS zone already exists")
+		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": id}).
+			Info("Zone " + zone + " already exists")
 	}
 
-	return nil
+	return id, nil
 }
 
 //-----------------------------------------------------------------------------
@@ -255,10 +280,10 @@ func (d *Data) delZone(zone string) error {
 }
 
 //-----------------------------------------------------------------------------
-// func: delegateZone
+// func: getParentZoneID
 //-----------------------------------------------------------------------------
 
-func (d *Data) delegateZone(zone string) (bool, error) {
+func (d *Data) getParentZoneID(zone string) (string, error) {
 
 	var err error
 	var zoneID, parent string
@@ -273,7 +298,7 @@ func (d *Data) delegateZone(zone string) (bool, error) {
 		parent = strings.Join(split[len(split)-i:], ".")
 		zoneID, err = d.getZoneID(parent)
 		if err != nil {
-			return false, err
+			return "", err
 		}
 
 		// Break if found:
@@ -284,17 +309,10 @@ func (d *Data) delegateZone(zone string) (bool, error) {
 
 	// Not found:
 	if zoneID == "" {
-		return false, nil
+		return "", nil
 	}
 
-	// Parent found:
-	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zoneID}).
-		Info("Parent zone is " + parent)
-
-	// Add/update the NS records:
-	// TODO
-
-	return true, nil
+	return zoneID, nil
 }
 
 //-----------------------------------------------------------------------------
@@ -322,4 +340,37 @@ func (d *Data) getZoneID(zone string) (string, error) {
 
 	// Return the zone ID:
 	return *resp.HostedZones[0].Id, nil
+}
+
+//-----------------------------------------------------------------------------
+// func: getNameServers
+//-----------------------------------------------------------------------------
+
+func (d *Data) getNameServers(zone, zoneID string) ([]string, error) {
+
+	// Forge the list request:
+	params := &route53.ListResourceRecordSetsInput{
+		HostedZoneId:    aws.String(zoneID),
+		MaxItems:        aws.String("1"),
+		StartRecordName: aws.String(zone),
+		StartRecordType: aws.String("NS"),
+	}
+
+	// Send the list request:
+	resp, err := d.r53.ListResourceRecordSets(params)
+	if err != nil {
+		return []string{}, err
+	}
+
+	log.Println(resp)
+
+	return []string{}, nil
+}
+
+//-----------------------------------------------------------------------------
+// func: delegateZone
+//-----------------------------------------------------------------------------
+
+func (d *Data) delegateZone(childZone, parentZoneID string, nameServers []string) error {
+	return nil
 }
