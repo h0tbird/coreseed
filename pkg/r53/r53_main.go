@@ -54,7 +54,7 @@ func (d *Data) AddRecords() {
 
 	// Get the zone data:
 	zone := *d.Zone.HostedZone.Name
-	if err := d.getZone(); err != nil {
+	if _, err := d.getZone(zone); err != nil {
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 			Fatal(err)
 	}
@@ -200,7 +200,7 @@ func (d *Data) addZone() error {
 
 	// Get the zone data:
 	zone := *d.Zone.HostedZone.Name
-	if err := d.getZone(); err != nil {
+	if _, err := d.getZone(zone); err != nil {
 		return err
 	}
 
@@ -219,7 +219,7 @@ func (d *Data) addZone() error {
 		}
 
 		// Get the zone data:
-		if err := d.getZone(); err != nil {
+		if _, err := d.getZone(zone); err != nil {
 			return err
 		}
 
@@ -245,7 +245,7 @@ func (d *Data) delZone() error {
 
 	// Get the zone data:
 	zone := *d.Zone.HostedZone.Name
-	if err := d.getZone(); err != nil {
+	if _, err := d.getZone(zone); err != nil {
 		return err
 	}
 
@@ -294,7 +294,7 @@ func (d *Data) getParentZoneID() (string, error) {
 
 		// Get the parent zone ID (if any):
 		parent = strings.Join(split[len(split)-i:], ".")
-		zoneID, err = d.getZoneID(parent)
+		zoneID, err = d.getZone(parent)
 		if err != nil {
 			return "", err
 		}
@@ -317,36 +317,7 @@ func (d *Data) getParentZoneID() (string, error) {
 // func: getZone
 //-----------------------------------------------------------------------------
 
-func (d *Data) getZone() error {
-
-	// Forge the list request:
-	zone := *d.Zone.HostedZone.Name
-	params := &route53.ListHostedZonesByNameInput{
-		DNSName:  aws.String(zone),
-		MaxItems: aws.String("1"),
-	}
-
-	// Send the list request:
-	resp, err := d.r53.ListHostedZonesByName(params)
-	if err != nil {
-		return err
-	}
-
-	// Zone does not exist:
-	if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
-		return nil
-	}
-
-	// Save the zone data:
-	d.Zone.HostedZone = *resp.HostedZones[0]
-	return nil
-}
-
-//-----------------------------------------------------------------------------
-// func: getZoneID
-//-----------------------------------------------------------------------------
-
-func (d *Data) getZoneID(zone string) (string, error) {
+func (d *Data) getZone(zone string) (string, error) {
 
 	// Forge the list request:
 	params := &route53.ListHostedZonesByNameInput{
@@ -365,7 +336,11 @@ func (d *Data) getZoneID(zone string) (string, error) {
 		return "", nil
 	}
 
-	// Return the zone ID:
+	// Save the zone data:
+	if zone == *d.Zone.HostedZone.Name {
+		d.Zone.HostedZone = *resp.HostedZones[0]
+	}
+
 	return *resp.HostedZones[0].Id, nil
 }
 
