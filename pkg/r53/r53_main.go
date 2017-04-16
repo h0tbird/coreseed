@@ -90,23 +90,26 @@ func (d *Data) AddZones() {
 	// For each requested zone:
 	for _, zone := range d.Zones {
 
-		// Add the child zone:
+		// Normalize the zone name:
+		zone = normalizeZoneName(zone)
 		d.Zone.HostedZone.Name = &zone
+
+		// Add the child zone:
 		if err := d.addZone(); err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 				Fatal(err)
 		}
 
-		// Get the parent zone ID...
-		parentZoneID, err := d.getParentZoneID()
+		// Get the parent zone:
+		pZone, err := d.getParentZone()
 		if err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 				Fatal(err)
 		}
 
-		// ...if any:
-		if parentZoneID != "" {
-			if err := d.delegateZone(parentZoneID); err != nil {
+		// If any:
+		if pZone != "" {
+			if err := d.delegateZone(pZone); err != nil {
 				log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 					Fatal(err)
 			}
@@ -132,7 +135,12 @@ func (d *Data) DelZones() {
 
 	// For each requested zone:
 	for _, zone := range d.Zones {
+
+		// Normalize the zone name:
+		zone = normalizeZoneName(zone)
 		d.Zone.HostedZone.Name = &zone
+
+		// Delete the child zone:
 		if err := d.delZone(); err != nil {
 			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Zone}).
 				Fatal(err)
@@ -277,13 +285,13 @@ func (d *Data) delZone() error {
 }
 
 //-----------------------------------------------------------------------------
-// func: getParentZoneID
+// func: getParentZone
 //-----------------------------------------------------------------------------
 
-func (d *Data) getParentZoneID() (string, error) {
+func (d *Data) getParentZone() (string, error) {
 
 	var err error
-	var zoneID, parent string
+	var id, parent string
 
 	// Split the given zone:
 	zone := *d.Zone.HostedZone.Name
@@ -294,23 +302,23 @@ func (d *Data) getParentZoneID() (string, error) {
 
 		// Get the parent zone ID (if any):
 		parent = strings.Join(split[len(split)-i:], ".")
-		zoneID, err = d.getZone(parent)
+		id, err = d.getZone(parent)
 		if err != nil {
 			return "", err
 		}
 
 		// Break if found:
-		if zoneID != "" {
+		if id != "" {
 			break
 		}
 	}
 
 	// Not found:
-	if zoneID == "" {
+	if id == "" {
 		return "", nil
 	}
 
-	return zoneID, nil
+	return parent, nil
 }
 
 //-----------------------------------------------------------------------------
@@ -319,35 +327,72 @@ func (d *Data) getParentZoneID() (string, error) {
 
 func (d *Data) getZone(zone string) (string, error) {
 
-	// Forge the list request:
-	params := &route53.ListHostedZonesByNameInput{
+	// Forge the zone list request:
+	pZone := &route53.ListHostedZonesByNameInput{
 		DNSName:  aws.String(zone),
 		MaxItems: aws.String("1"),
 	}
 
-	// Send the list request:
-	resp, err := d.r53.ListHostedZonesByName(params)
+	// Send the zone list request:
+	rZone, err := d.r53.ListHostedZonesByName(pZone)
 	if err != nil {
 		return "", err
 	}
 
 	// Zone does not exist:
-	if len(resp.HostedZones) < 1 || *resp.HostedZones[0].Name != zone+"." {
+	if len(rZone.HostedZones) < 1 || *rZone.HostedZones[0].Name != zone {
 		return "", nil
 	}
 
-	// Save the zone data:
+	// If adding a zone:
 	if zone == *d.Zone.HostedZone.Name {
-		d.Zone.HostedZone = *resp.HostedZones[0]
+
+		// Forge the NS record list request:
+		pRsrc := &route53.ListResourceRecordSetsInput{
+			HostedZoneId:    aws.String(*rZone.HostedZones[0].Id),
+			MaxItems:        aws.String("1"),
+			StartRecordName: aws.String(zone),
+			StartRecordType: aws.String("NS"),
+		}
+
+		// Send the NS record list request:
+		rRsrc, err := d.r53.ListResourceRecordSets(pRsrc)
+		if err != nil {
+			return "", err
+		}
+
+		// Save the data:
+		d.Zone.HostedZone = *rZone.HostedZones[0]
+		d.Zone.ResourceRecordSet = *rRsrc.ResourceRecordSets[0]
 	}
 
-	return *resp.HostedZones[0].Id, nil
+	return *rZone.HostedZones[0].Id, nil
 }
 
 //-----------------------------------------------------------------------------
 // func: delegateZone
 //-----------------------------------------------------------------------------
 
-func (d *Data) delegateZone(zoneID string) error {
+func (d *Data) delegateZone(pZone string) error {
+
+	// Extract name servers:
+	log.Println(d.Zone.ResourceRecordSet)
+
+	// Forge the 'record add' command:
+	//zone := *d.Zone.HostedZone.Name
+	//cmd := exec.Command("katoctl", "r53", "record", "add",
+	//	"--zone", pZone, zone+":NS:"+nameServers)
+
 	return nil
+}
+
+//-----------------------------------------------------------------------------
+// func: normalizeZoneName
+//-----------------------------------------------------------------------------
+
+func normalizeZoneName(zone string) string {
+	if zone[len(zone)-1] != []byte(".")[0] {
+		zone = zone + "."
+	}
+	return zone
 }
