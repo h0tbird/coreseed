@@ -223,7 +223,7 @@ func (d *Data) publishDNSRecords(roles string, out []byte) error {
 			"--api-key", d.DNSApiKey,
 			"record", "add",
 			"--zone", "int."+d.Domain,
-			dat["internal"]+":A:"+role+"-"+d.HostID)
+			role+"-"+d.HostID+":A:"+dat["internal"])
 
 		// Execute the internal record command:
 		cmdInt.Stderr = os.Stderr
@@ -236,7 +236,7 @@ func (d *Data) publishDNSRecords(roles string, out []byte) error {
 			"--api-key", d.DNSApiKey,
 			"record", "add",
 			"--zone", "ext."+d.Domain,
-			dat["external"]+":A:"+role+"-"+d.HostID)
+			role+"-"+d.HostID+":A:"+dat["external"])
 
 		// Execute the external record command:
 		cmdExt.Stderr = os.Stderr
