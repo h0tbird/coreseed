@@ -7,6 +7,8 @@ package r53
 import (
 
 	// Stdlib:
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -33,7 +35,6 @@ type Data struct {
 	r53     *route53.Route53
 	command string
 	APIKey  string
-	Record  string
 	Zone    zoneData
 	Records []string
 	Zones   []string
@@ -53,7 +54,8 @@ func (d *Data) AddRecords() {
 	d.r53 = route53.New(session.Must(session.NewSession()))
 
 	// Get the zone data:
-	zone := *d.Zone.HostedZone.Name
+	zone := normalizeZoneName(*d.Zone.HostedZone.Name)
+	*d.Zone.HostedZone.Name = zone
 	if _, err := d.getZone(zone); err != nil {
 		log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": zone}).
 			Fatal(err)
@@ -66,9 +68,9 @@ func (d *Data) AddRecords() {
 	}
 
 	// For each requested record:
-	for _, d.Record = range d.Records {
-		if err := d.addRecord(); err != nil {
-			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Record}).
+	for _, record := range d.Records {
+		if err := d.addRecord(record); err != nil {
+			log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": record}).
 				Fatal(err)
 		}
 	}
@@ -152,10 +154,10 @@ func (d *Data) DelZones() {
 // func: addRecord
 //-----------------------------------------------------------------------------
 
-func (d *Data) addRecord() error {
+func (d *Data) addRecord(record string) error {
 
 	// Split into data:type:name
-	s := strings.Split(d.Record, ":")
+	s := strings.Split(record, ":")
 	resourceName := s[0]
 	resourceType := s[1]
 	resourceData := s[2]
@@ -194,7 +196,7 @@ func (d *Data) addRecord() error {
 	}
 
 	// Log record creation:
-	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": d.Record}).
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": resourceName}).
 		Info("DNS record created/updated")
 
 	return nil
@@ -376,12 +378,21 @@ func (d *Data) getZone(zone string) (string, error) {
 func (d *Data) delegateZone(pZone string) error {
 
 	// Extract name servers:
-	log.Println(d.Zone.ResourceRecordSet)
+	var ns []string
+	for _, record := range d.Zone.ResourceRecords {
+		ns = append(ns, *record.Value)
+	}
 
 	// Forge the 'record add' command:
-	//zone := *d.Zone.HostedZone.Name
-	//cmd := exec.Command("katoctl", "r53", "record", "add",
-	//	"--zone", pZone, zone+":NS:"+nameServers)
+	zone := strings.Replace(*d.Zone.HostedZone.Name, "."+pZone, "", 1)
+	cmd := exec.Command("katoctl", "r53", "record", "add",
+		"--zone", pZone, zone+":NS:"+strings.Join(ns, ","))
+
+	// Execute the 'record add' command:
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
 
 	return nil
 }
