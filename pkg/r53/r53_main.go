@@ -196,8 +196,8 @@ func (d *Data) addRecord(record string) error {
 	}
 
 	// Log record creation:
-	log.WithFields(log.Fields{"cmd": "r53:" + d.command, "id": resourceName}).
-		Info("DNS record created/updated")
+	log.WithFields(log.Fields{"cmd": "r53:" + d.command,
+		"id": resourceName + "." + zone}).Info("DNS record created/updated")
 
 	return nil
 }
