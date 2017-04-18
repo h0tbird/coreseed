@@ -126,7 +126,7 @@ func (d *Data) createDNSZones(wg *sync.WaitGroup) {
 	// Forge the zone command:
 	cmdZoneSetup := exec.Command("katoctl", d.DNSProvider,
 		"--api-key", d.DNSApiKey, "zone", "add",
-		"int."+d.Domain, "ext."+d.Domain)
+		d.Domain, "int."+d.Domain, "ext."+d.Domain)
 
 	// Execute the zone command:
 	cmdZoneSetup.Stderr = os.Stderr

@@ -218,12 +218,14 @@ func (d *Data) publishDNSRecords(roles string, out []byte) error {
 	// For every role in this instance:
 	for _, role := range strings.Split(roles, ",") {
 
+		name := role + "-" + d.HostID
+
 		// Forge the internal record command:
 		cmdInt := exec.Command("katoctl", d.DNSProvider,
 			"--api-key", d.DNSApiKey,
 			"record", "add",
 			"--zone", "int."+d.Domain,
-			role+"-"+d.HostID+":A:"+dat["internal"])
+			name+":A:"+dat["internal"])
 
 		// Execute the internal record command:
 		cmdInt.Stderr = os.Stderr
@@ -236,11 +238,24 @@ func (d *Data) publishDNSRecords(roles string, out []byte) error {
 			"--api-key", d.DNSApiKey,
 			"record", "add",
 			"--zone", "ext."+d.Domain,
-			role+"-"+d.HostID+":A:"+dat["external"])
+			name+":A:"+dat["external"])
 
 		// Execute the external record command:
 		cmdExt.Stderr = os.Stderr
 		if err := cmdExt.Run(); err != nil {
+			return err
+		}
+
+		// Forge the CNAME record command:
+		cmdCname := exec.Command("katoctl", d.DNSProvider,
+			"--api-key", d.DNSApiKey,
+			"record", "add",
+			"--zone", d.Domain,
+			name+":CNAME:"+name+".int."+d.Domain)
+
+		// Execute the CNAME record command:
+		cmdCname.Stderr = os.Stderr
+		if err := cmdCname.Run(); err != nil {
 			return err
 		}
 	}
