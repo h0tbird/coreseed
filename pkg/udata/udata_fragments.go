@@ -1081,10 +1081,10 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.5.6
-     Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v1.0.2
+     Environment=CNI_URL=https://github.com/projectcalico/calico-cni/releases/download/v1.6.2
+     Environment=CALICOCTL_URL=https://github.com/projectcalico/calico-containers/releases/download/v1.1.1
      Environment=CNI_PLUGINS=/var/lib/cni-plugins
-     Environment=IMG=quay.io/calico/node:v1.0.2
+     Environment=IMG=quay.io/calico/node:v1.1.1
      ExecStartPre=/usr/sbin/sysctl -w net.netfilter.nf_conntrack_max=1000000
      ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
      ExecStartPre=-/bin/bash -c " \
