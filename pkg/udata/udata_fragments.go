@@ -116,6 +116,20 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
+ - path: "/etc/sysctl.d/10-disable-ipv6.conf"
+   owner: root
+   content: |
+    net.ipv6.conf.all.disable_ipv6=1
+    net.ipv6.conf.default.disable_ipv6=1`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
  - path: "/etc/.hosts"
    content: |
     127.0.0.1 localhost
@@ -865,6 +879,17 @@ write_files:`,
 		data: `
 coreos:
  units:
+  - name: systemd-sysctl.service
+    command: restart`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
   - name: "etcd2.service"
 {{- if eq .ClusterState "existing" }}
     command: "stop"
