@@ -9,7 +9,7 @@ before_install:
   - go get github.com/wadey/gocovmerge
 
 script:
-  - go list ./... | awk -F/ '{print "go test -covermode=count -coverprofile="$(NF-1)"_"$NF".out "$0}' | sh
+  - go list ./{cmd,pkg}/... | awk -F/ '{print "go test -covermode=count -coverprofile="$(NF-1)"_"$NF".out "$0}' | sh
   - gocovmerge $(ls *.out) > coverage.txt
   - goveralls -coverprofile=coverage.txt -service=travis-ci -repotoken $COVERALLS_TOKEN
 
