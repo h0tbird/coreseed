@@ -112,8 +112,12 @@ func (d *Data) AddRecords() {
 
 		// New record handler:
 		s := strings.Split(record, ":")
-		r := dns.NewRecord(d.Zone, s[2], s[1])
-		a := dns.NewAv4Answer(s[0])
+		resourceName := s[0]
+		resourceType := s[1]
+		resourceData := s[2]
+
+		r := dns.NewRecord(d.Zone, resourceName, resourceType)
+		a := dns.NewAv4Answer(resourceData)
 		r.AddAnswer(a)
 
 		// Send the new record request:
@@ -124,7 +128,7 @@ func (d *Data) AddRecords() {
 		}
 
 		// Log record creation:
-		log.WithFields(log.Fields{"cmd": "ns1:" + d.command, "id": record}).
-			Info("New DNS record created")
+		log.WithFields(log.Fields{"cmd": "ns1:" + d.command,
+			"id": resourceName + "." + d.Zone}).Info("New DNS record created/updated")
 	}
 }
