@@ -156,7 +156,7 @@ func (d *Data) DelZones() {
 
 func (d *Data) addRecord(record string) error {
 
-	// Split into data:type:name
+	// Split into name:type:data
 	s := strings.Split(record, ":")
 	resourceName := s[0]
 	resourceType := s[1]
