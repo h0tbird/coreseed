@@ -107,7 +107,6 @@ func (d *Data) runInstance(udata []byte) error {
 		resp, err = d.ec2.RunInstances(params)
 		if err != nil {
 			ec2err, ok := err.(awserr.Error)
-			log.Println(ec2err.Code())
 			if ok && strings.Contains(ec2err.Code(), "InvalidParameterValue") {
 				time.Sleep(2e9)
 				continue
