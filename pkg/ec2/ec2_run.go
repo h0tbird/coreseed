@@ -14,10 +14,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
@@ -79,6 +81,10 @@ func (d *Data) Run() {
 
 func (d *Data) runInstance(udata []byte) error {
 
+	// Variables:
+	var resp *ec2.Reservation
+	var err error
+
 	// Forge the instance request:
 	params := &ec2.RunInstancesInput{
 		ImageId:           aws.String(d.AmiID),
@@ -97,9 +103,18 @@ func (d *Data) runInstance(udata []byte) error {
 	}
 
 	// Send the instance request:
-	resp, err := d.ec2.RunInstances(params)
-	if err != nil {
-		return err
+	for i := 0; i < 5; i++ {
+		resp, err = d.ec2.RunInstances(params)
+		if err != nil {
+			ec2err, ok := err.(awserr.Error)
+			log.Println(ec2err.Code())
+			if ok && strings.Contains(ec2err.Code(), "InvalidParameterValue") {
+				time.Sleep(2e9)
+				continue
+			}
+			return err
+		}
+		break
 	}
 
 	// Store the instance ID:

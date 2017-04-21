@@ -199,6 +199,7 @@ func (d *Data) tag(resource, key, value string) error {
 			log.WithField("cmd", "ec2:"+d.command).Error(err)
 			return err
 		}
+		break
 	}
 
 	return nil
