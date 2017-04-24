@@ -1606,8 +1606,7 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus mesos master exporter
-     After=mesos-master.service
-     Requires=mesos-master.service
+     Wants=mesos-master.service
 
      [Service]
      Slice=kato.slice
@@ -1618,6 +1617,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/exporters:v0.2.0-2
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/usr/bin/systemctl is-active mesos-master.service
      ExecStart=/usr/bin/rkt run \
       --net=host \
       ${IMG} --exec mesos_exporter -- \
@@ -1680,8 +1680,7 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus zookeeper exporter
-     After=zookeeper.service
-     Requires=zookeeper.service
+     Wants=zookeeper.service
 
      [Service]
      Slice=kato.slice
@@ -1692,6 +1691,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/exporters:v0.2.0-2
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/usr/bin/systemctl is-active zookeeper.service
      ExecStart=/usr/bin/sh -c "exec rkt run \
       --net=host \
       ${IMG} --exec zookeeper_exporter -- \
@@ -2116,8 +2116,7 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus haproxy exporter
-     After=marathon-lb.service
-     Requires=marathon-lb.service
+     Wants=marathon-lb.service
 
      [Service]
      Slice=kato.slice
@@ -2127,6 +2126,7 @@ coreos:
      KillMode=mixed
      Environment=IMG=quay.io/kato/exporters:v0.2.0-2
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/usr/bin/systemctl is-active marathon-lb.service
      ExecStart=/usr/bin/rkt run \
       --net=host \
       ${IMG} --exec haproxy_exporter -- \
@@ -2150,8 +2150,7 @@ coreos:
     content: |
      [Unit]
      Description=Prometheus mesos agent exporter
-     After=mesos-agent.service
-     Requires=mesos-agent.service
+     Wants=mesos-agent.service
 
      [Service]
      Slice=kato.slice
@@ -2162,6 +2161,7 @@ coreos:
      EnvironmentFile=/etc/kato.env
      Environment=IMG=quay.io/kato/exporters:v0.2.0-2
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+     ExecStartPre=/usr/bin/systemctl is-active mesos-agent.service
      ExecStart=/usr/bin/rkt run \
       --net=host \
       ${IMG} --exec mesos_exporter -- \
