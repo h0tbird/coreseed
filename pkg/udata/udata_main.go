@@ -99,15 +99,13 @@ type intData struct {
 //-----------------------------------------------------------------------------
 
 func readFile(path string) string {
-
-	if path != "" {
+	if _, err := os.Stat(path); err == nil {
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
 		return string(data)
 	}
-
 	return ""
 }
 
