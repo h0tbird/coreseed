@@ -12,8 +12,8 @@ $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
-$code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $tmp_path       = ENV['KATO_TMP_PATH'] || "/tmp/kato"
+$code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ca_cert_path   = ENV['KATO_CA_CERT_PATH']
 $certs_path     = ENV['KATO_CERTS_PATH']
 
