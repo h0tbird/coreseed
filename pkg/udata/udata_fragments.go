@@ -311,6 +311,18 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
+ - path: "/home/core/.kato/{{.ClusterID}}.json"
+   content: |
+    TODO`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
  - path: "/etc/rexray/rexray.env"
  - path: "/etc/rexray/config.yml"
    content: |
@@ -347,6 +359,7 @@ write_files:`,
    owner: "core:core"
    content: |
     [[ $- = *i* ]] && {
+      eval "$(katoctl --completion-script-bash)"
       alias ls='ls -hF --color=auto --group-directories-first'
       alias grep='grep --color=auto'
     } || shopt -s expand_aliases
@@ -1447,6 +1460,30 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      ExecStart=/usr/bin/rkt api-service
+
+     [Install]
+     WantedBy=kato.target`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+  - name: "katoctl.service"
+    enable: true
+    content: |
+     [Unit]
+     Description=Download katoctl
+
+     [Service]
+     Type=oneshot
+     Environment=URL=https://github.com/katosys/kato/releases/download/v0.1.1
+     ExecStart=/bin/bash -c " \
+      [ -f /opt/bin/katoctl ] || { curl -sL -o /opt/bin/katoctl ${URL}/katoctl-linux-x86_64; }; \
+      [ -x /opt/bin/katoctl ] || { chmod +x /opt/bin/katoctl; }"
 
      [Install]
      WantedBy=kato.target`,
