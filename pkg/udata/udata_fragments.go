@@ -301,7 +301,7 @@ write_files:`,
 		data: `
  - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
    content: |
-    {{.CaCert}}`,
+{{.CaCert | indent 4}}`,
 	})
 
 	//----------------------------------
@@ -313,7 +313,7 @@ write_files:`,
 		data: `
  - path: "/home/core/.kato/{{.ClusterID}}.json"
    content: |
-    TODO`,
+{{.KatoState | indent 4}}`,
 	})
 
 	//----------------------------------

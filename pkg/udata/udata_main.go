@@ -14,10 +14,10 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 	"text/template"
 
 	// Community:
+	"github.com/Masterminds/sprig"
 	log "github.com/Sirupsen/logrus"
 	"github.com/coreos/coreos-cloudinit/config/validate"
 )
@@ -67,6 +67,7 @@ type PostProc struct {
 	AlertManagers string
 	Aliases       []string
 	CaCert        string
+	KatoState     string
 	EtcdEndpoints string
 	EtcdServers   string
 	HostTCPPorts  []string
@@ -94,19 +95,20 @@ type intData struct {
 }
 
 //-----------------------------------------------------------------------------
-// func: caCert
+// func: readFile
 //-----------------------------------------------------------------------------
 
-func caCert(path string) (cert string) {
+func readFile(path string) string {
+
 	if path != "" {
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
-		cert = strings.TrimSpace(strings.
-			Replace(string(data), "\n", "\n    ", -1))
+		return string(data)
 	}
-	return
+
+	return ""
 }
 
 //-----------------------------------------------------------------------------
@@ -291,7 +293,7 @@ func (d *CmdData) composeTemplate() {
 func (d *CmdData) renderTemplate() {
 
 	// Template parsing:
-	t := template.New("udata")
+	t := template.New("udata").Funcs(sprig.TxtFuncMap())
 	t, err := t.Parse(d.template)
 	if err != nil {
 		log.WithField("cmd", "udata").Fatal(err)
@@ -356,14 +358,15 @@ func (d *CmdData) outputUserData() {
 func (d *CmdData) CmdRun() {
 
 	// Variables:
-	d.CaCert = caCert(d.CaCertPath)                // Retrieve the CA certificate.
-	d.ZkServers = zkServers(d.QuorumCount)         // Forge the Zookeeper URL.
-	d.EtcdServers = etcdServers(d.QuorumCount)     // Initial etcd servers URL.
-	d.EtcdEndpoints = etcdEndpoints(d.QuorumCount) // Initial etcd endpoints URL.
-	d.AlertManagers = alertManagers(d.MasterCount) // Comma separated alertmanagers.
-	d.SMTP = smtpURLSplit(d.SMTPURL)               // Split URL into its components.
-	d.MesosDNSPort = mesosDNSPort(d.Roles)         // One of 53 or 54.
-	d.Aliases = aliases(d.Roles, d.HostName)       // Hostname aliases array.
+	d.CaCert = readFile(d.CaCertPath)
+	d.KatoState = readFile(os.Getenv("HOME") + "/.kato/" + d.ClusterID + ".json")
+	d.ZkServers = zkServers(d.QuorumCount)
+	d.EtcdServers = etcdServers(d.QuorumCount)
+	d.EtcdEndpoints = etcdEndpoints(d.QuorumCount)
+	d.AlertManagers = alertManagers(d.MasterCount)
+	d.SMTP = smtpURLSplit(d.SMTPURL)
+	d.MesosDNSPort = mesosDNSPort(d.Roles)
+	d.Aliases = aliases(d.Roles, d.HostName)
 
 	// Instance services:
 	d.services.load(d.Roles, groups(d.Prometheus))
