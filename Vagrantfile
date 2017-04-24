@@ -10,6 +10,7 @@ $node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.1'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
+$monitoring     = ENV['KATO_MONITORING'] || false
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
 $tmp_path       = ENV['KATO_TMP_PATH'] || "/tmp/kato"
@@ -54,6 +55,10 @@ if ARGV[0].eql?('up')
     "--cluster-id %s " +
     "--domain %s " +
     "--host-id %s "
+end
+
+if $monitoring
+  $katoctl = $katoctl + "--prometheus "
 end
 
 #------------------------------------------------------------------------------

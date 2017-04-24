@@ -28,11 +28,12 @@ Currently *VirtualBox* (on *OSX* and *Linux*) is the only supported *Vagrant* pr
    <p>If you want to override the default <code class="highlighter-rouge">Vagrantfile</code> settings you can export the following environment variablest (default values below):</p>
    <pre class="highlight"><code>
    <span class="nv">KATO_CLUSTER_ID</span><span class="o">=</span><span class="s1">'vagrant-kato'</span>  <span class="c"># Unique ID used to identify the cluster.</span>
-   <span class="nv">KATO_NODE_CPUS</span><span class="o">=</span><span class="s1">'2'</span>              <span class="c"># Virtual CPU cores per cluster node.</span>
-   <span class="nv">KATO_NODE_MEMORY</span><span class="o">=</span><span class="s1">'4096'</span>         <span class="c"># Megabytes of memory per cluster node.</span>
+   <span class="nv">KATO_NODE_CPUS</span><span class="o">=</span><span class="s1">2</span>                <span class="c"># Virtual CPU cores per cluster node.</span>
+   <span class="nv">KATO_NODE_MEMORY</span><span class="o">=</span><span class="s1">4096</span>           <span class="c"># Megabytes of memory per cluster node.</span>
    <span class="nv">KATO_VERSION</span><span class="o">=</span><span class="s1">'v0.1.1'</span>           <span class="c"># Version of katoctl to fetch.</span>
    <span class="nv">KATO_COREOS_CHANNEL</span><span class="o">=</span><span class="s1">'stable'</span>    <span class="c"># CoreOS release [stable | beta | alpha]</span>
    <span class="nv">KATO_COREOS_VERSION</span><span class="o">=</span><span class="s1">'current'</span>   <span class="c"># CoreOS release version [current | version]</span>
+   <span class="nv">KATO_MONITORING</span><span class="o">=</span><span class="s1">false</span>           <span class="c"># Enable monitoring components [ tue | false ]</span>
    <span class="nv">KATO_DOMAIN</span><span class="o">=</span><span class="s1">'cell-1.dc-1.kato'</span>  <span class="c"># Managed domain name.</span>
    <span class="nv">KATO_IP_ADDRESS</span><span class="o">=</span><span class="s1">'172.17.8.11'</span>   <span class="c"># VM host's IP address.</span>
    <span class="nv">KATO_TMP_PATH</span><span class="o">=</span><span class="s1">'/tmp/kato'</span>       <span class="c"># Path to store katoctl and udata.</span>
