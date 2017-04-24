@@ -1,4 +1,3 @@
 *.swp
-user_data_*
 .idea
 .vagrant

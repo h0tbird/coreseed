@@ -11,11 +11,18 @@ $kato_version   = ENV['KATO_VERSION'] || 'v0.1.1'
 $coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
-$code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
 $ip_address     = ENV['KATO_IP_ADDRESS'] || '172.17.8.11'
+$code_path      = ENV['KATO_CODE_PATH'] || "~/git/"
+$tmp_path       = ENV['KATO_TMP_PATH'] || "/tmp/kato"
 $ca_cert_path   = ENV['KATO_CA_CERT_PATH']
 $certs_path     = ENV['KATO_CERTS_PATH']
-$box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
+
+#------------------------------------------------------------------------------
+# URLs:
+#------------------------------------------------------------------------------
+
+$katoctl_url = "https://github.com/katosys/kato/releases/download/%s/katoctl-%s-%s"
+$box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
 
 #------------------------------------------------------------------------------
 # Forge the katoctl command:
@@ -23,17 +30,19 @@ $box_url        = "https://storage.googleapis.com/%s.release.core-os.net/amd64-u
 
 if ARGV[0].eql?('up')
 
-  if !File.file?("katoctl")
+  Dir.mkdir $tmp_path unless File.exists?($tmp_path)
+
+  if !File.file?($tmp_path + "/katoctl")
     print "Downloading katoctl...\n"
-    cmd = "wget -q https://github.com/katosys/kato/releases/download/%s/katoctl-%s-%s -O katoctl"
+    cmd = "wget -q " + $katoctl_url + " -O " + $tmp_path + "/katoctl"
     system cmd % [ $kato_version, `uname`.tr("\n",'').downcase, `uname -m`.tr("\n",'') ]
-    if !system "chmod +x katoctl"
+    if !system "chmod +x " + $tmp_path + "/katoctl"
       print "Ops! Where is katoctl?\n"
       exit
     end
   end
 
-  $katoctl = "./katoctl udata " +
+  $katoctl = $tmp_path + "/katoctl udata " +
     "--roles quorum,master,worker " +
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
@@ -105,10 +114,10 @@ Vagrant.configure("2") do |config|
       conf.vm.synced_folder $code_path, "/code", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
 
       if $ca_cert_path
-        cmd = $katoctl + " --ca-cert-path %s > user_data_kato-1"
+        cmd = $katoctl + " --ca-cert-path %s > " + $tmp_path + "/user_data_kato-1"
         system cmd % [ 'kato', $cluster_id, $domain, 1, $ca_cert_path ]
       else
-        cmd = $katoctl + " > user_data_kato-1"
+        cmd = $katoctl + " > " + $tmp_path + "/user_data_kato-1"
         system cmd % [ 'kato', $cluster_id, $domain, 1 ]
       end
 
@@ -117,8 +126,8 @@ Vagrant.configure("2") do |config|
         conf.vm.provision :shell, :inline => "mkdir /etc/certs; mv /tmp/certs.tar.bz2 /etc/certs", :privileged => true
       end
 
-      if File.exist?("user_data_kato-1")
-        conf.vm.provision :file, :source => "user_data_kato-1", :destination => "/tmp/vagrantfile-user-data"
+      if File.exist?($tmp_path + "/user_data_kato-1")
+        conf.vm.provision :file, :source => $tmp_path + "/user_data_kato-1", :destination => "/tmp/vagrantfile-user-data"
         conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant", :privileged => true
       end
 
