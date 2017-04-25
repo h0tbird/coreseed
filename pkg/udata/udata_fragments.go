@@ -1100,6 +1100,7 @@ coreos:
      Environment=IMG=quay.io/calico/node:v1.1.1
      ExecStartPre=/usr/sbin/sysctl -w net.netfilter.nf_conntrack_max=1000000
      ExecStartPre=/usr/bin/sh -c "[ -d /var/run/calico ] || mkdir /var/run/calico"
+     ExecStartPre=/usr/bin/sh -c "[ -d /var/log/calico ] || mkdir /var/log/calico"
      ExecStartPre=-/bin/bash -c " \
       [ -f ${CNI_PLUGINS}/calico ] || { curl -sL -o ${CNI_PLUGINS}/calico ${CNI_URL}/calico; }; \
       [ -x ${CNI_PLUGINS}/calico ] || { chmod +x ${CNI_PLUGINS}/calico; }"
@@ -1115,11 +1116,18 @@ coreos:
       --net=host \
       --dns=host \
       --hosts-entry=host \
+      --volume=run,kind=host,source=/run \
+      --mount=volume=run,target=/run \
       --volume=modules,kind=host,source=/lib/modules \
       --mount=volume=modules,target=/lib/modules \
       --volume=var-run-calico,kind=host,source=/var/run/calico \
       --mount=volume=var-run-calico,target=/var/run/calico \
-      --set-env=CALICO_DISABLE_FILE_LOGGING=true \
+      --volume=var-log-calico,kind=host,source=/var/log/calico \
+      --mount=volume=var-log-calico,target=/var/log/calico \
+      --set-env=FELIX_LOGFILEPATH=/var/log/calico/felix.log \
+      --set-env=FELIX_LOGSEVERITYFILE=WARNING \
+      --set-env=FELIX_LOGSEVERITYSYS=WARNING \
+      --set-env=FELIX_LOGSEVERITYSCREEN=WARNING \
       --set-env=NODENAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --set-env=IP=${KATO_HOST_IP} \
       --set-env=CALICO_NETWORKING_BACKEND=bird \
