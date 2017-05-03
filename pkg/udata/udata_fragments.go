@@ -982,8 +982,8 @@ coreos:
        KATO_PRI_IP=$private_ipv4\n\
        KATO_PUB_IP=$public_ipv4\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
-       KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
-       KATO_DNS_API_KEY='{{.DNSApiKey}}'
+       KATO_VOLUMES=/var/lib/libstorage/volumes\n\
+       KATO_DNS_API_KEY={{.DNSApiKey}}" > /etc/kato.env'
      ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
 
      [Install]
