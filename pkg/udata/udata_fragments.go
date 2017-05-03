@@ -438,29 +438,14 @@ write_files:`,
    permissions: "0755"
    content: |
     #!/bin/bash
-
     source /etc/kato.env
-    readonly DOMAIN=${KATO_DOMAIN}
-    readonly APIURL='https://api.nsone.net/v1'
-    readonly APIKEY='{{.DNSApiKey}}'
-    readonly IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-    readonly IP_PRI=${KATO_HOST_IP}
-    declare -A IP=(['ext']="${IP_PUB}" ['int']="${IP_PRI}")
-
-    for ROLE in ${KATO_ROLES}; do
-      for i in ext int; do
-        curl -sX GET -H "X-NSONE-Key: ${APIKEY}" \
-        ${APIURL}/zones/${i}.${DOMAIN}/${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}/A | \
-        grep -q 'record not found' && METHOD='PUT' || METHOD='POST'
-
-        curl -sX ${METHOD} -H "X-NSONE-Key: ${APIKEY}" \
-        ${APIURL}/zones/${i}.${DOMAIN}/${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}/A -d "{
-          \"zone\":\"${i}.${DOMAIN}\",
-          \"domain\":\"${ROLE}-${KATO_HOST_ID}.${i}.${DOMAIN}\",
-          \"type\":\"A\",
-          \"answers\":[{\"answer\":[\"${IP[${i}]}\"]}]}"
-      done
-    done`,
+    APIKEY='{{.DNSApiKey}}'
+    IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    declare -A IP=(['ext']="${IP_PUB}" ['int']="${KATO_HOST_IP}")
+    for ROLE in ${KATO_ROLES}; do for i in ext int; do
+      katoctl ns1 --api-key ${APIKEY} record add \
+      --zone ${i}.${KATO_DOMAIN} ${ROLE}:A:${IP[${i}]}
+    done done`,
 	})
 
 	//----------------------------------
