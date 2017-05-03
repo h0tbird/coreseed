@@ -439,12 +439,11 @@ write_files:`,
    content: |
     #!/bin/bash
     source /etc/kato.env
-    APIKEY='{{.DNSApiKey}}'
     IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
     declare -A IP=(['ext']="${IP_PUB}" ['int']="${KATO_HOST_IP}")
     for ROLE in ${KATO_ROLES}; do for i in ext int; do
-      katoctl ns1 --api-key ${APIKEY} record add \
-      --zone ${i}.${KATO_DOMAIN} ${ROLE}:A:${IP[${i}]}
+      katoctl ns1 --api-key ${KATO_DNS_API_KEY:-none} record \
+      add --zone ${i}.${KATO_DOMAIN} ${ROLE}:A:${IP[${i}]}
     done done`,
 	})
 
@@ -984,6 +983,7 @@ coreos:
        KATO_HOST_IP=$private_ipv4\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
+       KATO_DNS_API_KEY='{{.DNSApiKey}}'
      ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
 
      [Install]
