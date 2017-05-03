@@ -439,8 +439,7 @@ write_files:`,
    content: |
     #!/bin/bash
     source /etc/kato.env
-    IP_PUB="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-    declare -A IP=(['ext']="${IP_PUB}" ['int']="${KATO_HOST_IP}")
+    declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
     for ROLE in ${KATO_ROLES}; do for i in ext int; do
       katoctl ns1 --api-key ${KATO_DNS_API_KEY:-none} record \
       add --zone ${i}.${KATO_DOMAIN} ${ROLE}:A:${IP[${i}]}
@@ -980,7 +979,8 @@ coreos:
        KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
        KATO_DOMAIN=$(hostname -d)\n\
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
-       KATO_HOST_IP=$private_ipv4\n\
+       KATO_PRI_IP=$private_ipv4\n\
+       KATO_PUB_IP=$public_ipv4\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        KATO_VOLUMES=/var/lib/libstorage/volumes" > /etc/kato.env'
        KATO_DNS_API_KEY='{{.DNSApiKey}}'
@@ -1044,7 +1044,7 @@ coreos:
       --hosts-entry=host \
       --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
       --set-env=ZK_SERVERS=$${KATO_ZK//:2181/} \
-      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_HOST_IP} \
+      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_PRI_IP} \
       --set-env=ZK_TICK_TIME=2000 \
       --set-env=ZK_INIT_LIMIT=5 \
       --set-env=ZK_SYNC_LIMIT=2 \
@@ -1114,7 +1114,7 @@ coreos:
       --set-env=FELIX_LOGSEVERITYSYS=WARNING \
       --set-env=FELIX_LOGSEVERITYSCREEN=WARNING \
       --set-env=NODENAME=${KATO_HOST_NAME}-${KATO_HOST_ID}.${KATO_DOMAIN} \
-      --set-env=IP=${KATO_HOST_IP} \
+      --set-env=IP=${KATO_PRI_IP} \
       --set-env=CALICO_NETWORKING_BACKEND=bird \
       --set-env=ETCD_ENDPOINTS=${KATO_ETCD_ENDPOINTS} \
       --set-env=NO_DEFAULT_POOLS=true \
@@ -1160,7 +1160,7 @@ coreos:
       exec /opt/bin/mesos-master \
        --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
        --cluster=${KATO_CLUSTER_ID} \
-       --ip=${KATO_HOST_IP} \
+       --ip=${KATO_PRI_IP} \
        --zk=zk://${KATO_ZK}/mesos \
        --work_dir=/var/lib/mesos/master \
        --log_dir=/var/log/mesos \
@@ -1212,7 +1212,7 @@ coreos:
 {{- if eq .MesosDNSPort 53 }}
      ExecStartPost=/usr/bin/sh -c ' \
        echo search marathon.${KATO_MESOS_DOMAIN} ${KATO_MESOS_DOMAIN} ${KATO_DOMAIN} > /etc/resolv.conf && \
-       echo "nameserver ${KATO_HOST_IP}" >> /etc/resolv.conf'
+       echo "nameserver ${KATO_PRI_IP}" >> /etc/resolv.conf'
      ExecStopPost=/usr/bin/sh -c ' \
        echo search ${KATO_DOMAIN} > /etc/resolv.conf && \
        echo "nameserver 8.8.8.8" >> /etc/resolv.conf'
@@ -1252,7 +1252,7 @@ coreos:
       --dns=host \
       --hosts-entry=host \
       --hostname master-${KATO_HOST_ID}.${KATO_DOMAIN} \
-      --set-env=LIBPROCESS_IP=${KATO_HOST_IP} \
+      --set-env=LIBPROCESS_IP=${KATO_PRI_IP} \
       --set-env=LIBPROCESS_PORT=9292 \
       --set-env=MESOS_NATIVE_JAVA_LIBRARY=/opt/lib/libmesos.so \
       --volume lib,kind=host,source=/opt/lib \
@@ -1260,7 +1260,7 @@ coreos:
       ${IMG} -- \
       --no-logger \
       --checkpoint \
-      --http_address ${KATO_HOST_IP} \
+      --http_address ${KATO_PRI_IP} \
       --master zk://${KATO_ZK}/mesos \
       --zk zk://${KATO_ZK}/marathon \
       --task_launch_timeout 240000 \
@@ -1377,7 +1377,7 @@ coreos:
       --volume volume-var-lib-alertmanager,kind=host,source=/var/lib/alertmanager \
       ${IMG} -- \
       -log.level=info \
-      -web.listen-address=${KATO_HOST_IP}:9093 \
+      -web.listen-address=${KATO_PRI_IP}:9093 \
       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9093 \
       -config.file=/etc/alertmanager/config.yml \
       -storage.path=/var/lib/alertmanager
@@ -1426,7 +1426,7 @@ coreos:
       -web.external-url=http://master-${KATO_HOST_ID}.${KATO_DOMAIN}:9191 \
       -web.console.libraries=/usr/share/prometheus/console_libraries \
       -web.console.templates=/usr/share/prometheus/consoles \
-      -web.listen-address=${KATO_HOST_IP}:9191
+      -web.listen-address=${KATO_PRI_IP}:9191
 
      [Install]
      WantedBy=kato.target`,
@@ -1509,7 +1509,7 @@ coreos:
       [ -f /opt/bin/cadvisor ] || { curl -sL -o /opt/bin/cadvisor ${URL}/cadvisor; }; \
       [ -x /opt/bin/cadvisor ] || { chmod +x /opt/bin/cadvisor; }"
      ExecStart=/opt/bin/cadvisor \
-      --listen_ip ${KATO_HOST_IP} \
+      --listen_ip ${KATO_PRI_IP} \
       --logtostderr \
       --port=4194
 
@@ -1614,7 +1614,7 @@ coreos:
      ExecStart=/usr/bin/rkt run \
       --net=host \
       ${IMG} --exec mesos_exporter -- \
-      -master http://${KATO_HOST_IP}:5050 \
+      -master http://${KATO_PRI_IP}:5050 \
       -addr :9104
 
      [Install]
@@ -1801,7 +1801,7 @@ coreos:
       --volume dns,kind=host,source=/etc/resolv.conf \
       --mount volume=dns,target=/etc/resolv.conf \
       ${IMG} -- \
-      --listen ${KATO_HOST_IP} \
+      --listen ${KATO_PRI_IP} \
       --nameservers $(cat /tmp/ns) \
       --hostsfile /etc/hosts \
       --hostsfile-poll 60 \
@@ -1851,7 +1851,7 @@ coreos:
       exec /opt/bin/mesos-agent \
       --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/lib64:/opt/lib\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
-      --ip=${KATO_HOST_IP} \
+      --ip=${KATO_PRI_IP} \
       --containerizers=mesos,docker \
       --image_providers=docker \
       --docker_store_dir=/var/lib/mesos/store/docker \
@@ -2158,7 +2158,7 @@ coreos:
      ExecStart=/usr/bin/rkt run \
       --net=host \
       ${IMG} --exec mesos_exporter -- \
-      -slave http://${KATO_HOST_IP}:5051 \
+      -slave http://${KATO_PRI_IP}:5051 \
       -addr :9105
 
      [Install]
