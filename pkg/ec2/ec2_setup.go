@@ -561,8 +561,9 @@ func (d *Data) setupIAMSecurity(wg *sync.WaitGroup) {
 	d.createInstanceProfile()
 
 	// Attach policies to IAM role:
-	for _, policy := range [2]string{
+	for _, policy := range [3]string{
 		"arn:aws:iam::aws:policy/AmazonS3FullAccess",
+		"arn:aws:iam::aws:policy/AmazonRoute53FullAccess",
 		d.RexrayPolicy,
 	} {
 		if err := d.attachPolicyToRole(policy, "kato"); err != nil {
