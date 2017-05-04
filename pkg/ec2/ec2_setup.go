@@ -686,8 +686,8 @@ func (d *Data) attachPolicyToRole(policy, role string) error {
 
 	// Log the policy attachment:
 	split := strings.Split(policy, "/")
-	log.WithField("cmd", "ec2:"+d.command).
-		Info("Policy " + split[len(split)-1] + " attached to " + role)
+	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "role": role}).
+		Info("Policy " + split[len(split)-1] + " attached")
 
 	return nil
 }

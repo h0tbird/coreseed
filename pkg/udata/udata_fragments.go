@@ -4,11 +4,7 @@ package udata
 // Package factored import statement:
 //-----------------------------------------------------------------------------
 
-import (
-
-	// Stdlib:
-	"os"
-)
+import "os"
 
 //-----------------------------------------------------------------------------
 // Typedefs:
@@ -430,19 +426,19 @@ write_files:`,
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"ns1"},
+			anyOf:  []string{"quorum", "master", "worker", "border"},
+			noneOf: []string{"vbox"},
 		},
 		data: `
- - path: "/opt/bin/ns1dns"
+ - path: "/opt/bin/dnspush"
    permissions: "0755"
    content: |
     #!/bin/bash
     source /etc/kato.env
     declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
     for ROLE in ${KATO_ROLES}; do for i in ext int; do
-      katoctl ns1 --api-key ${KATO_DNS_API_KEY:-none} record \
-      add --zone ${i}.${KATO_DOMAIN} ${ROLE}:A:${IP[${i}]}
+      katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
+      add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
     done done`,
 	})
 
@@ -983,6 +979,7 @@ coreos:
        KATO_PUB_IP=$public_ipv4\n\
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
        KATO_VOLUMES=/var/lib/libstorage/volumes\n\
+       KATO_DNS_PROVIDER={{.DNSProvider}}\n\
        KATO_DNS_API_KEY={{.DNSApiKey}}" > /etc/kato.env'
      ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
 
@@ -1521,20 +1518,21 @@ coreos:
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"ns1"},
+			anyOf:  []string{"quorum", "master", "worker", "border"},
+			noneOf: []string{"vbox"},
 		},
 		data: `
-  - name: "ns1dns.service"
+  - name: "dnspush.service"
     enable: true
     content: |
      [Unit]
-     Description=Publish DNS records to nsone
+     Description=Publish DNS records
      Before=etcd2.service
+     After=katoctl.service
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/ns1dns
+     ExecStart=/opt/bin/dnspush
 
      [Install]
      WantedBy=kato.target`,

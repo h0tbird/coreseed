@@ -244,10 +244,6 @@ func (d *CmdData) listOfTags() (tags []string) {
 		tags = append(tags, "cacert")
 	}
 
-	if d.DNSProvider != "none" {
-		tags = append(tags, d.DNSProvider)
-	}
-
 	if d.SysdigAccessKey != "" {
 		tags = append(tags, "sysdig")
 	}
