@@ -365,8 +365,7 @@ write_files:`,
     alias dps='docker ps'
     alias drm='docker rm -v $(docker ps -qaf status=exited)'
     alias drmi='docker rmi $(docker images -qf dangling=true)'
-    alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
-    export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin'`,
+    alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'`,
 	})
 
 	//----------------------------------
@@ -1532,7 +1531,7 @@ coreos:
 
      [Service]
      Type=oneshot
-     ExecStart=/opt/bin/dnspush
+     ExecStart=/bin/bash -c "PATH=${PATH}:/opt/bin exec /opt/bin/dnspush"
 
      [Install]
      WantedBy=kato.target`,
