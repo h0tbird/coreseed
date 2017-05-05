@@ -1361,7 +1361,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/alertmanager:v0.5.1-1
+     Environment=IMG=quay.io/kato/alertmanager:v0.6.1-1
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/alertmanager ] || mkdir -p /etc/alertmanager"
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/alertmanager ] || mkdir -p /var/lib/alertmanager"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
@@ -1405,7 +1405,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/prometheus:v1.6.0-2
+     Environment=IMG=quay.io/kato/prometheus:v1.6.1-1
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/prometheus ] || mkdir /etc/prometheus"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-prometheus-${KATO_HOST_ID}
