@@ -24,6 +24,10 @@ var (
 
 	cmdPxeDeploy = cmdPxe.Command("deploy",
 		"Deploy Káto's infrastructure on PXE clients.")
+
+	arPxeDeployQuadruplet = cli.Quadruplets(cmdPxeDeploy.Arg("quadruplet",
+		"<number_of_instances>::<host_name>:<comma_separated_list_of_roles>").
+		Required(), []string{""}, cli.KatoRoles)
 )
 
 //-----------------------------------------------------------------------------
@@ -37,7 +41,11 @@ func RunCmd(cmd string) bool {
 
 	// katoctl pxe deploy
 	case cmdPxeDeploy.FullCommand():
-		d := Data{}
+		d := Data{
+			State: State{
+				Quadruplets: *arPxeDeployQuadruplet,
+			},
+		}
 		d.Deploy()
 
 	// Nothing to do:
