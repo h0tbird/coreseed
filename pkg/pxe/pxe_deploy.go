@@ -1,10 +1,17 @@
 package pxe
 
 //-----------------------------------------------------------------------------
-// Package imports:
+// Package factored import statement:
 //-----------------------------------------------------------------------------
 
-import log "github.com/Sirupsen/logrus"
+import (
+
+	// Stdlib:
+	"sync"
+
+	// Community:
+	log "github.com/Sirupsen/logrus"
+)
 
 //-----------------------------------------------------------------------------
 // func: Deploy
@@ -12,5 +19,28 @@ import log "github.com/Sirupsen/logrus"
 
 // Deploy Kato's infrastructure on PXE clients.
 func (d *Data) Deploy() {
-	log.Println("PXE deploy")
+
+	// Initializations:
+	d.command = "deploy"
+	var wg sync.WaitGroup
+
+	// Setup the environment (I):
+	wg.Add(3)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 1")
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 2")
+	}(&wg)
+	go func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 3")
+	}(&wg)
+	wg.Wait()
+
+	// Dump state to file (II):
+
+	// Deploy all the nodes (III):
 }
