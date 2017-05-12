@@ -11,6 +11,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
+	"github.com/katosys/kato/pkg/tools"
 )
 
 //-----------------------------------------------------------------------------
@@ -23,6 +24,10 @@ func (d *Data) Deploy() {
 	// Initializations:
 	d.command = "deploy"
 	var wg sync.WaitGroup
+
+	// Count quorum and master nodes:
+	d.QuorumCount = tools.CountNodes(d.Quadruplets, "quorum")
+	d.MasterCount = tools.CountNodes(d.Quadruplets, "master")
 
 	// Setup the environment (I):
 	wg.Add(3)
