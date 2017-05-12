@@ -17,6 +17,27 @@ import (
 )
 
 //-----------------------------------------------------------------------------
+// func: CountNodes
+//-----------------------------------------------------------------------------
+
+func CountNodes(quads []string, role string) (count int) {
+
+	// Default to zero:
+	count = 0
+
+	// Get the role count:
+	for _, q := range quads {
+		if strings.Contains(q, role) {
+			s := strings.Split(q, ":")
+			count, _ = strconv.Atoi(s[0])
+			break
+		}
+	}
+
+	return
+}
+
+//-----------------------------------------------------------------------------
 // func: ExecutePipeline
 //-----------------------------------------------------------------------------
 

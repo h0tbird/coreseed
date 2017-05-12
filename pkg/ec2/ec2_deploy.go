@@ -28,7 +28,10 @@ func (d *Data) Deploy() {
 	// Initializations:
 	d.command = "deploy"
 	var wg sync.WaitGroup
-	d.countNodes()
+
+	// Count quorum and master nodes:
+	d.QuorumCount = tools.CountNodes(d.Quadruplets, "quorum")
+	d.MasterCount = tools.CountNodes(d.Quadruplets, "master")
 
 	// Setup the environment (I):
 	wg.Add(3)
@@ -52,31 +55,6 @@ func (d *Data) Deploy() {
 
 	// Wait for the nodes:
 	wg.Wait()
-}
-
-//-----------------------------------------------------------------------------
-// func: countNodes
-//-----------------------------------------------------------------------------
-
-func (d *Data) countNodes() {
-
-	// Get the QuorumCount:
-	for _, q := range d.Quadruplets {
-		if strings.Contains(q, "quorum") {
-			s := strings.Split(q, ":")
-			d.QuorumCount, _ = strconv.Atoi(s[0])
-			break
-		}
-	}
-
-	// Get the MasterCount:
-	for _, q := range d.Quadruplets {
-		if strings.Contains(q, "master") {
-			s := strings.Split(q, ":")
-			d.MasterCount, _ = strconv.Atoi(s[0])
-			break
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
