@@ -17,6 +17,7 @@ import (
 	"github.com/katosys/kato/pkg/ec2"
 	"github.com/katosys/kato/pkg/ns1"
 	"github.com/katosys/kato/pkg/pkt"
+	"github.com/katosys/kato/pkg/pxe"
 	"github.com/katosys/kato/pkg/r53"
 	"github.com/katosys/kato/pkg/udata"
 
@@ -53,6 +54,7 @@ func main() {
 	case udata.RunCmd(command):
 	case ec2.RunCmd(command):
 	case pkt.RunCmd(command):
+	case pxe.RunCmd(command):
 	case ns1.RunCmd(command):
 	case r53.RunCmd(command):
 	}
