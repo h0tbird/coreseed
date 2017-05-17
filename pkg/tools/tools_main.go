@@ -116,18 +116,23 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 //-----------------------------------------------------------------------------
 
 // EtcdToken takes quorumCount and returns a valid etcd bootstrap token:
-func EtcdToken(quorumCount int) (string, error) {
+func EtcdToken(wg *sync.WaitGroup, quorumCount int, token *string) error {
+
+	// Decrement:
+	if wg != nil {
+		defer wg.Done()
+	}
 
 	// Request an etcd bootstrap token:
 	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Retrieve the token URL:
 	tokenURL, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// Call the close method:
@@ -135,7 +140,8 @@ func EtcdToken(quorumCount int) (string, error) {
 
 	// Return the token ID:
 	slice := strings.Split(string(tokenURL), "/")
-	return slice[len(slice)-1], nil
+	*token = slice[len(slice)-1]
+	return nil
 }
 
 //-----------------------------------------------------------------------------

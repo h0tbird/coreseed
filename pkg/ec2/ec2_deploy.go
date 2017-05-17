@@ -37,7 +37,7 @@ func (d *Data) Deploy() {
 	wg.Add(3)
 	go d.setupEC2(&wg)
 	go tools.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
-	go d.retrieveEtcdToken(&wg)
+	go tools.EtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
 	wg.Wait()
 
 	// Dump state to file (II):
@@ -89,26 +89,6 @@ func (d *Data) setupEC2(wg *sync.WaitGroup) {
 	// Merge state from state file:
 	if err := d.loadState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-}
-
-//-----------------------------------------------------------------------------
-// func: retrieveEtcdToken
-//-----------------------------------------------------------------------------
-
-func (d *Data) retrieveEtcdToken(wg *sync.WaitGroup) {
-
-	// Decrement:
-	defer wg.Done()
-	var err error
-
-	// Request the token:
-	if d.EtcdToken == "auto" {
-		if d.EtcdToken, err = tools.EtcdToken(d.QuorumCount); err != nil {
-			log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-		}
-		log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.EtcdToken}).
-			Info("New etcd bootstrap token requested")
 	}
 }
 
