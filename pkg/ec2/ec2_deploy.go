@@ -88,12 +88,15 @@ func (d *Data) setupEC2(wch *kato.WaitChan) {
 	// Execute the setup command:
 	cmdSetup.Stderr = os.Stderr
 	if err := cmdSetup.Run(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		wch.ErrChan <- err
+		return
 	}
 
 	// Merge state from state file:
 	if err := d.loadState(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+		log.WithField("cmd", "ec2:"+d.command).Error(err)
+		wch.ErrChan <- err
 	}
 }
 
