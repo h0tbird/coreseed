@@ -37,7 +37,7 @@ func (d *Data) Deploy() {
 	wg.Add(3)
 	go d.setupEC2(&wg)
 	go tools.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
-	go tools.EtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
+	go tools.NewEtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
 	wg.Wait()
 
 	// Dump state to file (II):

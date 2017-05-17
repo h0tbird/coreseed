@@ -112,11 +112,11 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 }
 
 //-----------------------------------------------------------------------------
-// func: EtcdToken
+// func: NewEtcdToken
 //-----------------------------------------------------------------------------
 
-// EtcdToken takes quorumCount and returns a valid etcd bootstrap token:
-func EtcdToken(wg *sync.WaitGroup, quorumCount int, token *string) error {
+// NewEtcdToken takes quorumCount and returns a valid etcd bootstrap token:
+func NewEtcdToken(wg *sync.WaitGroup, quorumCount int, token *string) error {
 
 	// Decrement:
 	if wg != nil {
