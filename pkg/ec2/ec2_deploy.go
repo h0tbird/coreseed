@@ -48,8 +48,6 @@ func (d *Data) Deploy() {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
-	os.Exit(0)
-
 	// Deploy all the nodes (III):
 	for _, q := range d.Quadruplets {
 		wch.WaitGrp.Add(1)

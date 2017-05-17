@@ -7,7 +7,6 @@ package kato
 import (
 
 	// Stdlib:
-
 	"io/ioutil"
 	"net"
 	"net/http"
