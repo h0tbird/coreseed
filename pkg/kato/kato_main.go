@@ -21,6 +21,7 @@ import (
 // func: CountNodes
 //-----------------------------------------------------------------------------
 
+// CountNodes returns the count of <role> nodes defined in <quads>.
 func CountNodes(quads []string, role string) (count int) {
 
 	// Default to zero:
@@ -42,6 +43,7 @@ func CountNodes(quads []string, role string) (count int) {
 // func: CreateDNSZones
 //-----------------------------------------------------------------------------
 
+// CreateDNSZones creates (int|ext).<domain> zones using <provider>.
 func CreateDNSZones(wg *sync.WaitGroup, provider, apiKey, domain string) error {
 
 	// Decrement:
