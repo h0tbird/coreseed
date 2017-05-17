@@ -27,44 +27,51 @@ func (d *Data) Deploy() {
 
 	// Initializations:
 	d.command = "deploy"
-	var wg sync.WaitGroup
+	wch := kato.NewWaitChan(3)
 
 	// Count quorum and master nodes:
 	d.QuorumCount = kato.CountNodes(d.Quadruplets, "quorum")
 	d.MasterCount = kato.CountNodes(d.Quadruplets, "master")
 
 	// Setup the environment (I):
-	wg.Add(3)
-	go d.setupEC2(&wg)
-	go kato.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
-	go kato.NewEtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
-	wg.Wait()
+	go d.setupEC2(wch)
+	go kato.CreateDNSZones(wch, d.DNSProvider, d.DNSApiKey, d.Domain)
+	go kato.NewEtcdToken(wch, d.QuorumCount, &d.EtcdToken)
+
+	// Wait and check for errors:
+	if err := wch.WaitErr(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
 
 	// Dump state to file (II):
 	if err := d.dumpState(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
+	os.Exit(0)
+
 	// Deploy all the nodes (III):
 	for _, q := range d.Quadruplets {
-		wg.Add(1)
+		wch.WaitGrp.Add(1)
 		s := strings.Split(q, ":")
 		i, _ := strconv.Atoi(s[0])
-		go d.deployNodes(i, s[1], s[2], s[3], &wg)
+		go d.deployNodes(wch, i, s[1], s[2], s[3])
 	}
 
 	// Wait for the nodes:
-	wg.Wait()
+	if err := wch.WaitErr(); err != nil {
+		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+	}
 }
 
 //-----------------------------------------------------------------------------
 // func: setupEC2
 //-----------------------------------------------------------------------------
 
-func (d *Data) setupEC2(wg *sync.WaitGroup) {
+func (d *Data) setupEC2(wch *kato.WaitChan) {
 
 	// Decrement:
-	defer wg.Done()
+	defer wch.WaitGrp.Done()
 
 	// Log this action:
 	log.WithFields(log.Fields{"cmd": "ec2:" + d.command, "id": d.Domain}).
@@ -96,10 +103,10 @@ func (d *Data) setupEC2(wg *sync.WaitGroup) {
 // func: deployNodes
 //-----------------------------------------------------------------------------
 
-func (d *Data) deployNodes(count int, itype, hostname, roles string, wg *sync.WaitGroup) {
+func (d *Data) deployNodes(wch *kato.WaitChan, count int, itype, hostname, roles string) {
 
 	// Decrement:
-	defer wg.Done()
+	defer wch.WaitGrp.Done()
 	var wgInt sync.WaitGroup
 
 	log.WithField("cmd", "ec2:"+d.command).

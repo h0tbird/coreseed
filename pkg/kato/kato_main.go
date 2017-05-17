@@ -1,12 +1,13 @@
 package kato
 
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Package factored import statement:
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 import (
 
 	// Stdlib:
+
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -16,6 +17,44 @@ import (
 	"strings"
 	"sync"
 )
+
+//-----------------------------------------------------------------------------
+// WaitChan stuff:
+//-----------------------------------------------------------------------------
+
+// WaitChan is used to handle errors that occur in some goroutines.
+type WaitChan struct {
+	WaitGrp sync.WaitGroup
+	ErrChan chan error
+	EndChan chan bool
+}
+
+// NewWaitChan initializes a WaitChan struct.
+func NewWaitChan(len int) *WaitChan {
+	wch := new(WaitChan)
+	wch.WaitGrp.Add(len)
+	wch.ErrChan = make(chan error, 1)
+	wch.EndChan = make(chan bool, 1)
+	return wch
+}
+
+// WaitErr waits for any error or for all go routines to finish.
+func (wch *WaitChan) WaitErr() error {
+
+	// Put the wait group in a go routine:
+	go func() {
+		wch.WaitGrp.Wait()
+		close(wch.EndChan)
+	}()
+
+	// This select will block:
+	select {
+	case <-wch.EndChan:
+		return nil
+	case err := <-wch.ErrChan:
+		return err
+	}
+}
 
 //-----------------------------------------------------------------------------
 // func: CountNodes
@@ -44,11 +83,11 @@ func CountNodes(quads []string, role string) (count int) {
 //-----------------------------------------------------------------------------
 
 // CreateDNSZones creates (int|ext).<domain> zones using <provider>.
-func CreateDNSZones(wg *sync.WaitGroup, provider, apiKey, domain string) error {
+func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) error {
 
 	// Decrement:
-	if wg != nil {
-		defer wg.Done()
+	if wch != nil {
+		defer wch.WaitGrp.Done()
 	}
 
 	// Forge the zone command:
@@ -118,11 +157,11 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 //-----------------------------------------------------------------------------
 
 // NewEtcdToken takes quorumCount and returns a valid etcd bootstrap token:
-func NewEtcdToken(wg *sync.WaitGroup, quorumCount int, token *string) error {
+func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
 
 	// Decrement:
-	if wg != nil {
-		defer wg.Done()
+	if wch != nil {
+		defer wch.WaitGrp.Done()
 	}
 
 	// Request an etcd bootstrap token:
