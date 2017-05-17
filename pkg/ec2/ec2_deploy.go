@@ -15,7 +15,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/katosys/kato/pkg/tools"
+	"github.com/katosys/kato/pkg/kato"
 )
 
 //-----------------------------------------------------------------------------
@@ -30,14 +30,14 @@ func (d *Data) Deploy() {
 	var wg sync.WaitGroup
 
 	// Count quorum and master nodes:
-	d.QuorumCount = tools.CountNodes(d.Quadruplets, "quorum")
-	d.MasterCount = tools.CountNodes(d.Quadruplets, "master")
+	d.QuorumCount = kato.CountNodes(d.Quadruplets, "quorum")
+	d.MasterCount = kato.CountNodes(d.Quadruplets, "master")
 
 	// Setup the environment (I):
 	wg.Add(3)
 	go d.setupEC2(&wg)
-	go tools.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
-	go tools.NewEtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
+	go kato.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
+	go kato.NewEtcdToken(&wg, d.QuorumCount, &d.EtcdToken)
 	wg.Wait()
 
 	// Dump state to file (II):
