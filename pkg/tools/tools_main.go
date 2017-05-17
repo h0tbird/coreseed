@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 //-----------------------------------------------------------------------------
@@ -35,6 +36,31 @@ func CountNodes(quads []string, role string) (count int) {
 	}
 
 	return
+}
+
+//-----------------------------------------------------------------------------
+// func: CreateDNSZones
+//-----------------------------------------------------------------------------
+
+func CreateDNSZones(wg *sync.WaitGroup, provider, apiKey, domain string) error {
+
+	// Decrement:
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	// Forge the zone command:
+	cmd := exec.Command("katoctl", provider,
+		"--api-key", apiKey, "zone", "add",
+		domain, "int."+domain, "ext."+domain)
+
+	// Execute the zone command:
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------

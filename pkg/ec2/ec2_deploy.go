@@ -36,7 +36,7 @@ func (d *Data) Deploy() {
 	// Setup the environment (I):
 	wg.Add(3)
 	go d.setupEC2(&wg)
-	go d.createDNSZones(&wg)
+	go tools.CreateDNSZones(&wg, d.DNSProvider, d.DNSApiKey, d.Domain)
 	go d.retrieveEtcdToken(&wg)
 	wg.Wait()
 
@@ -88,27 +88,6 @@ func (d *Data) setupEC2(wg *sync.WaitGroup) {
 
 	// Merge state from state file:
 	if err := d.loadState(); err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
-	}
-}
-
-//-----------------------------------------------------------------------------
-// func: createDNSZones
-//-----------------------------------------------------------------------------
-
-func (d *Data) createDNSZones(wg *sync.WaitGroup) {
-
-	// Decrement:
-	defer wg.Done()
-
-	// Forge the zone command:
-	cmdZoneSetup := exec.Command("katoctl", d.DNSProvider,
-		"--api-key", d.DNSApiKey, "zone", "add",
-		d.Domain, "int."+d.Domain, "ext."+d.Domain)
-
-	// Execute the zone command:
-	cmdZoneSetup.Stderr = os.Stderr
-	if err := cmdZoneSetup.Run(); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
