@@ -7,6 +7,7 @@ package kato
 import (
 
 	// Stdlib:
+	"encoding/json"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -53,6 +54,38 @@ func (wch *WaitChan) WaitErr() error {
 	case err := <-wch.ErrChan:
 		return err
 	}
+}
+
+//-----------------------------------------------------------------------------
+// func: DumpState
+//-----------------------------------------------------------------------------
+
+func DumpState(s interface{}, id string) error {
+
+	// Marshal the data:
+	data, err := json.MarshalIndent(s, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	// Create the state directory:
+	path := os.Getenv("HOME") + "/.kato"
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			err = os.Mkdir(path, 0700)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// Write the state file:
+	err = ioutil.WriteFile(path+"/"+id+".json", data, 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------

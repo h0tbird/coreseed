@@ -44,7 +44,7 @@ func (d *Data) Deploy() {
 	}
 
 	// Dump state to file (II):
-	if err := d.dumpState(); err != nil {
+	if err := kato.DumpState(d.State, d.ClusterID); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 
