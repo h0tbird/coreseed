@@ -132,7 +132,8 @@ func (d *Data) deployNodes(wch *kato.WaitChan, count int, itype, hostname, roles
 			// Execute the add command:
 			cmdAdd.Stderr = os.Stderr
 			if err := cmdAdd.Run(); err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Fatal(err)
+				log.WithField("cmd", "ec2:"+d.command).Error(err)
+				wch.ErrChan <- err
 			}
 		}(i)
 	}
