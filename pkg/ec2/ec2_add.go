@@ -17,7 +17,7 @@ import (
 
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/katosys/kato/pkg/tools"
+	"github.com/katosys/kato/pkg/kato"
 )
 
 //-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ func (d *Data) Add() {
 	}
 
 	// Execute the udata|run pipeline:
-	out, err := tools.ExecutePipeline(d.forgeUdataCommand(), d.forgeRunCommand())
+	out, err := kato.ExecutePipeline(d.forgeUdataCommand(), d.forgeRunCommand())
 	if err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
@@ -173,7 +173,7 @@ func (d *Data) forgeRunCommand() *exec.Cmd {
 	// Append flags if present:
 	if strings.Contains(d.Roles, "master") {
 		i, _ := strconv.Atoi(d.HostID)
-		args = append(args, "--private-ip", tools.OffsetIP(d.ExtSubnetCidr, 10+i))
+		args = append(args, "--private-ip", kato.OffsetIP(d.ExtSubnetCidr, 10+i))
 	}
 	if strings.Contains(d.Roles, "worker") {
 		args = append(args, "--elb-name", d.ClusterID)

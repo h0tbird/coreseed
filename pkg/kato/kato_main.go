@@ -1,8 +1,8 @@
-package tools
+package kato
 
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Package factored import statement:
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 import (
 
@@ -14,12 +14,52 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+//-----------------------------------------------------------------------------
+// WaitChan stuff:
+//-----------------------------------------------------------------------------
+
+// WaitChan is used to handle errors that occur in some goroutines.
+type WaitChan struct {
+	WaitGrp sync.WaitGroup
+	ErrChan chan error
+	EndChan chan bool
+}
+
+// NewWaitChan initializes a WaitChan struct.
+func NewWaitChan(len int) *WaitChan {
+	wch := new(WaitChan)
+	wch.WaitGrp.Add(len)
+	wch.ErrChan = make(chan error, 1)
+	wch.EndChan = make(chan bool, 1)
+	return wch
+}
+
+// WaitErr waits for any error or for all go routines to finish.
+func (wch *WaitChan) WaitErr() error {
+
+	// Put the wait group in a go routine:
+	go func() {
+		wch.WaitGrp.Wait()
+		wch.EndChan <- true
+	}()
+
+	// This select will block:
+	select {
+	case <-wch.EndChan:
+		return nil
+	case err := <-wch.ErrChan:
+		return err
+	}
+}
 
 //-----------------------------------------------------------------------------
 // func: CountNodes
 //-----------------------------------------------------------------------------
 
+// CountNodes returns the count of <role> nodes defined in <quads>.
 func CountNodes(quads []string, role string) (count int) {
 
 	// Default to zero:
@@ -35,6 +75,35 @@ func CountNodes(quads []string, role string) (count int) {
 	}
 
 	return
+}
+
+//-----------------------------------------------------------------------------
+// func: CreateDNSZones
+//-----------------------------------------------------------------------------
+
+// CreateDNSZones creates (int|ext).<domain> zones using <provider>.
+func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) error {
+
+	// Decrement:
+	if wch != nil {
+		defer wch.WaitGrp.Done()
+	}
+
+	// Forge the zone command:
+	cmd := exec.Command("katoctl", provider,
+		"--api-key", apiKey, "zone", "add",
+		domain, "int."+domain, "ext."+domain)
+
+	// Execute the zone command:
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		if wch != nil {
+			wch.ErrChan <- err
+		}
+		return err
+	}
+
+	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -86,22 +155,33 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 }
 
 //-----------------------------------------------------------------------------
-// func: EtcdToken
+// func: NewEtcdToken
 //-----------------------------------------------------------------------------
 
-// EtcdToken takes quorumCount and returns a valid etcd bootstrap token:
-func EtcdToken(quorumCount int) (string, error) {
+// NewEtcdToken takes quorumCount and returns a valid etcd bootstrap token:
+func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
+
+	// Decrement:
+	if wch != nil {
+		defer wch.WaitGrp.Done()
+	}
 
 	// Request an etcd bootstrap token:
 	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
-		return "", err
+		if wch != nil {
+			wch.ErrChan <- err
+		}
+		return err
 	}
 
 	// Retrieve the token URL:
 	tokenURL, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return "", err
+		if wch != nil {
+			wch.ErrChan <- err
+		}
+		return err
 	}
 
 	// Call the close method:
@@ -109,7 +189,8 @@ func EtcdToken(quorumCount int) (string, error) {
 
 	// Return the token ID:
 	slice := strings.Split(string(tokenURL), "/")
-	return slice[len(slice)-1], nil
+	*token = slice[len(slice)-1]
+	return nil
 }
 
 //-----------------------------------------------------------------------------
