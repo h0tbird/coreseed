@@ -6,12 +6,9 @@ package pxe
 
 import (
 
-	// Stdlib:
-	"sync"
-
 	// Community:
 	log "github.com/Sirupsen/logrus"
-	"github.com/katosys/kato/pkg/tools"
+	"github.com/katosys/kato/pkg/kato"
 )
 
 //-----------------------------------------------------------------------------
@@ -23,27 +20,20 @@ func (d *Data) Deploy() {
 
 	// Initializations:
 	d.command = "deploy"
-	var wg sync.WaitGroup
+	wch := kato.NewWaitChan(2)
 
 	// Count quorum and master nodes:
-	d.QuorumCount = tools.CountNodes(d.Quadruplets, "quorum")
-	d.MasterCount = tools.CountNodes(d.Quadruplets, "master")
+	d.QuorumCount = kato.CountNodes(d.Quadruplets, "quorum")
+	d.MasterCount = kato.CountNodes(d.Quadruplets, "master")
 
 	// Setup the environment (I):
-	wg.Add(3)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 1")
-	}(&wg)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 2")
-	}(&wg)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
-		log.WithField("cmd", "pxe:"+d.command).Info("PXE deploy 3")
-	}(&wg)
-	wg.Wait()
+	go kato.CreateDNSZones(wch, d.DNSProvider, d.DNSApiKey, d.Domain)
+	go kato.NewEtcdToken(wch, d.QuorumCount, &d.EtcdToken)
+
+	// Wait and check for errors:
+	if err := wch.WaitErr(); err != nil {
+		log.WithField("cmd", "pxe:"+d.command).Fatal(err)
+	}
 
 	// Dump state to file (II):
 
