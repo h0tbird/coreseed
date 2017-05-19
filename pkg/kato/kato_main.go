@@ -43,7 +43,7 @@ func (wch *WaitChan) WaitErr() error {
 	// Put the wait group in a go routine:
 	go func() {
 		wch.WaitGrp.Wait()
-		close(wch.EndChan)
+		wch.EndChan <- true
 	}()
 
 	// This select will block:
