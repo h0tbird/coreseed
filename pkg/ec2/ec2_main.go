@@ -8,8 +8,6 @@ import (
 
 	// Stdlib:
 	"encoding/json"
-	"io/ioutil"
-	"os"
 	"strings"
 	"time"
 
@@ -104,41 +102,6 @@ type Data struct {
 	svc
 	Instance
 	State
-}
-
-//-----------------------------------------------------------------------------
-// func: dumpState
-//-----------------------------------------------------------------------------
-
-func (d *Data) dumpState() error {
-
-	// Marshal the data:
-	data, err := json.MarshalIndent(d.State, "", "  ")
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
-	}
-
-	// Create the state directory:
-	path := os.Getenv("HOME") + "/.kato"
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			err = os.Mkdir(path, 0700)
-			if err != nil {
-				log.WithField("cmd", "ec2:"+d.command).Error(err)
-				return err
-			}
-		}
-	}
-
-	// Write the state file:
-	err = ioutil.WriteFile(path+"/"+d.ClusterID+".json", data, 0600)
-	if err != nil {
-		log.WithField("cmd", "ec2:"+d.command).Error(err)
-		return err
-	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------

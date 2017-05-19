@@ -20,6 +20,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/katosys/kato/pkg/kato"
 )
 
 //-----------------------------------------------------------------------------
@@ -61,7 +62,7 @@ func (d *Data) Setup() {
 	wg.Wait()
 
 	// Dump state to file:
-	if err := d.dumpState(); err != nil {
+	if err := kato.DumpState(d.State, d.ClusterID); err != nil {
 		log.WithField("cmd", "ec2:"+d.command).Fatal(err)
 	}
 }
