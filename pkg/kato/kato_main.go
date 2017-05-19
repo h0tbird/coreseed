@@ -97,6 +97,9 @@ func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) error {
 	// Execute the zone command:
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
+		if wch != nil {
+			wch.ErrChan <- err
+		}
 		return err
 	}
 
@@ -166,12 +169,18 @@ func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
 	// Request an etcd bootstrap token:
 	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
+		if wch != nil {
+			wch.ErrChan <- err
+		}
 		return err
 	}
 
 	// Retrieve the token URL:
 	tokenURL, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		if wch != nil {
+			wch.ErrChan <- err
+		}
 		return err
 	}
 
