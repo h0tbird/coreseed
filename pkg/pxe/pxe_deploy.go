@@ -36,6 +36,9 @@ func (d *Data) Deploy() {
 	}
 
 	// Dump state to file (II):
+	if err := kato.DumpState(d.State, d.ClusterID); err != nil {
+		log.WithField("cmd", "pxe:"+d.command).Fatal(err)
+	}
 
 	// Deploy all the nodes (III):
 }

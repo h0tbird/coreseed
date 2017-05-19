@@ -25,6 +25,11 @@ var (
 	cmdPxeDeploy = cmdPxe.Command("deploy",
 		"Deploy Káto's infrastructure on PXE clients.")
 
+	flPxeDeployClusterID = cli.RegexpMatch(cmdPxeDeploy.Flag("cluster-id",
+		"Cluster ID for later reference.").
+		Required().PlaceHolder("KATO_PXE_DEPLOY_CLUSTER_ID").
+		OverrideDefaultFromEnvar("KATO_PXE_DEPLOY_CLUSTER_ID"), "^[a-zA-Z0-9-]+$")
+
 	flPxeDeployDNSProvider = cmdPxeDeploy.Flag("dns-provider",
 		"DNS provider [ none | ns1 | r53 ]").
 		Default("r53").PlaceHolder("KATO_PXE_DEPLOY_DNS_PROVIDER").
@@ -66,6 +71,7 @@ func RunCmd(cmd string) bool {
 	case cmdPxeDeploy.FullCommand():
 		d := Data{
 			State: State{
+				ClusterID:   *flPxeDeployClusterID,
 				DNSProvider: *flPxeDeployDNSProvider,
 				DNSApiKey:   *flPxeDeployDNSApiKey,
 				Domain:      *flPxeDeployDomain,

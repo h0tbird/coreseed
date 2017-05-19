@@ -13,6 +13,7 @@ type State struct {
 	DNSApiKey   string   `json:"DNSApiKey"`
 	Domain      string   `json:"Domain"`
 	EtcdToken   string   `json:"EtcdToken"`
+	ClusterID   string   `json:"ClusterID"`
 }
 
 // Data struct for PXE instance and state data.
