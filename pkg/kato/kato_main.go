@@ -60,7 +60,8 @@ func (wch *WaitChan) WaitErr() error {
 // func: DumpState
 //-----------------------------------------------------------------------------
 
-func DumpState(s interface{}, id string) error {
+// DumpState serializes the given state as a clusterID JSON file.
+func DumpState(s interface{}, clusterID string) error {
 
 	// Marshal the data:
 	data, err := json.MarshalIndent(s, "", "  ")
@@ -80,7 +81,7 @@ func DumpState(s interface{}, id string) error {
 	}
 
 	// Write the state file:
-	err = ioutil.WriteFile(path+"/"+id+".json", data, 0600)
+	err = ioutil.WriteFile(path+"/"+clusterID+".json", data, 0600)
 	if err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ func DumpState(s interface{}, id string) error {
 // func: ReadState
 //-----------------------------------------------------------------------------
 
-// ReadState reads the current ClusterID state file:
+// ReadState reads the current ClusterID state file.
 func ReadState(clusterID string) ([]byte, error) {
 
 	// Read data from state file:
