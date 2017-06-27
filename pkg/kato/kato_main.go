@@ -132,12 +132,10 @@ func CountNodes(quads []string, role string) (count int) {
 //-----------------------------------------------------------------------------
 
 // CreateDNSZones creates (int|ext).<domain> zones using <provider>.
-func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) error {
+func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) {
 
 	// Decrement:
-	if wch != nil {
-		defer wch.WaitGrp.Done()
-	}
+	defer wch.WaitGrp.Done()
 
 	// Forge the zone command:
 	cmd := exec.Command("katoctl", provider,
@@ -147,13 +145,8 @@ func CreateDNSZones(wch *WaitChan, provider, apiKey, domain string) error {
 	// Execute the zone command:
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		if wch != nil {
-			wch.ErrChan <- err
-		}
-		return err
+		wch.ErrChan <- err
 	}
-
-	return nil
 }
 
 //-----------------------------------------------------------------------------
@@ -209,29 +202,21 @@ func ExecutePipeline(cmd1, cmd2 *exec.Cmd) ([]byte, error) {
 //-----------------------------------------------------------------------------
 
 // NewEtcdToken takes quorumCount and returns a valid etcd bootstrap token:
-func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
+func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) {
 
 	// Decrement:
-	if wch != nil {
-		defer wch.WaitGrp.Done()
-	}
+	defer wch.WaitGrp.Done()
 
 	// Request an etcd bootstrap token:
 	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
-		if wch != nil {
-			wch.ErrChan <- err
-		}
-		return err
+		wch.ErrChan <- err
 	}
 
 	// Retrieve the token URL:
 	tokenURL, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		if wch != nil {
-			wch.ErrChan <- err
-		}
-		return err
+		wch.ErrChan <- err
 	}
 
 	// Call the close method:
@@ -240,7 +225,6 @@ func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
 	// Return the token ID:
 	slice := strings.Split(string(tokenURL), "/")
 	*token = slice[len(slice)-1]
-	return nil
 }
 
 //-----------------------------------------------------------------------------
