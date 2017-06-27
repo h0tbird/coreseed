@@ -89,6 +89,23 @@ func DumpState(s interface{}, id string) error {
 }
 
 //-----------------------------------------------------------------------------
+// func: ReadState
+//-----------------------------------------------------------------------------
+
+// ReadState reads the current ClusterID state file:
+func ReadState(clusterID string) ([]byte, error) {
+
+	// Read data from state file:
+	stateFile := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
+	raw, err := ioutil.ReadFile(stateFile)
+	if err != nil {
+		return nil, err
+	}
+
+	return raw, nil
+}
+
+//-----------------------------------------------------------------------------
 // func: CountNodes
 //-----------------------------------------------------------------------------
 
@@ -224,24 +241,6 @@ func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) error {
 	slice := strings.Split(string(tokenURL), "/")
 	*token = slice[len(slice)-1]
 	return nil
-}
-
-//-----------------------------------------------------------------------------
-// func: LoadState
-//-----------------------------------------------------------------------------
-
-// LoadState reads the current ClusterID state file and decodes its content
-// into a data structure:
-func LoadState(clusterID string) ([]byte, error) {
-
-	// Load data from state file:
-	stateFile := os.Getenv("HOME") + "/.kato/" + clusterID + ".json"
-	raw, err := ioutil.ReadFile(stateFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return raw, nil
 }
 
 //-----------------------------------------------------------------------------

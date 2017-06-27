@@ -110,8 +110,8 @@ type Data struct {
 
 func (d *Data) loadState() error {
 
-	// Load raw data from state file:
-	raw, err := kato.LoadState(d.ClusterID)
+	// Read raw data from state file:
+	raw, err := kato.ReadState(d.ClusterID)
 	if err != nil {
 		return err
 	}
