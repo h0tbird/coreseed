@@ -1143,7 +1143,7 @@ coreos:
      TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.2.0-1
+     Environment=IMG=quay.io/kato/mesos:v1.2.1-2
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
@@ -1152,7 +1152,7 @@ coreos:
       ${IMG} --exec cp -- -R /opt /media
      ExecStart=/usr/bin/bash -c " \
       PATH=/opt/bin:${PATH} \
-      LD_LIBRARY_PATH=/lib64:/opt/lib \
+      LD_LIBRARY_PATH=/opt/lib:/lib64 \
       exec /opt/bin/mesos-master \
        --hostname=master-${KATO_HOST_ID}.${KATO_DOMAIN} \
        --cluster=${KATO_CLUSTER_ID} \
@@ -1835,7 +1835,7 @@ coreos:
      TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.2.0-1
+     Environment=IMG=quay.io/kato/mesos:v1.2.1-2
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
@@ -1844,9 +1844,9 @@ coreos:
       ${IMG} --exec cp -- -R /opt /media
      ExecStart=/usr/bin/bash -c " \
       PATH=/opt/bin:${PATH} \
-      LD_LIBRARY_PATH=/lib64:/opt/lib \
+      LD_LIBRARY_PATH=/opt/lib:/lib64 \
       exec /opt/bin/mesos-agent \
-      --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/lib64:/opt/lib\"}' \
+      --executor_environment_variables='{\"LD_LIBRARY_PATH\": \"/opt/lib:/lib64\"}' \
       --hostname=worker-${KATO_HOST_ID}.${KATO_DOMAIN} \
       --ip=${KATO_PRI_IP} \
       --containerizers=mesos,docker \
