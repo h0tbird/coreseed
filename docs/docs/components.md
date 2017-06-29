@@ -82,7 +82,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/google/cadvisor">cAdvisor</a></th>
-      <td><a href="https://github.com/google/cadvisor/releases/tag/v0.25.0">0.25.0</a></td>
+      <td><a href="https://github.com/google/cadvisor/releases/tag/v0.26.1">0.26.1</a></td>
       <td><a href="https://github.com/google/cadvisor/releases/tag/v0.25.0">0.25.0</a></td>
       <td><a href="https://github.com/google/cadvisor/releases/tag/v0.24.1">0.24.1</a></td>
       <td><a href="https://hub.docker.com/r/google/cadvisor"><img src="https://img.shields.io/docker/pulls/google/cadvisor.svg"></a></td>

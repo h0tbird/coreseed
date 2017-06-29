@@ -1500,7 +1500,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=URL=https://github.com/google/cadvisor/releases/download/v0.25.0
+     Environment=URL=https://github.com/google/cadvisor/releases/download/v0.26.1
      ExecStartPre=/bin/bash -c " \
       [ -f /opt/bin/cadvisor ] || { curl -sL -o /opt/bin/cadvisor ${URL}/cadvisor; }; \
       [ -x /opt/bin/cadvisor ] || { chmod +x /opt/bin/cadvisor; }"
