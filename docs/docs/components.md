@@ -68,7 +68,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://prometheus.io/docs/alerting/alertmanager">Alertmanager</a></th>
-      <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.6.1">0.6.1</a></td>
+      <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.7.1">0.7.1</a></td>
       <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.5.1">0.5.1</a></td>
       <td><a href="https://github.com/prometheus/alertmanager/releases/tag/v0.5.1">0.5.1</a></td>
       <td><a href="https://quay.io/repository/kato/alertmanager"><img src="https://quay.io/repository/kato/alertmanager/status"></a></td>

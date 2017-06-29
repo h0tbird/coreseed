@@ -1361,7 +1361,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/alertmanager:v0.6.1-1
+     Environment=IMG=quay.io/kato/alertmanager:v0.7.1-1
      ExecStartPre=/usr/bin/sh -c "[ -d /etc/alertmanager ] || mkdir -p /etc/alertmanager"
      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/alertmanager ] || mkdir -p /var/lib/alertmanager"
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
