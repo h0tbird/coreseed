@@ -1324,7 +1324,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=process
      EnvironmentFile=/etc/rexray/rexray.env
-     Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.8.2/rexray-Linux-x86_64-0.8.2.tar.gz
+     Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.9.2/rexray-Linux-x86_64-0.9.2.tar.gz
      Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.1/dvdcli-Linux-x86_64-0.2.1.tar.gz
      ExecStartPre=-/bin/bash -c " \
        [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/rexray; }; \
