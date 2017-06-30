@@ -89,7 +89,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://pritunl.com">Pritunl</a></th>
-      <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.27.1259.77">1.27</a></td>
+      <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.28.1379.82">1.28</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.27.1259.77">1.27</a></td>
       <td><a href="https://github.com/pritunl/pritunl/releases/tag/1.27.1259.77">1.27</a></td>
       <td><a href="https://quay.io/repository/kato/pritunl"><img src="https://quay.io/repository/kato/pritunl/status"></a></td>

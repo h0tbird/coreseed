@@ -1751,7 +1751,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      LimitNOFILE=25000
-     Environment=IMG=quay.io/kato/pritunl:v1.27.1259.77-1
+     Environment=IMG=quay.io/kato/pritunl:v1.28.1379.82-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
       --net=host \
