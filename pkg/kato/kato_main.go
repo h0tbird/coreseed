@@ -8,11 +8,13 @@ import (
 
 	// Stdlib:
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -208,23 +210,42 @@ func NewEtcdToken(wch *WaitChan, quorumCount int, token *string) {
 	// Decrement:
 	defer wch.WaitGrp.Done()
 
-	// Request an etcd bootstrap token:
-	res, err := http.Get("https://discovery.etcd.io/new?size=" + strconv.Itoa(quorumCount))
+	// Send the request:
+	const etcdIO = "https://discovery.etcd.io/"
+	res, err := http.Get(etcdIO + "new?size=" + strconv.Itoa(quorumCount))
 	if err != nil {
 		wch.ErrChan <- err
+		return
 	}
 
-	// Retrieve the token URL:
-	tokenURL, err := ioutil.ReadAll(res.Body)
+	// Get the response body:
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		wch.ErrChan <- err
+		return
 	}
 
 	// Call the close method:
-	_ = res.Body.Close()
+	if err := res.Body.Close(); err != nil {
+		wch.ErrChan <- err
+		return
+	}
+
+	// Test whether pattern matches string:
+	match, err := regexp.MatchString(etcdIO+"([a-z,0-9]+$)", string(body))
+	if err != nil {
+		wch.ErrChan <- err
+		return
+	}
+
+	// Return if invalid:
+	if !match {
+		wch.ErrChan <- errors.New("Invalid etcd token retrieved")
+		return
+	}
 
 	// Return the token ID:
-	slice := strings.Split(string(tokenURL), "/")
+	slice := strings.Split(string(body), "/")
 	*token = slice[len(slice)-1]
 }
 
