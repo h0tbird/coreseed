@@ -326,13 +326,13 @@ func (d *Data) stdoutIPs() error {
 			}
 		}
 
-		// Break if IP:
-		if m["internal"] != "" {
-			break
+		// Sleep and try again:
+		if m["internal"] == "" {
+			time.Sleep(2 * time.Second)
+			continue
 		}
 
-		// Sleep and try again:
-		time.Sleep(2 * time.Second)
+		break
 	}
 
 	// JSON encode:
