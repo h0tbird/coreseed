@@ -108,7 +108,7 @@ func (d *Data) runInstance(udata []byte) error {
 		if err != nil {
 			ec2err, ok := err.(awserr.Error)
 			if ok && strings.Contains(ec2err.Code(), "InvalidParameterValue") {
-				time.Sleep(2e9)
+				time.Sleep(2 * time.Second)
 				continue
 			}
 			return err
@@ -291,6 +291,9 @@ func (d *Data) registerWithELB() error {
 
 func (d *Data) stdoutIPs() error {
 
+	// Map to store the output:
+	m := make(map[string]string)
+
 	// Forge the describe request:
 	params := &ec2.DescribeNetworkInterfacesInput{
 		NetworkInterfaceIds: []*string{
@@ -298,29 +301,38 @@ func (d *Data) stdoutIPs() error {
 		},
 	}
 
-	// Send the describe request:
-	resp, err := d.ec2.DescribeNetworkInterfaces(params)
-	if err != nil {
-		return err
-	}
+	// Retry loop:
+	for i := 0; i < 5; i++ {
 
-	// Map to store the output:
-	m := make(map[string]string)
-
-	// Extract data from response:
-	if len(resp.NetworkInterfaces) > 0 && len(resp.NetworkInterfaces[0].PrivateIpAddresses) > 0 {
-
-		// Internal IP address:
-		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress != nil {
-			m["internal"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress
+		// Send the describe request:
+		resp, err := d.ec2.DescribeNetworkInterfaces(params)
+		if err != nil {
+			return err
 		}
 
-		// External IP address:
-		if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association != nil {
-			if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp != nil {
-				m["external"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp
+		// Extract data from response:
+		if len(resp.NetworkInterfaces) > 0 && len(resp.NetworkInterfaces[0].PrivateIpAddresses) > 0 {
+
+			// Internal IP address:
+			if resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress != nil {
+				m["internal"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress
+			}
+
+			// External IP address:
+			if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association != nil {
+				if resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp != nil {
+					m["external"] = *resp.NetworkInterfaces[0].PrivateIpAddresses[0].Association.PublicIp
+				}
 			}
 		}
+
+		// Break if IP:
+		if m["internal"] != "" {
+			break
+		}
+
+		// Sleep and try again:
+		time.Sleep(2 * time.Second)
 	}
 
 	// JSON encode:

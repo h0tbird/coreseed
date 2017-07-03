@@ -398,7 +398,7 @@ func (d *Data) attachInternetGateway() error {
 			if ec2err, ok := err.(awserr.Error); ok {
 				switch ec2err.Code() {
 				case "InvalidInternetGatewayID.NotFound":
-					time.Sleep(1e9)
+					time.Sleep(1 * time.Second)
 					continue
 				case "Resource.AlreadyAssociated":
 					log.WithField("cmd", "ec2:"+d.command).

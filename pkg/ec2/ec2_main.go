@@ -156,7 +156,7 @@ func (d *Data) tag(resource, key, value string) error {
 		if _, err := d.ec2.CreateTags(params); err != nil {
 			ec2err, ok := err.(awserr.Error)
 			if ok && strings.Contains(ec2err.Code(), ".NotFound") {
-				time.Sleep(1e9)
+				time.Sleep(1 * time.Second)
 				continue
 			}
 			log.WithField("cmd", "ec2:"+d.command).Error(err)
