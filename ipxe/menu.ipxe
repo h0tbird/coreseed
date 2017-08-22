@@ -1,0 +1,54 @@
+#!ipxe
+
+set timeout 5000
+
+:menu
+menu Kato iPXE
+item --gap --       ------------------------------- Local stuff -------------------------------
+item --key d disk    Boot from local (d)isk
+item --key r reboot  (R)eboot computer
+item --key s shell   Drop to iPXE (s)hell
+item --key x exit    E(x)it and continue BIOS boot order
+item
+item --gap --       ------------------------------- Single role -------------------------------
+item --key q quorum  Install as a (q)uorum node
+item --key m master  Install as a (m)aster node
+item --key w worker  Install as a (w)orker node
+item
+item --gap --       -------------------------------- Multirole --------------------------------
+item --key q ainone  Install as an (a)ll-in-one node
+choose --default disk --timeout ${timeout} sel && goto ${sel}
+goto menu
+
+:disk
+sanboot --no-describe --drive 0x80
+
+:reboot
+reboot
+
+:restart
+set timeout 0
+sleep 3
+goto menu
+
+:shell
+shell && goto restart
+
+:exit
+exit
+
+:quorum
+echo Booting from ipxe.<domain> enter your domain: && read domain
+dhcp && chain http://ipxe.${domain}/ipxe?roles=quorum || goto restart
+
+:master
+echo Booting from ipxe.<domain> enter your domain: && read domain
+dhcp && chain http://ipxe.${domain}/ipxe?roles=master || goto restart
+
+:worker
+echo Booting from ipxe.<domain> enter your domain: && read domain
+dhcp && chain http://ipxe.${domain}/ipxe?roles=worker || goto restart
+
+:ainone
+echo Booting from ipxe.<domain> enter your domain: && read domain
+dhcp && chain http://ipxe.${domain}/ipxe?roles=quorum,master,worker || goto restart
