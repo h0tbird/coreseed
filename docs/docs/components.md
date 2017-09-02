@@ -26,7 +26,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="http://mesos.apache.org">Mesos</a></th>
-      <td><a href="https://github.com/apache/mesos">1.2.1</a></td>
+      <td><a href="https://github.com/apache/mesos">1.3.1</a></td>
       <td><a href="https://github.com/apache/mesos">1.2.0</a></td>
       <td><a href="https://github.com/apache/mesos">1.2.0</a></td>
       <td><a href="https://quay.io/repository/kato/mesos"><img src="https://quay.io/repository/kato/mesos/status"></a></td>

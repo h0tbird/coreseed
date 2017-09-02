@@ -1143,7 +1143,7 @@ coreos:
      TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.2.1-2
+     Environment=IMG=quay.io/kato/mesos:v1.3.1-1
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
@@ -1835,7 +1835,7 @@ coreos:
      TasksMax=infinity
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/mesos:v1.2.1-2
+     Environment=IMG=quay.io/kato/mesos:v1.3.1-1
      ExecStartPre=/opt/bin/zk-alive ${KATO_QUORUM_COUNT}
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStartPre=/usr/bin/rkt run \
