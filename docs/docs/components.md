@@ -47,7 +47,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/mesosphere/marathon-lb">Marathon-lb</a></th>
-      <td><a href="https://github.com/mesosphere/marathon-lb/releases/tag/v1.7.0">1.7.0</a></td>
+      <td><a href="https://github.com/mesosphere/marathon-lb/releases/tag/v1.10.0">1.10.0</a></td>
       <td><a href="https://github.com/mesosphere/marathon-lb/releases/tag/v1.6.0">1.6.0</a></td>
       <td><a href="https://github.com/mesosphere/marathon-lb/releases/tag/v1.5.0">1.5.0</a></td>
       <td><a href="https://hub.docker.com/r/mesosphere/marathon-lb"><img src="https://img.shields.io/docker/pulls/mesosphere/marathon-lb.svg"></a></td>
