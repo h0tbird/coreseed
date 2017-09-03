@@ -103,7 +103,7 @@ title: Components
     </tr>
     <tr>
       <th><a href="https://github.com/kelseyhightower/confd">confd</a></th>
-      <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
+      <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.13.0">0.13.0</a></td>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
       <td><a href="https://github.com/kelseyhightower/confd/releases/tag/v0.11.0">0.11.0</a></td>
       <td><a href="https://quay.io/repository/kato/confd"><img src="https://quay.io/repository/kato/confd/status"></a></td>

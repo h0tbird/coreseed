@@ -1289,14 +1289,14 @@ coreos:
      RestartSec=10
      TimeoutStartSec=0
      KillMode=mixed
-     Environment=IMG=quay.io/kato/confd:v0.11.0-2
+     Environment=IMG=quay.io/kato/confd:v0.13.0-1
      ExecStartPre=/usr/bin/rkt fetch ${IMG}
      ExecStart=/usr/bin/rkt run \
       --net=host \
       --volume etc,kind=host,source=/etc \
       --mount volume=etc,target=/etc \
       ${IMG} -- \
-      -node 127.0.0.1:2379 \
+      -node http://127.0.0.1:2379 \
       -watch
 
      [Install]
