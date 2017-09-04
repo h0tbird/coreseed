@@ -1714,7 +1714,7 @@ coreos:
      TimeoutStartSec=0
      KillMode=mixed
      EnvironmentFile=/etc/kato.env
-     Environment=IMG=mongo:3.4
+     Environment=IMG=mongo:3.5
      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
      ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
      ExecStart=/usr/bin/rkt run \
