@@ -76,18 +76,6 @@ var (
 		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DNS_API_KEY").
 		String()
 
-	flEc2DeploySysdigAccessKey = cmdEc2Deploy.Flag("sysdig-access-key",
-		"Sysdig secret access key").
-		PlaceHolder("KATO_EC2_DEPLOY_SYSDIG_ACCESS_KEY").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_SYSDIG_ACCESS_KEY").
-		String()
-
-	flEc2DeployDatadogAPIKey = cmdEc2Deploy.Flag("datadog-api-key",
-		"Datadog secret API key").
-		PlaceHolder("KATO_EC2_DEPLOY_DATADOG_API_KEY").
-		OverrideDefaultFromEnvar("KATO_EC2_DEPLOY_DATADOG_API_KEY").
-		String()
-
 	flEc2DeployCaCertPath = cmdEc2Deploy.Flag("ca-cert-path",
 		"Path to CA certificate.").
 		PlaceHolder("KATO_EC2_DEPLOY_CA_CERT_PATH").
@@ -359,8 +347,6 @@ func RunCmd(cmd string) bool {
 				EtcdToken:       *flEc2DeployEtcdToken,
 				DNSProvider:     *flEc2DeployDNSProvider,
 				DNSApiKey:       *flEc2DeployDNSApiKey,
-				SysdigAccessKey: *flEc2DeploySysdigAccessKey,
-				DatadogAPIKey:   *flEc2DeployDatadogAPIKey,
 				CaCertPath:      *flEc2DeployCaCertPath,
 				Domain:          *flEc2DeployDomain,
 				Region:          *flEc2DeployRegion,

@@ -40,7 +40,6 @@ type CmdFlags struct {
 	CalicoIPPool        string   // --calico-ip-pool
 	ClusterID           string   // --cluster-id
 	ClusterState        string   // --cluster-state
-	DatadogAPIKey       string   // --datadog-api-key
 	Domain              string   // --domain
 	Ec2Region           string   // --ec2-region
 	EtcdToken           string   // --etcd-token
@@ -59,7 +58,6 @@ type CmdFlags struct {
 	SlackWebhook        string   // --slack-webhook
 	SMTPURL             string   // --smtp-url
 	StubZones           []string // --stub-zone
-	SysdigAccessKey     string   // --sysdig-access-key
 }
 
 // PostProc data based on previous flags
@@ -242,14 +240,6 @@ func (d *CmdData) listOfTags() (tags []string) {
 
 	if d.CaCert != "" {
 		tags = append(tags, "cacert")
-	}
-
-	if d.SysdigAccessKey != "" {
-		tags = append(tags, "sysdig")
-	}
-
-	if d.DatadogAPIKey != "" {
-		tags = append(tags, "datadog")
 	}
 
 	if d.Prometheus {

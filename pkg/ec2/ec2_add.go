@@ -123,12 +123,6 @@ func (d *Data) forgeUdataCommand() *exec.Cmd {
 	}
 
 	// Append flags if present:
-	if d.SysdigAccessKey != "" {
-		args = append(args, "--sysdig-access-key", d.SysdigAccessKey)
-	}
-	if d.DatadogAPIKey != "" {
-		args = append(args, "--datadog-api-key", d.DatadogAPIKey)
-	}
 	if d.SlackWebhook != "" {
 		args = append(args, "--slack-webhook", d.SlackWebhook)
 	}
