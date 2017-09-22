@@ -37,7 +37,7 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 </br>
 
-# Overview
+## Overview
 
 [CoreOS](https://coreos.com/) is the foundation on which *Káto* is built. It provides the fundamental components used to assemble container-based distributed systems: [etcd](https://github.com/coreos/etcd) is used for consensus and discovery and [rkt](https://github.com/coreos/rkt) and [docker](https://github.com/docker/docker) are container engines.
 
