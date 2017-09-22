@@ -43,6 +43,6 @@ Like in catabolism (from Greek *κάτω* káto, 'downward' and *βάλλειν*
 
 All this *CoreOS* goodies are used to bootstrap a [Mesos](https://github.com/apache/mesos) cluster. *Mesos* is a distributed systems kernel which abstracts compute resources away from machines. Accordingly, it provides schedulers (or frameworks in *Mesos* parlance) which can run on top in order to utilise the exposed compute resources.
 
-[Marathon](https://github.com/mesosphere/marathon) is one of such frameworks. It is a cluster-wide init and control system for long-running applications. Other frameworks like [Jenkins](https://github.com/jenkinsci/mesos-plugin) and [Elasticsearch ](https://github.com/mesos/elasticsearch) might coexist and share the same cluster resources.
+[Marathon](https://github.com/mesosphere/marathon) is one of such frameworks. It is a cluster-wide init and control system for long-running applications. Other frameworks like [Jenkins](https://github.com/jenkinsci/mesos-plugin) and [Elasticsearch](https://github.com/mesos/elasticsearch) might coexist and share the same cluster resources.
 
 [REX-Ray](http://rexray.readthedocs.io/en/stable/) delivers persistent storage access for container runtimes, such as *Docker* and *Mesos*, and provides an easy interface for enabling advanced storage functionality across common storage, virtualization and cloud platforms.
