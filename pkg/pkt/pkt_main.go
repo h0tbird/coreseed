@@ -68,7 +68,7 @@ func (d *Data) Run() {
 
 	// Forge the request:
 	createRequest := &packngo.DeviceCreateRequest{
-		HostName:     d.HostName,
+		Hostname:     d.HostName,
 		Plan:         d.Plan,
 		Facility:     d.Facility,
 		OS:           d.OS,
