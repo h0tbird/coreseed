@@ -9,6 +9,7 @@ import (
 	// Stdlib:
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -19,6 +20,7 @@ import (
 	// Community:
 	"github.com/Masterminds/sprig"
 	log "github.com/Sirupsen/logrus"
+	ct "github.com/coreos/container-linux-config-transpiler/config"
 	"github.com/coreos/coreos-cloudinit/config/validate"
 )
 
@@ -359,9 +361,31 @@ func (d *CmdData) CmdRun() {
 	d.HostUDPPorts = d.services.listPorts("udp")
 
 	// Template:
-	d.fragments.load()  // Predefined template fragments.
+	d.fragments.load2() // Predefined template fragments.
 	d.composeTemplate() // Compose the template.
 	d.renderTemplate()  // Render the template into memory.
+
+	// Parse bytes into a Container Linux Config
+	config, ast, report := ct.Parse(d.userData.Bytes())
+	if report.IsFatal() {
+		log.WithField("cmd", "udata").Fatal(report.String())
+	}
+
+	// Convert Container Linux Config into an Ignition Config
+	ign, report := ct.ConvertAs2_0(config, "", ast)
+	if report.IsFatal() {
+		log.WithField("cmd", "udata").Fatal(report.String())
+	}
+
+	js, err := json.Marshal(ign)
+	if err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
+	}
+
+	d.userData.Reset()
+	if _, err := d.userData.Write(js); err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
+	}
 
 	// User data:
 	d.validateUserData() // Validate the generated user data.

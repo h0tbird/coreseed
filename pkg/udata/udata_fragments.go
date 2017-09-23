@@ -74,6 +74,29 @@ func (f *fragment) allOf(tags []string) bool {
 }
 
 //-----------------------------------------------------------------------------
+// func: load2
+//-----------------------------------------------------------------------------
+
+func (fragments *fragmentSlice) load2() {
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+storage:
+  files:
+    - filesystem: "root"
+      path: "/etc/hostname"
+      mode: 0644
+      contents:
+        inline: {{.HostName}}-{{.HostID}}.{{.Domain}}`,
+	})
+}
+
+//-----------------------------------------------------------------------------
 // func: load
 //-----------------------------------------------------------------------------
 
