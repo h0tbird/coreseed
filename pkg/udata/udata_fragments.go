@@ -94,6 +94,24 @@ storage:
       contents:
         inline: {{.HostName}}-{{.HostID}}.{{.Domain}}`,
 	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+    - filesystem: "root"
+      path: "/etc/hosts"
+      mode: 0644
+      contents:
+        inline: |
+          127.0.0.1 localhost
+          $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+{{range .Aliases}}          $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+{{end}}`,
+	})
 }
 
 //-----------------------------------------------------------------------------
