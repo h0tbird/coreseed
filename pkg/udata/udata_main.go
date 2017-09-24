@@ -293,6 +293,37 @@ func (d *CmdData) renderTemplate() {
 }
 
 //-----------------------------------------------------------------------------
+// func: renderIgnition
+//-----------------------------------------------------------------------------
+
+func (d *CmdData) renderIgnition() {
+
+	// Parse bytes into a Container Linux config:
+	config, ast, report := ct.Parse(d.userData.Bytes())
+	if report.IsFatal() {
+		log.WithField("cmd", "udata").Fatal(report.String())
+	}
+
+	// Convert Container Linux config into an Ignition config:
+	ign, report := ct.ConvertAs2_0(config, "", ast)
+	if report.IsFatal() {
+		log.WithField("cmd", "udata").Fatal(report.String())
+	}
+
+	// Convert Ignition config to JSON:
+	js, err := json.Marshal(ign)
+	if err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
+	}
+
+	// Write JSON to the userData buffer:
+	d.userData.Reset()
+	if _, err := d.userData.Write(js); err != nil {
+		log.WithField("cmd", "udata").Fatal(err)
+	}
+}
+
+//-----------------------------------------------------------------------------
 // func: validateUserData
 //-----------------------------------------------------------------------------
 
@@ -354,38 +385,17 @@ func (d *CmdData) CmdRun() {
 	d.MesosDNSPort = mesosDNSPort(d.Roles)
 	d.Aliases = aliases(d.Roles, d.HostName)
 
-	// Instance services:
+	// Systemd units and ports:
 	d.services.load(d.Roles, groups(d.Prometheus))
 	d.SystemdUnits = d.services.listUnits()
 	d.HostTCPPorts = d.services.listPorts("tcp")
 	d.HostUDPPorts = d.services.listPorts("udp")
 
-	// Template:
-	d.fragments.load2() // Predefined template fragments.
+	// Template to ignition JSON:
+	d.fragments.load2() // Load all fragments.
 	d.composeTemplate() // Compose the template.
-	d.renderTemplate()  // Render the template into memory.
-
-	// Parse bytes into a Container Linux Config
-	config, ast, report := ct.Parse(d.userData.Bytes())
-	if report.IsFatal() {
-		log.WithField("cmd", "udata").Fatal(report.String())
-	}
-
-	// Convert Container Linux Config into an Ignition Config
-	ign, report := ct.ConvertAs2_0(config, "", ast)
-	if report.IsFatal() {
-		log.WithField("cmd", "udata").Fatal(report.String())
-	}
-
-	js, err := json.Marshal(ign)
-	if err != nil {
-		log.WithField("cmd", "udata").Fatal(err)
-	}
-
-	d.userData.Reset()
-	if _, err := d.userData.Write(js); err != nil {
-		log.WithField("cmd", "udata").Fatal(err)
-	}
+	d.renderTemplate()  // Container linux config.
+	d.renderIgnition()  // Ignition JSON.
 
 	// User data:
 	d.validateUserData() // Validate the generated user data.
