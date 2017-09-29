@@ -75,6 +75,7 @@ if ARGV[0].eql?('up')
   if $monitoring
     $katoctl = $katoctl + "--prometheus "
   end
+
 end
 
 #------------------------------------------------------------------------------
@@ -100,9 +101,9 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  #-----------------------
-  # Start the all-in-one:
-  #-----------------------
+#------------------------------------------------------------------------------
+# Start the all-in-one instance:
+#------------------------------------------------------------------------------
 
   config.vm.define "kato-1" do |conf|
 
@@ -125,6 +126,7 @@ Vagrant.configure("2") do |config|
     conf.vm.network :private_network, ip: $ip_address
     config.ignition.ip = $ip_address
 
+    # Purge /etc/hosts records:
     if ARGV[0].eql?('destroy') || ARGV[0].eql?('halt') || ARGV[0].eql?('up')
       system "sudo sed -i.bak '/%s quorum-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
       system "sudo sed -i.bak '/%s master-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
@@ -133,6 +135,7 @@ Vagrant.configure("2") do |config|
 
     if ARGV[0].eql?('up')
 
+      # Add /etc/hosts records:
       system 'sudo bash -c "echo %s quorum-1.%s quorum-1 >> /etc/hosts"' % [ $ip_address, $domain ]
       system 'sudo bash -c "echo %s master-1.%s master-1 >> /etc/hosts"' % [ $ip_address, $domain ]
       system 'sudo bash -c "echo %s worker-1.%s worker-1 >> /etc/hosts"' % [ $ip_address, $domain ]
