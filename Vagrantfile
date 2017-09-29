@@ -8,7 +8,7 @@ $cluster_id     = ENV['KATO_CLUSTER_ID'] || 'vagrant-kato'
 $node_cpus      = ENV['KATO_NODE_CPUS'] || 2
 $node_memory    = ENV['KATO_NODE_MEMORY'] || 4096
 $kato_version   = ENV['KATO_VERSION'] || 'v0.1.1'
-$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'stable'
+$coreos_channel = ENV['KATO_COREOS_CHANNEL'] || 'alpha'
 $coreos_version = ENV['KATO_COREOS_VERSION'] || 'current'
 $monitoring     = ENV['KATO_MONITORING'] || false
 $domain         = ENV['KATO_DOMAIN'] || 'cell-1.dc-1.kato'
@@ -24,6 +24,22 @@ $certs_path     = ENV['KATO_CERTS_PATH']
 
 $katoctl_url = "https://github.com/katosys/kato/releases/download/%s/katoctl-%s-%s"
 $box_url = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json"
+
+#------------------------------------------------------------------------------
+# Install plugins:
+#------------------------------------------------------------------------------
+
+required_plugins = %w(vagrant-ignition)
+plugins_to_install = required_plugins.select { |plugin| not Vagrant.has_plugin? plugin }
+
+if not plugins_to_install.empty?
+  puts "Installing plugins: #{plugins_to_install.join(' ')}"
+  if system "vagrant plugin install #{plugins_to_install.join(' ')}"
+    exec "vagrant #{ARGV.join(' ')}"
+  else
+    abort "Installation of one or more plugins has failed. Aborting."
+  end
+end
 
 #------------------------------------------------------------------------------
 # Forge the katoctl command:
@@ -55,10 +71,10 @@ if ARGV[0].eql?('up')
     "--cluster-id %s " +
     "--domain %s " +
     "--host-id %s "
-end
 
-if $monitoring
-  $katoctl = $katoctl + "--prometheus "
+  if $monitoring
+    $katoctl = $katoctl + "--prometheus "
+  end
 end
 
 #------------------------------------------------------------------------------
@@ -71,6 +87,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
   config.vm.box = "coreos-%s" % $coreos_channel
   config.vm.box_url = $box_url % [$coreos_channel, $coreos_version]
+  config.ignition.enabled = true
 
   if ARGV[0].eql?('up')
     config.vm.provider :virtualbox do |vb|
@@ -90,6 +107,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "kato-1" do |conf|
 
     conf.vm.hostname = "kato-1.%s" % $domain
+    config.ignition.hostname = "kato-1.%s" % $domain
+    config.ignition.drive_name = "config"
 
     conf.vm.provider :virtualbox do |vb|
       vb.gui = false
@@ -97,12 +116,14 @@ Vagrant.configure("2") do |config|
       vb.memory = $node_memory
       vb.cpus = $node_cpus
       vb.customize ["modifyvm", :id, "--macaddress1", "auto" ]
+      config.ignition.config_obj = vb
       if `VBoxManage showvminfo #{vb.name} 2>/dev/null | grep SATA` == ''
         vb.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
       end
     end
 
     conf.vm.network :private_network, ip: $ip_address
+    config.ignition.ip = $ip_address
 
     if ARGV[0].eql?('destroy') || ARGV[0].eql?('halt') || ARGV[0].eql?('up')
       system "sudo sed -i.bak '/%s quorum-1.%s/d' /etc/hosts" % [ $ip_address, $domain ]
@@ -132,8 +153,7 @@ Vagrant.configure("2") do |config|
       end
 
       if File.exist?($tmp_path + "/user_data_kato-1")
-        conf.vm.provision :file, :source => $tmp_path + "/user_data_kato-1", :destination => "/tmp/vagrantfile-user-data"
-        conf.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant", :privileged => true
+        config.ignition.path = $tmp_path + "/user_data_kato-1"
       end
 
     end
