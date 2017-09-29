@@ -305,7 +305,7 @@ func (d *CmdData) renderIgnition() {
 	}
 
 	// Convert Container Linux config into an Ignition config:
-	ign, report := ct.ConvertAs2_0(config, "", ast)
+	ign, report := ct.ConvertAs2_0(config, d.IaasProvider, ast)
 	if report.IsFatal() {
 		log.WithField("cmd", "udata").Fatal(report.String())
 	}
@@ -351,7 +351,7 @@ func (d *CmdData) outputUserData() {
 
 	if d.GzipUdata {
 		log.WithFields(log.Fields{"cmd": "udata", "id": d.HostName + "-" + d.HostID}).
-			Info("Generating gzipped cloud-config user data")
+			Info("Generating gzipped ignition user data")
 		w := gzip.NewWriter(os.Stdout)
 		if _, err := d.userData.WriteTo(w); err != nil {
 			_ = w.Close()
@@ -359,7 +359,7 @@ func (d *CmdData) outputUserData() {
 		}
 		_ = w.Close()
 	} else {
-		log.WithField("cmd", "udata").Info("Generating plain text cloud-config user data")
+		log.WithField("cmd", "udata").Info("Generating plain text ignition user data")
 		if _, err := d.userData.WriteTo(os.Stdout); err != nil {
 			log.WithField("cmd", "udata").Fatal(err)
 		}
@@ -370,8 +370,8 @@ func (d *CmdData) outputUserData() {
 // func: CmdRun
 //-----------------------------------------------------------------------------
 
-// CmdRun takes data from CmdData and outputs valid CoreOS cloud-config user
-// data in YAML format to stdout.
+// CmdRun takes data from CmdData and outputs valid CoreOS Ignition user
+// data in JSON format to stdout.
 func (d *CmdData) CmdRun() {
 
 	// Variables:

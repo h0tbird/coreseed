@@ -63,7 +63,7 @@ if ARGV[0].eql?('up')
     "--roles quorum,master,worker " +
     "--rexray-storage-driver virtualbox " +
     "--rexray-endpoint-ip 172.17.8.1 " +
-    "--iaas-provider vbox " +
+    "--iaas-provider vagrant-virtualbox " +
     "--cluster-state new " +
     "--quorum-count 1 " +
     "--master-count 1 " +
@@ -109,7 +109,7 @@ Vagrant.configure("2") do |config|
 
     conf.vm.hostname = "kato-1.%s" % $domain
     config.ignition.hostname = "kato-1.%s" % $domain
-    config.ignition.drive_name = "config"
+    config.ignition.drive_name = "ignition"
 
     conf.vm.provider :virtualbox do |vb|
       vb.gui = false

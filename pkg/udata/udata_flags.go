@@ -126,10 +126,10 @@ var (
 		Enum(ec2.Ec2Regions...)
 
 	flUdataIaasProvider = cmdUdata.Flag("iaas-provider",
-		"IaaS provider [ vbox | ec2 | pkt ]").
+		"IaaS provider [ vagrant-virtualbox | ec2 | packet ]").
 		Required().PlaceHolder("KATO_UDATA_IAAS_PROVIDER").
 		OverrideDefaultFromEnvar("KATO_UDATA_IAAS_PROVIDER").
-		Enum("vbox", "ec2", "pkt")
+		Enum("vagrant-virtualbox", "ec2", "packet")
 
 	flUdataSlackWebhook = cmdUdata.Flag("slack-webhook",
 		"Slack webhook URL.").

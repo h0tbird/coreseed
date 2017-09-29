@@ -467,7 +467,7 @@ write_files:`,
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf:  []string{"quorum", "master", "worker", "border"},
-			noneOf: []string{"vbox"},
+			noneOf: []string{"vagrant-virtualbox"},
 		},
 		data: `
  - path: "/opt/bin/dnspush"
@@ -561,7 +561,7 @@ write_files:`,
 		filter: filter{
 			anyOf:  []string{"worker"},
 			allOf:  []string{"cacert"},
-			noneOf: []string{"vbox"},
+			noneOf: []string{"vagrant-virtualbox"},
 		},
 		data: `
  - path: "/opt/bin/getcerts"
@@ -1559,7 +1559,7 @@ coreos:
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf:  []string{"quorum", "master", "worker", "border"},
-			noneOf: []string{"vbox"},
+			noneOf: []string{"vagrant-virtualbox"},
 		},
 		data: `
   - name: "dnspush.service"
