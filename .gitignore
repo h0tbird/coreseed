@@ -1,5 +1,3 @@
 *.swp
-*.img
-*.vmdk
 .idea
 .vagrant

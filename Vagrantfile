@@ -109,6 +109,7 @@ Vagrant.configure("2") do |config|
 
     conf.vm.hostname = "kato-1.%s" % $domain
     config.ignition.hostname = "kato-1.%s" % $domain
+    config.ignition.drive_root = $tmp_path
     config.ignition.drive_name = "ignition"
 
     conf.vm.provider :virtualbox do |vb|
