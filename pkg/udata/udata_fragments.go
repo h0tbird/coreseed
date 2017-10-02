@@ -92,7 +92,8 @@ storage:
       path: "/etc/hostname"
       mode: 0644
       contents:
-        inline: {{.HostName}}-{{.HostID}}.{{.Domain}}`,
+        inline: {{.HostName}}-{{.HostID}}.{{.Domain}}
+`,
 	})
 
 	//----------------------------------
@@ -108,41 +109,8 @@ storage:
       contents:
         inline: |
           127.0.0.1 localhost
-          $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-{{range .Aliases}}          $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
-{{end}}`,
-	})
-}
-
-//-----------------------------------------------------------------------------
-// func: load
-//-----------------------------------------------------------------------------
-
-func (fragments *fragmentSlice) load() {
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `#cloud-config
-hostname: "{{.HostName}}-{{.HostID}}.{{.Domain}}"
-write_files:`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
- - path: "/etc/hosts"
-   content: |
-    127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-{{range .Aliases}}    $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+          {PRIVATE_IPV4} {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+{{range .Aliases}}          {PRIVATE_IPV4} {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
 {{end}}`,
 	})
 
@@ -153,11 +121,14 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/.hosts"
-   content: |
-    127.0.0.1 localhost
-    $private_ipv4 {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-{{range .Aliases}}    $private_ipv4 {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+    - filesystem: "root"
+      path: "/etc/.hosts"
+      mode: 0644
+      contents:
+        inline: |
+          127.0.0.1 localhost
+          {PRIVATE_IPV4} {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+{{range .Aliases}}          {PRIVATE_IPV4} {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
 {{end}}`,
 	})
 
@@ -168,10 +139,14 @@ write_files:`,
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/resolv.conf"
-   content: |
-    search {{.Domain}}
-    nameserver 8.8.8.8`,
+    - filesystem: "root"
+      path: "/etc/resolv.conf"
+      mode: 0644
+      contents:
+        inline: |
+          search {{.Domain}}
+          nameserver 8.8.8.8
+`,
 	})
 
 	//----------------------------------
@@ -181,7 +156,9 @@ write_files:`,
 			anyOf: []string{"worker"},
 		},
 		data: `
- - path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"`,
+    - filesystem: "root"
+      path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"
+      mode: 0644`,
 	})
 
 	//----------------------------------
@@ -191,26 +168,43 @@ write_files:`,
 			anyOf: []string{"worker"},
 		},
 		data: `
- - path: "/etc/cni/net.d/10-devel.conf"
-   content: |
-    {
-      "name": "devel",
-      "type": "calico",
-      "ipam": {
-        "type": "calico-ipam"
-      },
-      "etcd_endpoints": "{{.EtcdEndpoints}}"
-    }
- - path: "/etc/cni/net.d/10-prod.conf"
-   content: |
-    {
-      "name": "prod",
-      "type": "calico",
-      "ipam": {
-        "type": "calico-ipam"
-      },
-      "etcd_endpoints": "{{.EtcdEndpoints}}"
-    }`,
+    - filesystem: "root"
+      path: "/etc/cni/net.d/10-devel.conf"
+      mode: 0644
+      contents:
+        inline: |
+          {
+            "name": "devel",
+            "type": "calico",
+            "ipam": {
+              "type": "calico-ipam"
+            },
+            "etcd_endpoints": "{{.EtcdEndpoints}}"
+          }
+`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"worker"},
+		},
+		data: `
+    - filesystem: "root"
+      path: "/etc/cni/net.d/10-prod.conf"
+      mode: 0644
+      contents:
+        inline: |
+          {
+            "name": "prod",
+            "type": "calico",
+            "ipam": {
+              "type": "calico-ipam"
+            },
+            "etcd_endpoints": "{{.EtcdEndpoints}}"
+          }
+`,
 	})
 
 	//----------------------------------
@@ -220,53 +214,64 @@ write_files:`,
 			anyOf: []string{"master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/calico/resources.yaml"
-   content: |
-    - apiVersion: v1
-      kind: ipPool
-      metadata:
-        cidr: {{.CalicoIPPool}}
-      spec:
-        ipip:
-          enabled: false
-        nat-outgoing: true
-        disabled: false
-    - apiVersion: v1
-      kind: hostEndpoint
-      metadata:
-        name: {{.HostName}}-{{.HostID}}
-        node: {{.HostName}}-{{.HostID}}.{{.Domain}}
-        labels:
-          endpoint: {{.HostName}}
-      spec:
-        expectedIPs:
-        - $private_ipv4
-    - apiVersion: v1
-      kind: policy
-      metadata:
-        name: {{.HostName}}
-      spec:
-        selector: endpoint == '{{.HostName}}'
-        ingress:
-{{- if .HostTCPPorts}}
-        - action: allow
-          protocol: tcp
-          destination:
-            ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
-{{- if .HostUDPPorts}}
-        - action: allow
-          protocol: udp
-          destination:
-            ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
-    - apiVersion: v1
-      kind: policy
-      metadata:
-        name: allow-egress
-      spec:
-        order: 0
-        egress:
-        - action: allow`,
+    - filesystem: "root"
+      path: "/etc/calico/resources.yaml"
+      mode: 0644
+      contents:
+        inline: |
+          - apiVersion: v1
+            kind: ipPool
+            metadata:
+              cidr: {{.CalicoIPPool}}
+            spec:
+              ipip:
+                enabled: false
+              nat-outgoing: true
+              disabled: false
+          - apiVersion: v1
+            kind: hostEndpoint
+            metadata:
+              name: {{.HostName}}-{{.HostID}}
+              node: {{.HostName}}-{{.HostID}}.{{.Domain}}
+              labels:
+                endpoint: {{.HostName}}
+            spec:
+              expectedIPs:
+              - $private_ipv4
+          - apiVersion: v1
+            kind: policy
+            metadata:
+              name: {{.HostName}}
+            spec:
+              selector: endpoint == '{{.HostName}}'
+              ingress:
+      {{- if .HostTCPPorts}}
+              - action: allow
+                protocol: tcp
+                destination:
+                  ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
+      {{- if .HostUDPPorts}}
+              - action: allow
+                protocol: udp
+                destination:
+                  ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
+          - apiVersion: v1
+            kind: policy
+            metadata:
+              name: allow-egress
+            spec:
+              order: 0
+              egress:
+              - action: allow
+`,
 	})
+}
+
+//-----------------------------------------------------------------------------
+// func: load
+//-----------------------------------------------------------------------------
+
+func (fragments *fragmentSlice) load() {
 
 	//----------------------------------
 
