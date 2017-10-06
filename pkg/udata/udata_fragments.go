@@ -88,8 +88,8 @@ func (fragments *fragmentSlice) load2() {
 		data: `
 storage:
   files:
-    - filesystem: "root"
-      path: "/etc/hostname"
+    - path: "/etc/hostname"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: {{.HostName}}-{{.HostID}}.{{.Domain}}
@@ -103,8 +103,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/hosts"
+    - path: "/etc/hosts"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -121,8 +121,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/.hosts"
+    - path: "/etc/.hosts"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -139,8 +139,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/resolv.conf"
+    - path: "/etc/resolv.conf"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -156,8 +156,8 @@ storage:
 			anyOf: []string{"worker"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"
+    - path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"
+      filesystem: "root"
       mode: 0644`,
 	})
 
@@ -168,8 +168,8 @@ storage:
 			anyOf: []string{"worker"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/cni/net.d/10-devel.conf"
+    - path: "/etc/cni/net.d/10-devel.conf"
+      filesystem: "root"    
       mode: 0644
       contents:
         inline: |
@@ -181,18 +181,8 @@ storage:
             },
             "etcd_endpoints": "{{.EtcdEndpoints}}"
           }
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"worker"},
-		},
-		data: `
-    - filesystem: "root"
-      path: "/etc/cni/net.d/10-prod.conf"
+    - path: "/etc/cni/net.d/10-prod.conf"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -214,8 +204,8 @@ storage:
 			anyOf: []string{"master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/calico/resources.yaml"
+    - path: "/etc/calico/resources.yaml"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -273,8 +263,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -307,8 +297,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -342,8 +332,8 @@ storage:
 			allOf: []string{"cacert"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+    - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -358,8 +348,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/home/core/.kato/{{.ClusterID}}.json"
+    - path: "/home/core/.kato/{{.ClusterID}}.json"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -374,20 +364,11 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/rexray/rexray.env"
-      mode: 0644`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - filesystem: "root"
-      path: "/etc/rexray/config.yml"
+    - path: "/etc/rexray/rexray.env"
+      filesystem: "root"
+      mode: 0644
+    - path: "/etc/rexray/config.yml"
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -421,8 +402,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/home/core/.bashrc"
+    - path: "/home/core/.bashrc"
+      filesystem: "root"
       mode: 0644
       user:
         name: "core"
@@ -452,8 +433,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/home/core/.aws/config"
+    - path: "/home/core/.aws/config"
+      filesystem: "root"
       mode: 0640
       user:
         name: "core"
@@ -473,8 +454,8 @@ storage:
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/etc/ssh/sshd_config"
+    - path: "/etc/ssh/sshd_config"
+      filesystem: "root"
       mode: 0600
       contents:
         inline: |
@@ -496,8 +477,8 @@ storage:
 			anyOf: []string{"master", "worker"},
 		},
 		data: `
-    - filesystem: "root"
-      path: "/opt/bin/zk-alive"
+    - path: "/opt/bin/zk-alive"
+      filesystem: "root"
       mode: 0755
       contents:
         inline: |
