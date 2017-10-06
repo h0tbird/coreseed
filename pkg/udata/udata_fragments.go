@@ -265,13 +265,6 @@ storage:
               - action: allow
 `,
 	})
-}
-
-//-----------------------------------------------------------------------------
-// func: load
-//-----------------------------------------------------------------------------
-
-func (fragments *fragmentSlice) load() {
 
 	//----------------------------------
 
@@ -280,27 +273,31 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
-   content: |
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Version: GnuPG v2
+    - filesystem: "root"
+      path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+      mode: 0644
+      contents:
+        inline: |
+          -----BEGIN PGP PUBLIC KEY BLOCK-----
+          Version: GnuPG v2
 
-    mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
-    PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
-    fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
-    k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
-    4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
-    qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
-    bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
-    YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-    F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
-    12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
-    I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
-    P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
-    oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
-    nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
-    =SBoV
-    -----END PGP PUBLIC KEY BLOCK-----`,
+          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+          =SBoV
+          -----END PGP PUBLIC KEY BLOCK-----
+`,
 	})
 
 	//----------------------------------
@@ -310,27 +307,31 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
-   content: |
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Version: GnuPG v2
+    - filesystem: "root"
+      path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+      mode: 0644
+      contents:
+        inline: |
+          -----BEGIN PGP PUBLIC KEY BLOCK-----
+          Version: GnuPG v2
 
-    mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
-    PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
-    fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
-    k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
-    4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
-    qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
-    bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
-    YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-    F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
-    12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
-    I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
-    P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
-    oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
-    nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
-    =SBoV
-    -----END PGP PUBLIC KEY BLOCK-----`,
+          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+          =SBoV
+          -----END PGP PUBLIC KEY BLOCK-----
+`,
 	})
 
 	//----------------------------------
@@ -341,9 +342,13 @@ func (fragments *fragmentSlice) load() {
 			allOf: []string{"cacert"},
 		},
 		data: `
- - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
-   content: |
-{{.CaCert | indent 4}}`,
+    - filesystem: "root"
+      path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+      mode: 0644
+      contents:
+        inline: |
+{{.CaCert | indent 10}}
+`,
 	})
 
 	//----------------------------------
@@ -353,9 +358,13 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/home/core/.kato/{{.ClusterID}}.json"
-   content: |
-{{.KatoState | indent 4}}`,
+    - filesystem: "root"
+      path: "/home/core/.kato/{{.ClusterID}}.json"
+      mode: 0644
+      contents:
+        inline: |
+{{.KatoState | indent 10}}
+`,
 	})
 
 	//----------------------------------
@@ -365,29 +374,9 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/rexray/rexray.env"
- - path: "/etc/rexray/config.yml"
-   content: |
-    rexray:
-     logLevel: warn
-{{- if .RexrayStorageDriver }}
-    libstorage:
-     embedded: true
-     service: {{.RexrayStorageDriver}}
-     server:
-      services:
-       {{.RexrayStorageDriver}}:
-        driver: {{.RexrayStorageDriver}}
-{{- if eq .RexrayStorageDriver "virtualbox" }}
-        virtualbox:
-         endpoint: http://{{.RexrayEndpointIP}}:18083
-         volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-         controllerName: SATA
-{{- end}}
-    volume:
-     unmount:
-      ignoreusedcount: true
-{{- end}}`,
+    - filesystem: "root"
+      path: "/etc/rexray/rexray.env"
+      mode: 0644`,
 	})
 
 	//----------------------------------
@@ -397,21 +386,32 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/home/core/.bashrc"
-   owner: "core:core"
-   content: |
-    [[ $- = *i* ]] && {
-      eval "$(katoctl --completion-script-bash)"
-      alias ls='ls -hF --color=auto --group-directories-first'
-      alias grep='grep --color=auto'
-    } || shopt -s expand_aliases
-    alias l='ls -l'
-    alias ll='ls -la'
-    alias dim='docker images'
-    alias dps='docker ps'
-    alias drm='docker rm -v $(docker ps -qaf status=exited)'
-    alias drmi='docker rmi $(docker images -qf dangling=true)'
-    alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'`,
+    - filesystem: "root"
+      path: "/etc/rexray/config.yml"
+      mode: 0644
+      contents:
+        inline: |
+          rexray:
+            logLevel: warn
+        {{- if .RexrayStorageDriver }}
+          libstorage:
+            embedded: true
+            service: {{.RexrayStorageDriver}}
+            server:
+            services:
+              {{.RexrayStorageDriver}}:
+              driver: {{.RexrayStorageDriver}}
+        {{- if eq .RexrayStorageDriver "virtualbox" }}
+              virtualbox:
+                endpoint: http://{{.RexrayEndpointIP}}:18083
+                volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+                controllerName: SATA
+        {{- end}}
+          volume:
+            unmount:
+            ignoreusedcount: true
+        {{- end}}
+`,
 	})
 
 	//----------------------------------
@@ -421,12 +421,28 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/home/core/.aws/config"
-   owner: "core:core"
-   permissions: "0644"
-   content: |
-    [default]
-    region = {{.Ec2Region}}`,
+    - filesystem: "root"
+      path: "/home/core/.bashrc"
+      mode: 0644
+      user:
+        name: "core"
+      group:
+        name: "core"
+      contents:
+        inline: |
+          [[ $- = *i* ]] && {
+            eval "$(katoctl --completion-script-bash)"
+            alias ls='ls -hF --color=auto --group-directories-first'
+            alias grep='grep --color=auto'
+          } || shopt -s expand_aliases
+          alias l='ls -l'
+          alias ll='ls -la'
+          alias dim='docker images'
+          alias dps='docker ps'
+          alias drm='docker rm -v $(docker ps -qaf status=exited)'
+          alias drmi='docker rmi $(docker images -qf dangling=true)'
+          alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
+`,
 	})
 
 	//----------------------------------
@@ -436,17 +452,41 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/etc/ssh/sshd_config"
-   permissions: "0600"
-   content: |
-    UsePrivilegeSeparation sandbox
-    Subsystem sftp internal-sftp
-    ClientAliveInterval 180
-    UseDNS no
-    PermitRootLogin no
-    AllowUsers core
-    PasswordAuthentication no
-    ChallengeResponseAuthentication no`,
+    - filesystem: "root"
+      path: "/home/core/.aws/config"
+      mode: 0640
+      user:
+        name: "core"
+      group:
+        name: "core"
+      contents:
+        inline: |
+          [default]
+          region = {{.Ec2Region}}
+`,
+	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+    - filesystem: "root"
+      path: "/etc/ssh/sshd_config"
+      mode: 0600
+      contents:
+        inline: |
+          UsePrivilegeSeparation sandbox
+          Subsystem sftp internal-sftp
+          ClientAliveInterval 180
+          UseDNS no
+          PermitRootLogin no
+          AllowUsers core
+          PasswordAuthentication no
+          ChallengeResponseAuthentication no
+`,
 	})
 
 	//----------------------------------
@@ -456,16 +496,26 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"master", "worker"},
 		},
 		data: `
- - path: "/opt/bin/zk-alive"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    for t in {1..3}; do
-      cnt=0; for i in $(seq ${1}); do
-        echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
-      done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
-    done; exit 1`,
+    - filesystem: "root"
+      path: "/opt/bin/zk-alive"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          for t in {1..3}; do
+            cnt=0; for i in $(seq ${1}); do
+              echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
+            done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
+          done; exit 1
+`,
 	})
+}
+
+//-----------------------------------------------------------------------------
+// func: load
+//-----------------------------------------------------------------------------
+
+func (fragments *fragmentSlice) load() {
 
 	//----------------------------------
 
