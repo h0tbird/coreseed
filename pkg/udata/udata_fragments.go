@@ -490,13 +490,6 @@ storage:
           done; exit 1
 `,
 	})
-}
-
-//-----------------------------------------------------------------------------
-// func: load
-//-----------------------------------------------------------------------------
-
-func (fragments *fragmentSlice) load() {
 
 	//----------------------------------
 
@@ -506,16 +499,19 @@ func (fragments *fragmentSlice) load() {
 			noneOf: []string{"vagrant-virtualbox"},
 		},
 		data: `
- - path: "/opt/bin/dnspush"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    source /etc/kato.env
-    declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
-    for ROLE in ${KATO_ROLES}; do for i in ext int; do
-      katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
-      add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
-    done done`,
+    - path: "/opt/bin/dnspush"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          source /etc/kato.env
+          declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
+          for ROLE in ${KATO_ROLES}; do for i in ext int; do
+            katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
+            add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
+          done done
+`,
 	})
 
 	//----------------------------------
@@ -525,19 +521,22 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/opt/bin/etchost"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    source /etc/kato.env
-    PUSH=$(sed 's/ marathon-lb//' /etc/.hosts | grep -v localhost)
-    for i in $(echo ${KATO_ROLES}); do
-    etcdctl set /hosts/${i}/$(hostname -f) "${PUSH}"; done
-    KEYS=$(etcdctl ls --recursive /hosts | grep ${KATO_DOMAIN} | \
-    grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
-    for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
-    cat /etc/.hosts > /etc/hosts
-    echo "${PULL}" >> /etc/hosts`,
+    - path: "/opt/bin/etchost"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          source /etc/kato.env
+          PUSH=$(sed 's/ marathon-lb//' /etc/.hosts | grep -v localhost)
+          for i in $(echo ${KATO_ROLES}); do
+          etcdctl set /hosts/${i}/$(hostname -f) "${PUSH}"; done
+          KEYS=$(etcdctl ls --recursive /hosts | grep ${KATO_DOMAIN} | \
+          grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
+          for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
+          cat /etc/.hosts > /etc/hosts
+          echo "${PULL}" >> /etc/hosts
+`,
 	})
 
 	//----------------------------------
@@ -547,14 +546,17 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/opt/bin/loopssh"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    G=$(tput setaf 2); N=$(tput sgr0)
-    A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
-    for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
-    -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done`,
+    - path: "/opt/bin/loopssh"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          G=$(tput setaf 2); N=$(tput sgr0)
+          A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
+          for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
+          -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done
+`,
 	})
 
 	//----------------------------------
@@ -564,15 +566,18 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/opt/bin/awscli"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    docker run -i --rm \
-    --net host \
-    --volume /home/core/.aws:/root/.aws:ro \
-    --volume ${PWD}:/aws \
-    quay.io/kato/awscli:v1.10.47-1 "${@}"`,
+    - path: "/opt/bin/awscli"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          docker run -i --rm \
+          --net host \
+          --volume /home/core/.aws:/root/.aws:ro \
+          --volume ${PWD}:/aws \
+          quay.io/kato/awscli:v1.10.47-1 "${@}"
+`,
 	})
 
 	//----------------------------------
@@ -582,13 +587,16 @@ func (fragments *fragmentSlice) load() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
- - path: "/opt/bin/katostat"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    source /etc/kato.env
-    systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
-    awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'`,
+    - path: "/opt/bin/katostat"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          source /etc/kato.env
+          systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
+          awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
+`,
 	})
 
 	//----------------------------------
@@ -601,11 +609,14 @@ func (fragments *fragmentSlice) load() {
 		},
 		data: `
  - path: "/opt/bin/getcerts"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-    [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .`,
+   filesystem: "root"
+   mode: 0755
+   contents:
+     inline: |
+       #!/bin/bash
+       [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
+       [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+`,
 	})
 
 	//----------------------------------
@@ -616,58 +627,18 @@ func (fragments *fragmentSlice) load() {
 			allOf: []string{"cacert"},
 		},
 		data: `
- - path: "/opt/bin/custom-ca"
-   permissions: "0755"
-   content: |
-    #!/bin/bash
-    source /etc/kato.env
-    [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
-      ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
-      NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
-      [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
-    }; exit 0`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master"},
-			allOf: []string{"prometheus"},
-		},
-		data: `
- - path: "/etc/alertmanager/config.yml"
-   permissions: "0600"
-   content: |
-    global:
-{{- if .SMTPURL}}
-      smtp_smarthost: {{.SMTP.Host}}:{{.SMTP.Port}}
-      smtp_from: alertmanager@{{.Domain}}
-      smtp_auth_username: {{.SMTP.User}}
-      smtp_auth_password: {{.SMTP.Pass}}{{end}}
-{{- if .SlackWebhook}}
-      slack_api_url: {{.SlackWebhook}}{{end}}
-
-    templates:
-    - '/etc/alertmanager/template/*.tmpl'
-
-    route:
-      group_by: ['alertname', 'cluster', 'service']
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 3h
-      receiver: operators
-
-    receivers:
-    - name: 'operators'
-{{- if .SMTPURL}}
-      email_configs:
-{{- if .AdminEmail}}
-      - to: '{{.AdminEmail}}'{{end}}{{end}}
-{{- if .SlackWebhook}}
-      slack_configs:
-      - send_resolved: true
-        channel: kato{{end}}
+    - path: "/opt/bin/custom-ca"
+      filesystem: "root"
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          source /etc/kato.env
+          [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
+            ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
+            NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
+            [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
+          }; exit 0
 `,
 	})
 
@@ -679,64 +650,41 @@ func (fragments *fragmentSlice) load() {
 			allOf: []string{"prometheus"},
 		},
 		data: `
- - path: "/etc/prometheus/targets/prometheus.yml"
- - path: "/etc/prometheus/prometheus.yml"
-   permissions: "0600"
-   content: |
-    global:
-     external_labels:
-      master: {{.HostID}}
-     scrape_interval: 15s
-     scrape_timeout: 10s
-     evaluation_interval: 10s
+    - path: "/etc/alertmanager/config.yml"
+      filesystem: "root"
+      mode: 0600
+      contents:
+        inline: |
+          global:
+      {{- if .SMTPURL}}
+            smtp_smarthost: {{.SMTP.Host}}:{{.SMTP.Port}}
+            smtp_from: alertmanager@{{.Domain}}
+            smtp_auth_username: {{.SMTP.User}}
+            smtp_auth_password: {{.SMTP.Pass}}{{end}}
+      {{- if .SlackWebhook}}
+            slack_api_url: {{.SlackWebhook}}{{end}}
 
-    rule_files:
-     - /etc/prometheus/recording.rules
-     - /etc/prometheus/alerting.rules
+          templates:
+          - '/etc/alertmanager/template/*.tmpl'
 
-    alerting:
-     alert_relabel_configs:
-     - source_labels: [master]
-       action: replace
-       replacement: 'all'
-       target_label: master
+          route:
+            group_by: ['alertname', 'cluster', 'service']
+            group_wait: 30s
+            group_interval: 5m
+            repeat_interval: 3h
+            receiver: operators
 
-    scrape_configs:
-
-     - job_name: 'prometheus'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/prometheus.yml
-
-     - job_name: 'cadvisor'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/cadvisor.yml
-
-     - job_name: 'etcd'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/etcd.yml
-
-     - job_name: 'node'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/node.yml
-
-     - job_name: 'mesos'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/mesos.yml
-
-     - job_name: 'haproxy'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/haproxy.yml
-
-     - job_name: 'zookeeper'
-       file_sd_configs:
-        - files:
-          - /etc/prometheus/targets/zookeeper.yml`,
+          receivers:
+          - name: 'operators'
+      {{- if .SMTPURL}}
+            email_configs:
+      {{- if .AdminEmail}}
+            - to: '{{.AdminEmail}}'{{end}}{{end}}
+      {{- if .SlackWebhook}}
+            slack_configs:
+            - send_resolved: true
+              channel: kato{{end}}
+`,
 	})
 
 	//----------------------------------
@@ -747,17 +695,69 @@ func (fragments *fragmentSlice) load() {
 			allOf: []string{"prometheus"},
 		},
 		data: `
- - path: "/etc/prometheus/alerting.rules"
-   permissions: "0600"
-   content: |
-    ALERT ScrapeDown
-      IF up == 0
-      FOR 5m
-      LABELS { severity = "page" }
-      ANNOTATIONS {
-        summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
-        description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
-      }`,
+    - path: "/etc/prometheus/targets/prometheus.yml"
+      filesystem: "root"
+      mode: 0644
+    - path: "/etc/prometheus/prometheus.yml"
+      filesystem: "root"
+      mode: 0600
+      contents:
+        inline: |
+          global:
+          external_labels:
+            master: {{.HostID}}
+          scrape_interval: 15s
+          scrape_timeout: 10s
+          evaluation_interval: 10s
+
+          rule_files:
+          - /etc/prometheus/recording.rules
+          - /etc/prometheus/alerting.rules
+
+          alerting:
+          alert_relabel_configs:
+          - source_labels: [master]
+            action: replace
+            replacement: 'all'
+            target_label: master
+
+          scrape_configs:
+
+          - job_name: 'prometheus'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/prometheus.yml
+
+          - job_name: 'cadvisor'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/cadvisor.yml
+
+          - job_name: 'etcd'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/etcd.yml
+
+          - job_name: 'node'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/node.yml
+
+          - job_name: 'mesos'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/mesos.yml
+
+          - job_name: 'haproxy'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/haproxy.yml
+
+          - job_name: 'zookeeper'
+            file_sd_configs:
+              - files:
+                - /etc/prometheus/targets/zookeeper.yml
+`,
 	})
 
 	//----------------------------------
@@ -768,161 +768,222 @@ func (fragments *fragmentSlice) load() {
 			allOf: []string{"prometheus"},
 		},
 		data: `
- - path: "/etc/confd/conf.d/prom-prometheus.toml"
-   content: |
-    [template]
-    src = "prom-prometheus.tmpl"
-    dest = "/etc/prometheus/targets/prometheus.yml"
-    keys = [ "/hosts/master" ]
-
- - path: "/etc/confd/templates/prom-prometheus.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
-      labels:
-        role: master
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-cadvisor.toml"
-   content: |
-    [template]
-    src = "prom-cadvisor.tmpl"
-    dest = "/etc/prometheus/targets/cadvisor.yml"
-    keys = [
-      "/hosts/quorum",
-      "/hosts/master",
-      "/hosts/worker",
-    ]
-
- - path: "/etc/confd/templates/prom-cadvisor.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-      labels:
-        role: quorum
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-      labels:
-        role: master
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-      labels:
-        role: worker
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-etcd.toml"
-   content: |
-    [template]
-    src = "prom-etcd.tmpl"
-    dest = "/etc/prometheus/targets/etcd.yml"
-    keys = [
-      "/hosts/quorum",
-      "/hosts/master",
-      "/hosts/worker",
-    ]
-
- - path: "/etc/confd/templates/prom-etcd.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-      labels:
-        role: quorum
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-      labels:
-        role: master
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-      labels:
-        role: worker
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-node.toml"
-   content: |
-    [template]
-    src = "prom-node.tmpl"
-    dest = "/etc/prometheus/targets/node.yml"
-    keys = [
-      "/hosts/quorum",
-      "/hosts/master",
-      "/hosts/worker",
-    ]
-
- - path: "/etc/confd/templates/prom-node.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-      labels:
-        role: quorum
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-      labels:
-        role: master
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-      labels:
-        role: worker
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-mesos.toml"
-   content: |
-    [template]
-    src = "prom-mesos.tmpl"
-    dest = "/etc/prometheus/targets/mesos.yml"
-    keys = [
-      "/hosts/master",
-      "/hosts/worker",
-    ]
-
- - path: "/etc/confd/templates/prom-mesos.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
-      labels:
-        role: master
-        shard: {{.HostID}}
-    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9105{{"{{"}}end{{"}}"}}
-      labels:
-        role: worker
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-haproxy.toml"
-   content: |
-    [template]
-    src = "prom-haproxy.tmpl"
-    dest = "/etc/prometheus/targets/haproxy.yml"
-    keys = [ "/hosts/worker" ]
-
- - path: "/etc/confd/templates/prom-haproxy.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
-      labels:
-        role: worker
-        shard: {{.HostID}}
-
- - path: "/etc/confd/conf.d/prom-zookeeper.toml"
-   content: |
-    [template]
-    src = "prom-zookeeper.tmpl"
-    dest = "/etc/prometheus/targets/zookeeper.yml"
-    keys = [ "/hosts/quorum" ]
-
- - path: "/etc/confd/templates/prom-zookeeper.tmpl"
-   content: |
-    - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-      {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
-      labels:
-        role: quorum
-        shard: {{.HostID}}`,
+    - path: "/etc/prometheus/alerting.rules"
+      filesystem: "root"
+      mode: 0600
+      contents:
+        inline: |
+          ALERT ScrapeDown
+            IF up == 0
+            FOR 5m
+            LABELS { severity = "page" }
+            ANNOTATIONS {
+              summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
+              description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
+            }
+`,
 	})
+
+	//----------------------------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"master"},
+			allOf: []string{"prometheus"},
+		},
+		data: `
+    - path: "/etc/confd/conf.d/prom-prometheus.toml"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          [template]
+          src = "prom-prometheus.tmpl"
+          dest = "/etc/prometheus/targets/prometheus.yml"
+          keys = [ "/hosts/master" ]
+    - path: "/etc/confd/templates/prom-prometheus.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
+            labels:
+              role: master
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-cadvisor.toml"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          [template]
+          src = "prom-cadvisor.tmpl"
+          dest = "/etc/prometheus/targets/cadvisor.yml"
+          keys = [
+            "/hosts/quorum",
+            "/hosts/master",
+            "/hosts/worker",
+          ]
+    - path: "/etc/confd/templates/prom-cadvisor.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+            labels:
+              role: quorum
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+            labels:
+              role: master
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+            labels:
+              role: worker
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-etcd.toml"
+      filesystem: "root"
+      mode: 0644      
+      contents:
+        inline: |
+          [template]
+          src = "prom-etcd.tmpl"
+          dest = "/etc/prometheus/targets/etcd.yml"
+          keys = [
+            "/hosts/quorum",
+            "/hosts/master",
+            "/hosts/worker",
+          ]
+    - path: "/etc/confd/templates/prom-etcd.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+            labels:
+              role: quorum
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+            labels:
+              role: master
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+            labels:
+              role: worker
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-node.toml"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          [template]
+          src = "prom-node.tmpl"
+          dest = "/etc/prometheus/targets/node.yml"
+          keys = [
+            "/hosts/quorum",
+            "/hosts/master",
+            "/hosts/worker",
+          ]
+    - path: "/etc/confd/templates/prom-node.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+            labels:
+              role: quorum
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+            labels:
+              role: master
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+            labels:
+              role: worker
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-mesos.toml"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          [template]
+          src = "prom-mesos.tmpl"
+          dest = "/etc/prometheus/targets/mesos.yml"
+          keys = [
+            "/hosts/master",
+            "/hosts/worker",
+          ]
+    - path: "/etc/confd/templates/prom-mesos.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+            labels:
+              role: master
+              shard: {{.HostID}}
+          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9105{{"{{"}}end{{"}}"}}
+            labels:
+              role: worker
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-haproxy.toml"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          [template]
+          src = "prom-haproxy.tmpl"
+          dest = "/etc/prometheus/targets/haproxy.yml"
+          keys = [ "/hosts/worker" ]
+    - path: "/etc/confd/templates/prom-haproxy.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
+            labels:
+              role: worker
+              shard: {{.HostID}}
+    - path: "/etc/confd/conf.d/prom-zookeeper.toml"
+      filesystem: "root"
+      mode: 0644            
+      contents:
+        inline: |
+          [template]
+          src = "prom-zookeeper.tmpl"
+          dest = "/etc/prometheus/targets/zookeeper.yml"
+          keys = [ "/hosts/quorum" ]
+    - path: "/etc/confd/templates/prom-zookeeper.tmpl"
+      filesystem: "root"
+      mode: 0644
+      contents:
+        inline: |
+          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
+            labels:
+              role: quorum
+              shard: {{.HostID}}
+`,
+	})
+}
+
+//-----------------------------------------------------------------------------
+// func: load
+//-----------------------------------------------------------------------------
+
+func (fragments *fragmentSlice) load() {
 
 	//----------------------------------
 
