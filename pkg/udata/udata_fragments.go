@@ -169,7 +169,7 @@ storage:
 		},
 		data: `
     - path: "/etc/cni/net.d/10-devel.conf"
-      filesystem: "root"    
+      filesystem: "root"
       mode: 0644
       contents:
         inline: |
@@ -846,7 +846,7 @@ storage:
               shard: {{.HostID}}
     - path: "/etc/confd/conf.d/prom-etcd.toml"
       filesystem: "root"
-      mode: 0644      
+      mode: 0644
       contents:
         inline: |
           [template]
@@ -958,7 +958,7 @@ storage:
               shard: {{.HostID}}
     - path: "/etc/confd/conf.d/prom-zookeeper.toml"
       filesystem: "root"
-      mode: 0644            
+      mode: 0644
       contents:
         inline: |
           [template]
