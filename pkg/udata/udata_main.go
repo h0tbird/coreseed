@@ -305,7 +305,7 @@ func (d *CmdData) renderIgnition() {
 	}
 
 	// Convert Container Linux config into an Ignition config:
-	ign, report := ct.ConvertAs2_0(config, d.IaasProvider, ast)
+	ign, report := ct.Convert(config, d.IaasProvider, ast)
 	if report.IsFatal() {
 		log.WithField("cmd", "udata").Fatal(report.String())
 	}
