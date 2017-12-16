@@ -1,0 +1,57 @@
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#  name = "github.com/x/y"
+#  version = "2.4.0"
+
+
+[[constraint]]
+  name = "github.com/Masterminds/sprig"
+  version = "2.14.1"
+
+[[constraint]]
+  name = "github.com/Sirupsen/logrus"
+  version = "1.0.4"
+
+[[constraint]]
+  name = "github.com/aws/aws-sdk-go"
+  version = "1.12.48"
+
+[[constraint]]
+  name = "github.com/coreos/container-linux-config-transpiler"
+  version = "0.5.0"
+
+[[constraint]]
+  name = "github.com/coreos/coreos-cloudinit"
+  version = "1.13.0"
+
+[[constraint]]
+  name = "github.com/imdario/mergo"
+  version = "0.2.4"
+
+[[constraint]]
+  name = "github.com/packethost/packngo"
+  version = "0.1.0"
+
+[[constraint]]
+  name = "gopkg.in/alecthomas/kingpin.v2"
+  version = "2.2.5"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/ns1/ns1-go.v2"
