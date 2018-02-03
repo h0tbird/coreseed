@@ -3,16 +3,20 @@ language: go
 go:
   - 1.9
 
+env:
+  global:
+    - secure: bY9abfrrxDKhTPHWKjgEGRD2sG18u/bwoyPCc5VwBxUqSu05CRjodIHKXarkKcLdTWnLgsdG9CYdVJOoESgYJz4fr9mZH//DwsEJ0aXviIgUjzJ8KEpswn9v2HaoE6+948uEW88rGJih2AtUydh6F6dmPUWE5so1GN4uZ3gfoFYaQ1XaYP156OaELGHfAFNJvRnYXyc790S2nIXABcwpCT5HeXMWVngFCCpL7lu5oK2gIuyXOYG0fo4kX3W/DwqED6TBrlTBV1c9oGHIDbapLi64CIiDJAct+Qtj/QCqpkntdCej6rzsZresrFK0Jye3LE6eiqixk+9E4+U64HFazWoHLFyD/Fr8hwnDyOkqQffcD97a4RL6mITwpetJRstXQUFY5jc7U16W9g+ZDSeGig9cL7pXxknyv0juNdUTeWLEOyB6C45SjuaFNGoMOfOEDn8YVcXgzJ3zhnHmYSdEiPu2f8hNlojh4pR7MSpq+SydeXP6peKocZM3KZEEukAglPscTSkQRIijKZGIE+N2rp4ifE98pQ1wfHzvwOgL6JbxrEfvGCUYW1HTEV+j1XQ+49oK2ZsBtCD8GSE7BWcdp7yk2CZ8EaySdD1DR673ofqqSWhht4MqHdCoHqBmWf+tpcMqkB3bMmd4geKHYCbsKOKZ/UC3+42w/1JB5AtsQpc=
+
 before_install:
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/wadey/gocovmerge
 
+install:
+  - go get -u github.com/golang/dep/cmd/dep
+  - dep ensure
+
 script:
   - go list ./{cmd,pkg}/... | awk -F/ '{print "go test -covermode=count -coverprofile="$(NF-1)"_"$NF".out "$0}' | sh
   - gocovmerge $(ls *.out) > coverage.txt
   - goveralls -coverprofile=coverage.txt -service=travis-ci -repotoken ${COVERALLS_TOKEN}
-
-env:
-  global:
-    - secure: bY9abfrrxDKhTPHWKjgEGRD2sG18u/bwoyPCc5VwBxUqSu05CRjodIHKXarkKcLdTWnLgsdG9CYdVJOoESgYJz4fr9mZH//DwsEJ0aXviIgUjzJ8KEpswn9v2HaoE6+948uEW88rGJih2AtUydh6F6dmPUWE5so1GN4uZ3gfoFYaQ1XaYP156OaELGHfAFNJvRnYXyc790S2nIXABcwpCT5HeXMWVngFCCpL7lu5oK2gIuyXOYG0fo4kX3W/DwqED6TBrlTBV1c9oGHIDbapLi64CIiDJAct+Qtj/QCqpkntdCej6rzsZresrFK0Jye3LE6eiqixk+9E4+U64HFazWoHLFyD/Fr8hwnDyOkqQffcD97a4RL6mITwpetJRstXQUFY5jc7U16W9g+ZDSeGig9cL7pXxknyv0juNdUTeWLEOyB6C45SjuaFNGoMOfOEDn8YVcXgzJ3zhnHmYSdEiPu2f8hNlojh4pR7MSpq+SydeXP6peKocZM3KZEEukAglPscTSkQRIijKZGIE+N2rp4ifE98pQ1wfHzvwOgL6JbxrEfvGCUYW1HTEV+j1XQ+49oK2ZsBtCD8GSE7BWcdp7yk2CZ8EaySdD1DR673ofqqSWhht4MqHdCoHqBmWf+tpcMqkB3bMmd4geKHYCbsKOKZ/UC3+42w/1JB5AtsQpc=
