@@ -20,10 +20,9 @@
   version = "v1.0.4"
 
 [[projects]]
-  branch = "v1"
   name = "github.com/ajeddeloh/yaml"
   packages = ["."]
-  revision = "6b16a5714269b2f70720a45406b1babd947a17ef"
+  revision = "6b94386aeefd8c4b8470aee72bfca084c2f91da9"
 
 [[projects]]
   branch = "master"
@@ -215,6 +214,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "da27db4c2a00065dfa8921b1914430c1a6ae194f6831eb79dc6f1c1ab2e278a7"
+  inputs-digest = "d5e0bb56c9bb71db0f57c6cfc0fa1218d8a7dd0478c980b805fd1bb23125d206"
   solver-name = "gps-cdcl"
   solver-version = 1
