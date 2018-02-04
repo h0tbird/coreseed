@@ -5,6 +5,7 @@ Build the iPXE ROM:
 git clone git://git.ipxe.org/ipxe.git && cd ipxe/src
 make bin/ipxe.usb EMBED=${GOPATH}/src/github.com/katosys/kato/ipxe/menu.ipxe
 sudo dd if=bin/ipxe.usb of=/dev/sdX
+sudo eject /dev/sdX
 ```
 
 ## Intel AMT
