@@ -9,5 +9,5 @@ sudo dd if=bin/ipxe.usb of=/dev/sdX
 
 ## Intel AMT
 
-http://node-1:16992 (54:BE:F7:88:25:C5)
+http://node-1:16992 (54:BE:F7:88:25:C5)  
 http://node-2:16992 (4C:72:B9:26:25:97)

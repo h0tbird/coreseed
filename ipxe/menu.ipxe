@@ -17,6 +17,11 @@ item --key w worker  Install as a (w)orker node
 item
 item --gap --       -------------------------------- Multirole --------------------------------
 item --key q ainone  Install as an (a)ll-in-one node
+item
+item --gap --       ----------------------------- Container Linux -----------------------------
+item stable          Install Container Linux (stable hello)
+item beta            Install Container Linux (beta hello)
+item alpha           Install Container Linux (alpha)
 choose --default disk --timeout ${timeout} sel && goto ${sel}
 goto menu
 
@@ -52,3 +57,24 @@ dhcp && chain http://ipxe.${domain}/ipxe?roles=worker || goto restart
 :ainone
 echo Booting from ipxe.<domain> enter your domain: && read domain
 dhcp && chain http://ipxe.${domain}/ipxe?roles=quorum,master,worker || goto restart
+
+:stable
+dhcp
+set base-url http://stable.release.core-os.net/amd64-usr/current
+kernel ${base-url}/coreos_production_pxe.vmlinuz initrd=coreos_production_pxe_image.cpio.gz coreos.first_boot=1 coreos.autologin
+initrd ${base-url}/coreos_production_pxe_image.cpio.gz
+boot
+
+:beta
+dhcp
+set base-url http://beta.release.core-os.net/amd64-usr/current
+kernel ${base-url}/coreos_production_pxe.vmlinuz initrd=coreos_production_pxe_image.cpio.gz coreos.first_boot=1 coreos.autologin
+initrd ${base-url}/coreos_production_pxe_image.cpio.gz
+boot
+
+:alpha
+dhcp
+set base-url http://alpha.release.core-os.net/amd64-usr/current
+kernel ${base-url}/coreos_production_pxe.vmlinuz initrd=coreos_production_pxe_image.cpio.gz coreos.first_boot=1 coreos.autologin
+initrd ${base-url}/coreos_production_pxe_image.cpio.gz
+boot
