@@ -1,12 +1,6 @@
 package udata
 
 //-----------------------------------------------------------------------------
-// Package factored import statement:
-//-----------------------------------------------------------------------------
-
-import "os"
-
-//-----------------------------------------------------------------------------
 // Typedefs:
 //-----------------------------------------------------------------------------
 
@@ -79,904 +73,1011 @@ func (f *fragment) allOf(tags []string) bool {
 
 func (fragments *fragmentSlice) load2() {
 
-	//----------------------------------
+	//--------
+	//-[etcd]-
+	//--------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf:  []string{"master", "worker", "border"},
+			noneOf: []string{"quorum"},
+		},
+		data: `
+ etcd:
+  name: "{{.HostName}}-{{.HostID}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial_cluster: "{{.EtcdServers}}"
+  initial_cluster_state: "running"{{end}}
+  advertise_client_urls: "http://{PRIVATE_IPV4}:2379"
+  listen_client_urls: "http://127.0.0.1:2379,http://{PRIVATE_IPV4}:2379"
+  proxy: on`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum"},
+		},
+		data: `
+ etcd:
+  name: "quorum-{{.HostID}}"
+ {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial-cluster: "{{.EtcdServers}}"
+  initial_cluster_state: "new"{{end}}
+  advertise_client_urls: "http://{PRIVATE_IPV4}:2379"
+  initial_advertise_peer_urls: "http://{PRIVATE_IPV4}:2380"
+  listen_client_urls: "http://127.0.0.1:2379,http://{PRIVATE_IPV4}:2379"
+  listen_peer_urls: "http://{PRIVATE_IPV4}:2380"`,
+	})
+
+	//-----------
+	//-[storage]-
+	//-----------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-storage:
+ storage:
   files:
-    - path: "/etc/hostname"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: {{.HostName}}-{{.HostID}}.{{.Domain}}
-`,
+   - path: "/etc/hostname"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: {{.HostName}}-{{.HostID}}.{{.Domain}}`,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/hosts"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          127.0.0.1 localhost
-          {PRIVATE_IPV4} {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-{{range .Aliases}}          {PRIVATE_IPV4} {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
-{{end}}`,
+   - path: "/etc/hosts"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+       127.0.0.1 localhost
+       {PRIVATE_IPV4} {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
+ {{range .Aliases}}      {PRIVATE_IPV4} {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
+ {{end}}`,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/.hosts"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          127.0.0.1 localhost
-          {PRIVATE_IPV4} {{.HostName}}-{{.HostID}}.{{.Domain}} {{.HostName}}-{{.HostID}} marathon-lb
-{{range .Aliases}}          {PRIVATE_IPV4} {{.}}-{{$.HostID}}.{{$.Domain}} {{.}}-{{$.HostID}}
-{{end}}`,
+   - path: "/etc/resolv.conf"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+       search {{.Domain}}
+       nameserver 8.8.8.8
+`,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/resolv.conf"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          search {{.Domain}}
-          nameserver 8.8.8.8
+   - path: "/etc/kato.env"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+       KATO_CLUSTER_ID={{.ClusterID}}
+       KATO_QUORUM_COUNT={{.QuorumCount}}
+       KATO_ROLES='{{range $k, $v := .Roles}}{{if $k}} {{end}}{{$v}}{{end}}'
+       KATO_HOST_NAME={{.HostName}}
+       KATO_HOST_ID={{.HostID}}
+       KATO_ZK={{.ZkServers}}
+       KATO_ETCD_ENDPOINTS={{.EtcdEndpoints}}
+       KATO_SYSTEMD_UNITS='{{range $k, $v := .SystemdUnits}}{{if $k}} {{end}}{{$v}}{{end}}\'
+       KATO_ALERT_MANAGERS={{.AlertManagers}}
+       KATO_DOMAIN=$(hostname -d)
+       KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos
+       KATO_PRI_IP={PRIVATE_IPV4}
+       KATO_PUB_IP={PUBLIC_IPV4}
+       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))
+       KATO_VOLUMES=/var/lib/libstorage/volumes
+       KATO_DNS_PROVIDER={{.DNSProvider}}
+       KATO_DNS_API_KEY={{.DNSApiKey}}
 `,
 	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"worker"},
-		},
-		data: `
-    - path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"
-      filesystem: "root"
-      mode: 0644`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"worker"},
-		},
-		data: `
-    - path: "/etc/cni/net.d/10-devel.conf"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          {
-            "name": "devel",
-            "type": "calico",
-            "ipam": {
-              "type": "calico-ipam"
-            },
-            "etcd_endpoints": "{{.EtcdEndpoints}}"
-          }
-    - path: "/etc/cni/net.d/10-prod.conf"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          {
-            "name": "prod",
-            "type": "calico",
-            "ipam": {
-              "type": "calico-ipam"
-            },
-            "etcd_endpoints": "{{.EtcdEndpoints}}"
-          }
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master", "worker", "border"},
-		},
-		data: `
-    - path: "/etc/calico/resources.yaml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - apiVersion: v1
-            kind: ipPool
-            metadata:
-              cidr: {{.CalicoIPPool}}
-            spec:
-              ipip:
-                enabled: false
-              nat-outgoing: true
-              disabled: false
-          - apiVersion: v1
-            kind: hostEndpoint
-            metadata:
-              name: {{.HostName}}-{{.HostID}}
-              node: {{.HostName}}-{{.HostID}}.{{.Domain}}
-              labels:
-                endpoint: {{.HostName}}
-            spec:
-              expectedIPs:
-              - $private_ipv4
-          - apiVersion: v1
-            kind: policy
-            metadata:
-              name: {{.HostName}}
-            spec:
-              selector: endpoint == '{{.HostName}}'
-              ingress:
-      {{- if .HostTCPPorts}}
-              - action: allow
-                protocol: tcp
-                destination:
-                  ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
-      {{- if .HostUDPPorts}}
-              - action: allow
-                protocol: udp
-                destination:
-                  ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
-          - apiVersion: v1
-            kind: policy
-            metadata:
-              name: allow-egress
-            spec:
-              order: 0
-              egress:
-              - action: allow
-`,
-	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          -----BEGIN PGP PUBLIC KEY BLOCK-----
-          Version: GnuPG v2
-
-          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
-          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
-          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
-          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
-          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
-          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
-          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
-          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
-          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
-          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
-          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
-          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
-          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
-          =SBoV
-          -----END PGP PUBLIC KEY BLOCK-----
+   - path: "/home/core/.bashrc"
+     filesystem: "root"
+     mode: 0644
+     user:
+      name: "core"
+     group:
+      name: "core"
+     contents:
+      inline: |
+       [[ $- = *i* ]] && {
+         eval "$(katoctl --completion-script-bash)"
+         alias ls='ls -hF --color=auto --group-directories-first'
+         alias grep='grep --color=auto'
+       } || shopt -s expand_aliases
+       alias l='ls -l'
+       alias ll='ls -la'
+       alias dim='docker images'
+       alias dps='docker ps'
+       alias drm='docker rm -v $(docker ps -qaf status=exited)'
+       alias drmi='docker rmi $(docker images -qf dangling=true)'
+       alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
 `,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          -----BEGIN PGP PUBLIC KEY BLOCK-----
-          Version: GnuPG v2
-
-          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
-          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
-          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
-          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
-          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
-          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
-          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
-          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
-          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
-          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
-          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
-          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
-          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
-          =SBoV
-          -----END PGP PUBLIC KEY BLOCK-----
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"cacert"},
-		},
-		data: `
-    - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-{{.CaCert | indent 10}}
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/home/core/.kato/{{.ClusterID}}.json"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-{{.KatoState | indent 10}}
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/etc/rexray/rexray.env"
-      filesystem: "root"
-      mode: 0644
-    - path: "/etc/rexray/config.yml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          rexray:
-            logLevel: warn
-        {{- if .RexrayStorageDriver }}
-          libstorage:
-            embedded: true
-            service: {{.RexrayStorageDriver}}
-            server:
-            services:
-              {{.RexrayStorageDriver}}:
-              driver: {{.RexrayStorageDriver}}
-        {{- if eq .RexrayStorageDriver "virtualbox" }}
-              virtualbox:
-                endpoint: http://{{.RexrayEndpointIP}}:18083
-                volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-                controllerName: SATA
-        {{- end}}
-          volume:
-            unmount:
-            ignoreusedcount: true
-        {{- end}}
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/home/core/.bashrc"
-      filesystem: "root"
-      mode: 0644
-      user:
-        name: "core"
-      group:
-        name: "core"
-      contents:
-        inline: |
-          [[ $- = *i* ]] && {
-            eval "$(katoctl --completion-script-bash)"
-            alias ls='ls -hF --color=auto --group-directories-first'
-            alias grep='grep --color=auto'
-          } || shopt -s expand_aliases
-          alias l='ls -l'
-          alias ll='ls -la'
-          alias dim='docker images'
-          alias dps='docker ps'
-          alias drm='docker rm -v $(docker ps -qaf status=exited)'
-          alias drmi='docker rmi $(docker images -qf dangling=true)'
-          alias drmv='docker volume rm $(docker volume ls -qf dangling=true)'
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/home/core/.aws/config"
-      filesystem: "root"
-      mode: 0640
-      user:
-        name: "core"
-      group:
-        name: "core"
-      contents:
-        inline: |
-          [default]
-          region = {{.Ec2Region}}
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/etc/ssh/sshd_config"
-      filesystem: "root"
-      mode: 0600
-      contents:
-        inline: |
-          UsePrivilegeSeparation sandbox
-          Subsystem sftp internal-sftp
-          ClientAliveInterval 180
-          UseDNS no
-          PermitRootLogin no
-          AllowUsers core
-          PasswordAuthentication no
-          ChallengeResponseAuthentication no
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master", "worker"},
-		},
-		data: `
-    - path: "/opt/bin/zk-alive"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          for t in {1..3}; do
-            cnt=0; for i in $(seq ${1}); do
-              echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
-            done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
-          done; exit 1
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf:  []string{"quorum", "master", "worker", "border"},
-			noneOf: []string{"vagrant-virtualbox"},
-		},
-		data: `
-    - path: "/opt/bin/dnspush"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          source /etc/kato.env
-          declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
-          for ROLE in ${KATO_ROLES}; do for i in ext int; do
-            katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
-            add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
-          done done
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/opt/bin/etchost"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          source /etc/kato.env
-          PUSH=$(sed 's/ marathon-lb//' /etc/.hosts | grep -v localhost)
-          for i in $(echo ${KATO_ROLES}); do
-          etcdctl set /hosts/${i}/$(hostname -f) "${PUSH}"; done
-          KEYS=$(etcdctl ls --recursive /hosts | grep ${KATO_DOMAIN} | \
-          grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
-          for i in $KEYS; do PULL+=$(etcdctl get ${i})$'\n'; done
-          cat /etc/.hosts > /etc/hosts
-          echo "${PULL}" >> /etc/hosts
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/opt/bin/loopssh"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          G=$(tput setaf 2); N=$(tput sgr0)
-          A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
-          for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
-          -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/opt/bin/awscli"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          docker run -i --rm \
-          --net host \
-          --volume /home/core/.aws:/root/.aws:ro \
-          --volume ${PWD}:/aws \
-          quay.io/kato/awscli:v1.10.47-1 "${@}"
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-    - path: "/opt/bin/katostat"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          source /etc/kato.env
-          systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
-          awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
-`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf:  []string{"worker"},
-			allOf:  []string{"cacert"},
-			noneOf: []string{"vagrant-virtualbox"},
-		},
-		data: `
- - path: "/opt/bin/getcerts"
-   filesystem: "root"
-   mode: 0755
-   contents:
-     inline: |
+   - path: "/opt/bin/etchosts"
+     filesystem: "root"
+     mode: 0755
+     contents:
+      inline: |
        #!/bin/bash
-       [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
-       [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+       source /etc/kato.env
+       [ -f /etc/.hosts ] || cp /etc/hosts /etc/.hosts
+       PUSH=$(awk "/${KATO_PRI_IP}/ {print \$1\" \"\$2\" \"\$3}" /etc/.hosts)
+       for role in ${KATO_ROLES}; do
+       etcdctl set /hosts/${role}/$(hostname -f) "${PUSH}"; done
+       KEYS=$(etcdctl ls --recursive /hosts | grep ${KATO_DOMAIN} | \
+       grep -v $(hostname -f) | rev | sort | rev | uniq -s 14 | sort)
+       for key in ${KEYS}; do PULL+=$(etcdctl get ${key})$'\n'; done
+       cat /etc/.hosts > /etc/hosts
+       echo "${PULL}" >> /etc/hosts
 `,
 	})
 
-	//----------------------------------
+	//-----------
+	//-[systemd]-
+	//-----------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"cacert"},
 		},
 		data: `
-    - path: "/opt/bin/custom-ca"
-      filesystem: "root"
-      mode: 0755
-      contents:
-        inline: |
-          #!/bin/bash
-          source /etc/kato.env
-          [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
-            ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
-            NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
-            [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
-          }; exit 0
+ systemd:
+  units:
+   - name: "coreos-metadata.service"
+     enable: true
+     dropins:
+      - name: "10-coreos-metadata.conf"
+        contents: |
+         [Service]
+         ExecStartPost=/bin/bash -c '\
+         source /run/metadata/coreos && sed -i \
+         -e 's/{PRIVATE_IPV4}/'"$${COREOS_EC2_IPV4_LOCAL}"'/g' \
+         -e 's/{PUBLIC_IPV4}/'"$${COREOS_EC2_IPV4_PUBLIC}"'/g' \
+         /etc/hosts /etc/kato.env'
 `,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"master"},
-			allOf: []string{"prometheus"},
+			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/alertmanager/config.yml"
-      filesystem: "root"
-      mode: 0600
-      contents:
-        inline: |
-          global:
-      {{- if .SMTPURL}}
-            smtp_smarthost: {{.SMTP.Host}}:{{.SMTP.Port}}
-            smtp_from: alertmanager@{{.Domain}}
-            smtp_auth_username: {{.SMTP.User}}
-            smtp_auth_password: {{.SMTP.Pass}}{{end}}
-      {{- if .SlackWebhook}}
-            slack_api_url: {{.SlackWebhook}}{{end}}
+   - name: "etchosts.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=Stores IPs and hostnames in etcd
+      Requires=etcd-member.service
+      After=etcd-member.service
 
-          templates:
-          - '/etc/alertmanager/template/*.tmpl'
+      [Service]
+      Type=oneshot
+      ExecStart=/opt/bin/etchosts
 
-          route:
-            group_by: ['alertname', 'cluster', 'service']
-            group_wait: 30s
-            group_interval: 5m
-            repeat_interval: 3h
-            receiver: operators
-
-          receivers:
-          - name: 'operators'
-      {{- if .SMTPURL}}
-            email_configs:
-      {{- if .AdminEmail}}
-            - to: '{{.AdminEmail}}'{{end}}{{end}}
-      {{- if .SlackWebhook}}
-            slack_configs:
-            - send_resolved: true
-              channel: kato{{end}}
-`,
+      [Install]
+      WantedBy=multi-user.target`,
 	})
-
-	//----------------------------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"master"},
-			allOf: []string{"prometheus"},
+			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
-    - path: "/etc/prometheus/targets/prometheus.yml"
-      filesystem: "root"
-      mode: 0644
-    - path: "/etc/prometheus/prometheus.yml"
-      filesystem: "root"
-      mode: 0600
-      contents:
-        inline: |
-          global:
-          external_labels:
-            master: {{.HostID}}
-          scrape_interval: 15s
-          scrape_timeout: 10s
-          evaluation_interval: 10s
+   - name: "etchosts.timer"
+     enable: true
+     contents: |
+      [Unit]
+      Description=Run etchosts.service every 5 minutes
+      Requires=etcd-member.service
+      After=etcd-member.service
 
-          rule_files:
-          - /etc/prometheus/recording.rules
-          - /etc/prometheus/alerting.rules
+      [Timer]
+      OnBootSec=1min
+      OnUnitActiveSec=5min
 
-          alerting:
-          alert_relabel_configs:
-          - source_labels: [master]
-            action: replace
-            replacement: 'all'
-            target_label: master
-
-          scrape_configs:
-
-          - job_name: 'prometheus'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/prometheus.yml
-
-          - job_name: 'cadvisor'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/cadvisor.yml
-
-          - job_name: 'etcd'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/etcd.yml
-
-          - job_name: 'node'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/node.yml
-
-          - job_name: 'mesos'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/mesos.yml
-
-          - job_name: 'haproxy'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/haproxy.yml
-
-          - job_name: 'zookeeper'
-            file_sd_configs:
-              - files:
-                - /etc/prometheus/targets/zookeeper.yml
-`,
+      [Install]
+      WantedBy=multi-user.target`,
 	})
 
-	//----------------------------------
+	/*//----------------------------------
 
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master"},
-			allOf: []string{"prometheus"},
-		},
-		data: `
-    - path: "/etc/prometheus/alerting.rules"
-      filesystem: "root"
-      mode: 0600
-      contents:
-        inline: |
-          ALERT ScrapeDown
-            IF up == 0
-            FOR 5m
-            LABELS { severity = "page" }
-            ANNOTATIONS {
-              summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
-              description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
-            }
-`,
-	})
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"worker"},
+			},
+			data: `
+	    - path: "/etc/marathon-lb/templates/HAPROXY_HTTP_FRONTEND_APPID_HEAD"
+	      filesystem: "root"
+	      mode: 0644`,
+		})
 
-	//----------------------------------
+		//----------------------------------
 
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master"},
-			allOf: []string{"prometheus"},
-		},
-		data: `
-    - path: "/etc/confd/conf.d/prom-prometheus.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-prometheus.tmpl"
-          dest = "/etc/prometheus/targets/prometheus.yml"
-          keys = [ "/hosts/master" ]
-    - path: "/etc/confd/templates/prom-prometheus.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
-            labels:
-              role: master
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-cadvisor.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-cadvisor.tmpl"
-          dest = "/etc/prometheus/targets/cadvisor.yml"
-          keys = [
-            "/hosts/quorum",
-            "/hosts/master",
-            "/hosts/worker",
-          ]
-    - path: "/etc/confd/templates/prom-cadvisor.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-            labels:
-              role: quorum
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-            labels:
-              role: master
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
-            labels:
-              role: worker
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-etcd.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-etcd.tmpl"
-          dest = "/etc/prometheus/targets/etcd.yml"
-          keys = [
-            "/hosts/quorum",
-            "/hosts/master",
-            "/hosts/worker",
-          ]
-    - path: "/etc/confd/templates/prom-etcd.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-            labels:
-              role: quorum
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-            labels:
-              role: master
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
-            labels:
-              role: worker
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-node.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-node.tmpl"
-          dest = "/etc/prometheus/targets/node.yml"
-          keys = [
-            "/hosts/quorum",
-            "/hosts/master",
-            "/hosts/worker",
-          ]
-    - path: "/etc/confd/templates/prom-node.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-            labels:
-              role: quorum
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-            labels:
-              role: master
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
-            labels:
-              role: worker
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-mesos.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-mesos.tmpl"
-          dest = "/etc/prometheus/targets/mesos.yml"
-          keys = [
-            "/hosts/master",
-            "/hosts/worker",
-          ]
-    - path: "/etc/confd/templates/prom-mesos.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
-            labels:
-              role: master
-              shard: {{.HostID}}
-          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9105{{"{{"}}end{{"}}"}}
-            labels:
-              role: worker
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-haproxy.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-haproxy.tmpl"
-          dest = "/etc/prometheus/targets/haproxy.yml"
-          keys = [ "/hosts/worker" ]
-    - path: "/etc/confd/templates/prom-haproxy.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
-            labels:
-              role: worker
-              shard: {{.HostID}}
-    - path: "/etc/confd/conf.d/prom-zookeeper.toml"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          [template]
-          src = "prom-zookeeper.tmpl"
-          dest = "/etc/prometheus/targets/zookeeper.yml"
-          keys = [ "/hosts/quorum" ]
-    - path: "/etc/confd/templates/prom-zookeeper.tmpl"
-      filesystem: "root"
-      mode: 0644
-      contents:
-        inline: |
-          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
-            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
-            labels:
-              role: quorum
-              shard: {{.HostID}}
-`,
-	})
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"worker"},
+			},
+			data: `
+	    - path: "/etc/cni/net.d/10-devel.conf"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          {
+	            "name": "devel",
+	            "type": "calico",
+	            "ipam": {
+	              "type": "calico-ipam"
+	            },
+	            "etcd_endpoints": "{{.EtcdEndpoints}}"
+	          }
+	    - path: "/etc/cni/net.d/10-prod.conf"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          {
+	            "name": "prod",
+	            "type": "calico",
+	            "ipam": {
+	              "type": "calico-ipam"
+	            },
+	            "etcd_endpoints": "{{.EtcdEndpoints}}"
+	          }
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master", "worker", "border"},
+			},
+			data: `
+	    - path: "/etc/calico/resources.yaml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - apiVersion: v1
+	            kind: ipPool
+	            metadata:
+	              cidr: {{.CalicoIPPool}}
+	            spec:
+	              ipip:
+	                enabled: false
+	              nat-outgoing: true
+	              disabled: false
+	          - apiVersion: v1
+	            kind: hostEndpoint
+	            metadata:
+	              name: {{.HostName}}-{{.HostID}}
+	              node: {{.HostName}}-{{.HostID}}.{{.Domain}}
+	              labels:
+	                endpoint: {{.HostName}}
+	            spec:
+	              expectedIPs:
+	              - $private_ipv4
+	          - apiVersion: v1
+	            kind: policy
+	            metadata:
+	              name: {{.HostName}}
+	            spec:
+	              selector: endpoint == '{{.HostName}}'
+	              ingress:
+	      {{- if .HostTCPPorts}}
+	              - action: allow
+	                protocol: tcp
+	                destination:
+	                  ports: [{{range $k, $v := .HostTCPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
+	      {{- if .HostUDPPorts}}
+	              - action: allow
+	                protocol: udp
+	                destination:
+	                  ports: [{{range $k, $v := .HostUDPPorts}}{{if $k}},{{end}}"{{$v}}"{{end}}]{{end}}
+	          - apiVersion: v1
+	            kind: policy
+	            metadata:
+	              name: allow-egress
+	            spec:
+	              order: 0
+	              egress:
+	              - action: allow
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          -----BEGIN PGP PUBLIC KEY BLOCK-----
+	          Version: GnuPG v2
+
+	          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+	          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+	          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+	          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+	          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+	          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+	          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+	          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+	          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+	          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+	          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+	          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+	          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+	          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+	          =SBoV
+	          -----END PGP PUBLIC KEY BLOCK-----
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/calico/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          -----BEGIN PGP PUBLIC KEY BLOCK-----
+	          Version: GnuPG v2
+
+	          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+	          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+	          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+	          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+	          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+	          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+	          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+	          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+	          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+	          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+	          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+	          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+	          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+	          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+	          =SBoV
+	          -----END PGP PUBLIC KEY BLOCK-----
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+				allOf: []string{"cacert"},
+			},
+			data: `
+	    - path: "/etc/ssl/certs/{{.ClusterID}}.pem"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	{{.CaCert | indent 10}}
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/home/core/.kato/{{.ClusterID}}.json"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	{{.KatoState | indent 10}}
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/etc/rexray/rexray.env"
+	      filesystem: "root"
+	      mode: 0644
+	    - path: "/etc/rexray/config.yml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          rexray:
+	            logLevel: warn
+	        {{- if .RexrayStorageDriver }}
+	          libstorage:
+	            embedded: true
+	            service: {{.RexrayStorageDriver}}
+	            server:
+	            services:
+	              {{.RexrayStorageDriver}}:
+	              driver: {{.RexrayStorageDriver}}
+	        {{- if eq .RexrayStorageDriver "virtualbox" }}
+	              virtualbox:
+	                endpoint: http://{{.RexrayEndpointIP}}:18083
+	                volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+	                controllerName: SATA
+	        {{- end}}
+	          volume:
+	            unmount:
+	            ignoreusedcount: true
+	        {{- end}}
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/home/core/.aws/config"
+	      filesystem: "root"
+	      mode: 0640
+	      user:
+	        name: "core"
+	      group:
+	        name: "core"
+	      contents:
+	        inline: |
+	          [default]
+	          region = {{.Ec2Region}}
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/etc/ssh/sshd_config"
+	      filesystem: "root"
+	      mode: 0600
+	      contents:
+	        inline: |
+	          UsePrivilegeSeparation sandbox
+	          Subsystem sftp internal-sftp
+	          ClientAliveInterval 180
+	          UseDNS no
+	          PermitRootLogin no
+	          AllowUsers core
+	          PasswordAuthentication no
+	          ChallengeResponseAuthentication no
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master", "worker"},
+			},
+			data: `
+	    - path: "/opt/bin/zk-alive"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          for t in {1..3}; do
+	            cnt=0; for i in $(seq ${1}); do
+	              echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
+	            done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
+	          done; exit 1
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf:  []string{"quorum", "master", "worker", "border"},
+				noneOf: []string{"vagrant-virtualbox"},
+			},
+			data: `
+	    - path: "/opt/bin/dnspush"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          source /etc/kato.env
+	          declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
+	          for ROLE in ${KATO_ROLES}; do for i in ext int; do
+	            katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
+	            add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
+	          done done
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/opt/bin/loopssh"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          G=$(tput setaf 2); N=$(tput sgr0)
+	          A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
+	          for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
+	          -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/opt/bin/awscli"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          docker run -i --rm \
+	          --net host \
+	          --volume /home/core/.aws:/root/.aws:ro \
+	          --volume ${PWD}:/aws \
+	          quay.io/kato/awscli:v1.10.47-1 "${@}"
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+			},
+			data: `
+	    - path: "/opt/bin/katostat"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          source /etc/kato.env
+	          systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
+	          awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf:  []string{"worker"},
+				allOf:  []string{"cacert"},
+				noneOf: []string{"vagrant-virtualbox"},
+			},
+			data: `
+	 - path: "/opt/bin/getcerts"
+	   filesystem: "root"
+	   mode: 0755
+	   contents:
+	     inline: |
+	       #!/bin/bash
+	       [ -d /etc/certs ] || mkdir /etc/certs && cd /etc/certs
+	       [ -f certs.tar.bz2 ] || /opt/bin/awscli s3 cp s3://{{.Domain}}/certs.tar.bz2 .
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"quorum", "master", "worker", "border"},
+				allOf: []string{"cacert"},
+			},
+			data: `
+	    - path: "/opt/bin/custom-ca"
+	      filesystem: "root"
+	      mode: 0755
+	      contents:
+	        inline: |
+	          #!/bin/bash
+	          source /etc/kato.env
+	          [ -f /etc/ssl/certs/${KATO_CLUSTER_ID}.pem ] && {
+	            ID=$(sed -n 2p /etc/ssl/certs/${KATO_CLUSTER_ID}.pem)
+	            NU=$(grep -lir $ID /etc/ssl/certs/* | wc -l)
+	            [ "$NU" -lt "2" ] && update-ca-certificates &> /dev/null
+	          }; exit 0
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master"},
+				allOf: []string{"prometheus"},
+			},
+			data: `
+	    - path: "/etc/alertmanager/config.yml"
+	      filesystem: "root"
+	      mode: 0600
+	      contents:
+	        inline: |
+	          global:
+	      {{- if .SMTPURL}}
+	            smtp_smarthost: {{.SMTP.Host}}:{{.SMTP.Port}}
+	            smtp_from: alertmanager@{{.Domain}}
+	            smtp_auth_username: {{.SMTP.User}}
+	            smtp_auth_password: {{.SMTP.Pass}}{{end}}
+	      {{- if .SlackWebhook}}
+	            slack_api_url: {{.SlackWebhook}}{{end}}
+
+	          templates:
+	          - '/etc/alertmanager/template/*.tmpl'
+
+	          route:
+	            group_by: ['alertname', 'cluster', 'service']
+	            group_wait: 30s
+	            group_interval: 5m
+	            repeat_interval: 3h
+	            receiver: operators
+
+	          receivers:
+	          - name: 'operators'
+	      {{- if .SMTPURL}}
+	            email_configs:
+	      {{- if .AdminEmail}}
+	            - to: '{{.AdminEmail}}'{{end}}{{end}}
+	      {{- if .SlackWebhook}}
+	            slack_configs:
+	            - send_resolved: true
+	              channel: kato{{end}}
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master"},
+				allOf: []string{"prometheus"},
+			},
+			data: `
+	    - path: "/etc/prometheus/targets/prometheus.yml"
+	      filesystem: "root"
+	      mode: 0644
+	    - path: "/etc/prometheus/prometheus.yml"
+	      filesystem: "root"
+	      mode: 0600
+	      contents:
+	        inline: |
+	          global:
+	          external_labels:
+	            master: {{.HostID}}
+	          scrape_interval: 15s
+	          scrape_timeout: 10s
+	          evaluation_interval: 10s
+
+	          rule_files:
+	          - /etc/prometheus/recording.rules
+	          - /etc/prometheus/alerting.rules
+
+	          alerting:
+	          alert_relabel_configs:
+	          - source_labels: [master]
+	            action: replace
+	            replacement: 'all'
+	            target_label: master
+
+	          scrape_configs:
+
+	          - job_name: 'prometheus'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/prometheus.yml
+
+	          - job_name: 'cadvisor'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/cadvisor.yml
+
+	          - job_name: 'etcd'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/etcd.yml
+
+	          - job_name: 'node'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/node.yml
+
+	          - job_name: 'mesos'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/mesos.yml
+
+	          - job_name: 'haproxy'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/haproxy.yml
+
+	          - job_name: 'zookeeper'
+	            file_sd_configs:
+	              - files:
+	                - /etc/prometheus/targets/zookeeper.yml
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master"},
+				allOf: []string{"prometheus"},
+			},
+			data: `
+	    - path: "/etc/prometheus/alerting.rules"
+	      filesystem: "root"
+	      mode: 0600
+	      contents:
+	        inline: |
+	          ALERT ScrapeDown
+	            IF up == 0
+	            FOR 5m
+	            LABELS { severity = "page" }
+	            ANNOTATIONS {
+	              summary = "Scrape instance {{"{{"}} $labels.instance {{"}}"}} down",
+	              description = "Job {{"{{"}} $labels.job {{"}}"}} has been down for more than 5 minutes.",
+	            }
+	`,
+		})
+
+		//----------------------------------
+
+		*fragments = append(*fragments, fragment{
+			filter: filter{
+				anyOf: []string{"master"},
+				allOf: []string{"prometheus"},
+			},
+			data: `
+	    - path: "/etc/confd/conf.d/prom-prometheus.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-prometheus.tmpl"
+	          dest = "/etc/prometheus/targets/prometheus.yml"
+	          keys = [ "/hosts/master" ]
+	    - path: "/etc/confd/templates/prom-prometheus.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9191{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: master
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-cadvisor.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-cadvisor.tmpl"
+	          dest = "/etc/prometheus/targets/cadvisor.yml"
+	          keys = [
+	            "/hosts/quorum",
+	            "/hosts/master",
+	            "/hosts/worker",
+	          ]
+	    - path: "/etc/confd/templates/prom-cadvisor.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: quorum
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: master
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:4194{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: worker
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-etcd.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-etcd.tmpl"
+	          dest = "/etc/prometheus/targets/etcd.yml"
+	          keys = [
+	            "/hosts/quorum",
+	            "/hosts/master",
+	            "/hosts/worker",
+	          ]
+	    - path: "/etc/confd/templates/prom-etcd.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: quorum
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: master
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:2379{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: worker
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-node.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-node.tmpl"
+	          dest = "/etc/prometheus/targets/node.yml"
+	          keys = [
+	            "/hosts/quorum",
+	            "/hosts/master",
+	            "/hosts/worker",
+	          ]
+	    - path: "/etc/confd/templates/prom-node.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: quorum
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: master
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9101{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: worker
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-mesos.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-mesos.tmpl"
+	          dest = "/etc/prometheus/targets/mesos.yml"
+	          keys = [
+	            "/hosts/master",
+	            "/hosts/worker",
+	          ]
+	    - path: "/etc/confd/templates/prom-mesos.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/master/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "master" 1{{"}}"}}:9104{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: master
+	              shard: {{.HostID}}
+	          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9105{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: worker
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-haproxy.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-haproxy.tmpl"
+	          dest = "/etc/prometheus/targets/haproxy.yml"
+	          keys = [ "/hosts/worker" ]
+	    - path: "/etc/confd/templates/prom-haproxy.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/worker/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "worker" 1{{"}}"}}:9102{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: worker
+	              shard: {{.HostID}}
+	    - path: "/etc/confd/conf.d/prom-zookeeper.toml"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          [template]
+	          src = "prom-zookeeper.tmpl"
+	          dest = "/etc/prometheus/targets/zookeeper.yml"
+	          keys = [ "/hosts/quorum" ]
+	    - path: "/etc/confd/templates/prom-zookeeper.tmpl"
+	      filesystem: "root"
+	      mode: 0644
+	      contents:
+	        inline: |
+	          - targets:{{"{{"}}range gets "/hosts/quorum/*"{{"}}"}}
+	            {{"{{"}}$base := base .Key{{"}}"}}- {{"{{"}}replace $base "{{.HostName}}" "quorum" 1{{"}}"}}:9103{{"{{"}}end{{"}}"}}
+	            labels:
+	              role: quorum
+	              shard: {{.HostID}}
+	`,
+		})*/
 }
 
 //-----------------------------------------------------------------------------
@@ -1082,46 +1183,6 @@ coreos:
        content: |
         [Service]
         Environment='DOCKER_OPTS=--registry-mirror=http://external-registry-sys.marathon:5000'`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-  - name: "kato-env.service"
-    command: "start"
-    enable: true
-    content: |
-     [Unit]
-     Description=Káto environment variables
-
-     [Service]
-     Type=oneshot
-     ExecStart=/usr/bin/sh -c 'echo -e "\
-       KATO_CLUSTER_ID={{.ClusterID}}\n\
-       KATO_QUORUM_COUNT={{.QuorumCount}}\n\
-       KATO_ROLES=\'{{range $k, $v := .Roles}}{{if $k}} {{end}}{{$v}}{{end}}\'\n\
-       KATO_HOST_NAME={{.HostName}}\n\
-       KATO_HOST_ID={{.HostID}}\n\
-       KATO_ZK={{.ZkServers}}\n\
-       KATO_ETCD_ENDPOINTS={{.EtcdEndpoints}}\n\
-       KATO_SYSTEMD_UNITS=\'{{range $k, $v := .SystemdUnits}}{{if $k}} {{end}}{{$v}}{{end}}\'\n\
-       KATO_ALERT_MANAGERS={{.AlertManagers}}\n\
-       KATO_DOMAIN=$(hostname -d)\n\
-       KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos\n\
-       KATO_PRI_IP=$private_ipv4\n\
-       KATO_PUB_IP=$public_ipv4\n\
-       KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))\n\
-       KATO_VOLUMES=/var/lib/libstorage/volumes\n\
-       KATO_DNS_PROVIDER={{.DNSProvider}}\n\
-       KATO_DNS_API_KEY={{.DNSApiKey}}" > /etc/kato.env'
-     ExecStart=/usr/bin/sed -i 's/^ *//g' /etc/kato.env
-
-     [Install]
-     WantedBy=multi-user.target`,
 	})
 
 	//----------------------------------
@@ -1679,52 +1740,6 @@ coreos:
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-  - name: "etchost.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=Stores IP and hostname in etcd
-     Requires=etcd2.service
-     After=etcd2.service
-
-     [Service]
-     Type=oneshot
-     ExecStart=/opt/bin/etchost
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-  - name: "etchost.timer"
-    enable: true
-    content: |
-     [Unit]
-     Description=Run etchost.service every 5 minutes
-     Requires=etcd2.service
-     After=etcd2.service
-
-     [Timer]
-     OnBootSec=1min
-     OnUnitActiveSec=5min
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
 			anyOf: []string{"master"},
 			allOf: []string{"prometheus"},
 		},
@@ -1914,7 +1929,7 @@ coreos:
     content: |
      [Unit]
      Description=Lightweight caching DNS proxy
-     After=etchost.timer
+     After=etchosts.timer
 
      [Service]
      Slice=kato.slice
