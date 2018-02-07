@@ -1,0 +1,27 @@
+package: github.com/katosys/kato
+import:
+- package: github.com/Sirupsen/logrus
+  version: ^0.11.5
+- package: github.com/aws/aws-sdk-go
+  version: ^1.8.14
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/session
+  - service/ec2
+  - service/elb
+  - service/iam
+  - service/route53
+- package: github.com/coreos/coreos-cloudinit
+  version: ^1.13.0
+  subpackages:
+  - config/validate
+- package: github.com/imdario/mergo
+  version: ^0.2.2
+- package: github.com/packethost/packngo
+- package: gopkg.in/alecthomas/kingpin.v2
+  version: ^2.2.4
+- package: gopkg.in/ns1/ns1-go.v2
+  subpackages:
+  - rest
+  - rest/model/dns
