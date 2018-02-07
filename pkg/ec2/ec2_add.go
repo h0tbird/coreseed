@@ -119,7 +119,7 @@ func (d *Data) forgeUdataCommand() *exec.Cmd {
 		"--rexray-storage-driver", "ebs",
 		"--iaas-provider", "ec2",
 		"--prometheus",
-		"--gzip-udata",
+		//"--gzip-udata",
 	}
 
 	// Append flags if present:
