@@ -181,21 +181,21 @@ func (s *serviceMap) load(roles, groups []string) {
 	roleServices := map[string][]string{
 
 		"quorum": {
-			"docker", "rexray", "etchost", "zookeeper", "etcd-master", "rkt-api",
+			"docker", "rexray", "etchosts", "zookeeper", "etcd-master", "rkt-api",
 			"cadvisor", "node-exporter", "zookeeper-exporter"},
 
 		"master": {
-			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mesos-dns",
+			"docker", "rexray", "etchosts", "etcd-proxy", "calico", "mesos-dns",
 			"mesos-master", "marathon", "rkt-api", "cadvisor", "node-exporter",
 			"mesos-master-exporter", "confd", "alertmanager", "prometheus"},
 
 		"worker": {
-			"docker", "rexray", "etchost", "etcd-proxy", "calico", "go-dnsmasq",
+			"docker", "rexray", "etchosts", "etcd-proxy", "calico", "go-dnsmasq",
 			"marathon-lb", "mesos-agent", "rkt-api", "cadvisor", "node-exporter",
 			"mesos-agent-exporter", "haproxy-exporter"},
 
 		"border": {
-			"docker", "rexray", "etchost", "etcd-proxy", "calico", "mongodb",
+			"docker", "rexray", "etchosts", "etcd-proxy", "calico", "mongodb",
 			"pritunl", "rkt-api", "cadvisor", "node-exporter"},
 	}
 
@@ -218,8 +218,8 @@ func (s *serviceMap) load(roles, groups []string) {
 			},
 		},
 
-		"etchost": {
-			name:   "etchost.timer",
+		"etchosts": {
+			name:   "etchosts.timer",
 			groups: []string{"base"},
 			ports: []portRange{
 				{interval: startEnd{22, 22}, protocol: "tcp", ingress: ""},
@@ -227,7 +227,7 @@ func (s *serviceMap) load(roles, groups []string) {
 		},
 
 		"etcd-proxy": {
-			name:   "etcd2.service",
+			name:   "etcd-member.service",
 			groups: []string{"base"},
 			ports: []portRange{
 				{interval: startEnd{2379, 2379}, protocol: "tcp", ingress: ""},
@@ -253,7 +253,7 @@ func (s *serviceMap) load(roles, groups []string) {
 		},
 
 		"etcd-master": {
-			name:   "etcd2.service",
+			name:   "etcd-member.service",
 			groups: []string{"base"},
 			ports: []portRange{
 				{interval: startEnd{2379, 2380}, protocol: "tcp", ingress: ""},

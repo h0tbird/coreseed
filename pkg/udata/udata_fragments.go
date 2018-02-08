@@ -283,6 +283,23 @@ func (fragments *fragmentSlice) load2() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
+   - path: "/opt/bin/katostat"
+     filesystem: "root"
+     mode: 0755
+     contents:
+      inline: |
+       #!/bin/bash
+       source /etc/kato.env
+       systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
+       awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
+`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
    - path: "/home/core/.kato/{{.ClusterID}}.json"
      filesystem: "root"
      mode: 0644
@@ -722,25 +739,6 @@ func (fragments *fragmentSlice) load2() {
 
 		*fragments = append(*fragments, fragment{
 			filter: filter{
-				anyOf: []string{"quorum", "master", "worker", "border"},
-			},
-			data: `
-	    - path: "/opt/bin/katostat"
-	      filesystem: "root"
-	      mode: 0755
-	      contents:
-	        inline: |
-	          #!/bin/bash
-	          source /etc/kato.env
-	          systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
-	          awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
 				anyOf:  []string{"worker"},
 				allOf:  []string{"cacert"},
 				noneOf: []string{"vagrant-virtualbox"},
@@ -1128,27 +1126,11 @@ func (fragments *fragmentSlice) load() {
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
+			allOf: []string{"cacert"},
 		},
 		data: `
 coreos:
  units:
-  - name: "etcd2.service"
-{{- if eq .ClusterState "existing" }}
-    command: "stop"
-    enable: false
-{{- else}}
-    command: "start"
-{{- end}}`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-			allOf: []string{"cacert"},
-		},
-		data: `
   - name: "custom-ca.service"
     command: "start"
     content: |
@@ -2222,38 +2204,5 @@ coreos:
 
      [Install]
      WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum"},
-		},
-		data: `
- etcd2:
-  name: "quorum-{{.HostID}}"
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} initial-cluster: "{{.EtcdServers}}"
-  initial-cluster-state: "new"{{end}}
-  advertise-client-urls: "http://$private_ipv4:2379"
-  initial-advertise-peer-urls: "http://$private_ipv4:2380"
-  listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
-  listen-peer-urls: "http://$private_ipv4:2380"`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf:  []string{"master", "worker", "border"},
-			noneOf: []string{"quorum"},
-		},
-		data: `
- etcd2:
- {{if .EtcdToken }} discovery: https://discovery.etcd.io/{{.EtcdToken}}{{else}} name: "{{.HostName}}-{{.HostID}}"
-  initial-cluster: "{{.EtcdServers}}"{{end}}
-  advertise-client-urls: "http://$private_ipv4:2379"
-  listen-client-urls: "http://127.0.0.1:2379,http://$private_ipv4:2379"
-  proxy: on`,
 	})
 }
