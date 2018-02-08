@@ -220,6 +220,24 @@ func (fragments *fragmentSlice) load2() {
 			anyOf: []string{"quorum", "master", "worker", "border"},
 		},
 		data: `
+   - path: "/home/core/.kato/{{.ClusterID}}.json"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+{{.KatoState | indent 7}}
+`,
+	})
+
+	//-------------
+	//-[/opt/bin]-
+	//-------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
    - path: "/opt/bin/etchosts"
      filesystem: "root"
      mode: 0755
@@ -292,20 +310,6 @@ func (fragments *fragmentSlice) load2() {
        source /etc/kato.env
        systemctl -p Id,LoadState,ActiveState,SubState show ${KATO_SYSTEMD_UNITS} | \
        awk 'BEGIN {RS="\n\n"; FS="\n";} {print $2"\t"$3"\t"$4"\t"$1}'
-`,
-	})
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-   - path: "/home/core/.kato/{{.ClusterID}}.json"
-     filesystem: "root"
-     mode: 0644
-     contents:
-      inline: |
-{{.KatoState | indent 7}}
 `,
 	})
 
