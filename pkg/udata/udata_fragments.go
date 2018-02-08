@@ -239,6 +239,59 @@ func (fragments *fragmentSlice) load2() {
 `,
 	})
 
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - path: "/opt/bin/loopssh"
+     filesystem: "root"
+     mode: 0755
+     contents:
+      inline: |
+       #!/bin/bash
+       G=$(tput setaf 2); N=$(tput sgr0)
+       A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
+       for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
+       -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done
+`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf:  []string{"quorum", "master", "worker", "border"},
+			noneOf: []string{"vagrant-virtualbox"},
+		},
+		data: `
+   - path: "/opt/bin/dnspush"
+     filesystem: "root"
+     mode: 0755
+     contents:
+      inline: |
+       #!/bin/bash
+       source /etc/kato.env
+       declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
+       for ROLE in ${KATO_ROLES}; do for i in ext int; do
+         katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
+         add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
+       done done
+`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - path: "/home/core/.kato/{{.ClusterID}}.json"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+{{.KatoState | indent 7}}
+`,
+	})
+
 	//-----------
 	//-[systemd]-
 	//-----------
@@ -301,6 +354,49 @@ func (fragments *fragmentSlice) load2() {
       [Timer]
       OnBootSec=1min
       OnUnitActiveSec=5min
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - name: "katoctl.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=Download katoctl
+
+      [Service]
+      Type=oneshot
+      Environment=URL=https://github.com/katosys/kato/releases/download/v0.1.1
+      ExecStart=/bin/bash -c " \
+       [ -f /opt/bin/katoctl ] || { curl -sL -o /opt/bin/katoctl ${URL}/katoctl-linux-x86_64; }; \
+       [ -x /opt/bin/katoctl ] || { chmod +x /opt/bin/katoctl; }"
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf:  []string{"quorum", "master", "worker", "border"},
+			noneOf: []string{"vagrant-virtualbox"},
+		},
+		data: `
+   - name: "dnspush.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=Publish DNS records
+      After=katoctl.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/bash -c "PATH=${PATH}:/opt/bin exec /opt/bin/dnspush"
 
       [Install]
       WantedBy=multi-user.target`,
@@ -505,22 +601,6 @@ func (fragments *fragmentSlice) load2() {
 				anyOf: []string{"quorum", "master", "worker", "border"},
 			},
 			data: `
-	    - path: "/home/core/.kato/{{.ClusterID}}.json"
-	      filesystem: "root"
-	      mode: 0644
-	      contents:
-	        inline: |
-	{{.KatoState | indent 10}}
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf: []string{"quorum", "master", "worker", "border"},
-			},
-			data: `
 	    - path: "/etc/rexray/rexray.env"
 	      filesystem: "root"
 	      mode: 0644
@@ -614,49 +694,6 @@ func (fragments *fragmentSlice) load2() {
 	              echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
 	            done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
 	          done; exit 1
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf:  []string{"quorum", "master", "worker", "border"},
-				noneOf: []string{"vagrant-virtualbox"},
-			},
-			data: `
-	    - path: "/opt/bin/dnspush"
-	      filesystem: "root"
-	      mode: 0755
-	      contents:
-	        inline: |
-	          #!/bin/bash
-	          source /etc/kato.env
-	          declare -A IP=(['ext']="${KATO_PUB_IP}" ['int']="${KATO_PRI_IP}")
-	          for ROLE in ${KATO_ROLES}; do for i in ext int; do
-	            katoctl ${KATO_DNS_PROVIDER} --api-key ${KATO_DNS_API_KEY:-none} record \
-	            add --zone ${i}.${KATO_DOMAIN} ${ROLE}-${KATO_HOST_ID}:A:${IP[${i}]}
-	          done done
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf: []string{"quorum", "master", "worker", "border"},
-			},
-			data: `
-	    - path: "/opt/bin/loopssh"
-	      filesystem: "root"
-	      mode: 0755
-	      contents:
-	        inline: |
-	          #!/bin/bash
-	          G=$(tput setaf 2); N=$(tput sgr0)
-	          A=$(grep $1 /etc/hosts | awk '{print $2}' | sort -u | grep -v int)
-	          for i in $A; do echo "${G}--[ $i ]--${N}"; ssh -o UserKnownHostsFile=/dev/null \
-	          -o StrictHostKeyChecking=no -o ConnectTimeout=3 $i -C "${@:2}" 2> /dev/null; done
 	`,
 		})
 
@@ -1658,30 +1695,6 @@ coreos:
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-  - name: "katoctl.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=Download katoctl
-
-     [Service]
-     Type=oneshot
-     Environment=URL=https://github.com/katosys/kato/releases/download/v0.1.1
-     ExecStart=/bin/bash -c " \
-      [ -f /opt/bin/katoctl ] || { curl -sL -o /opt/bin/katoctl ${URL}/katoctl-linux-x86_64; }; \
-      [ -x /opt/bin/katoctl ] || { chmod +x /opt/bin/katoctl; }"
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
 			allOf: []string{"prometheus"},
 		},
 		data: `
@@ -1707,30 +1720,6 @@ coreos:
       --listen_ip ${KATO_PRI_IP} \
       --logtostderr \
       --port=4194
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf:  []string{"quorum", "master", "worker", "border"},
-			noneOf: []string{"vagrant-virtualbox"},
-		},
-		data: `
-  - name: "dnspush.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=Publish DNS records
-     Before=etcd2.service
-     After=katoctl.service
-
-     [Service]
-     Type=oneshot
-     ExecStart=/bin/bash -c "PATH=${PATH}:/opt/bin exec /opt/bin/dnspush"
 
      [Install]
      WantedBy=kato.target`,
