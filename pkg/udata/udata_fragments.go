@@ -179,14 +179,14 @@ func (fragments *fragmentSlice) load2() {
        KATO_HOST_ID={{.HostID}}
        KATO_ZK={{.ZkServers}}
        KATO_ETCD_ENDPOINTS={{.EtcdEndpoints}}
-       KATO_SYSTEMD_UNITS='{{range $k, $v := .SystemdUnits}}{{if $k}} {{end}}{{$v}}{{end}}\'
+       KATO_SYSTEMD_UNITS='{{range $k, $v := .SystemdUnits}}{{if $k}} {{end}}{{$v}}{{end}}'
        KATO_ALERT_MANAGERS={{.AlertManagers}}
        KATO_DOMAIN=$(hostname -d)
        KATO_MESOS_DOMAIN=$(hostname -d | cut -d. -f-2).mesos
        KATO_PRI_IP={PRIVATE_IPV4}
        KATO_PUB_IP={PUBLIC_IPV4}
        KATO_QUORUM=$(({{.QuorumCount}}/2 + 1))
-       KATO_VOLUMES=/var/lib/libstorage/volumes
+       KATO_VOLUMES=/var/lib/rexray/volumes
        KATO_DNS_PROVIDER={{.DNSProvider}}
        KATO_DNS_API_KEY={{.DNSApiKey}}
 `,
@@ -215,6 +215,38 @@ func (fragments *fragmentSlice) load2() {
          volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
          controllerName: SATA
      {{- end}}
+`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+       -----BEGIN PGP PUBLIC KEY BLOCK-----
+       Version: GnuPG v2
+
+       mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
+       PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
+       fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
+       k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
+       4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
+       qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
+       bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
+       YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
+       F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
+       12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
+       I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
+       P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
+       oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
+       nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
+       =SBoV
+       -----END PGP PUBLIC KEY BLOCK-----
 `,
 	})
 
@@ -516,12 +548,78 @@ func (fragments *fragmentSlice) load2() {
       Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.1/dvdcli-Linux-x86_64-0.2.1.tar.gz
       ExecStartPre=-/bin/bash -c " \
         [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/rexray; }; \
-        [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
+        [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }; [ -d /run/docker/plugins ] || { mkdir -p /run/docker/plugins; }"
       ExecStartPre=-/bin/bash -c " \
         [ -f /opt/bin/dvdcli ] || { curl -sL ${DVDCLI_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/dvdcli; }; \
         [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
       ExecStart=/opt/bin/rexray start -f
       ExecReload=/bin/kill -HUP $MAINPID
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"border"},
+		},
+		data: `
+   - name: "mongodb.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=MongoDB
+      After=rexray.service
+      Requires=rexray.service
+
+      [Service]
+      Restart=always
+      RestartSec=10
+      TimeoutStartSec=0
+      KillMode=mixed
+      EnvironmentFile=/etc/kato.env
+      Environment=IMG=mongo:3.5
+      ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
+      ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
+      ExecStart=/usr/bin/rkt run \
+       --net=host \
+       --dns=host \
+       --hosts-entry=host \
+       --volume volume-data-db,kind=host,source=${KATO_VOLUMES}/${KATO_CLUSTER_ID}-pritunl-mongo/data \
+       docker://${IMG} -- \
+       --bind_ip 127.0.0.1
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"border"},
+		},
+		data: `
+   - name: "pritunl.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=Pritunl
+      After=mongodb.service
+      Requires=mongodb.service
+
+      [Service]
+      Restart=always
+      RestartSec=10
+      TimeoutStartSec=0
+      KillMode=mixed
+      LimitNOFILE=25000
+      Environment=IMG=quay.io/kato/pritunl:v1.28.1445.85-1
+      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+      ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
+       --net=host \
+       --dns=host \
+       --hosts-entry=host \
+       --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
+       ${IMG}
 
       [Install]
       WantedBy=multi-user.target`,
@@ -631,40 +729,6 @@ func (fragments *fragmentSlice) load2() {
 	              order: 0
 	              egress:
 	              - action: allow
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf: []string{"quorum", "master", "worker", "border"},
-			},
-			data: `
-	    - path: "/etc/rkt/trustedkeys/prefix.d/quay.io/kato/bff313cdaa560b16a8987b8f72abf5f6799d33bc"
-	      filesystem: "root"
-	      mode: 0644
-	      contents:
-	        inline: |
-	          -----BEGIN PGP PUBLIC KEY BLOCK-----
-	          Version: GnuPG v2
-
-	          mQENBFTT6doBCACkVncI+t4HASQdnByRlXCYkwjsPqGOlgTCgenop5I6vgTqFWhQ
-	          PMNhtSaFdFECMt2WKQT4QGVbfVOmIH9CLV+Muqvk4iJIAn3Nh3qp/kfMhwjGaS6m
-	          fWN2ARFCq4RIs9tboCNQOouaD5C26/FsQtIsoqyYcdX+YFaU1a+R1kp0fc2CABDI
-	          k6Iq8oEJO+FOYvqQYIJNfd3c0NHICilMu2jO3yIsw80qzWoFAAblyb0zVq/hudWB
-	          4vdVzPmJe1f4Ymk8l1R413bN65LcbCiOax3hmFWovJoxlkL7WoGTTMfaeb2QmaPL
-	          qcu4Q94v1KG87gyxbkIo5uZdvMLdswQI7yQ7ABEBAAG0RFF1YXkuaW8gQUNJIENv
-	          bnZlcnRlciAoQUNJIGNvbnZlcnNpb24gc2lnbmluZyBrZXkpIDxzdXBwb3J0QHF1
-	          YXkuaW8+iQE5BBMBAgAjBQJU0+naAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgEC
-	          F4AACgkQcqv19nmdM7zKzggAjGFqy7Hcx6TCFXn53/inl5iyKrTu8cuF4K547XuZ
-	          12Dt8b6PgJ+b3z6UnMMTd0wXKGcfOmNeQ2R71xmVnviuo7xB5ZkZIBxHI4M/5uhK
-	          I6GZKr84WJS2ec7ssH2ofFQ5u1l+es9jUwW0KbAoNmES0IcdDy28xfmJpkfOn3oI
-	          P2Bzz4rGlIqJXEjq28Wk+qQu64kJRKYuPNXqiHncPDm+i5jMXUUN1D+pkDukp26x
-	          oLbpol42/jIcM3fe2AFZnflittBCHYLIHjJ51NlpSHJZmf2pQZbdyeKElN2SCNe7
-	          nDcol24zYIC+SX0K23w/LrLzlff4mzbO99ePt1bB9zAiVA==
-	          =SBoV
-	          -----END PGP PUBLIC KEY BLOCK-----
 	`,
 		})
 
@@ -1800,78 +1864,6 @@ coreos:
       ${IMG} --exec zookeeper_exporter -- \
       -web.listen-address :9103 \
       $(echo ${KATO_ZK} | tr , ' ')"
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"border"},
-		},
-		data: `
-  - name: "mongodb.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=MongoDB
-     After=rexray.service
-     Requires=rexray.service
-
-     [Service]
-     Slice=kato.slice
-     Restart=always
-     RestartSec=10
-     TimeoutStartSec=0
-     KillMode=mixed
-     EnvironmentFile=/etc/kato.env
-     Environment=IMG=mongo:3.5
-     ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
-     ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
-     ExecStart=/usr/bin/rkt run \
-      --net=host \
-      --dns=host \
-      --hosts-entry=host \
-      --volume volume-data-db,kind=host,source=${KATO_VOLUMES}/${KATO_CLUSTER_ID}-pritunl-mongo/data \
-      docker://${IMG} -- \
-      --bind_ip 127.0.0.1
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"border"},
-		},
-		data: `
-  - name: "pritunl.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=Pritunl
-     After=mongodb.service
-     Requires=mongodb.service
-
-     [Service]
-     Slice=kato.slice
-     Restart=always
-     RestartSec=10
-     TimeoutStartSec=0
-     KillMode=mixed
-     LimitNOFILE=25000
-     Environment=IMG=quay.io/kato/pritunl:v1.28.1445.85-1
-     ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
-      --net=host \
-      --dns=host \
-      --hosts-entry=host \
-      --set-env MONGODB_URI=mongodb://127.0.0.1:27017/pritunl \
-      ${IMG}
 
      [Install]
      WantedBy=kato.target`,
