@@ -1,6 +1,12 @@
 package udata
 
 //-----------------------------------------------------------------------------
+// Imports:
+//-----------------------------------------------------------------------------
+
+import "os"
+
+//-----------------------------------------------------------------------------
 // Typedefs:
 //-----------------------------------------------------------------------------
 
@@ -183,6 +189,32 @@ func (fragments *fragmentSlice) load2() {
        KATO_VOLUMES=/var/lib/libstorage/volumes
        KATO_DNS_PROVIDER={{.DNSProvider}}
        KATO_DNS_API_KEY={{.DNSApiKey}}
+`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - path: "/etc/rexray/rexray.env"
+     filesystem: "root"
+     mode: 0644
+   - path: "/etc/rexray/config.yml"
+     filesystem: "root"
+     mode: 0644
+     contents:
+      inline: |
+       libstorage:
+         service: {{.RexrayStorageDriver}}
+       {{.RexrayStorageDriver}}:
+     {{- if eq .RexrayStorageDriver "ebs" }}
+         region: {{.Ec2Region}}
+     {{- else if eq .RexrayStorageDriver "virtualbox" }}
+         endpoint: http://{{.RexrayEndpointIP}}:18083
+         volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
+         controllerName: SATA
+     {{- end}}
 `,
 	})
 
@@ -462,6 +494,39 @@ func (fragments *fragmentSlice) load2() {
       RequiredBy=local-fs.target`,
 	})
 
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum", "master", "worker", "border"},
+		},
+		data: `
+   - name: "rexray.service"
+     enable: true
+     contents: |
+      [Unit]
+      Description=REX-Ray volume plugin
+      Before=docker.service
+
+      [Service]
+      Restart=always
+      RestartSec=10
+      TimeoutStartSec=0
+      KillMode=process
+      EnvironmentFile=/etc/rexray/rexray.env
+      Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.11.1/rexray-Linux-x86_64-0.11.1.tar.gz
+      Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.1/dvdcli-Linux-x86_64-0.2.1.tar.gz
+      ExecStartPre=-/bin/bash -c " \
+        [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/rexray; }; \
+        [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
+      ExecStartPre=-/bin/bash -c " \
+        [ -f /opt/bin/dvdcli ] || { curl -sL ${DVDCLI_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/dvdcli; }; \
+        [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
+      ExecStart=/opt/bin/rexray start -f
+      ExecReload=/bin/kill -HUP $MAINPID
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
 	/*//----------------------------------
 
 		*fragments = append(*fragments, fragment{
@@ -651,44 +716,6 @@ func (fragments *fragmentSlice) load2() {
 	      contents:
 	        inline: |
 	{{.CaCert | indent 10}}
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf: []string{"quorum", "master", "worker", "border"},
-			},
-			data: `
-	    - path: "/etc/rexray/rexray.env"
-	      filesystem: "root"
-	      mode: 0644
-	    - path: "/etc/rexray/config.yml"
-	      filesystem: "root"
-	      mode: 0644
-	      contents:
-	        inline: |
-	          rexray:
-	            logLevel: warn
-	        {{- if .RexrayStorageDriver }}
-	          libstorage:
-	            embedded: true
-	            service: {{.RexrayStorageDriver}}
-	            server:
-	            services:
-	              {{.RexrayStorageDriver}}:
-	              driver: {{.RexrayStorageDriver}}
-	        {{- if eq .RexrayStorageDriver "virtualbox" }}
-	              virtualbox:
-	                endpoint: http://{{.RexrayEndpointIP}}:18083
-	                volumePath: ` + os.Getenv("HOME") + `/VirtualBox Volumes
-	                controllerName: SATA
-	        {{- end}}
-	          volume:
-	            unmount:
-	            ignoreusedcount: true
-	        {{- end}}
 	`,
 		})
 
@@ -1514,42 +1541,6 @@ coreos:
       ${IMG} -- \
       -node http://127.0.0.1:2379 \
       -watch
-
-     [Install]
-     WantedBy=kato.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum", "master", "worker", "border"},
-		},
-		data: `
-  - name: "rexray.service"
-    enable: true
-    content: |
-     [Unit]
-     Description=REX-Ray volume plugin
-     Before=docker.service
-
-     [Service]
-     Slice=kato.slice
-     Restart=always
-     RestartSec=10
-     TimeoutStartSec=0
-     KillMode=process
-     EnvironmentFile=/etc/rexray/rexray.env
-     Environment=REXRAY_URL=https://emccode.bintray.com/rexray/stable/0.9.2/rexray-Linux-x86_64-0.9.2.tar.gz
-     Environment=DVDCLI_URL=https://emccode.bintray.com/dvdcli/stable/0.2.1/dvdcli-Linux-x86_64-0.2.1.tar.gz
-     ExecStartPre=-/bin/bash -c " \
-       [ -f /opt/bin/rexray ] || { curl -sL ${REXRAY_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/rexray; }; \
-       [ -x /opt/bin/rexray ] || { chmod +x /opt/bin/rexray; }"
-     ExecStartPre=-/bin/bash -c " \
-       [ -f /opt/bin/dvdcli ] || { curl -sL ${DVDCLI_URL} | tar -xz -C /opt/bin; chown root:root /opt/bin/dvdcli; }; \
-       [ -x /opt/bin/dvdcli ] || { chmod +x /opt/bin/dvdcli; }"
-     ExecStart=/opt/bin/rexray start -f
-     ExecReload=/bin/kill -HUP $MAINPID
 
      [Install]
      WantedBy=kato.target`,
