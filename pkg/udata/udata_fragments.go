@@ -107,9 +107,9 @@ func (fragments *fragmentSlice) load2() {
   listen_peer_urls: "http://{PRIVATE_IPV4}:2380"`,
 	})
 
-	//-----------
-	//-[storage]-
-	//-----------
+	//-------------
+	//-[etc files]-
+	//-------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
@@ -186,6 +186,10 @@ func (fragments *fragmentSlice) load2() {
 `,
 	})
 
+	//--------------
+	//-[home files]-
+	//--------------
+
 	*fragments = append(*fragments, fragment{
 		filter: filter{
 			anyOf: []string{"quorum", "master", "worker", "border"},
@@ -230,7 +234,7 @@ func (fragments *fragmentSlice) load2() {
 	})
 
 	//-------------
-	//-[/opt/bin]-
+	//-[opt files]-
 	//-------------
 
 	*fragments = append(*fragments, fragment{
@@ -313,9 +317,26 @@ func (fragments *fragmentSlice) load2() {
 `,
 	})
 
-	//-----------
-	//-[systemd]-
-	//-----------
+	//---------------
+	//-[filesystems]-
+	//---------------
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"master", "worker"},
+			allOf: []string{"ec2"},
+		},
+		data: `
+  filesystems:
+   - mount:
+      device: /dev/xvdb
+      format: ext4
+      wipe_filesystem: true`,
+	})
+
+	//-----------------
+	//-[systemd units]-
+	//-----------------
 
 	*fragments = append(*fragments, fragment{
 		filter: filter{
@@ -421,6 +442,24 @@ func (fragments *fragmentSlice) load2() {
 
       [Install]
       WantedBy=multi-user.target`,
+	})
+
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"master", "worker"},
+			allOf: []string{"ec2"},
+		},
+		data: `
+   - name: "var-lib-mesos.mount"
+     enable: true
+     contents: |
+      [Mount]
+      What=/dev/xvdb
+      Where=/var/lib/mesos
+      Type=ext4
+
+      [Install]
+      RequiredBy=local-fs.target`,
 	})
 
 	/*//----------------------------------
@@ -1145,51 +1184,6 @@ coreos:
      [Service]
      Type=oneshot
      ExecStart=/opt/bin/custom-ca`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master", "worker"},
-			allOf: []string{"ec2"},
-		},
-		data: `
-  - name: "format-ephemeral.service"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Formats the ephemeral drive
-     After=dev-xvdb.device
-     Requires=dev-xvdb.device
-
-     [Service]
-     Type=oneshot
-     RemainAfterExit=yes
-     ExecStart=/usr/sbin/wipefs -f /dev/xvdb
-     ExecStart=/usr/sbin/mkfs.ext4 -F /dev/xvdb`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"master", "worker"},
-			allOf: []string{"ec2"},
-		},
-		data: `
-  - name: "var-lib-mesos.mount"
-    command: "start"
-    content: |
-     [Unit]
-     Description=Mount ephemeral to /var/lib/mesos
-     Requires=format-ephemeral.service
-     After=format-ephemeral.service
-
-     [Mount]
-     What=/dev/xvdb
-     Where=/var/lib/mesos
-     Type=ext4`,
 	})
 
 	//----------------------------------
