@@ -578,7 +578,7 @@ func (fragments *fragmentSlice) load2() {
       TimeoutStartSec=0
       KillMode=mixed
       EnvironmentFile=/etc/kato.env
-      Environment=IMG=mongo:3.5
+      Environment=IMG=mongo:3.7
       ExecStartPre=/usr/bin/rkt fetch --insecure-options=image docker://${IMG}
       ExecStartPre=/opt/bin/dvdcli mount --volumedriver rexray --volumename ${KATO_CLUSTER_ID}-pritunl-mongo
       ExecStart=/usr/bin/rkt run \
@@ -612,7 +612,7 @@ func (fragments *fragmentSlice) load2() {
       TimeoutStartSec=0
       KillMode=mixed
       LimitNOFILE=25000
-      Environment=IMG=quay.io/kato/pritunl:v1.28.1445.85-1
+      Environment=IMG=quay.io/kato/pritunl:v1.29.1609.88-1
       ExecStartPre=/usr/bin/rkt fetch ${IMG}
       ExecStart=/usr/bin/rkt run --stage1-from-dir=stage1-fly.aci \
        --net=host \
