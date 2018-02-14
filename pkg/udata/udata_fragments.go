@@ -381,6 +381,25 @@ func (fragments *fragmentSlice) load() {
 `,
 	})
 
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"master", "worker"},
+		},
+		data: `
+   - path: "/opt/bin/zk-alive"
+     filesystem: "root"
+     mode: 0755
+     contents:
+      inline: |
+       #!/bin/bash
+       for t in {1..3}; do
+         cnt=0; for i in $(seq ${1}); do
+           echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
+         done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
+       done; exit 1
+`,
+	})
+
 	//---------------
 	//-[filesystems]-
 	//---------------
@@ -625,6 +644,51 @@ func (fragments *fragmentSlice) load() {
       WantedBy=multi-user.target`,
 	})
 
+	*fragments = append(*fragments, fragment{
+		filter: filter{
+			anyOf: []string{"quorum"},
+		},
+		data: `
+   - name: "zookeeper.service"
+{{- if eq .ClusterState "existing" }}
+     enable: false
+{{- else}}
+     enable: true
+{{- end}}
+     contents: |
+      [Unit]
+      Description=Zookeeper
+
+      [Service]
+      Restart=always
+      RestartSec=10
+      TimeoutStartSec=0
+      KillMode=mixed
+      EnvironmentFile=/etc/kato.env
+      Environment=IMG=quay.io/kato/zookeeper:v3.4.8-4
+      ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/zookeeper ] || mkdir /var/lib/zookeeper"
+      ExecStartPre=/usr/bin/rkt fetch ${IMG}
+      ExecStart=/usr/bin/bash -c "exec rkt run \
+       --net=host \
+       --dns=host \
+       --hosts-entry=host \
+       --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
+       --set-env=ZK_SERVERS=$${KATO_ZK//:2181/} \
+       --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_PRI_IP} \
+       --set-env=ZK_TICK_TIME=2000 \
+       --set-env=ZK_INIT_LIMIT=5 \
+       --set-env=ZK_SYNC_LIMIT=2 \
+       --set-env=ZK_DATA_DIR=/var/lib/zookeeper \
+       --set-env=ZK_CLIENT_PORT=2181 \
+       --set-env=JMXDISABLE=false \
+       --volume data,kind=host,source=/var/lib/zookeeper \
+       --mount volume=data,target=/var/lib/zookeeper \
+       ${IMG}"
+
+      [Install]
+      WantedBy=multi-user.target`,
+	})
+
 	/*//----------------------------------
 
 		*fragments = append(*fragments, fragment{
@@ -824,27 +888,6 @@ func (fragments *fragmentSlice) load() {
 	          AllowUsers core
 	          PasswordAuthentication no
 	          ChallengeResponseAuthentication no
-	`,
-		})
-
-		//----------------------------------
-
-		*fragments = append(*fragments, fragment{
-			filter: filter{
-				anyOf: []string{"master", "worker"},
-			},
-			data: `
-	    - path: "/opt/bin/zk-alive"
-	      filesystem: "root"
-	      mode: 0755
-	      contents:
-	        inline: |
-	          #!/bin/bash
-	          for t in {1..3}; do
-	            cnt=0; for i in $(seq ${1}); do
-	              echo ruok | ncat quorum-${i} 2181 | grep -q imok && cnt=$((cnt+1))
-	            done &> /dev/null; [ $cnt -ge $((${1}/2 + 1)) ] && exit 0 || sleep $((5*${t}))
-	          done; exit 1
 	`,
 		})
 
@@ -1311,55 +1354,6 @@ coreos:
 
      [Install]
      WantedBy=multi-user.target`,
-	})
-
-	//----------------------------------
-
-	*fragments = append(*fragments, fragment{
-		filter: filter{
-			anyOf: []string{"quorum"},
-		},
-		data: `
-  - name: "zookeeper.service"
-{{- if eq .ClusterState "existing" }}
-    command: "stop"
-    enable: false
-{{- else}}
-    enable: true
-{{- end}}
-    content: |
-     [Unit]
-     Description=Zookeeper
-
-     [Service]
-     Slice=kato.slice
-     Restart=always
-     RestartSec=10
-     TimeoutStartSec=0
-     KillMode=mixed
-     EnvironmentFile=/etc/kato.env
-     Environment=IMG=quay.io/kato/zookeeper:v3.4.8-4
-     ExecStartPre=/usr/bin/sh -c "[ -d /var/lib/zookeeper ] || mkdir /var/lib/zookeeper"
-     ExecStartPre=/usr/bin/rkt fetch ${IMG}
-     ExecStart=/usr/bin/bash -c "exec rkt run \
-      --net=host \
-      --dns=host \
-      --hosts-entry=host \
-      --set-env=ZK_SERVER_ID=${KATO_HOST_ID} \
-      --set-env=ZK_SERVERS=$${KATO_ZK//:2181/} \
-      --set-env=ZK_CLIENT_PORT_ADDRESS=${KATO_PRI_IP} \
-      --set-env=ZK_TICK_TIME=2000 \
-      --set-env=ZK_INIT_LIMIT=5 \
-      --set-env=ZK_SYNC_LIMIT=2 \
-      --set-env=ZK_DATA_DIR=/var/lib/zookeeper \
-      --set-env=ZK_CLIENT_PORT=2181 \
-      --set-env=JMXDISABLE=false \
-      --volume data,kind=host,source=/var/lib/zookeeper \
-      --mount volume=data,target=/var/lib/zookeeper \
-      ${IMG}"
-
-     [Install]
-     WantedBy=kato.target`,
 	})
 
 	//----------------------------------
