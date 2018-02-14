@@ -74,10 +74,10 @@ func (f *fragment) allOf(tags []string) bool {
 }
 
 //-----------------------------------------------------------------------------
-// func: load2
+// func: load
 //-----------------------------------------------------------------------------
 
-func (fragments *fragmentSlice) load2() {
+func (fragments *fragmentSlice) load() {
 
 	//--------
 	//-[etcd]-
@@ -1250,10 +1250,10 @@ func (fragments *fragmentSlice) load2() {
 }
 
 //-----------------------------------------------------------------------------
-// func: load
+// func: loadOld
 //-----------------------------------------------------------------------------
 
-func (fragments *fragmentSlice) load() {
+func (fragments *fragmentSlice) loadOld() {
 
 	//----------------------------------
 

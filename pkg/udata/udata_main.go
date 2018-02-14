@@ -43,6 +43,8 @@ type CmdFlags struct {
 	ClusterID           string   // --cluster-id
 	ClusterState        string   // --cluster-state
 	Domain              string   // --domain
+	DNSApiKey           string   // --dns-api-key
+	DNSProvider         string   // --dns-provider
 	Ec2Region           string   // --ec2-region
 	EtcdToken           string   // --etcd-token
 	GzipUdata           bool     // --gzip-udata
@@ -50,8 +52,6 @@ type CmdFlags struct {
 	HostName            string   // --host-name
 	IaasProvider        string   // --iaas-provider
 	MasterCount         int      // --master-count
-	DNSProvider         string   // --dns-provider
-	DNSApiKey           string   // --dns-api-key
 	Prometheus          bool     // --prometheus
 	QuorumCount         int      // --quorum-count
 	RexrayEndpointIP    string   // --rexray-endpoint-ip
@@ -67,11 +67,11 @@ type PostProc struct {
 	AlertManagers string
 	Aliases       []string
 	CaCert        string
-	KatoState     string
 	EtcdEndpoints string
 	EtcdServers   string
 	HostTCPPorts  []string
 	HostUDPPorts  []string
+	KatoState     string
 	MesosDNSPort  int
 	SMTP
 	SystemdUnits []string
@@ -392,7 +392,7 @@ func (d *CmdData) CmdRun() {
 	d.HostUDPPorts = d.services.listPorts("udp")
 
 	// Template to ignition JSON:
-	d.fragments.load2() // Load all fragments.
+	d.fragments.load()  // Load all fragments.
 	d.composeTemplate() // Compose the template.
 	d.renderTemplate()  // Container linux config.
 	d.renderIgnition()  // Ignition JSON.
